@@ -26,7 +26,7 @@ def readConfig():
         localModPath = os.path.dirname(__file__)
     except:
         # for inside spyder
-        localModPath = '/Users/cdesbois/pg/chrisPg/enva/spyder/record'
+        localModPath = '/Users/cdesbois/pg/chrisPg/anesthplot'
     filename = os.path.join(localModPath, 'recordRc.yaml')
     #load
     if os.path.isfile(filename):
