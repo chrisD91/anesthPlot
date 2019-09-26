@@ -15,7 +15,17 @@ This generated tends (~1pt/5sec) and waves (~300pt/sec) recordings
 
 ## settings
 1. you need a python >3 ditribution
+
+   some  additional packages can be required
+
+   ​	( pip install pyyaml,
+
+   ​	conda install -c conda-forge pyperclip,
+
+   ​	)
+
 2. download the repository
+
 3. build a configuration .yaml file trough the buildRecordRC.py
 * navigate to the repository
 * run > "python buildRecordRC.py" inside the repository)
@@ -41,3 +51,18 @@ NB (install the missing packages if necessary)
             (scale can be adjusted and pictures can be saved)
   2. for the wave data
      a. you will be prompted to choose a wave to be displayed
+
+# example of pictures generated
+
+![](fig/ekg.png)
+
+![](fig/co2o2.png)
+
+![](fig/card.png)
+
+![](fig/recruit.png)
+
+
+
+
+
