@@ -58,6 +58,7 @@ def plotWave(df, keys=[], mini=None, maxi=None):
                 'wekg','ECG','wco2','wawp','wflow','wap'
             mini, maxi : limits in point value
     output: plt.figure
+    (Nb plot data/index, but the xscale is indicated as sec)
     """
     names = {'wekg': ['ECG', 'b', 'mVolt'],
               'wco2' : ['expired CO2', 'b', 'mmHg'],

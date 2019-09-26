@@ -200,7 +200,10 @@ class Waves():
         if not fileName:
             fileName = guiChooseFile(paths)
         self.fileName = fileName
-        self.file = os.path.basename(fileName)
+        self.file = os.path.basename(fileName)        
+        self.fs = None
+        self.source = None
+        self.data = None
 
 #+++++++            
 class SlowWave(Waves):
@@ -261,21 +264,45 @@ class TaphTrend(SlowWave):
 #++++++++    
 class FastWave(Waves): 
     """
-    class for Faswaves = continuous recordings
+    class for Fastwaves = continuous recordings
     """
     def __init__(self, fileName):
         super().__init__(fileName)
-        
     def plotWave(self):
+        """
+        simple choose and plot for a wave
+        """
         cols = [w for w in self.data.columns if w[0]=='w']
-        item = selectType(caption= 'choose wave',
+        trace = selectType(caption= 'choose wave',
                    items= cols)
-        wf.plotWave(self.data, keys=[item], mini=None, maxi=None)
-
-    def setRoi():
-        pass
-
+        fig, _ = wf.plotWave(self.data, keys=[trace], mini=None, maxi=None)
+        self.trace = trace
+        self.fig=fig
+    def defineARoi(self):
+        """
+        define a ROI
+        """
+        df = self.data
+        if self.fig:
+            ax= self.fig.get_axes()[0]
+            #point Value
+            lims = ax.get_xlim() # pt values
+            limpt= (int(lims[0]), int(lims[1]))
+            #sec value
+            limsec= (df.sec.loc[limpt[0]],  df.sec.loc[limpt[1]] )
+            limdatetime = (df.datetime.loc[limpt[0]],  df.datetime.loc[limpt[1]] )        
+            roidict = {
+           'sec': limsec,
+           'pt': limpt,
+           'dt': limdatetime
+           }
+            self.roi = roidict
+    
+    
 class TelevetWave(FastWave):
+    """
+    class to organise teleVet recordings transformed to csv files
+    """
     def __init__(self, fileName):
         super().__init__(fileName)
         self.data = ltv.loadTeleVet(fileName)
@@ -283,6 +310,9 @@ class TelevetWave(FastWave):
         self.fs = self.data.index.max() / self.data.timeS.iloc[-1]
          
 class MonitorWave(FastWave):
+    """
+    class to organise monitorWave recordings
+    """
     def __init__(self, fileName):
         super().__init__(fileName)
         header = lmw.extractMonitorWaveHeader(fileName)
@@ -292,6 +322,7 @@ class MonitorWave(FastWave):
         self.data = data
         self.source = 'monitorWave'
         self.fs = 300
+
 
 #%%
 if __name__ == '__main__':
