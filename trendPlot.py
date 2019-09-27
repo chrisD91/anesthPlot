@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 #import utils
+plt.rcParams["figure.figsize"] = (8.5,3)
 #%%
 def plotHeader(descr, param={'save':False}):
     """
@@ -59,7 +60,9 @@ def histPaM(data, param={'save':False}):
         print('no ip1PR in the data')
         return
 
-    fig = plt.figure(figsize=(15,8))
+#    fig = plt.figure(figsize=(15,8))
+    fig = plt.figure(figsize=(8,4))
+    
     ax1 = fig.add_subplot(121)
     ax1.set_title('arterial pressure (+ quartiles)')
     ax1.set_xlabel('arterial pressure (mmHg)')
@@ -89,7 +92,7 @@ def histPaM(data, param={'save':False}):
         ax.get_xaxis().tick_bottom()
         for locs in ['top', 'right', 'left']:
             ax.spines[locs].set_visible(False)
-#    fig.tight_layout() 
+    fig.tight_layout() 
     if param['save']:
         figName = 'histPaM'+ str(param['item'])
         name = os.path.join(param['path'],figName)
@@ -120,7 +123,8 @@ def histCO2iso(data, param={'save':False}):
         print('no co2exp in the data')
         return
 
-    fig = plt.figure(figsize=(15,8))
+#    fig = plt.figure(figsize=(15,8))
+    fig = plt.figure(figsize=(8,4))
 
     ax1 = fig.add_subplot(121)
     ax1.hist(data.co2exp.dropna(), bins= 50, color= 'blue')
@@ -147,7 +151,7 @@ def histCO2iso(data, param={'save':False}):
         ax.get_xaxis().tick_bottom()
         for locs in ['top', 'right', 'left']:
             ax.spines[locs].set_visible(False)
-#    fig.tight_layout()   
+    fig.tight_layout()   
     if param['save']:
         figName = 'histCO2iso'+ str(param['item'])
         name = os.path.join(param['path'],figName)
@@ -161,7 +165,7 @@ def histCO2iso(data, param={'save':False}):
 #-----------------------------------------------------------------------------------------
 def bppa(data):
     """arterial box plot """
-    fig = plt.figure(figsize=(12,8))
+    fig = plt.figure(figsize=(8,4))
 
     card = ['ip1s','ip1m','ip1d']
     fdata = data.loc[:,card]    ##filter the data
@@ -189,7 +193,7 @@ def bppa(data):
 #----------------------------------------------------------------------------------------------
 def bpgas(data):
     """CO2 and O2 box plot """
-    fig = plt.figure(figsize=(12,8))
+    fig = plt.figure(figsize=(8,4))
 
     resp = ['co2exp','o2insp']
     fdata = data.loc[:,resp]    ##filter the data
@@ -233,7 +237,7 @@ def cardiovasc(data,param):
     xmax= param['xmax']
     unit= param['unit']
 
-    fig = plt.figure(figsize=(15,5))
+    fig = plt.figure()
     fig.suptitle('cardiovascular')
     axL = fig.add_subplot(111)
     axL.set_xlabel('time (' + unit +')')
@@ -304,7 +308,7 @@ def co2iso(data,param):
     inspIso = data.aaInsp
     etIso = data.aaExp
 
-    fig = plt.figure(figsize=(15,5))
+    fig = plt.figure()
     fig.suptitle('CO2 Isoflurane')
     axL = fig.add_subplot(111)
     axL.set_xlabel('time (' + unit +')')
@@ -385,7 +389,7 @@ def co2o2(data,param):
     inspIso = data.aaInsp
     etIso = data.aaExp
 
-    fig = plt.figure(figsize=(15,5))
+    fig = plt.figure()
     fig.suptitle('CO2 & O2 (insp & endTidal)')
 
     axL = fig.add_subplot(111)
@@ -441,7 +445,7 @@ def ventil(data,param):
 #        print('no spirometry data in the recording')
 #        return
 
-    fig = plt.figure(figsize=(15,8))
+    fig = plt.figure(figsize=(8.5,5))
     fig.suptitle('ventilation')
 
     ax1 = fig.add_subplot(211)
@@ -514,7 +518,7 @@ def recrut(data, param):
     xmax= param['xmax']
     unit= param['unit']
 
-    fig = plt.figure(figsize=(15,8))
+    fig = plt.figure()
     fig.suptitle('recrutement')
 
     ax1 = fig.add_subplot(111)
@@ -565,7 +569,7 @@ def ventilCardio(data, param):
     if 'tvInsp' not in data.columns:
         print('no spirometry data in the recording')
 
-    fig = plt.figure(figsize=(15,8))
+    fig = plt.figure()
     fig.suptitle('ventilation & cardiovasc')
 
     ax1 = fig.add_subplot(211)
