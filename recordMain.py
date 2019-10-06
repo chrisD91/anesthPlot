@@ -96,6 +96,8 @@ def selectType(caption=None, items=None):
     item, okPressed = QInputDialog.getItem(qw, caption,"kind:", items, 0, False)
     if okPressed and item:
         return item
+    else:
+        return None
 
 def buildParamDico(paths, file='', source=''):
     """initialise a dict save parameters  ----> TODO see min vs sec
@@ -275,9 +277,14 @@ class FastWave(Waves):
         cols = [w for w in self.data.columns if w[0]=='w']
         trace = selectType(caption= 'choose wave',
                    items= cols)
-        fig, _ = wf.plotWave(self.data, keys=[trace], mini=None, maxi=None)
-        self.trace = trace
-        self.fig=fig
+        if trace:
+            fig, _ = wf.plotWave(self.data, keys=[trace], mini=None, maxi=None)
+            self.trace = trace
+            self.fig=fig
+        else:
+            self.trace = None
+            self.fig= None
+            
     def defineARoi(self):
         """
         define a ROI
@@ -338,7 +345,7 @@ if __name__ == '__main__':
     try:
         records
     except:
-        records = []
+        records = {}
     # choose file and indicate the source
     fileName = guiChooseFile(paths)
     source = selectType(caption = "choose kind of file", 
