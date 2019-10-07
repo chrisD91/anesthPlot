@@ -279,6 +279,8 @@ class FastWave(Waves):
                    items= cols)
         if trace:
             fig, _ = wf.plotWave(self.data, keys=[trace], mini=None, maxi=None)
+            fig.text(0.99,0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
+            fig.text(0.01,0.01, self.file, ha='left', va='bottom', alpha=0.4)            
             self.trace = trace
             self.fig=fig
         else:
@@ -304,7 +306,6 @@ class FastWave(Waves):
            'dt': limdatetime
            }
             self.roi = roidict
-    
     
 class TelevetWave(FastWave):
     """
