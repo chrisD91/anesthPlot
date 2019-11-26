@@ -7,23 +7,26 @@ Created on Wed Jul 24 13:43:26 2019
 """
 import os
 import pandas as pd
-import numpy as np
+#import numpy as np
 from PyQt5.QtWidgets import QFileDialog
 
 #%%
-def guiChooseFile(paths, direct=None):
+def gui_choose_file(paths, direct=None):
     """Select a file via a dialog and return the file name.
     """
     if not direct:
         direct = paths['data']
     fname = QFileDialog.getOpenFileName(caption='choose a file',
-                                        directory=direct, filter='*.csv')   
+                                        directory=direct, filter='*.csv')
     return fname[0]
 
 #%% Monitor trend
-def extractMonitorTrendHeader(dataFile):
-    df = pd.read_csv(dataFile, sep=',', header=None, index_col=None, 
-                         nrows=11, encoding='iso8859_15')
+def extract_monitor_trend_header(datafile):
+    """
+    extract the header -> dictionary
+    """
+    df = pd.read_csv(datafile, sep=',', header=None, index_col=None,
+                     nrows=11, encoding='iso8859_15')
     #NB encoding needed for accentuated letters
     df = df.set_index(0).T
     # convert to num
@@ -32,59 +35,61 @@ def extractMonitorTrendHeader(dataFile):
     df['Sampling Rate'] = df['Sampling Rate'].astype(float)
     # convert to a dictionary
     descr = df.loc[1].to_dict()
-    return(descr)
+    return descr
 
-
-def loadMonitorTrendData(dataFile, header):
+def load_monitor_trend_data(datafile, header):
+    """
+    load the data, return a pandasDataframe
+    """
     try:
-        df = pd.read_csv(dataFile, sep = ',', skiprows= [13], header= 12)
+        df = pd.read_csv(datafile, sep=',', skiprows=[13], header=12)
     except:
-        df = pd.read_csv(dataFile, sep = ',', skiprows= [13], header= 12, 
-                           encoding = "ISO-8859-1")
+        df = pd.read_csv(datafile, sep=',', skiprows=[13], header=12,
+                         encoding="ISO-8859-1")
     if len(df) == 0:
-        print('no recorded values in this file', dataFile.split('/')[-1])
-        return df  
+        print('no recorded values in this file', datafile.split('/')[-1])
+        return df
     #remove waves time indicators (column name beginning with a '~')
     for col in df.columns:
         if col[0] == '~':
-            del df[col]          
-    toFix = []
+            del df[col]
+    to_fix = []
     for col in df.columns:
         if df[col].dtype != 'float64':
             if col != 'Time':
-                toFix.append(col)
-    for col in toFix:
+                to_fix.append(col)
+    for col in to_fix:
 #        print (col, '\t dtype is', data[col].dtype)
         df[col] = pd.to_numeric(df[col], errors='coerce')
 #        print ('after')
 #        print (col, '\t dtype is', data[col].dtype)
-    
+
     #elapsed time (in seconds)
     df['eTime'] = df.index * header['Sampling Rate']
     df['eTimeMin'] = df.eTime/60
 
     # correct the titles
-    corrTitle = {
-            'AA  LB': 'aaLabel', 'AA_Insp':'aaInsp', 'AA_Exp':'aaExp',
-            'CO2 RR': 'co2RR', 'CO2_Insp': 'co2insp','CO2_Exp' : 'co2exp',
-            'ECG HR': 'ekgHR',
-            'IP1_M' : 'ip1m', 'IP1_S' : 'ip1s', 'IP1_D' : 'ip1d', 'IP1PR' : 'ip1PR',
-            'IP2_M' : 'ip2m', 'IP2_S' : 'ip2s','IP2_D' : 'ip2d', 'IP2PR' : 'ip2PR',
-            'O2_Insp' : 'o2insp', 'O2_Exp' : 'o2exp',
-            'Time'   : 'datetime',
-            'Resp': 'resp',
-            'PPeak': 'pPeak', 'Peep' : 'peep', 'PPlat': 'pPlat', 'pmean':'pmean',
-            'ipeep':'ipeep',
-            'TV_Insp': 'tvInsp','TV_Exp' : 'tvExp',
-            'Compli': 'compli',
-            'raw': 'raw',
-            'MinV_Insp': 'minVinsp', 'MinV_Exp': 'minVexp',
-            'epeep': 'epeep', 'peepe': 'peepe', 'peepi': 'peepi',
-            'I:E': 'ieRat', 'Inp_T': 'inspT', 'Exp_T': 'expT', 'eTime': 'eTime',
-            'S_comp': 'sCompl', 'Spplat': 'sPplat'
-     }
-    df.rename(columns=corrTitle, inplace=True)
-    
+    corr_title = {'AA  LB': 'aaLabel', 'AA_Insp':'aaInsp', 'AA_Exp':'aaExp',
+                  'CO2 RR': 'co2RR', 'CO2_Insp': 'co2insp', 'CO2_Exp' : 'co2exp',
+                  'ECG HR': 'ekgHR',
+                  'IP1_M' : 'ip1m', 'IP1_S' : 'ip1s', 'IP1_D' : 'ip1d',
+                  'IP1PR' : 'ip1PR',
+                  'IP2_M' : 'ip2m', 'IP2_S' : 'ip2s', 'IP2_D' : 'ip2d',
+                  'IP2PR' : 'ip2PR',
+                  'O2_Insp' : 'o2insp', 'O2_Exp' : 'o2exp',
+                  'Time'   : 'datetime',
+                  'Resp': 'resp',
+                  'PPeak': 'pPeak', 'Peep' : 'peep', 'PPlat': 'pPlat', 'pmean':'pmean',
+                  'ipeep':'ipeep',
+                  'TV_Insp': 'tvInsp', 'TV_Exp' : 'tvExp',
+                  'Compli': 'compli',
+                  'raw': 'raw',
+                  'MinV_Insp': 'minVinsp', 'MinV_Exp': 'minVexp',
+                  'epeep': 'epeep', 'peepe': 'peepe', 'peepi': 'peepi',
+                  'I:E': 'ieRat', 'Inp_T': 'inspT', 'Exp_T': 'expT', 'eTime': 'eTime',
+                  'S_comp': 'sCompl', 'Spplat': 'sPplat'}
+    df.rename(columns=corr_title, inplace=True)
+
 #TODO : implement aalabel decoding (4 = iso, 6 = sevo ... and adjust the plot functions
 
     # remove empty rows and columns
@@ -97,27 +102,27 @@ def loadMonitorTrendData(dataFile, header):
 
     # CO2: from % to mmHg
     try:
-        df[['co2exp', 'co2insp']]*= 760/100
+        df[['co2exp', 'co2insp']] *= 760/100
     except:
         print('no capnographic recording')
-    
+
     # convert time to dateTime
-    df.datetime = df.datetime.apply(lambda x : header['Date'] + '-' + x)
+    df.datetime = df.datetime.apply(lambda x: header['Date'] + '-' + x)
     df.datetime = pd.to_datetime(df.datetime, format='%d-%m-%Y-%H:%M:%S')
 
     # remove irrelevant measures
     #df.co2exp.loc[data.co2exp < 30] = np.nan
     #TODO : find a way to proceed without the error pandas displays
 
-    return(df)
+    return df
 
 
 if __name__ == '__main__':
-    fileName = guiChooseFile(paths={'data':'~'})          
+    fileName = gui_choose_file(paths={'data':'~'})
     file = os.path.basename(fileName)
     if file[0] == 'M':
         if 'Wave' not in file:
-            header= extractMonitorTrendHeader(fileName)
-            mdata= loadMonitorTrendData(fileName, header)
+            header = extract_monitor_trend_header(fileName)
+            mdata = load_monitor_trend_data(fileName, header)
             #mdata= cleanMonitorTrendData(mdata)
             

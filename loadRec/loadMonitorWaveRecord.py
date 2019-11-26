@@ -7,48 +7,54 @@ Created on Wed Jul 24 14:56:58 2019
 """
 
 import os
-import pandas as pd
-import numpy as np
 import time
 from datetime import datetime
+import pandas as pd
+import numpy as np
 from PyQt5.QtWidgets import QFileDialog
 
 
 #%%
-def guiChooseFile(paths, direct=None):
+def gui_choose_file(paths, direct=None):
     """Select a file via a dialog and return the file name.
     """
     if not direct:
         direct = paths['data']
-    fname = QFileDialog.getOpenFileName(caption='choose a file',
-                                        directory=direct, filter='*.csv')   
+    fname = QFileDialog.getOpenfilename(caption='choose a file',
+                                        directory=direct, filter='*.csv')
     return fname[0]
 
 #%%
-def extractMonitorWaveHeader(fileName):
-    df = pd.read_csv(fileName, sep=',', header=None, index_col=None, nrows=12,
+def extract_monitor_wave_header(filename):
+    """
+    load header
+    """
+    df = pd.read_csv(filename, sep=',', header=None, index_col=None, nrows=12,
                      encoding='iso-8859-1')
     return df
 
-def loadMonitorWavesData(fileName):
-    print('loading ', os.path.basename(fileName))
+def load_monitor_waves_data(filename):
+    """
+    load data
+    """
+    print('loading ', os.path.basename(filename))
     fs = 300    # sampling rate
-#    fileName = os.path.join(paths['data'], file)
+#    filename = os.path.join(paths['data'], file)
     # bug in the header caused by an acentuated character in line 9 ('césarienne')
     # header and data to dataFrame
 
-    df = pd.read_csv(fileName, sep = ',', skiprows=[14], header=13,
-                    index_col=False, encoding='iso-8859-1',
-                    usecols=[0,2,3,4,5,6])#, nrows=200000) #NB fro development
+    df = pd.read_csv(filename, sep=',', skiprows=[14], header=13,
+                     index_col=False, encoding='iso-8859-1',
+                     usecols=[0, 2, 3, 4, 5, 6])#, nrows=200000) #NB for development
     # columns names correction
-    colNames = {'~ECG1': 'wekg',
-                 '~INVP1': 'wap',
-                 '~CO.2': 'wco2',
-                 '~AWP': 'wawp',
-                 '~Flow' : 'wflow',
-                 '~AirV': 'wVol',
-                 'Unnamed: 0': 'time'}
-    df = df.rename(columns= colNames)
+    colnames = {'~ECG1': 'wekg',
+                '~INVP1': 'wap',
+                '~CO.2': 'wco2',
+                '~AWP': 'wawp',
+                '~Flow' : 'wflow',
+                '~AirV': 'wVol',
+                'Unnamed: 0': 'time'}
+    df = df.rename(columns=colnames)
     # NO MORE NEEDED
     #wData.reset_index(inplace=True)
     #build a time column
@@ -91,11 +97,12 @@ def loadMonitorWavesData(fileName):
 
     return df
 
-def appendMonitorWaveDatetimeData(df):
-    df['seconds'] = [time.mktime(t.timetuple()) if t is not pd.NaT else float('nan') for t in df['time'] ]
+def append_monitor_wave_datetime_data(df):
+    df['seconds'] = \
+    [time.mktime(t.timetuple()) if t is not pd.NaT else float('nan') for t in df['time']]
     df['intepolated'] = df['seconds'].interpolate('values')
     df['datetime'] = [datetime.utcfromtimestamp(t) for t in df['intepolated']]
-    #correction for localzone 
+    #correction for localzone
     lag = df.iloc[0].time - df.iloc[0].datetime
     df.datetime += lag
     del df['intepolated'], df['time'], df['seconds'], df['point']
@@ -103,10 +110,10 @@ def appendMonitorWaveDatetimeData(df):
 
 #%%
 if __name__ == '__main__':
-    fileName = guiChooseFile(paths={'data':'~'})          
-    file = os.path.basename(fileName)
+    filename = gui_choose_file(paths={'data':'~'})
+    file = os.path.basename(filename)
     if file[0] == 'M':
         if 'Wave' in file:
-            wheader = extractMonitorWaveHeader(fileName)
-            wdata = loadMonitorWavesData(fileName)
-            wdata = appendMonitorWaveDatetimeData(wdata)
+            wheader = extract_monitor_wave_header(filename)
+            wdata = load_monitor_waves_data(filename)
+            wdata = append_monitor_wave_datetime_data(wdata)

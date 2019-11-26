@@ -4,14 +4,14 @@ Created on Fri Dec  8 12:46:41 2017
 
 @author: cdesbois
 """
-import os
+#import os
 import numpy as np
-import pandas as pd
+#import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.signal import medfilt
 
 #//////////////////////////////////////////////// cardio
-def fixBaselineWander(data, fs=500):
+def fix_baseline_wander(data, fs=500):
     """BaselineWanderRemovalMedian.m from ecg-kit.  Given a list of amplitude values
     (data) and sample rate (sr), it applies two median filters to data to
     compute the baseline.  The returned result is the original data minus this
@@ -21,39 +21,39 @@ def fixBaselineWander(data, fs=500):
     print('source = Python port of BaselineWanderRemovalMedian.m from ECG-kit')
     print('Alex Page, alex.page@rochester.edu')
     print('https://bitbucket.org/atpage/baselinewanderremoval/src/master/')
-    
-    data = np.array(data)
-    WinSize = int(round(0.2*fs))
-    # delayBLR = round((WinSize-1)/2)
-    if WinSize % 2 == 0:
-        WinSize += 1
-    BaselineEstimation = medfilt(data, kernel_size=WinSize)
-    WinSize = int(round(0.6*fs))
-    # delayBLR = delayBLR + round((WinSize-1)/2)
-    if WinSize % 2 == 0:
-        WinSize += 1
-    BaselineEstimation = medfilt(BaselineEstimation, kernel_size=WinSize)
-    ECGblr = data - BaselineEstimation
-    return ECGblr.tolist()
 
-def rolMean(ser, winLengh= 1, fs= 500):
+    data = np.array(data)
+    winsize = int(round(0.2*fs))
+    # delayBLR = round((winsize-1)/2)
+    if winsize % 2 == 0:
+        winsize += 1
+    baseline_estimate = medfilt(data, kernel_size=winsize)
+    winsize = int(round(0.6*fs))
+    # delayBLR = delayBLR + round((winsize-1)/2)
+    if winsize % 2 == 0:
+        winsize += 1
+    baseline_estimate = medfilt(baseline_estimate, kernel_size=winsize)
+    ecg_blr = data - baseline_estimate
+    return ecg_blr.tolist()
+
+def rol_mean(ser, win_lengh=1, fs=500):
     """
     return a rolling mean of a RR serie
-    input:  ser= pd.Serie, winLengh= window lenght for averaging (in sec),
+    input:  ser= pd.Serie, win_lengh= window lenght for averaging (in sec),
             fs= sampling frequency
 
     """
     # moving average
-    movAvg = ser.rolling(window=int(winLengh*fs), center=False).mean()
+    mov_avg = ser.rolling(window=int(win_lengh*fs), center=False).mean()
     # replace the initial values by the mean
-    avgHr = (np.mean(ser))
-    movAvg = [avgHr if np.isnan(x) else x for x in movAvg]
-    return movAvg
+    avg_hr = (np.mean(ser))
+    mov_avg = [avg_hr if np.isnan(x) else x for x in mov_avg]
+    return mov_avg
 
-def plotWave(df, keys=[], mini=None, maxi=None):
+def plot_wave(df, keys=[], mini=None, maxi=None):
     """
     plot the waves recorded (from as5)
-    input:  df= dataFrame 
+    input:  df= dataFrame
             keys= list of one or two of
                 'wekg','ECG','wco2','wawp','wflow','wap'
             mini, maxi : limits in point value
@@ -61,11 +61,11 @@ def plotWave(df, keys=[], mini=None, maxi=None):
     (Nb plot data/index, but the xscale is indicated as sec)
     """
     names = {'wekg': ['ECG', 'b', 'mVolt'],
-              'wco2' : ['expired CO2', 'b', 'mmHg'],
-              'wawp': ['airway pressure', 'r', 'cmH2O'],
-              'wflow': ['expiratory flow', 'g', 'flow'],
-              'wap': ['arterial pressure', 'r', 'mmHg']}
-    if not mini :
+             'wco2' : ['expired CO2', 'b', 'mmHg'],
+             'wawp': ['airway pressure', 'r', 'cmH2O'],
+             'wflow': ['expiratory flow', 'g', 'flow'],
+             'wap': ['arterial pressure', 'r', 'mmHg']}
+    if not mini:
         mini = df.index[0]
     if not maxi:
         maxi = df.index[-1]
@@ -81,16 +81,16 @@ def plotWave(df, keys=[], mini=None, maxi=None):
             return
     if len(keys) not in [1, 2]:
         print('only one or two keys are allowed ', keys, 'were used')
-    
+
     lines = []
     # one wave
     if len(keys) == 1:
         for key in keys:
-            fig= plt.figure(figsize=(10,4))
+            fig = plt.figure(figsize=(10, 4))
             fig.suptitle(names[key][0])
             ax = fig.add_subplot(111)
             ax.margins(0)
-            line, = ax.plot(df[key], color = names[key][1], alpha=0.6)
+            line, = ax.plot(df[key], color=names[key][1], alpha=0.6)
             lines.append(line)
 #            ax.set_xlim(set.sec.min(), set.sec.max())
 #            ax.set_xlim(df.sec.min(), df.sec.max()) # thats sec values, not pt values
@@ -104,30 +104,30 @@ def plotWave(df, keys=[], mini=None, maxi=None):
             if key == 'wekg':
                 ax.grid()
             if key == 'wap':
-                ax.hlines(70, lims[0], lims[1], linestyle='dashed', alpha=0.5)                
+                ax.hlines(70, lims[0], lims[1], linestyle='dashed', alpha=0.5)
             if key == 'wflow':
 #                ax.fill_between(set.index, set[key], where = set[key] > 0,
 #                                color = names[key][1], alpha=0.4)
                 pass
         for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False) 
+            ax.spines[loca].set_visible(False)
 #        ax.set_xlim(0, win)
         ax.get_xaxis().tick_bottom()
-        ax.set_xticklabels(np.linspace(df.sec.loc[mini], df.sec.loc[maxi], 
-                len(ax.get_xticklabels())).astype(int).astype(str).tolist())
+        ax.set_xticklabels(np.linspace(df.sec.loc[mini], df.sec.loc[maxi],
+                                       len(ax.get_xticklabels())).astype(int).astype(str).tolist())
         ax.set_xlabel('time (sec)')
     #two waves
     elif len(keys) == 2:
-        fig= plt.figure(figsize=(10,4))
-        axL = []
-        ax1 = fig.add_subplot(2,1,1)
+        fig = plt.figure(figsize=(10, 4))
+        ax_list = []
+        ax1 = fig.add_subplot(2, 1, 1)
         ax1.margins(0)
-        axL.append(ax1)
-        ax2 = fig.add_subplot(2,1,2, sharex=ax1)
+        ax_list.append(ax1)
+        ax2 = fig.add_subplot(2, 1, 2, sharex=ax1)
         ax2.margins(0)
-        axL.append(ax2)
+        ax_list.append(ax2)
         for i, key in enumerate(keys):
-            ax = axL[i]
+            ax = ax_list[i]
             ax.set_title(names[key][0])
             line, = ax.plot(df[key], color=names[key][1], alpha=0.6)
             lines.append(line)
@@ -135,8 +135,8 @@ def plotWave(df, keys=[], mini=None, maxi=None):
             ax.hlines(0, lims[0], lims[1], alpha=0.3)
             ax.set_ylabel(names[key][2])
             if key == 'wco2':
-                ax.hlines(38, lims[0], lims[1], linestyle='dashed', 
-                          color = names[key][1], alpha=0.5)
+                ax.hlines(38, lims[0], lims[1], linestyle='dashed',
+                          color=names[key][1], alpha=0.5)
                 ax.set_ylim(0, 50)
             if key == 'wekg':
                 ax.grid()
@@ -145,54 +145,52 @@ def plotWave(df, keys=[], mini=None, maxi=None):
 #                                color = names[key][1], alpha=0.4)
                 pass
             if key == 'wap':
-                ax.hlines(70, lims[0], lims[1], color = names[key][1],
-                         linestyle='dashed', alpha=0.5)
-                ax.set_ylim(50, 110)                          
+                ax.hlines(70, lims[0], lims[1], color=names[key][1],
+                          linestyle='dashed', alpha=0.5)
+                ax.set_ylim(50, 110)
             ax.get_xaxis().tick_bottom()
             if i > 0:
 #                ax.set_xlim(0, win)
                 ax.get_xaxis().tick_bottom()
-                ax.set_xticklabels(np.linspace(df.sec.loc[mini], df.sec.loc[maxi], 
-                len(ax.get_xticklabels())).astype(int).astype(str).tolist())
+                ax.set_xticklabels(np.linspace(df.sec.loc[mini], df.sec.loc[maxi],
+                                               len(ax.get_xticklabels())).astype(int).astype(str).tolist())
                 ax.set_xlabel('time (sec)')
-        for ax in axL:
+        for ax in ax_list:
             for loca in ['top', 'right']:
                 ax.spines["top"].set_visible(False)
                 ax.spines["right"].set_visible(False)
     fig.tight_layout()
     return fig, lines
 
-def returnPoints(df, fig):
+def return_points(df, fig):
     """
     return a tupple containing the point values of ROI
     input :anesthesia record dataframe
     output: ROI dict
     """
-    ax= fig.get_axes()[0]
+    ax = fig.get_axes()[0]
     #point Value
     lims = ax.get_xlim()
-    limpt= (int(lims[0]), int(lims[1]))
+    limpt = (int(lims[0]), int(lims[1]))
     #sec value
-    limsec= (df.sec.loc[limpt[0]],  df.sec.loc[limpt[1]] )
-    limdatetime = (df.datetime.loc[limpt[0]],  df.datetime.loc[limpt[1]] )
+    limsec = (df.sec.loc[limpt[0]], df.sec.loc[limpt[1]])
+    limdatetime = (df.datetime.loc[limpt[0]], df.datetime.loc[limpt[1]])
 #    mini = wData.sec.get_loc(mini, method='nearest')
 #    mini = (df.sec - lims[0]).abs().argsort()[:1][0]
 #    maxi = (df.sec - lims[1]).abs().argsort()[:1][0]
     print()
     print('duration =', limsec[1] - limsec[0], 'sec')
     print('time = ', limdatetime)
-    print('limsec= (',limsec[0],',',limsec[1],')')
-    print('limpt= (',limpt[0],',',limpt[1],')')
+    print('limsec= (', limsec[0], ',', limsec[1], ')')
+    print('limpt= (', limpt[0], ',', limpt[1], ')')
     print('mini:', int(limsec[0]/60), 'min :', limsec[0] % 60, 'sec')
     print('maxi:', int(limsec[1]/60), 'min :', limsec[1] % 60, 'sec')
-    roidict = {
-           'sec': limsec,
-           'pt': limpt,
-           'dt': limdatetime
-           }
+    roidict = {'sec': limsec,
+               'pt': limpt,
+               'dt': limdatetime}
     return roidict
 
-def restrictTimeArea(df1, mini=None, maxi=None):
+def restrict_time_area(df1, mini=None, maxi=None):
     """
     return a new dataframe with reindexation
     input : dataFrame, miniPointValue, maxiPointValue

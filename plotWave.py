@@ -1,76 +1,10 @@
 # -*- coding: utf-8 -*-
 #%reset -f
 
-#import os
-#import pandas as pd
-#import numpy as np
-##import matplotlib
-##matplotlib.use('TkAgg')
-#import matplotlib.pyplot as plt
-#import matplotlib.animation as animation
-#import pyperclip
-#import datetime
-#from imp import reload
-#from PyQt5.QtWidgets import QFileDialog
-#from matplotlib.lines import Line2D
-#
-#
-#os.chdir('/Users/cdesbois/pg/chrisPg/enva/spyder/record')
-#import waveFunc as wf
-#
-#
-#
-#def guiFname(direct=None):
-#    """Select a file via a dialog and return the file name.
-#    """
-#    if not direct:
-#        direct = paths['data']
-#    fname = QFileDialog.getOpenFileName(caption='choose a file',
-#                                        directory=direct, filter='*.csv')   
-#    return fname[0]
-#
-#
-##%% NB 300 samples persecond
-#paths = {}
-##paths['data']= '/Volumes/USERS/cdesbois/enva/clinique/recordings/anesthRecords/onPanaRecorded'
-#paths['data']= '/Users/cdesbois/enva/clinique/recordings/anesthRecords'
-##paths['data']= os.path.join(paths['data'], 'onPanaRecorded')
-#paths['data']= os.path.join(paths['data'], 'onPanelPcRecorded')
-##os.chdir(paths['data'])
-#
-#
-## file loaded if cancel button activated in the choose window
-#file = os.path.join('2017', 'M2017_3_28-17_35_59Wave.csv')
-#file = os.path.join('2017', 'M2017_4_25-9_44_44Wave.csv')
-#file = os.path.join('2017', 'M2017_10_31-9_30_54Wave.csv')
-#file = os.path.join('2017', 'M2017_11_7-14_32_55Wave.csv')    # triple drip
-#file = os.path.join('2017', 'M2017_11_7-12_8_58Wave.csv')         # triple drip
-#file = os.path.join('2018', 'M2018_1_30-14_30_5Wave.csv')   # hypoxia + bolus detoMorphine
-#
-#colors = {}
-#colors['wekg'] = 'r'
-#colors['wco2'] = 'b'
-#colors['wap'] = 'r'
-##TODO complete and use
-#
-##fileName = os.path.join(paths['data'], file)
-#fileName = guiFname()
-#if fileName == '':
-#    fileName = os.path.join(paths['data'], file)
-#if os.path.basename(fileName).split('.')[0][-4:] == 'Wave':
-#    wdata, wHeader = wf.loadMonitorWaves(fileName)
-#    print('you loaded ', file, 'as wdata')
-#    print(wHeader.set_index(wHeader.columns[0]).loc[['Date', 'Patient Name', 'Patient ID']])
-#else:
-#    print()
-#    print("you didn't select a wave file")
-#
-#params = {}
-#file = os.path.basename(fileName)
-#params['file'] = file
-#if 'M' in params['file']:
-#    params['fs'] = 300
-#del file    
+"""
+plot the waves of a waveRecording
+
+"""
 
 
 #%% choose an area of interest
@@ -80,13 +14,13 @@ import matplotlib.animation as animation
 plt.close('all')
 
 
-waves= ['wawp', 'wflow']
+waves = ['wawp', 'wflow']
 #waves = ['wco2']
 # ['wekg', 'wap', 'wco2', 'wawp', 'wflow']
 #fig, lines = wf.plotWave(wdata.set_index('sec'), waves)
 fig, lines = wf.plotWave(wdata, waves)
-fig.text(0.99,0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
-fig.text(0.01,0.01, params['file'], ha='left', va='bottom', alpha=0.4)
+fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
+fig.text(0.01, 0.01, params['file'], ha='left', va='bottom', alpha=0.4)
 #fig, lines = plotWave(wdata, waves)
 
 #chooseTimeArea(wave)
@@ -96,7 +30,7 @@ print('then run returnPoints')
 #%% extract the limits
 roi = wf.returnPoints(wdata, fig)
 
-#%% plot waves 
+#%% plot waves
 plt.close('all')
 figList = []
 for key in ['wekg', 'wap', 'wco2', 'wawp', 'wflow']:
@@ -115,12 +49,12 @@ fig = wf.plotWave(wdata, ['wekg', 'wap'], mini=roi['pt'][0], maxi=roi['pt'][1])
 #%% //////////////////////////////////////////////////////////////////////////
 # +++++++++  build animations +++++++++++++++++++++
 # restric the time base (ie build a new pd.DataFrame !!! fe
-plt.close('all')   
+plt.close('all')
 
 #mini = 610000
 #maxi = 616000
-#df = restrictTimeArea(wdata, mini, maxi) 
-#df = wf.restrictTimeArea(wdata, limpt[0], limpt[1]) 
+#df = restrictTimeArea(wdata, mini, maxi)
+#df = wf.restrictTimeArea(wdata, limpt[0], limpt[1])
 df = wdata.iloc[roi['pt'][0]:roi['pt'][1]]
 #hypovolemiaPEEP:
 
@@ -137,17 +71,17 @@ def animate(i):
 #    bol = (i > (len(df)/10 -40))
 #    print(bol)
 #    if bol:
-#        line0.set_data([],[])        
+#        line0.set_data([],[])
 #        return line0,
     if len(keys) == 1:
-        traceName = keys[0]
-        line0.set_data(df.index[0:10*i].values, df.iloc[0:10*i][traceName].values)
+        trace_name = keys[0]
+        line0.set_data(df.index[0:10*i].values, df.iloc[0:10*i][trace_name].values)
         return line0,
     else:
-        traceName = keys[0]
-        line0.set_data(df.index[0:10*i].values, df.iloc[0:10*i][traceName].values)
-        traceName = keys[1]
-        line1.set_data(df.index[0:10*i].values, df.iloc[0:10*i][traceName].values)
+        trace_name = keys[0]
+        line0.set_data(df.index[0:10*i].values, df.iloc[0:10*i][trace_name].values)
+        trace_name = keys[1]
+        line1.set_data(df.index[0:10*i].values, df.iloc[0:10*i][trace_name].values)
         return line0, line1,
 
 keys = ['wflow', 'wco2']
@@ -159,7 +93,7 @@ keys = ['wflow', 'wco2']
 
 anim = True
 save = False
-speed= 5        # speed of the animation
+speed = 5        # speed of the animation
 
 saveName = 'example'
 paths['saveAnim'] = '/Users/cdesbois/toPlay'
@@ -169,8 +103,8 @@ paths['saveAnim'] = '/Users/cdesbois/toPlay'
 fileName = os.path.join(paths['saveAnim'], saveName)
 
 fig, lines = wf.plotWave(df, keys=keys, mini=None, maxi=None)
-fig.text(0.01,0.01, file , ha='left', va='bottom', alpha=0.4)
-fig.text(0.99,0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
+fig.text(0.01, 0.01, file, ha='left', va='bottom', alpha=0.4)
+fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
 
 # adjust the limits
 #fig.get_axes()[0].set_ylim(0,45)
@@ -189,9 +123,9 @@ if anim:
     except:
         line1 = None
     #
-    ani = animation.FuncAnimation(fig, animate, 
+    ani = animation.FuncAnimation(fig, animate,
                                   frames=int(len(df)/10),
-                                  interval=30/speed, repeat= False, blit=True,
+                                  interval=30/speed, repeat=False, blit=True,
                                   save_count=int(len(df)/10))
     for ax in fig.get_axes():
         ax.spines["top"].set_visible(False)
@@ -203,7 +137,7 @@ plt.show()
 
 #%% ventilatory loop
 plt.close('all')
-fig,lines = wf.plotWave(wdata, keys=['wflow', 'wawp'], mini=None, maxi=None)
+fig, lines = wf.plotWave(wdata, keys=['wflow', 'wawp'], mini=None, maxi=None)
 lims = fig.get_axes()[0].get_xlim()
 mini = int(lims[0])  # pt
 maxi = int(lims[1])  # pt
@@ -214,10 +148,10 @@ def smooth(y, boxPts):
     smoothing using a sliding window
     """
     box = np.ones(boxPts) / boxPts
-    ySmooth= np.convolve(y, box, mode='same')
+    ySmooth = np.convolve(y, box, mode='same')
     return ySmooth
 
-def makeArrow(ax,pos,function,direction):
+def makeArrow(ax, pos, function, direction):
     delta = 0.0001 if direction >= 0 else -0.0001
     ax.arrow(pos, function(pos), pos+delta, function(pos+delta),
              head_width=0.05, head_length=0.1)
@@ -228,7 +162,7 @@ def flowPressureLoop(wdata, mini, maxi):
     df = wdata.set_index('sec').iloc[mini:maxi]
     fig = plt.figure()
     fig.suptitle('flow pressure loop')
-    ax=fig.add_subplot(111)
+    ax = fig.add_subplot(111)
     x = df.wawp.tolist()
     y = df.wflow.tolist()
     x = smooth(x, 9)
@@ -246,8 +180,8 @@ flowPressureLoop(wdata, mini, maxi)
 
 #%% volumetric CO2
 plt.close('all')
-fig,lines = wf.plotWave(wdata, keys=['wco2', 'wflow'], mini=mini, maxi=maxi)
-fig,lines = wf.plotWave(wdata, keys=['wflow', 'wawp'], mini=mini, maxi=maxi)
+fig, lines = wf.plotWave(wdata, keys=['wco2', 'wflow'], mini=mini, maxi=maxi)
+fig, lines = wf.plotWave(wdata, keys=['wflow', 'wawp'], mini=mini, maxi=maxi)
 fig.set_figwidth(12)
 fig.set_figheight(6)
 
@@ -260,7 +194,7 @@ df.sec = df.sec - df.sec.iloc[0]
 #%%
 plt.close('all')
 def plotQCo2(df, qco2=False):
-    fig = plt.figure(figsize=(12,6))
+    fig = plt.figure(figsize=(12, 6))
     fig.suptitle('expCO2 vs QCO2 (flow * expCO2)')
     ax = fig.add_subplot(111)
     x = df.sec.to_list()
@@ -269,7 +203,7 @@ def plotQCo2(df, qco2=False):
     axT = ax.twinx()
     if qco2:
         y = ((df.wco2 * df.wflow)/760).to_list()
-        axT.plot(x, y, 'k-', alpha = 0.5, label= 'QCO2')
+        axT.plot(x, y, 'k-', alpha=0.5, label='QCO2')
         axT.set_ylabel('QCO2')
     for axe in [ax, axT]:
         lims = axe.get_ylim()
@@ -278,21 +212,21 @@ def plotQCo2(df, qco2=False):
         axe.legend()
     ax.set_xlabel('time (sec)')
     ax.set_ylabel('expCO2 (mmHg)')
-    fig.text(0.99,0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
     fig.tight_layout()
-        
-fig = plotQCo2(df, qco2=False) 
-fig = plotQCo2(df, qco2=True) 
+
+fig = plotQCo2(df, qco2=False)
+fig = plotQCo2(df, qco2=True)
 
 #%% plot volume
 #TODO build a volume column of wdata (identify the cycles first to reset 0 values)
 df['vol'] = df.wflow.cumsum()*(-1)
 fig = plt.figure()
-ax= fig.add_subplot(111)
+ax = fig.add_subplot(111)
 x = df.wawp.tolist()
 y = df.vol.tolist()
 #y = [item * -1 for item in df.vol.tolist()]
-ax.plot(x,y)
+ax.plot(x, y)
 #%% build a dico assossiating time and indices
 #NB should return '1' if the index has been adjusted
 
@@ -320,7 +254,7 @@ df['deltaPoint'] = df.point - df.point.shift(1)
 
 # total duration :
 totTime = df.time.iloc[-1] - df.time.iloc[0]
-totTime =  datetime.timedelta.total_seconds(totTime)
+totTime = datetime.timedelta.total_seconds(totTime)
 totPoint = df.point.iloc[-1] - df.point.iloc[0]
 
 ptPerSec = totPoint / totTime
@@ -385,15 +319,15 @@ def extractDf(dataDf, key='wekg', dx=0.03, iMin=None, iMax=None):
     params['key'] = key
     yScale = {'wco2':[0, 55],
               'wekg':[-2, 2],
-              'wap' : [40,150],
-              'wflow': [-5,10],
-              'wawp' : [-5, 45], 
-            }
+              'wap' : [40, 150],
+              'wflow': [-5, 10],
+              'wawp' : [-5, 45]
+              }
     try:
         params['yScale'] = yScale[key]
     except:
         params['yScale'] = []
-    colors = {'wekg': 'r','wco2':'b', 'wap':'r', 'wflow':'g', 'wawp': 'y'}                       
+    colors = {'wekg': 'r', 'wco2':'b', 'wap':'r', 'wflow':'g', 'wawp': 'y'}
     try:
         params['color'] = colors[key]
     except:
@@ -408,7 +342,7 @@ def buildTheScope(params):
     ax.spines["right"].set_visible(False)
     ax.grid()
 #    axT = ax.twinx()
-    scope = Scope(ax, maxt = 60, dt= 0.01)
+    scope = Scope(ax, maxt=60, dt=0.01)
     scope.ax.set_ylim(params['yScale'])
     scope.line.set_color(params['color'])
     return fig, scope
@@ -427,8 +361,8 @@ key = 'wekg'
 
 df, params = extractDf(wdata, key, iMin=260000, iMax=300000)
 fig, scope = buildTheScope(params)
-    
-ani = animation.FuncAnimation(fig, scope.update, sendPoint, 
+
+ani = animation.FuncAnimation(fig, scope.update, sendPoint,
                               interval=0, blit=True)
 #NB interval in msec
 
@@ -522,8 +456,8 @@ class twoScopeAndData(object):
         self.line2.set_data(self.tdata, self.y2data)
         return self.line1, self.line2,
 
-    
-#%% 
+
+#%%
 def send2Point(a=0):
 #def sendPoint(a=500000):
 #    a = 10000
@@ -557,32 +491,32 @@ def extractsDf(dataDf, keys=['wekg', 'wap'], dx=0.03, iMin=None, iMax=None):
 #              'wekg':[-2, 2],
 #              'wap' : [40,150],
 #              'wflow': [-5,10],
-#              'wawp' : [-5, 45], 
+#              'wawp' : [-5, 45],
 #            }
 #    try:
 #        params['yScale'] = yScale[key]
 #    except:
 #        params['yScale'] = []
-#    colors = {'wekg': 'r','wco2':'b', 'wap':'r', 'wflow':'g', 'wawp': 'y'}                       
+#    colors = {'wekg': 'r','wco2':'b', 'wap':'r', 'wflow':'g', 'wawp': 'y'}
 #    try:
 #        params['color'] = colors[key]
 #    except:
 #        params['color'] = None
     return df, params
 
-    
-yScale = {'wco2':[0, 55], 'wekg':[-2, 2], 'wap' : [40,150],
-          'wflow': [-5,10], 'wawp' : [-5, 45]}
-colors = {'wekg': 'k','wco2':'b', 'wap':'r', 'wflow':'g', 'wawp': 'y'}                       
 
-keys=['wekg', 'wap']
-df, _ = extractsDf(wdata, keys = keys, iMin=2000, iMax=3000)
+yScale = {'wco2':[0, 55], 'wekg':[-2, 2], 'wap' : [40, 150],
+          'wflow': [-5, 10], 'wawp' : [-5, 45]}
+colors = {'wekg': 'k', 'wco2':'b', 'wap':'r', 'wflow':'g', 'wawp': 'y'}
+
+keys = ['wekg', 'wap']
+df, _ = extractsDf(wdata, keys=keys, iMin=2000, iMax=3000)
 
 #plt.rcParams['axes.facecolor']='white'
 #fig = plt.figure(facecolor='white', edgecolor='white')
 fig = plt.figure()
 #fig.set_facecolor('white')
-ax1= fig.add_subplot(211)
+ax1 = fig.add_subplot(211)
 ax2 = fig.add_subplot(212)
 for i, ax in enumerate(fig.axes):
     ax.grid()
@@ -593,7 +527,7 @@ for i, ax in enumerate(fig.axes):
         ax.set_xlabel('time')
 # maxt = 15, dt = 0.003 -> 15 sec scope
 #scope = twoScope(ax1, ax2, maxt = 15, dt= 0.003)
-scope = twoScopeAndData(df, ax1, ax2, maxt = 15, dt= 0.003)
+scope = twoScopeAndData(df, ax1, ax2, maxt=15, dt=0.003)
 
 scope.ax1.set_ylim(yScale[keys[0]])
 scope.ax2.set_ylim(yScale[keys[1]])
@@ -636,4 +570,3 @@ def animate(i):
 ani = animation.FuncAnimation(fig, animate, frames=60, interval=1000)
 ani.save('clock.mp4', fps=10.0, dpi=200)
 plt.show()
-
