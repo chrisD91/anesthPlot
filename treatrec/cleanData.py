@@ -8,7 +8,7 @@ Created on Wed Jul 31 16:05:29 2019
 import numpy as np
 import pandas as pd
 
-def cleanTrendData(df):
+def clean_trenddata(df):
 
     paramList = ['ip1s','ip1d','ip1m','ip1PR',
                  'co2insp','co2exp','co2RR',

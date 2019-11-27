@@ -16,8 +16,7 @@ from PyQt5.QtWidgets import QFileDialog
 
 #%%
 def gui_choose_file(paths, direct=None):
-    """Select a file via a dialog and return the file name.
-    """
+    """Select a file via a QtDialog, return the fileName (str). """
     if not direct:
         direct = paths['data']
     fname = QFileDialog.getOpenfilename(caption='choose a file',
@@ -25,18 +24,14 @@ def gui_choose_file(paths, direct=None):
     return fname[0]
 
 #%%
-def extract_monitor_wave_header(filename):
-    """
-    load header
-    """
+def extractmonitor_waveheader(filename):
+    """ load a monitor wave header, return a pandasDataframe """
     df = pd.read_csv(filename, sep=',', header=None, index_col=None, nrows=12,
                      encoding='iso-8859-1')
     return df
 
-def load_monitor_waves_data(filename):
-    """
-    load data
-    """
+def loadmonitor_wavedata(filename):
+    """ load a monitor csvDataFile, return a pandasDataframe """
     print('loading ', os.path.basename(filename))
     fs = 300    # sampling rate
 #    filename = os.path.join(paths['data'], file)
@@ -97,7 +92,8 @@ def load_monitor_waves_data(filename):
 
     return df
 
-def append_monitor_wave_datetime_data(df):
+def append_monitorwave_datetime(df):
+    """ add a time base to the pandasDataframe """
     df['seconds'] = \
     [time.mktime(t.timetuple()) if t is not pd.NaT else float('nan') for t in df['time']]
     df['intepolated'] = df['seconds'].interpolate('values')
@@ -114,6 +110,6 @@ if __name__ == '__main__':
     file = os.path.basename(filename)
     if file[0] == 'M':
         if 'Wave' in file:
-            wheader = extract_monitor_wave_header(filename)
-            wdata = load_monitor_waves_data(filename)
-            wdata = append_monitor_wave_datetime_data(wdata)
+            wheader = extractmonitor_waveheader(filename)
+            wdata = loadmonitor_wavedata(filename)
+            wdata = append_monitorwave_datetime(wdata)

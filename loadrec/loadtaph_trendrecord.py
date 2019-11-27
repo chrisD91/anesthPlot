@@ -12,19 +12,16 @@ import pandas as pd
 from PyQt5.QtWidgets import QFileDialog
 
 #%%
-def gui_choose_file(paths, direct=None):
-    """Select a file via a dialog and return the file name.
-    """
+def gui_choosefile(paths, direct=None):
+    """Select a file via a QtDialog, return the fileName (str). """
     if not direct:
         direct = paths['data']
     fname = QFileDialog.getOpenfilename(caption='choose a file',
                                         directory=direct, filter='*.csv')
     return fname[0]
 
-def load_taph_trend_data(filename):
-    """
-    load the data
-    """
+def loadtaph_trenddata(filename):
+    """ load the taphoniusData, return a pandasDataframe """
     df = pd.read_csv(filename, sep=',', header=1, skiprows=[2])
     corr_title = {'Date': 'Date',
                   'Time': 'Time',
@@ -93,11 +90,8 @@ def load_taph_trend_data(filename):
 
     return df
 
-def extract_taph_patient_file(headername):
-    """
-    extract the patient.csv file
-    return a dictionary
-    """
+def loadtaph_patientfile(headername):
+    """ extract the patient.csv file, return a dictionary"""
     df = pd.read_csv(headername, header=None, usecols=[0, 1], encoding='iso8859_15')
     #NB encoding needed for accentuated letters
     df[0] = df[0].str.replace(':', '')
@@ -112,7 +106,7 @@ def extract_taph_patient_file(headername):
 
 #%%
 if __name__ == '__main__':
-    filename = gui_choose_file(paths={'data':'~'})
+    filename = gui_choosefile(paths={'data':'~'})
     file = os.path.basename(filename)
     if file[:2] == 'SD':
-        tdata = load_taph_trend_data(filename)
+        tdata = loadtaph_trenddata(filename)

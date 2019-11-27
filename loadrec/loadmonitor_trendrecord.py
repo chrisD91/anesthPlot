@@ -11,9 +11,8 @@ import pandas as pd
 from PyQt5.QtWidgets import QFileDialog
 
 #%%
-def gui_choose_file(paths, direct=None):
-    """Select a file via a dialog and return the file name.
-    """
+def gui_choosefile(paths, direct=None):
+    """ Select a file via a dialog and return the file name. """
     if not direct:
         direct = paths['data']
     fname = QFileDialog.getOpenFileName(caption='choose a file',
@@ -21,10 +20,8 @@ def gui_choose_file(paths, direct=None):
     return fname[0]
 
 #%% Monitor trend
-def extract_monitor_trend_header(datafile):
-    """
-    extract the header -> dictionary
-    """
+def loadmonitor_trendheader(datafile):
+    """ extract the header and return a dictionary """
     df = pd.read_csv(datafile, sep=',', header=None, index_col=None,
                      nrows=11, encoding='iso8859_15')
     #NB encoding needed for accentuated letters
@@ -37,10 +34,8 @@ def extract_monitor_trend_header(datafile):
     descr = df.loc[1].to_dict()
     return descr
 
-def load_monitor_trend_data(datafile, header):
-    """
-    load the data, return a pandasDataframe
-    """
+def loadmonitor_trenddata(datafile, header):
+    """ load the monitor trend data, return a pandasDataframe """
     try:
         df = pd.read_csv(datafile, sep=',', skiprows=[13], header=12)
     except:
@@ -118,11 +113,11 @@ def load_monitor_trend_data(datafile, header):
 
 
 if __name__ == '__main__':
-    fileName = gui_choose_file(paths={'data':'~'})
+    fileName = gui_choosefile(paths={'data':'~'})
     file = os.path.basename(fileName)
     if file[0] == 'M':
         if 'Wave' not in file:
-            header = extract_monitor_trend_header(fileName)
-            mdata = load_monitor_trend_data(fileName, header)
+            header = loadmonitor_trendheader(fileName)
+            mdata = loadmonitor_trenddata(fileName, header)
             #mdata= cleanMonitorTrendData(mdata)
             

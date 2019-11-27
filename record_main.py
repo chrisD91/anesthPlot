@@ -8,6 +8,7 @@ main program to load and display an anesthesia record file
 
 import os
 import sys
+from importlib import reload
 import yaml
 import matplotlib
 matplotlib.use('Qt5Agg')  #NB use automatic for updating
@@ -16,8 +17,7 @@ import numpy as np
 import pandas as pd
 #from socket import gethostname
 from PyQt5.QtWidgets import QFileDialog, QApplication
-
-from importlib import reload
+from PyQt5.QtWidgets import QInputDialog, QWidget
 import pyperclip
 # to have the display beginning from 0
 from pylab import rcParams
@@ -66,16 +66,16 @@ append_syspath(paths)
 import trendPlot as plot
 import waveFunc as wf
 ##import bloodGases2 as bg
-import loadRec.loadMonitorTrendRecord as lmt
-import loadRec.loadMonitorWaveRecord as lmw
-import loadRec.loadTaphTrendRecord as ltt
-import loadRec.loadTelevet as ltv
-import treatRec.cleanData as clean
-from PyQt5.QtWidgets import QInputDialog, QWidget
+import loadrec.loadmonitor_trendrecord as lmt
+import loadrec.loadmonitor_waverecord as lmw
+import loadrec.loadtaph_trendrecord as ltt
+import loadrec.loadtelevet as ltv
+import treatrec.cleanData as clean
+
 
 #%%
 
-def gui_choose_file(paths, direct=None, caption='choose a recording'):
+def gui_choosefile(paths, direct=None, caption='choose a recording'):
     """
     Select a file via a dialog and return the file name.
     """
@@ -157,7 +157,7 @@ def list_loaded():
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
     return records
 
-def plot_trend_data(file, df, header, params):
+def plot_trenddata(file, df, header, params):
     """
     plot the trend recordings
         input : file, df=pdDataframe, header=dictionary, params=dict,
@@ -189,7 +189,7 @@ def plot_trend_data(file, df, header, params):
     return fig_list
 
 
-def plot_monitor_wave_data(headdf, wavedf):
+def plot_monitorwave_data(headdf, wavedf):
     """
     not implemented for the moment
     """
@@ -208,7 +208,7 @@ class Waves():
     """
     def __init__(self, filename=None):
         if not filename:
-            filename = gui_choose_file(paths)
+            filename = gui_choosefile(paths)
         self.filename = filename
         self.file = os.path.basename(filename)
         self.fs = None
@@ -233,15 +233,15 @@ class SlowWave(Waves):
         return df
     def show_graphs(self):
         """ basic clinical plots """
-        fig_list = plot_trend_data(self.file, self.data, self.header, self.param)
+        fig_list = plot_trenddata(self.file, self.data, self.header, self.param)
         return fig_list
 
 class MonitorTrend(SlowWave):
     """ monitor trends recordings"""
     def __init__(self, filename):
         super().__init__(filename)
-        self.header = lmt.extract_monitor_trend_header(self.filename)
-        self.data = lmt.load_monitor_trend_data(self.filename, self.header)
+        self.header = lmt.loadmonitor_trendheader(self.filename)
+        self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
         self.source = 'monitor'
         self.fs = self.header['Sampling Rate']
 
@@ -249,15 +249,15 @@ class TaphTrend(SlowWave):
     """ taphonius trends recordings"""
     def __init__(self, filename):
         super().__init__(filename)
-        self.data = ltt.load_taph_trend_data(self.filename)
+        self.data = ltt.loadtaph_trenddata(self.filename)
         self.source = 'taphTrend'
         self.header = self.load_header()
-    def load_header(self): 
+    def load_header(self):
         """ load the header -> pandas.dataframe """
-        headername = gui_choose_file(paths, direct=os.path.dirname(filename),
-                                     caption='choose Patient Data')
+        headername = gui_choosefile(paths, direct=os.path.dirname(filename),
+                                    caption='choose Patient Data')
         if headername != '':
-            header = ltt.extract_taph_patient_file(headername)
+            header = ltt.loadtaph_patientfile(headername)
             return header
     def extract_taph_events(self):
         """
@@ -318,7 +318,7 @@ class TelevetWave(FastWave):
     """
     def __init__(self, filename):
         super().__init__(filename)
-        self.data = ltv.loadTeleVet(filename)
+        self.data = ltv.loadtelevet(filename)
         self.source = 'teleVet'
         self.fs = self.data.index.max() / self.data.timeS.iloc[-1]
 
@@ -328,10 +328,10 @@ class MonitorWave(FastWave):
     """
     def __init__(self, filename):
         super().__init__(filename)
-        header = lmw.extract_monitor_wave_header(filename)
+        header = lmw.extractmonitor_waveheader(filename)
         self.header = dict(zip(header[0], header[1]))
-        data = lmw.load_monitor_waves_data(filename)
-        data = lmw.append_monitor_wave_datetime_data(data)
+        data = lmw.loadmonitor_wavedata(filename)
+        data = lmw.append_monitorwave_datetime(data)
         self.data = data
         self.source = 'monitorWave'
         self.fs = 300
@@ -354,7 +354,7 @@ if __name__ == '__main__':
     except:
         records = {}
     # choose file and indicate the source
-    filename = gui_choose_file(paths)
+    filename = gui_choosefile(paths)
     source = select_type(caption="choose kind of file",
                          items=("monitorTrend", "monitorWave",
                                 "taphTrend", "telVet"))
