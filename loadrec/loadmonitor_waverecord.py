@@ -44,6 +44,7 @@ def loadmonitor_wavedata(filename):
     # columns names correction
     colnames = {'~ECG1': 'wekg',
                 '~INVP1': 'wap',
+                '~INVP2': 'wvp',
                 '~CO.2': 'wco2',
                 '~AWP': 'wawp',
                 '~Flow' : 'wflow',
@@ -58,8 +59,9 @@ def loadmonitor_wavedata(filename):
     #see pandas fill_method
 
     # scaling correction
-    df.wco2 = df.wco2.shift(-480) # time lag correction
-    df['wco2'] *= 7.6    # CO2 % -> mmHg
+    if 'wco2' in df.columns:
+        df.wco2 = df.wco2.shift(-480) # time lag correction
+        df['wco2'] *= 7.6    # CO2 % -> mmHg
     df['wekg'] /= 100    # tranform EKG in mVolts
     df['wawp'] *= 10     # mmH2O -> cmH2O
 
@@ -88,7 +90,8 @@ def loadmonitor_wavedata(filename):
     #wData.wap.value_counts().sort_index()
     df.loc[df.wap < -100, 'wap'] = np.nan
     df.loc[df.wap > 200, 'wap'] = np.nan
-    df.loc[df.wco2 < 0, 'wco2'] = 0
+    if 'wco2' in df.columns:
+        df.loc[df.wco2 < 0, 'wco2'] = 0
 
     return df
 
