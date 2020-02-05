@@ -96,11 +96,11 @@ save = False
 speed = 5        # speed of the animation
 
 saveName = 'example'
-paths['saveAnim'] = '/Users/cdesbois/toPlay'
+paths['save'] = '/Users/cdesbois/toPlay'
 #paths['saveAnim'] = '/Users/cdesbois/enva/clinique/recordings/principle/fig'
 #paths['saveAnim'] = '/Users/cdesbois/enva/clinique/recordings/casClin/taphColic/mov'
 #paths['saveAnim'] = '/Users/cdesbois/enva/enseignement/cours/techniques/techniques/capnie/fig'
-fileName = os.path.join(paths['saveAnim'], saveName)
+fileName = os.path.join(paths['save'], saveName)
 
 fig, lines = wf.plotWave(df, keys=keys, mini=None, maxi=None)
 fig.text(0.01, 0.01, file, ha='left', va='bottom', alpha=0.4)

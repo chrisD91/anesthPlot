@@ -8,17 +8,17 @@ main program to load and display an anesthesia record file
 
 import os
 import sys
-from importlib import reload
 import yaml
+import pyperclip
+import numpy as np
+import pandas as pd
+from importlib import reload
 import matplotlib
 matplotlib.use('Qt5Agg')  #NB use automatic for updating
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 #from socket import gethostname
 from PyQt5.QtWidgets import QFileDialog, QApplication
 from PyQt5.QtWidgets import QInputDialog, QWidget
-import pyperclip
 # to have the display beginning from 0
 from pylab import rcParams
 rcParams['axes.xmargin'] = 0
@@ -32,13 +32,13 @@ def read_config():
     #locate
     try:
         local_mod_path = os.path.dirname(__file__)
-    except:
+    except NameError:
         # for inside spyder
         local_mod_path = '/Users/cdesbois/pg/chrisPg/anesthplot'
-    filename = os.path.join(local_mod_path, 'recordRc.yaml')
+    rc_file = os.path.join(local_mod_path, 'recordRc.yaml')
     #load
-    if os.path.isfile(filename):
-        with open(filename, 'r') as ymlfile:
+    if os.path.isfile(rc_file):
+        with open(rc_file, 'r') as ymlfile:
             cfg = yaml.safe_load(ymlfile)
             return cfg
     else:
@@ -46,14 +46,14 @@ def read_config():
         print('please build one -> cf buildConfig.py')
         return None
 
-def append_syspath(paths):
+def append_syspath(path_dico):
     """
     add the folder location to the system path
     """
-    if paths['recordMain'] not in sys.path:
-        sys.path.append(paths['recordMain'])
-        print('added', paths['recordMain'], ' to the path')
-        print('location=', paths['recordMain'])
+    if path_dico['recordMain'] not in sys.path:
+        sys.path.append(path_dico['recordMain'])
+        print('added', path_dico['recordMain'], ' to the path')
+        print('location=', path_dico['recordMain'])
 #    if paths['utils'] not in sys.path:
 #        sys.path.append(paths['utils'])
 #        print('added', paths['utils'], ' to the path')
@@ -70,17 +70,17 @@ import loadrec.loadmonitor_trendrecord as lmt
 import loadrec.loadmonitor_waverecord as lmw
 import loadrec.loadtaph_trendrecord as ltt
 import loadrec.loadtelevet as ltv
-import treatrec.cleanData as clean
+import treatrec.clean_data as clean
 
 
 #%%
 
-def gui_choosefile(paths, direct=None, caption='choose a recording'):
+def gui_choosefile(path_dico, direct=None, caption='choose a recording'):
     """
     Select a file via a dialog and return the file name.
     """
     if not direct:
-        direct = paths['data']
+        direct = path_dico['data']
     options = QFileDialog.Options()
 # to be able to see the caption, but impose to work with the mouse
 #    options |= QFileDialog.DontUseNativeDialog
@@ -89,7 +89,7 @@ def gui_choosefile(paths, direct=None, caption='choose a recording'):
                                         options=options)
 #    fname = QFileDialog.getOpenfilename(caption=caption,
 #                                        directory=direct, filter='*.csv')
-    #TODO : be sure to ba able to see the caption
+    #TODO : be sure to be able to see the caption
     return fname[0]
 
 def select_type(caption=None, items=None):
@@ -108,21 +108,21 @@ def select_type(caption=None, items=None):
     if ok_pressed and item:
         return item
 
-def build_param_dico(paths, file='', source=''):
+def build_param_dico(path_dico, file='', source=''):
     """initialise a dict save parameters  ----> TODO see min vs sec
     """
-    params = {'item': 1,
-              'xmin': None,
-              'xmax': None,
-              'ymin': 0,
-              'ymax': None,
-              'path': paths['sFig'],
-              'unit': 'min',
-              'save': False,
-              'memo': False,
-              'file': file,
-              'source': source}
-    return params
+    param_dico = {'item': 1,
+                  'xmin': None,
+                  'xmax': None,
+                  'ymin': 0,
+                  'ymax': None,
+                  'path': paths['sFig'],
+                  'unit': 'min',
+                  'save': False,
+                  'memo': False,
+                  'file': file,
+                  'source': source}
+    return param_dico
 
 def list_loaded():
     """
@@ -132,24 +132,28 @@ def list_loaded():
     records = {}
     try:
         taphTrend
-        records['taphTrend'] = taphTrend
-    except:
+    except NameError:
         pass
+    else:
+        records['taphTrend'] = taphTrend
     try:
         monitorTrend
-        records['monitorTrend'] = monitorTrend
-    except:
+    except NameError:
         pass
+    else:
+        records['monitorTrend'] = monitorTrend
     try:
         monitorWave
-        records['monitorWave'] = monitorWave
-    except:
+    except NameError:
         pass
+    else:
+        records['monitorWave'] = monitorWave
     try:
         telvet
-        records['telvet'] = telvet
-    except:
+    except NameError:
         pass
+    else:
+        records['telvet'] = telvet
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
     print('records loaded:')
     for key in records:
@@ -157,7 +161,7 @@ def list_loaded():
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
     return records
 
-def plot_trenddata(file, df, header, params):
+def plot_trenddata(file, df, header, param_dico):
     """
     plot the trend recordings
         input : file, df=pdDataframe, header=dictionary, params=dict,
@@ -165,28 +169,28 @@ def plot_trenddata(file, df, header, params):
         output : matplotlib plots
     """
     # clean the data for taph monitoring
-    if params['source'] == 'taphTrend':
+    if param_dico['source'] == 'taphTrend':
         if 'co2exp' in df.columns.values:
             df.loc[df['co2exp'] < 20, 'co2exp'] = np.NaN
         if ('ip1m' in df.columns.values) and not df.ip1m.isnull().all():
             df.loc[df['ip1m'] < 20, 'ip1m'] = np.NaN
         else:
             print('no pressure tdata recorded')
-    fig_list = []
+    afig_list = []
     print('build figs')
     #plotting
     plot_func_list = (plot.ventil, plot.co2o2, plot.co2iso, plot.cardiovasc,
                       plot.hist_co2_iso, plot.hist_pam)
     for func in plot_func_list:
-        fig_list.append(func(df.set_index('eTimeMin'), params))
-    fig_list.append(plot.plot_header(header, params))
-    for fig in fig_list:
+        afig_list.append(func(df.set_index('eTimeMin'), param_dico))
+    fig_list.append(plot.plot_header(header, param_dico))
+    for fig in afig_list:
         if fig:                 # test if figure is present
             fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
             fig.text(0.01, 0.01, file, ha='left', va='bottom', alpha=0.4)
     print('plt.show')
     plt.show()
-    return fig_list
+    return afig_list
 
 
 def plot_monitorwave_data(headdf, wavedf):
@@ -214,6 +218,8 @@ class Waves():
         self.fs = None
         self.source = None
         self.data = None
+        self.header = None
+        self.param = None
 
 #+++++++
 class SlowWave(Waves):
@@ -229,7 +235,7 @@ class SlowWave(Waves):
         output = pandas dataFrame
         nb doesnt change the obj.data in place
         """
-        df = clean.clean_trendData(self.data)
+        df = clean.clean_trenddata(self.data)
         return df
     def show_graphs(self):
         """ basic clinical plots """
@@ -344,14 +350,14 @@ if __name__ == '__main__':
     print('start QtApp')
     try:
         app
-    except:
+    except NameError:
         app = QApplication(sys.argv)
         app.setQuitOnLastWindowClosed(True)
 #        app.quitOnLastWindowClosed() == True
     # list of loaded records
     try:
         records
-    except:
+    except NameError:
         records = {}
     # choose file and indicate the source
     filename = gui_choosefile(paths)
@@ -385,5 +391,5 @@ if __name__ == '__main__':
     plt.show()
     try:
         app
-    except:
+    except NameError:
         app.exec_()

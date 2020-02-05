@@ -54,7 +54,7 @@ def readConfig():
         localModPath = os.path.dirname(__file__)
     except:
         # for inside spyder
-        localModPath = '/Users/cdesbois/pg/chrisPg/anesthRecord'
+        localModPath = '/Users/cdesbois/pg/chrisPg/anesthPlot'
     filename = os.path.join(localModPath, 'recordRc.yaml')
     #load
     if os.path.isfile(filename):
@@ -83,9 +83,12 @@ if __name__ == '__main__':
     try:
         paths
     except:
-        key = 'recordMain'
-        recordMainPath = fileDialog(kind=key, directory= os.getcwd(), isFolder=True)
-        configName = os.path.join(recordMainPath , 'recordRc.yaml')
+        key = 'recordMain.py'
+#        recordMainPath = fileDialog(kind=key, directory= os.getcwd(), isFolder=True)
+        recordMainPath = fileDialog(kind=key, directory= os.getcwd())
+        if os.path.isfile(recordMainPath):
+            recordMainPath = os.path.dirname(recordMainPath)
+        configName = os.path.join(recordMainPath, 'recordRc.yaml')
         if os.path.isfile(configName):
             # build from config file
             paths = readConfig()       
