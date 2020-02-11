@@ -183,7 +183,7 @@ def plot_trenddata(file, df, header, param_dico):
                       plot.hist_co2_iso, plot.hist_pam)
     for func in plot_func_list:
         afig_list.append(func(df.set_index('eTimeMin'), param_dico))
-    fig_list.append(plot.plot_header(header, param_dico))
+    afig_list.append(plot.plot_header(header, param_dico))
     for fig in afig_list:
         if fig:                 # test if figure is present
             fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
