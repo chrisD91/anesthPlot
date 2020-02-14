@@ -10,7 +10,7 @@ import pandas as pd
 
 def clean_trenddata(df):
     """ remove artifacts in the recorded trends """
-    param_list = ['ip1s', 'ip1d', 'ip1m', 'ip1PR',
+    param_list = ['ip1s', 'ip1d', 'ip1m', 'hr',
                   'co2insp', 'co2exp', 'co2RR',
                   'o2insp', 'o2exp',
                   'aaInsp', 'aaExp',
@@ -21,7 +21,7 @@ def clean_trenddata(df):
     param_range = {'ip1s' : (30, None),
                    'ip1d' : (10, None),
                    'ip1m' : (20, None),
-                   'ip1PR' : (20, 80),
+                   'hr' : (20, 80),
                    'co2insp' : (None, None),
                    'co2exp' : (20, None),
                    'co2RR' : (None, None),

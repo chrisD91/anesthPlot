@@ -56,8 +56,8 @@ def hist_pam(data, param={'save':False}):
     if 'ip1m' not in data.columns:
         print('no ip1 in the data')
         return
-    if 'ip1PR' not in data.columns:
-        print('no ip1PR in the data')
+    if 'hr' not in data.columns:
+        print('no hr in the data')
         return
 
 #    fig = plt.figure(figsize=(15,8))
@@ -74,12 +74,12 @@ def hist_pam(data, param={'save':False}):
 #    ax1.axvline(q75, linestyle= 'dashed', linewidth= 1, color= 'k' )
 
     ax2 = fig.add_subplot(122)
-    ax2.hist(data.ip1PR.dropna(), bins=50, range=(25, 65), color='gray',
+    ax2.hist(data.hr.dropna(), bins=50, range=(25, 65), color='gray',
              edgecolor='none')
     ax2.set_title('heart rate  (+ quartiles)')
     ax2.set_xlabel('heart rate (bpm)')
     axes = [ax1, ax2]
-    for i, item in enumerate(['ip1m', 'ip1PR']):
+    for i, item in enumerate(['ip1m', 'hr']):
         try:
             q25, q50, q75 = np.percentile(data[item].dropna(), [25, 50, 75])
             axes[i].axvline(q50, linestyle='dashed', linewidth=2, color='k')
@@ -219,18 +219,18 @@ def bpgas(data):
 #---------------------------------------------------------------------------------------------------
 def cardiovasc(data, param):
     """
-    cardiovascular plot (ip1s,ip1m,ip1d + ip1PR,
+    cardiovascular plot (ip1s,ip1m,ip1d + hr,
     input = dataFrame, dic(path, xmin, xmax,unit)
     """
     #global timeUnit
     x = data.index
-    if 'ip1PR' not in data.columns:
+    if 'hr' not in data.columns:
         print('no pulseRate in the recording')
         return
     IPs = data['ip1s']
     IPm = data['ip1m']
     IPd = data['ip1d']
-    HR = data['ip1PR']
+    HR = data['hr']
 
     path = param['path']
     xmin = param['xmin']

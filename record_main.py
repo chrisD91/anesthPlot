@@ -24,7 +24,7 @@ from pylab import rcParams
 rcParams['axes.xmargin'] = 0
 rcParams['axes.ymargin'] = 0
 
-#%%
+#%
 def read_config():
     """
     read the yaml configuration file
@@ -63,17 +63,18 @@ append_syspath(paths)
 
 #import utils
 #import bloodGases2 as bg
-import trendPlot as plot
-import waveFunc as wf
+import trend_plot as tplot
+import wave_plot as wplot
+import treatrec.wave_func as wf
+import treatrec.clean_data as clean
 ##import bloodGases2 as bg
 import loadrec.loadmonitor_trendrecord as lmt
 import loadrec.loadmonitor_waverecord as lmw
 import loadrec.loadtaph_trendrecord as ltt
 import loadrec.loadtelevet as ltv
-import treatrec.clean_data as clean
 
 
-#%%
+#
 
 def gui_choosefile(path_dico, direct=None, caption='choose a recording'):
     """
@@ -108,21 +109,21 @@ def select_type(caption=None, items=None):
     if ok_pressed and item:
         return item
 
-def build_param_dico(path_dico, file='', source=''):
+def build_param_dico(file='', source=''):
     """initialise a dict save parameters  ----> TODO see min vs sec
     """
-    param_dico = {'item': 1,
-                  'xmin': None,
-                  'xmax': None,
-                  'ymin': 0,
-                  'ymax': None,
-                  'path': paths['sFig'],
-                  'unit': 'min',
-                  'save': False,
-                  'memo': False,
-                  'file': file,
-                  'source': source}
-    return param_dico
+    dico = {'item': 1,
+            'xmin': None,
+            'xmax': None,
+            'ymin': 0,
+            'ymax': None,
+            'path': paths['sFig'],
+            'unit': 'min',
+            'save': False,
+            'memo': False,
+            'file': file,
+            'source': source}
+    return dico
 
 def list_loaded():
     """
@@ -179,11 +180,11 @@ def plot_trenddata(file, df, header, param_dico):
     afig_list = []
     print('build figs')
     #plotting
-    plot_func_list = (plot.ventil, plot.co2o2, plot.co2iso, plot.cardiovasc,
-                      plot.hist_co2_iso, plot.hist_pam)
+    plot_func_list = (tplot.ventil, tplot.co2o2, tplot.co2iso, tplot.cardiovasc,
+                      tplot.hist_co2_iso, tplot.hist_pam)
     for func in plot_func_list:
         afig_list.append(func(df.set_index('eTimeMin'), param_dico))
-    afig_list.append(plot.plot_header(header, param_dico))
+    afig_list.append(tplot.plot_header(header, param_dico))
     for fig in afig_list:
         if fig:                 # test if figure is present
             fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
@@ -205,7 +206,7 @@ def plot_monitorwave_data(headdf, wavedf):
 ##### NB use fig = plot... to obtain a reference to the plot
     # and then axList = fig.axes
     # use axes in this list to change the scales
-#%%
+#
 class Waves():
     """
     base class for the records
@@ -264,7 +265,9 @@ class TaphTrend(SlowWave):
                                     caption='choose Patient Data')
         if headername != '':
             header = ltt.loadtaph_patientfile(headername)
-            return header
+        else:
+            header = ''
+        return header
     def extract_taph_events(self):
         """
         extract Taph events
@@ -290,7 +293,8 @@ class FastWave(Waves):
         cols = [w for w in self.data.columns if w[0] == 'w']
         trace = select_type(caption='choose wave', items=cols)
         if trace:
-            fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
+#            fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
+            fig, _ = wplot.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
             fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
             fig.text(0.01, 0.01, self.file, ha='left', va='bottom', alpha=0.4)
             self.trace = trace
@@ -365,11 +369,13 @@ if __name__ == '__main__':
                          items=("monitorTrend", "monitorWave",
                                 "taphTrend", "telVet"))
     # general parameters
-    params = build_param_dico(paths, file=os.path.basename(filename),
+    params = build_param_dico(file=os.path.basename(filename),
                               source=source)
 # TODO check the validity of the file    email
     if source == 'telVet':
         telvet = TelevetWave(filename)
+        params['fs'] = 500
+        params['kind'] = 'telVet'
         telvet.param = params
         telvet.plot_wave()
     elif source == 'monitorTrend':
@@ -378,6 +384,8 @@ if __name__ == '__main__':
         fig_list = monitorTrend.show_graphs()
     elif source == 'monitorWave':
         monitorWave = MonitorWave(filename)
+        params['fs'] = float(monitorWave.header['Data Rate (ms)'])*60/1000
+        params['kind'] = 'as3'
         monitorWave.param = params
         monitorWave.plot_wave()
     elif source == 'taphTrend':

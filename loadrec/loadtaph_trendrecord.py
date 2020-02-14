@@ -58,7 +58,7 @@ def loadtaph_trenddata(filename):
                   'Mean': 'ip1m',
                   'Systolic': 'ip1s',
                   'Diastolic': 'ip1d',
-                  'HR': 'ip1PR',
+                  'HR': 'hr',
                   'T1': 't1',
                   'T2': 't2',
                   'ECG HR': 'ekgHR',

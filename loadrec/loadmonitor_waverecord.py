@@ -19,7 +19,7 @@ def gui_choose_file(paths, direct=None):
     """Select a file via a QtDialog, return the fileName (str). """
     if not direct:
         direct = paths['data']
-    fname = QFileDialog.getOpenfilename(caption='choose a file',
+    fname = QFileDialog.getOpenFileName(caption='choose a file',
                                         directory=direct, filter='*.csv')
     return fname[0]
 

@@ -5,11 +5,11 @@
 plot the waves of a waveRecording
 
 """
-
+import treatrec.wave_func as wf
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
 
 #%% choose an area of interest
-import waveFunc as wf
-import matplotlib.animation as animation
 
 plt.close('all')
 
@@ -17,8 +17,8 @@ plt.close('all')
 waves = ['wawp', 'wflow']
 #waves = ['wco2']
 # ['wekg', 'wap', 'wco2', 'wawp', 'wflow']
-#fig, lines = wf.plotWave(wdata.set_index('sec'), waves)
-fig, lines = wf.plotWave(wdata, waves)
+#fig, lines = wf.plot_wave(wdata.set_index('sec'), waves)
+fig, lines = wf.plot_wave(wdata, waves)
 fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
 fig.text(0.01, 0.01, params['file'], ha='left', va='bottom', alpha=0.4)
 #fig, lines = plotWave(wdata, waves)
@@ -34,8 +34,8 @@ roi = wf.returnPoints(wdata, fig)
 plt.close('all')
 figList = []
 for key in ['wekg', 'wap', 'wco2', 'wawp', 'wflow']:
-#    wf.plotWave(wdata, [key], miniS= limsec[0], maxiS= limsec[1])
-    fig = wf.plotWave(wdata, [key], mini=roi['pt'][0], maxi=roi['pt'][1])
+#    wf.plot_wave(wdata, [key], miniS= limsec[0], maxiS= limsec[1])
+    fig = wf.plot_wave(wdata, [key], mini=roi['pt'][0], maxi=roi['pt'][1])
     figList.append(fig)
     #plotWave(wdata.set_index('sec'), [key], mini= limpt[0], maxi= limpt[1])
 
@@ -44,7 +44,7 @@ for key in ['wekg', 'wap', 'wco2', 'wawp', 'wflow']:
 #figList[2] = co2
 #figList[3] = paw
 #figList[4] = airFlow
-fig = wf.plotWave(wdata, ['wekg', 'wap'], mini=roi['pt'][0], maxi=roi['pt'][1])
+fig = wf.plot_wave(wdata, ['wekg', 'wap'], mini=roi['pt'][0], maxi=roi['pt'][1])
 
 #%% //////////////////////////////////////////////////////////////////////////
 # +++++++++  build animations +++++++++++++++++++++
@@ -102,7 +102,7 @@ paths['save'] = '/Users/cdesbois/toPlay'
 #paths['saveAnim'] = '/Users/cdesbois/enva/enseignement/cours/techniques/techniques/capnie/fig'
 fileName = os.path.join(paths['save'], saveName)
 
-fig, lines = wf.plotWave(df, keys=keys, mini=None, maxi=None)
+fig, lines = wf.plot_wave(df, keys=keys, mini=None, maxi=None)
 fig.text(0.01, 0.01, file, ha='left', va='bottom', alpha=0.4)
 fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
 
@@ -137,7 +137,7 @@ plt.show()
 
 #%% ventilatory loop
 plt.close('all')
-fig, lines = wf.plotWave(wdata, keys=['wflow', 'wawp'], mini=None, maxi=None)
+fig, lines = wf.plot_wave(wdata, keys=['wflow', 'wawp'], mini=None, maxi=None)
 lims = fig.get_axes()[0].get_xlim()
 mini = int(lims[0])  # pt
 maxi = int(lims[1])  # pt
@@ -180,8 +180,8 @@ flowPressureLoop(wdata, mini, maxi)
 
 #%% volumetric CO2
 plt.close('all')
-fig, lines = wf.plotWave(wdata, keys=['wco2', 'wflow'], mini=mini, maxi=maxi)
-fig, lines = wf.plotWave(wdata, keys=['wflow', 'wawp'], mini=mini, maxi=maxi)
+fig, lines = wf.plot_wave(wdata, keys=['wco2', 'wflow'], mini=mini, maxi=maxi)
+fig, lines = wf.plot_wave(wdata, keys=['wflow', 'wawp'], mini=mini, maxi=maxi)
 fig.set_figwidth(12)
 fig.set_figheight(6)
 
@@ -349,7 +349,7 @@ def buildTheScope(params):
 
 
 #Trend: dx = 1/header['Sampling Rate']* 1000
-# data : 'time', 'ip1s', 'ip1d', 'ip1m', 'ip1PR', 'T1', 'co2insp', 'co2exp',
+# data : 'time', 'ip1s', 'ip1d', 'ip1m', 'hr', 'T1', 'co2insp', 'co2exp',
 #       'co2RR', 'o2insp', 'o2exp', 'aaLabel', 'aaInsp', 'aaExp', 'pPeak',
 #       'peep', 'pPlat', 'tvInsp', 'tvExp', 'compli', 'ipeep', 'pmean', 'raw',
 #       'minVinsp', 'minVexp', 'epeep', 'ieRat', 'inspT', 'expT', 'eTime',
