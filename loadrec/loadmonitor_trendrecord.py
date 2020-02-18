@@ -68,7 +68,7 @@ def loadmonitor_trenddata(datafile, header):
                   'CO2 RR': 'co2RR', 'CO2_Insp': 'co2insp', 'CO2_Exp' : 'co2exp',
                   'ECG HR': 'ekgHR',
                   'IP1_M' : 'ip1m', 'IP1_S' : 'ip1s', 'IP1_D' : 'ip1d',
-                  'hr' : 'hr',
+                  'IP1PR' : 'hr',
                   'IP2_M' : 'ip2m', 'IP2_S' : 'ip2s', 'IP2_D' : 'ip2d',
                   'IP2PR' : 'ip2PR',
                   'O2_Insp' : 'o2insp', 'O2_Exp' : 'o2exp',

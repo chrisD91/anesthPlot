@@ -30,11 +30,11 @@ def check():
         print('monitor Wave data are missing')
         print('run record_main and load a monitor waveFile')
         issue = 'unableToProceed'
-    if monitorTrend.header['Patient Name'] != monitorWave.header['Patient Name']:
+    try: 
+        monitorTrend.header['Patient Name'] == monitorWave.header['Patient Name']
+    except:
         print('the trend and wave data are not belonging to the same recording !!')
         issue = 'unableToProceed'
-    else:
-        issue = 'able to proceed'
     return issue
 
 print(check())
