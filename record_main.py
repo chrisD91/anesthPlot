@@ -338,7 +338,7 @@ class MonitorWave(FastWave):
     """
     def __init__(self, filename):
         super().__init__(filename)
-        header = lmw.extractmonitor_waveheader(filename)
+        header = lmw.loadmonitor_waveheader(filename)
         self.header = dict(zip(header[0], header[1]))
         data = lmw.loadmonitor_wavedata(filename)
         data = lmw.append_monitorwave_datetime(data)

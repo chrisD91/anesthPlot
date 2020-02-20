@@ -24,7 +24,7 @@ def gui_choose_file(paths, direct=None):
     return fname[0]
 
 #%%
-def extractmonitor_waveheader(filename):
+def loadmonitor_waveheader(filename):
     """ load a monitor wave header, return a pandasDataframe """
     df = pd.read_csv(filename, sep=',', header=None, index_col=None, nrows=12,
                      encoding='iso-8859-1')
@@ -113,6 +113,6 @@ if __name__ == '__main__':
     file = os.path.basename(filename)
     if file[0] == 'M':
         if 'Wave' in file:
-            wheader = extractmonitor_waveheader(filename)
+            wheader = loadmonitor_waveheader(filename)
             wdata = loadmonitor_wavedata(filename)
             wdata = append_monitorwave_datetime(wdata)

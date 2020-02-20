@@ -20,24 +20,23 @@ def check():
     issue = 'able to proceed'
     try:
         monitorTrend
-    except:
+    except NameError:
         print('monitor Trend data are missing')
         print('run record_main and load a monitor trendFile')
         issue = 'unableToProceed'
     try:
         monitorWave
-    except:
+    except NameError:
         print('monitor Wave data are missing')
         print('run record_main and load a monitor waveFile')
         issue = 'unableToProceed'
-    try: 
+    try:
         monitorTrend.header['Patient Name'] == monitorWave.header['Patient Name']
-    except:
+    except NameError:
         print('the trend and wave data are not belonging to the same recording !!')
         issue = 'unableToProceed'
     return issue
 
-print(check())
 #%
 def detect_beats(ser, param, species='horse'):
     """ detect the peak locations """
@@ -150,12 +149,10 @@ def plot_rr(ahr_df, param, HR=False):
     fig = plt.figure(figsize=(8, 4))
     ax = fig.add_subplot(211)
     ax.set_title('RR duration')
-    xvals = ahr_df.espts.values/params['fs']/60
+    xvals = ahr_df.espts.values/param['fs']/60
     ax.plot(xvals, ahr_df.rrInterpol.values)
     ax.set_ylabel('RR (msec)')
     ax.set_xlabel('min (fs  ' + str(fs) + ')')
-    for loca in ['top', 'right']:
-        ax.spines[loca].set_visible(False)
     ax.grid()
     lims = ahr_df.rrInterpol.quantile([0.01, 0.99])
     ax.set_ylim(lims)
@@ -176,7 +173,7 @@ def plot_rr(ahr_df, param, HR=False):
         ax.spines[loca].set_visible(False)
         ax2.spines[loca].set_visible(False)
 #    file = os.path.basename(filename)
-    fig.text(0.99, 0.01, params['file'], ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, param['file'], ha='right', va='bottom', alpha=0.4)
     fig.text(0.01, 0.01, 'cdesbois', ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
@@ -209,37 +206,42 @@ def append_rr_to_monitorWave(wave_data, ekgdf):
     return wave_data
 
 
-#%detect beats after record_main for monitorWave
-params = monitorWave.param
-#data = monitorWave.data
-# build a dataframe to work with (waves)
-ekg_df = pd.DataFrame(monitorWave.data.wekg)
+################################
 
-#low pass filtering
-ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
+if __name__ == '__main__':
+    # view if files are loaded
+    print(check())
+    #%detect beats after record_main for monitorWave
+    params = monitorWave.param
+    #data = monitorWave.data
+    # build a dataframe to work with (waves)
+    ekg_df = pd.DataFrame(monitorWave.data.wekg)
+
+    #low pass filtering
+    ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
                                                 monitorWave.param['fs'])
-# beats locations (beat based dataFrame)
-beat_df = detect_beats(ekg_df.wekg_lowpass, params)
-#plot
-figure = plot_beats(ekg_df.wekg_lowpass, beat_df)
+    # beats locations (beat based dataFrame)
+    beat_df = detect_beats(ekg_df.wekg_lowpass, params)
+    #plot
+    figure = plot_beats(ekg_df.wekg_lowpass, beat_df)
 
-#fs=300
-beat_df = compute_rr(beat_df, monitorWave.param)
-hr_df = interpolate_rr(beat_df)
-figure = plot_rr(hr_df, params, HR=True)
+    #fs=300
+    beat_df = compute_rr(beat_df, monitorWave.param)
+    hr_df = interpolate_rr(beat_df)
+    figure = plot_rr(hr_df, params, HR=True)
 
 #%% merge the wave and treated df
-# loc of the first beat
-first_beat_loc = int(beat_df.pLoc.iloc[0] - ekg_df.index.min())
-#append to ekg_df (ie contain ekg, ekg_lowpass,
-ekg_df = pd.concat([ekg_df, hr_df.shift(first_beat_loc)], axis=1, join='outer')
+    # loc of the first beat
+    first_beat_loc = int(beat_df.pLoc.iloc[0] - ekg_df.index.min())
+    #append to ekg_df (ie contain ekg, ekg_lowpass,
+    ekg_df = pd.concat([ekg_df, hr_df.shift(first_beat_loc)], axis=1, join='outer')
 
-#del first_beat_loc
-#del hr_df
-#del beat_df
-# NB HR is 1/ekg_df.rrInterpol*60*1000
+    #del first_beat_loc
+    #del hr_df
+    #del beat_df
+    # NB HR is 1/ekg_df.rrInterpol*60*1000
 
-figure = plot_agreement(monitorTrend.data, ekg_df)
+    figure = plot_agreement(monitorTrend.data, ekg_df)
 #%%
-monitorTrend.data = replace_hr_in_monitorTrend(monitorTrend.data, ekg_df)
-monitorWave.data = append_rr_to_monitorWave(monitorWave.data, ekg_df)
+    monitorTrend.data = replace_hr_in_monitorTrend(monitorTrend.data, ekg_df)
+    monitorWave.data = append_rr_to_monitorWave(monitorWave.data, ekg_df)
