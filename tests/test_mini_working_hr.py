@@ -15,7 +15,10 @@ try:
     from .context import recmain, wavelet
 except ModuleNotFoundError:
     from context import recmain, wavelet
-    
+
+import treatrec as treat
+from treatrec import ekg_to_hr
+
 #%%
 def load(tfile = 'M2020_2_4-9_49_5.csv',
          wfile = 'M2020_2_4-9_49_5Wave.csv',
@@ -47,7 +50,8 @@ def load(tfile = 'M2020_2_4-9_49_5.csv',
     return monitorTrend, monitorWave
 
 
-def time_freq_plot(t, freqs, data, coefs):
+def time_freq_plot(t, freqs, data, coefs,
+                   time_label = 'time (ms)'):
     """
     a plot to illustrate the output of the wavelet analysis
     """
@@ -57,13 +61,13 @@ def time_freq_plot(t, freqs, data, coefs):
     plt.subplots_adjust(wspace=.8, hspace=.5, bottom=.2)
     # signal plot
     plt.subplot2grid((3, 8), (0,0), colspan=6)
-    plt.plot(1e3*t, data, 'k-', lw=2)
+    plt.plot(t, data, 'k-', lw=2)
     plt.ylabel('signal')
-    plt.xlim([1e3*t[0], 1e3*t[-1]])
+    plt.xlim([t[0], t[-1]])
     # time frequency power plot
     ax1 = plt.subplot2grid((3, 8), (1,0), rowspan=2, colspan=6)
-    c = plt.contourf(1e3*t, freqs, coefs, cmap='PRGn', aspect='auto')
-    plt.xlabel('time (ms)')
+    c = plt.contourf(t, freqs, np.real(coefs), cmap='PRGn', aspect='auto')
+    plt.xlabel(time_label)
     plt.ylabel('frequency (Hz)')
     plt.yscale('log')
     # inset with legend
@@ -89,39 +93,44 @@ else:
     Wave_File = sys.argv[2]
 
 
-
-monitorTrend, monitorWave = load(tfile=Trend_File, wfile=Wave_File)
-
 #%% extract heart rate from wave
-import treatrec as treat
 #to force to load ekg_to_hr (why is it necessary ?)
-from treatrec import ekg_to_hr
 
-#%detect beats after record_main for monitorWave
-params = monitorWave.param
+if os.path.isfile('data/hr_df.npy'):
+    hr_df = np.load('data/hr_df.npy')
 
-#NB data = monitorWave.data
-# build a dataframe to work with (waves)
-ekg_df = pd.DataFrame(monitorWave.data.wekg)*(-1)
+else:
+    monitorTrend, monitorWave = load(tfile=Trend_File, wfile=Wave_File)
+    
+    #%detect beats after record_main for monitorWave
+    params = monitorWave.param
 
-#low pass filtering
-ekg_df['wekg_lowpass'] = recmain.wf.fix_baseline_wander(ekg_df.wekg,
-                                                monitorWave.param['fs'])
-# beats locations (beat based dataFrame)
-beat_df = treat.ekg_to_hr.detect_beats(ekg_df.wekg_lowpass, params)
-#plot
-figure = treat.ekg_to_hr.plot_beats(ekg_df.wekg_lowpass, beat_df)
+    #NB data = monitorWave.data
+    # build a dataframe to work with (waves)
+    ekg_df = pd.DataFrame(monitorWave.data.wekg)*(-1)
 
-#fs=300
-beat_df= treat.ekg_to_hr.compute_rr(beat_df, monitorWave.param)
-print(beat_df)
-hr_df = treat.ekg_to_hr.interpolate_rr(beat_df)
+    #low pass filtering
+    ekg_df['wekg_lowpass'] = recmain.wf.fix_baseline_wander(ekg_df.wekg,
+                                                    monitorWave.param['fs'])
+    # beats locations (beat based dataFrame)
+    beat_df = treat.ekg_to_hr.detect_beats(ekg_df.wekg_lowpass, params)
+    #plot
+    figure = treat.ekg_to_hr.plot_beats(ekg_df.wekg_lowpass, beat_df)
+
+    #fs=300
+    beat_df= treat.ekg_to_hr.compute_rr(beat_df, monitorWave.param)
+
+    hr_df = treat.ekg_to_hr.interpolate_rr(beat_df)
+
+    np.save('data/hr_df.npy', np.array(hr_df.rrInterpol))
+    hr_df = np.array(hr_df.rrInterpol)
+    
 
 dt = 1./300.
-t, data = np.array(beat_df.pLoc)*dt, np.array(beat_df.rr)-np.mean(beat_df.rr)
-freqs = np.logspace(-3, 1, 20)
-coefs = wavelet.my_cwt(data, freqs, dt, wavelet='morlet')
+t, data = np.arange(len(hr_df))*dt, (hr_df-hr_df.mean())/hr_df.std()
+freqs = np.logspace(-3, 0, 20)
+coefs = wavelet.my_cwt(data, freqs, dt)
 
-figure = time_freq_plot(t, freqs, data, coefs);
+figure = time_freq_plot(t[::10]/60., freqs, data[::10], coefs[:,::10]);
 
 plt.show()

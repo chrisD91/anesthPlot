@@ -115,25 +115,24 @@ def interpolate_rr(abeat_df):
         'rrInterpol' = interpolated rr
     """
     ahr_df = pd.DataFrame()
-    # build a new timeBase
-    start = int(abeat_df.pLoc.iloc[1])    #first point
-    stop = int(abeat_df.pLoc.iloc[-1])    # last point
-    num = int(stop - start -1)          # number of points
-#    num = beat_df.pLoc.iloc[-2]         #
-    ahr_df['espts'] = np.linspace(start, stop, num)# evenly spaced
-    ahr_df['espts'] = ahr_df['espts'].astype('int')
+    
+    ahr_df['espts'] = np.arange(abeat_df.pLoc.iloc[1], abeat_df.pLoc.iloc[-1])
+    
     # interpolate rr
     rrx = abeat_df.pLoc[1:].values        # rr locations
     rry = abeat_df.rr[:-1].values         # rr values
-    f = interp1d(rrx, rry, kind='cubic', bounds_error=False, fill_value="extrapolate")
+    # f = interp1d(rrx, rry, kind='cubic', bounds_error=False, fill_value="extrapolate")
+    f = interp1d(rrx, rry, kind='linear')
     ahr_df['rrInterpol'] = f(ahr_df['espts'])
     # interpolate rrDiff
     rry = abeat_df.rrDiff[:-1].values
-    f = interp1d(rrx, rry, bounds_error=False, fill_value="extrapolate")
+    # f = interp1d(rrx, rry, bounds_error=False, fill_value="extrapolate")
+    f = interp1d(rrx, rry, kind='linear')
     ahr_df['rrInterpolDiff'] = f(ahr_df['espts'])
     # interpolate rrSqrDiff
     rry = abeat_df.rrSqDiff[:-1].values
-    f = interp1d(rrx, rry, bounds_error=False, fill_value="extrapolate")
+    # f = interp1d(rrx, rry, bounds_error=False, fill_value="extrapolate")
+    f = interp1d(rrx, rry, kind='linear')
     ahr_df['rrInterpolSqDiff'] = f(ahr_df['espts'])
     return ahr_df
 
