@@ -18,11 +18,10 @@ This generated tends (~1pt/5sec) and waves (~300pt/sec) recordings
 
    some  additional packages can be required
 
-   ​	( pip install pyyaml,
-
-   ​	conda install -c conda-forge pyperclip,
-
-   ​	)
+	```
+	pip install pyyaml
+ 	conda install -c conda-forge pyperclip,
+	```
 
 2. download the repository
 
