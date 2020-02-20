@@ -1,10 +1,3 @@
-"""
-
-Short rewriting of the wavelet transform module of SciPy
-
-correspondence: yann.zerlaut@iit.it
-
-"""
 
 import numpy as np
 from scipy import signal
@@ -193,10 +186,6 @@ if __name__ == '__main__':
 
     plt.style.use('ggplot')
 
-    import sys
-    sys.path.append('../../')
-    from graphs.my_graph import show
-    
     # temporal sampling
     dt, tstop = 1e-4, 1.
     t = np.arange(int(tstop/dt))*dt
@@ -227,6 +216,5 @@ if __name__ == '__main__':
         freqs = np.linspace(1, 90, args.nfreq)
         coefs = my_cwt(data, freqs, dt, wavelet=args.wavelet)
 
-        illustration_plot(t, freqs, data, coefs, dt, tstop, freq1, freq2, freq3)
-        # time_freq_plot(t, freqs, data, coefs)
-    show()
+        time_freq_plot(t, freqs, data, coefs)
+    plt.show()
