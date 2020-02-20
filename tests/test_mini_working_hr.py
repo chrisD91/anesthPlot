@@ -8,11 +8,13 @@ Created on Wed Feb 19 16:15:27 2020
 
 import os, sys
 import pandas as pd
+import matplotlib.pylab as plt
+import numpy as np
 
 try:
-    from .context import record_main as recmain
+    from .context import recmain, wavelet
 except ModuleNotFoundError:
-    from context import record_main as recmain
+    from context import recmain, wavelet
     
 #%%
 def load(tfile = 'M2020_2_4-9_49_5.csv',
@@ -43,6 +45,41 @@ def load(tfile = 'M2020_2_4-9_49_5.csv',
     for item in ['wflow', 'wawp', 'wvp']:
         del monitorWave.data[item]
     return monitorTrend, monitorWave
+
+
+def time_freq_plot(t, freqs, data, coefs):
+    """
+    a plot to illustrate the output of the wavelet analysis
+    """
+    dt = t[1]-t[0]
+
+    fig = plt.figure(figsize=(8,5))
+    plt.subplots_adjust(wspace=.8, hspace=.5, bottom=.2)
+    # signal plot
+    plt.subplot2grid((3, 8), (0,0), colspan=6)
+    plt.plot(1e3*t, data, 'k-', lw=2)
+    plt.ylabel('signal')
+    plt.xlim([1e3*t[0], 1e3*t[-1]])
+    # time frequency power plot
+    ax1 = plt.subplot2grid((3, 8), (1,0), rowspan=2, colspan=6)
+    c = plt.contourf(1e3*t, freqs, coefs, cmap='PRGn', aspect='auto')
+    plt.xlabel('time (ms)')
+    plt.ylabel('frequency (Hz)')
+    plt.yscale('log')
+    # inset with legend
+    acb = plt.axes([.8, .7, .02, .2])
+    plt.colorbar(c, cax=acb, label='coeffs (a.u.)', ticks=[-1, 0, 1])
+    # mean power plot over intervals
+    plt.subplot2grid((3, 8), (1, 6), rowspan=2)
+    plt.barh(freqs, np.power(coefs,2).mean(axis=1)*dt)
+    plt.xticks([]);
+    plt.xlabel(' mean \n power \n (a.u.)')
+    # max of power over intervals
+    plt.subplot2grid((3, 8), (1, 7), rowspan=2)
+    plt.barh(freqs, np.power(coefs,2).max(axis=1)*dt)
+    plt.xticks([]);
+    plt.xlabel(' max. \n power \n (a.u.)');
+    return fig
 
 
 if len(sys.argv)<2:
@@ -79,7 +116,12 @@ figure = treat.ekg_to_hr.plot_beats(ekg_df.wekg_lowpass, beat_df)
 beat_df= treat.ekg_to_hr.compute_rr(beat_df, monitorWave.param)
 print(beat_df)
 hr_df = treat.ekg_to_hr.interpolate_rr(beat_df)
-figure = treat.ekg_to_hr.plot_rr(hr_df, params, HR=True)
 
-figure.savefig('fig.png')
+dt = 1./300.
+t, data = np.array(beat_df.pLoc)*dt, np.array(beat_df.rr)-np.mean(beat_df.rr)
+freqs = np.logspace(-3, 1, 20)
+coefs = wavelet.my_cwt(data, freqs, dt, wavelet='morlet')
 
+figure = time_freq_plot(t, freqs, data, coefs);
+
+plt.show()
