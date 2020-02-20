@@ -7,7 +7,9 @@ from PyQt5 import QtCore
 
 
 #%%
-def fileDialog(kind='', directory='', forOpen=True, fmt='', isFolder=False):
+def fileDialog(kind='',
+               directory=os.path.dirname(__file__),
+               forOpen=True, fmt='', isFolder=False):
     label = 'select the folder for ' + kind
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
@@ -34,7 +36,7 @@ def fileDialog(kind='', directory='', forOpen=True, fmt='', isFolder=False):
     if directory != '':
         dialog.setDirectory(str(directory))
     else:
-        dialog.setDirectory(os.getcwd)
+        dialog.setDirectory(os.getcwd())
 
     if dialog.exec_() == QDialog.Accepted:
         path = dialog.selectedFiles()[0]  # returns a list
