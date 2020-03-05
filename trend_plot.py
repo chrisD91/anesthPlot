@@ -8,7 +8,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 #import utils
-plt.rcParams["figure.figsize"] = (8.5, 3)
+font_size = 'medium' # large, medium
+params = {'font.sans-serif': ['Arial'],
+          'font.size': 14,
+          'legend.fontsize': font_size,
+          'figure.figsize': (8.5, 3),
+          'axes.labelsize': font_size,
+          'axes.titlesize': font_size,
+          'xtick.labelsize': font_size,
+          'ytick.labelsize': font_size,
+          'axes.xmargin': 0}
+plt.rcParams.update(params)
+plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
 #%%
 def plot_header(descr, param={'save':False}):
     """
