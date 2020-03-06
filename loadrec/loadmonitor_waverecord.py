@@ -37,6 +37,11 @@ def loadmonitor_wavedata(filename):
 #    filename = os.path.join(paths['data'], file)
     # bug in the header caused by an acentuated character in line 9 ('césarienne')
     # header and data to dataFrame
+    
+    #header : 
+    header_df = pd.read_csv(filename, sep=',', header=None, index_col=None, nrows=12,
+                     encoding='iso-8859-1')
+    date = header_df.iloc[0][1]
 
     df = pd.read_csv(filename, sep=',', skiprows=[14], header=13,
                      index_col=False, encoding='iso-8859-1',
@@ -64,8 +69,21 @@ def loadmonitor_wavedata(filename):
         df['wco2'] *= 7.6    # CO2 % -> mmHg
     df['wekg'] /= 100    # tranform EKG in mVolts
     df['wawp'] *= 10     # mmH2O -> cmH2O
-
-    df.time = pd.to_datetime(df.time) # time column to dateTime format
+    # datetime implementation
+    def convert(x):
+        if not pd.isna(x):
+            x = pd.to_datetime(date + '-' + x)
+        return x
+    df.time = df.time.apply(convert)
+    ser = pd.Series(df.time.values.astype('int64'))
+    ser[ser<0] = np.nan
+    df.time = pd.to_datetime(ser.interpolate(), unit='ns')
+    
+    #date = wheader.iloc[0,1]
+    #heure = df.iloc[0][df.columns[0]]
+    #pd.Timestamp(date + '-' + heure)
+    # to be implemented in the column
+#    df.time = pd.to_datetime(df.time) # time column to dateTime format
     df['point'] = df.index         # point location
 
     # add a 'sec'
