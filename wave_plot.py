@@ -85,10 +85,6 @@ def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
                 pass
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
-#        ax.set_xlim(0, win)
-#        ax.get_xaxis().tick_bottom()
-#        ax.set_xticklabels(np.linspace(df.sec.loc[mini], df.sec.loc[maxi],
-#                                       len(ax.get_xticklabels())).astype(int).astype(str).tolist())
         if not datetime:
             ax.set_xlabel('time (sec)')
     #two waves
@@ -125,10 +121,6 @@ def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
                 ax.set_ylim(50, 110)
             ax.get_xaxis().tick_bottom()
             if i > 0:
-#                ax.set_xlim(0, win)
-#                ax.get_xaxis().tick_bottom()
-#                ax.set_xticklabels(np.linspace(df.sec.loc[mini], df.sec.loc[maxi],
-#                                               len(ax.get_xticklabels())).astype(int).astype(str).tolist())
                 if not datetime:
                     ax.set_xlabel('time (sec)')
         for ax in ax_list:
