@@ -20,7 +20,7 @@ params = {'font.sans-serif': ['Arial'],
 plt.rcParams.update(params)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
 #%%
-def plot_wave(df, keys=[], mini=None, maxi=None):
+def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
     """
     plot the waves recorded (from as5)
     input:  df= dataFrame
@@ -45,13 +45,17 @@ def plot_wave(df, keys=[], mini=None, maxi=None):
     if not df.index[0] <= maxi <= df.index[-1]:
         print('maxi value not in range, replaced by end time value')
         maxi = df.index[-1]
+    if datetime:
+        df = df.iloc[mini : maxi].set_index('datetime')
+    else:
+        df = df.iloc[mini : maxi].set_index('sec')    
     for key in keys:
         if key not in names.keys():
             print(key, 'is not in ', names.keys())
             return
     if len(keys) not in [1, 2]:
         print('only one or two keys are allowed ', keys, 'were used')
-
+        
     lines = []
     # one wave
     if len(keys) == 1:
@@ -82,10 +86,11 @@ def plot_wave(df, keys=[], mini=None, maxi=None):
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
 #        ax.set_xlim(0, win)
-        ax.get_xaxis().tick_bottom()
-        ax.set_xticklabels(np.linspace(df.sec.loc[mini], df.sec.loc[maxi],
-                                       len(ax.get_xticklabels())).astype(int).astype(str).tolist())
-        ax.set_xlabel('time (sec)')
+#        ax.get_xaxis().tick_bottom()
+#        ax.set_xticklabels(np.linspace(df.sec.loc[mini], df.sec.loc[maxi],
+#                                       len(ax.get_xticklabels())).astype(int).astype(str).tolist())
+        if not datetime:
+            ax.set_xlabel('time (sec)')
     #two waves
     elif len(keys) == 2:
         fig = plt.figure(figsize=(10, 4))
@@ -121,10 +126,11 @@ def plot_wave(df, keys=[], mini=None, maxi=None):
             ax.get_xaxis().tick_bottom()
             if i > 0:
 #                ax.set_xlim(0, win)
-                ax.get_xaxis().tick_bottom()
-                ax.set_xticklabels(np.linspace(df.sec.loc[mini], df.sec.loc[maxi],
-                                               len(ax.get_xticklabels())).astype(int).astype(str).tolist())
-                ax.set_xlabel('time (sec)')
+#                ax.get_xaxis().tick_bottom()
+#                ax.set_xticklabels(np.linspace(df.sec.loc[mini], df.sec.loc[maxi],
+#                                               len(ax.get_xticklabels())).astype(int).astype(str).tolist())
+                if not datetime:
+                    ax.set_xlabel('time (sec)')
         for ax in ax_list:
             for loca in ['top', 'right']:
                 ax.spines["top"].set_visible(False)
