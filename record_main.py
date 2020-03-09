@@ -25,7 +25,7 @@ rcParams['axes.xmargin'] = 0
 rcParams['axes.ymargin'] = 0
 
 #%
-def read_config():
+def build_paths():
     """
     read the yaml configuration file
     """
@@ -58,13 +58,13 @@ def append_syspath(path_dico):
 #        sys.path.append(paths['utils'])
 #        print('added', paths['utils'], ' to the path')
 
-paths = read_config()
+paths = build_paths()
 append_syspath(paths)
 
 #import utils
 #import bloodGases2 as bg
-import trend_plot as tplot
-import wave_plot as wplot
+from plot import trend_plot as tplot
+from plot import wave_plot as wplot
 import treatrec.wave_func as wf
 import treatrec.clean_data as clean
 ##import bloodGases2 as bg
@@ -76,9 +76,10 @@ import loadrec.loadtelevet as ltv
 
 #
 
-def gui_choosefile(path_dico, direct=None, caption='choose a recording'):
+def choosefile_gui(path_dico='~', direct=None, caption='choose a recording'):
     """
     Select a file via a dialog and return the file name.
+    input : path_dico = location
     """
     if not direct:
         direct = path_dico['data']
@@ -213,15 +214,25 @@ class Waves():
     """
     def __init__(self, filename=None):
         if not filename:
-            filename = gui_choosefile(paths)
+            filename = choosefile_gui(paths)
         self.filename = filename
         self.file = os.path.basename(filename)
         self.fs = None
         self.source = None
         self.data = None
         self.header = None
-        self.param = None
-
+        self.param = {
+                'xmin': None,
+                'xmax': None,
+                'ymin': 0,
+                'ymax': None,
+                'path': paths['sFig'],
+                'unit': 'min',
+                'save': False,
+                'memo': False,
+                'file': os.path.basename(filename),
+                'source': None}
+        
 #+++++++
 class SlowWave(Waves):
     """
@@ -251,7 +262,9 @@ class MonitorTrend(SlowWave):
         self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
         self.source = 'monitor'
         self.fs = self.header['Sampling Rate']
-
+        self.param['source'] : 'monitorTrend'
+        #self.param'file' : os.path.basename(filename)}
+                
 class TaphTrend(SlowWave):
     """ taphonius trends recordings"""
     def __init__(self, filename):
@@ -261,7 +274,7 @@ class TaphTrend(SlowWave):
         self.header = self.load_header()
     def load_header(self):
         """ load the header -> pandas.dataframe """
-        headername = gui_choosefile(paths, direct=os.path.dirname(filename),
+        headername = choosefile_gui(paths, direct=os.path.dirname(filename),
                                     caption='choose Patient Data')
         if headername != '':
             header = ltt.loadtaph_patientfile(headername)
@@ -349,6 +362,7 @@ class MonitorWave(FastWave):
 
 #%%
 if __name__ == '__main__':
+    paths = build_paths()
     os.chdir(paths['recordMain'])
     print('backEnd= ', plt.get_backend())   # required ?
     print('start QtApp')
@@ -364,7 +378,7 @@ if __name__ == '__main__':
     except NameError:
         records = {}
     # choose file and indicate the source
-    filename = gui_choosefile(paths)
+    filename = choosefile_gui(paths)
     source = select_type(caption="choose kind of file",
                          items=("monitorTrend", "monitorWave",
                                 "taphTrend", "telVet"))
