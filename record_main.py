@@ -76,18 +76,17 @@ import loadrec.loadtelevet as ltv
 
 #
 
-def choosefile_gui(path_dico='~', direct=None, caption='choose a recording'):
+def choosefile_gui(path_dico={}, direct=None, caption='choose a recording'):
     """
     Select a file via a dialog and return the file name.
-    input : path_dico = location
+    input : path_dico = location dico {'data': pathToData} else home
     """
-    if not direct:
-        direct = path_dico['data']
+    dir = path_dico.get('data', '~')
     options = QFileDialog.Options()
 # to be able to see the caption, but impose to work with the mouse
 #    options |= QFileDialog.DontUseNativeDialog
     fname = QFileDialog.getOpenFileName(caption=caption,
-                                        directory=direct, filter='*.csv',
+                                        directory=dir, filter='*.csv',
                                         options=options)
 #    fname = QFileDialog.getOpenfilename(caption=caption,
 #                                        directory=direct, filter='*.csv')
@@ -259,11 +258,12 @@ class MonitorTrend(SlowWave):
     def __init__(self, filename):
         super().__init__(filename)
         self.header = lmt.loadmonitor_trendheader(self.filename)
-        self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
-        self.source = 'monitor'
-        self.fs = self.header['Sampling Rate']
-        self.param['source'] : 'monitorTrend'
-        #self.param'file' : os.path.basename(filename)}
+        if self.header:
+            self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
+            self.source = 'monitor'
+            self.fs = self.header['Sampling Rate']
+            self.param['source'] : 'monitorTrend'
+            #self.param'file' : os.path.basename(filename)}
                 
 class TaphTrend(SlowWave):
     """ taphonius trends recordings"""
@@ -312,6 +312,7 @@ class FastWave(Waves):
             fig.text(0.01, 0.01, self.file, ha='left', va='bottom', alpha=0.4)
             self.trace = trace
             self.fig = fig
+            plt.show()
         else:
             self.trace = None
             self.fig = None
@@ -395,7 +396,8 @@ if __name__ == '__main__':
     elif source == 'monitorTrend':
         monitorTrend = MonitorTrend(filename)
         monitorTrend.param = params
-        fig_list = monitorTrend.show_graphs()
+        if monitorTrend.data is not None:
+            fig_list = monitorTrend.show_graphs()
     elif source == 'monitorWave':
         monitorWave = MonitorWave(filename)
         params['fs'] = float(monitorWave.header['Data Rate (ms)'])*60/1000

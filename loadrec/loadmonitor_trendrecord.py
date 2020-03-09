@@ -5,6 +5,7 @@ Created on Wed Jul 24 13:43:26 2019
 
 @author: cdesbois
 """
+
 import os
 import pandas as pd
 #import numpy as np
@@ -29,10 +30,14 @@ def loadmonitor_trendheader(datafile):
     # convert to num
     df.Weight = df.Weight.astype(float)
     df.Height = df.Height.astype(float)
-    df['Sampling Rate'] = df['Sampling Rate'].astype(float)
-    # convert to a dictionary
-    descr = df.loc[1].to_dict()
-    return descr
+    if 'Sampling Rate' not in df.columns:
+        print ('>>> this is not a trend record')
+        return
+    else:
+        # convert to a dictionary
+        df['Sampling Rate'] = df['Sampling Rate'].astype(float)
+        descr = df.loc[1].to_dict()
+        return descr
 
 def loadmonitor_trenddata(datafile, header):
     """ load the monitor trend data, return a pandasDataframe """
@@ -118,6 +123,9 @@ if __name__ == '__main__':
     if file[0] == 'M':
         if 'Wave' not in file:
             header = loadmonitor_trendheader(fileName)
-            mdata = loadmonitor_trenddata(fileName, header)
-            #mdata= cleanMonitorTrendData(mdata)
+            if header is not None:
+                mdata = loadmonitor_trenddata(fileName, header)
+                #mdata= cleanMonitorTrendData(mdata)
+            else:
+                mdata = None
             
