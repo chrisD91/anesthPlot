@@ -73,7 +73,7 @@ import loadrec.loadmonitor_waverecord as lmw
 import loadrec.loadtaph_trendrecord as ltt
 import loadrec.loadtelevet as ltv
 
-
+import treatrec as treat
 #
 
 def choosefile_gui(path_dico={}, direct=None, caption='choose a recording'):
@@ -92,6 +92,11 @@ def choosefile_gui(path_dico={}, direct=None, caption='choose a recording'):
 #                                        directory=direct, filter='*.csv')
     #TODO : be sure to be able to see the caption
     return fname[0]
+
+def trendname_to_wavename(name):
+    return name.split('.')[0] + 'Wave.csv'
+
+
 
 def select_type(caption=None, items=None):
     """
