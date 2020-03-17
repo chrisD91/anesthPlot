@@ -46,7 +46,7 @@ def build_paths():
         print('please build one -> cf buildConfig.py')
         return None
 
-def append_syspath(path_dico):
+def adapt_with_syspath(path_dico):
     """
     add the folder location to the system path
     """
@@ -59,34 +59,41 @@ def append_syspath(path_dico):
 #        print('added', paths['utils'], ' to the path')
 
 paths = build_paths()
-append_syspath(paths)
+adapt_with_syspath(paths)
 
 #import utils
 #import bloodGases2 as bg
 from plot import trend_plot as tplot
 from plot import wave_plot as wplot
 import treatrec.wave_func as wf
-import treatrec.clean_data as clean
-##import bloodGases2 as bg
+# import treatrec.clean_data as clean
+# ##import bloodGases2 as bg
+
+from loadrec import loadmonitor_trendrecord, loadmonitor_waverecord
+from loadrec import loadtaph_trendrecord
+from loadrec import explore
+# import plot
+# import treatrec as treat
+
 import loadrec.loadmonitor_trendrecord as lmt
 import loadrec.loadmonitor_waverecord as lmw
 import loadrec.loadtaph_trendrecord as ltt
 import loadrec.loadtelevet as ltv
-
-import treatrec as treat
+import loadrec.explore as explore
 #
 
-def choosefile_gui(path_dico={}, direct=None, caption='choose a recording'):
+def choosefile_gui(dir_path=None, caption='choose a recording'):
     """
-    Select a file via a dialog and return the file name.
-    input : path_dico = location dico {'data': pathToData} else home
+    Select a file via a dialog and return the (full) filename.
+    input : dir_path = location ('generally paths['data']) else home
     """
-    dir = path_dico.get('data', '~')
+    if not dir_path:
+        dir_path = os.path.expanduser('~')
     options = QFileDialog.Options()
 # to be able to see the caption, but impose to work with the mouse
 #    options |= QFileDialog.DontUseNativeDialog
     fname = QFileDialog.getOpenFileName(caption=caption,
-                                        directory=dir, filter='*.csv',
+                                        directory=dir_path, filter='*.csv',
                                         options=options)
 #    fname = QFileDialog.getOpenfilename(caption=caption,
 #                                        directory=direct, filter='*.csv')
@@ -192,7 +199,7 @@ def plot_trenddata(file, df, header, param_dico):
     afig_list.append(tplot.plot_header(header, param_dico))
     for fig in afig_list:
         if fig:                 # test if figure is present
-            fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
+            fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
             fig.text(0.01, 0.01, file, ha='left', va='bottom', alpha=0.4)
     print('plt.show')
     plt.show()
@@ -218,7 +225,7 @@ class Waves():
     """
     def __init__(self, filename=None):
         if not filename:
-            filename = choosefile_gui(paths)
+            filename = choosefile_gui(paths['data'])
         self.filename = filename
         self.file = os.path.basename(filename)
         self.fs = None
@@ -236,7 +243,7 @@ class Waves():
                 'memo': False,
                 'file': os.path.basename(filename),
                 'source': None}
-        
+
 #+++++++
 class SlowWave(Waves):
     """
@@ -267,9 +274,9 @@ class MonitorTrend(SlowWave):
             self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
             self.source = 'monitor'
             self.fs = self.header['Sampling Rate']
-            self.param['source'] : 'monitorTrend'
+            self.param['source'] = 'monitorTrend'
             #self.param'file' : os.path.basename(filename)}
-                
+
 class TaphTrend(SlowWave):
     """ taphonius trends recordings"""
     def __init__(self, filename):
@@ -279,7 +286,7 @@ class TaphTrend(SlowWave):
         self.header = self.load_header()
     def load_header(self):
         """ load the header -> pandas.dataframe """
-        headername = choosefile_gui(paths, direct=os.path.dirname(filename),
+        headername = choosefile_gui(dir_path=os.path.dirname(filename),
                                     caption='choose Patient Data')
         if headername != '':
             header = ltt.loadtaph_patientfile(headername)
@@ -313,7 +320,7 @@ class FastWave(Waves):
         if trace:
 #            fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
             fig, _ = wplot.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
-            fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4)
+            fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
             fig.text(0.01, 0.01, self.file, ha='left', va='bottom', alpha=0.4)
             self.trace = trace
             self.fig = fig
@@ -365,7 +372,6 @@ class MonitorWave(FastWave):
         self.source = 'monitorWave'
         self.fs = 300
 
-
 #%%
 if __name__ == '__main__':
     paths = build_paths()
@@ -377,14 +383,13 @@ if __name__ == '__main__':
     except NameError:
         app = QApplication(sys.argv)
         app.setQuitOnLastWindowClosed(True)
-#        app.quitOnLastWindowClosed() == True
     # list of loaded records
     try:
         records
     except NameError:
         records = {}
     # choose file and indicate the source
-    filename = choosefile_gui(paths)
+    filename = choosefile_gui(paths['data'])
     source = select_type(caption="choose kind of file",
                          items=("monitorTrend", "monitorWave",
                                 "taphTrend", "telVet"))

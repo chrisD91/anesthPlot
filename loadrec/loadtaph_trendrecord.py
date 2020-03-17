@@ -7,17 +7,28 @@ Created on Wed Jul 24 15:30:07 2019
 """
 
 import os
+import sys
 import pandas as pd
 #import numpy as np
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QApplication
 
 #%%
-def gui_choosefile(paths, direct=None):
-    """Select a file via a QtDialog, return the fileName (str). """
-    if not direct:
-        direct = paths['data']
-    fname = QFileDialog.getOpenfilename(caption='choose a file',
-                                        directory=direct, filter='*.csv')
+def choosefile_gui(dir_path=None, caption='choose a recording'):
+    """
+    Select a file via a dialog and return the (full) filename.
+    input : dir_path = location ('generally paths['data']) else home
+    """
+    if not dir_path:
+        dir_path = os.path.expanduser('~')
+    options = QFileDialog.Options()
+# to be able to see the caption, but impose to work with the mouse
+#    options |= QFileDialog.DontUseNativeDialog
+    fname = QFileDialog.getOpenFileName(caption=caption,
+                                        directory=dir_path, filter='*.csv',
+                                        options=options)
+#    fname = QFileDialog.getOpenfilename(caption=caption,
+#                                        directory=direct, filter='*.csv')
+    #TODO : be sure to be able to see the caption
     return fname[0]
 
 def loadtaph_trenddata(filename):
@@ -106,7 +117,9 @@ def loadtaph_patientfile(headername):
 
 #%%
 if __name__ == '__main__':
-    filename = gui_choosefile(paths={'data':'~'})
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(True)
+    filename = choosefile_gui(dir_path=os.path.expanduser('~'))
     file = os.path.basename(filename)
     if file[:2] == 'SD':
         tdata = loadtaph_trenddata(filename)

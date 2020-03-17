@@ -6,19 +6,28 @@ Created on Wed Jul 31 16:22:06 2019
 @author: cdesbois
 """
 import os
+import sys
 import pandas as pd
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QApplication
 
 #%%
-def gui_choosefile(paths, direct=None):
-    """ Select a file via a QtDialog, return the filename (str). """
-    if not direct:
-        assert paths['data']
-        direct = paths['data']
-    fname = QFileDialog.getOpenfilename(caption='choose a file',
-                                        directory=direct, filter='*.csv')
-    name = fname[0]
-    return name
+def choosefile_gui(dir_path=None, caption='choose a recording'):
+    """
+    Select a file via a dialog and return the (full) filename.
+    input : dir_path = location ('generally paths['data']) else home
+    """
+    if not dir_path:
+        dir_path = os.path.expanduser('~')
+    options = QFileDialog.Options()
+# to be able to see the caption, but impose to work with the mouse
+#    options |= QFileDialog.DontUseNativeDialog
+    fname = QFileDialog.getOpenFileName(caption=caption,
+                                        directory=dir_path, filter='*.csv',
+                                        options=options)
+#    fname = QFileDialog.getOpenfilename(caption=caption,
+#                                        directory=direct, filter='*.csv')
+    #TODO : be sure to be able to see the caption
+    return fname[0]
 
 
 def loadtelevet(file=None, all_traces=False):
@@ -49,7 +58,9 @@ try:
 except:
     paths = {}
 
-if __name__ == '__main__':
-    filename = gui_choosefile(paths)
+if __name__ == '__main__':    
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(True)
+    filename = choosefile_gui(paths)
     file = os.path.basename(filename)
     ekg_data = loadtelevet(filename, all_traces=False)
