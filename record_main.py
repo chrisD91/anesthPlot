@@ -102,6 +102,26 @@ def build_param_dico(file='', source=''):
             'source': source}
     return dico
 
+import gc
+
+#%
+def check():
+    """ print the loaded recordings """
+    #TODO : doesn't work ?? to be adjusted
+    imported = {}
+    for item in gc.get_objects():
+        if isinstance(item, MonitorTrend):
+            alist = [k for k,v in locals().items() if v is item]
+            imported[alist[0]] = item.file
+            print(alist)
+        elif isinstance(item, MonitorWave):
+            alist = [k for k,v in locals().items() if v is item]
+            imported[alist[0]] = item.file
+            print(alist)
+    for key, val in imported.items():
+        print(key, '<->', val)  
+
+
 def list_loaded():
     """
     list the loaded files
@@ -207,7 +227,9 @@ class Waves():
                 'save': False,
                 'memo': False,
                 'file': os.path.basename(filename),
-                'source': None}
+                'source': None,
+                'fs' : None
+                }
 
 #+++++++
 class SlowWave(Waves):
@@ -336,6 +358,7 @@ class MonitorWave(FastWave):
         self.data = data
         self.source = 'monitorWave'
         self.fs = 300
+        self.param['fs'] = 300
 
 #%%
 if __name__ == '__main__':
