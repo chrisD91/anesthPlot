@@ -90,7 +90,7 @@ if __name__ == '__main__':
         recordMainPath = fileDialog(kind=key, directory= os.getcwd())
         if os.path.isfile(recordMainPath):
             recordMainPath = os.path.dirname(recordMainPath)
-        configName = os.path.join(recordMainPath, 'recordRc.yaml')
+        configName = os.path.join(recordMainPath, 'config', 'recordRc.yaml')
         if os.path.isfile(configName):
             # build from config file
             paths = readConfig()       
@@ -101,11 +101,14 @@ if __name__ == '__main__':
             paths['cwd']= os.getcwd()
     home = os.path.expanduser('~')
     # manual define/confirm the paths    
-    for key in ['root', 'data', 'save', 'sFig', 'sBg', 'utils']:
+    for key in ['root', 'data', 'save']:
         if key in paths.keys():
             paths[key] = fileDialog(kind=key, directory= paths[key], isFolder=True)
         else:
             paths[key] = fileDialog(kind=key, directory= home, isFolder=True)
+    paths['sFig'] = paths['save']
+    paths['sBg'] = paths['save']
+    paths['utils'] = '~'
     #write config
     writeConfigFile(paths)
     try:
