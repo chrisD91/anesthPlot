@@ -3,6 +3,30 @@
 """
 Created on Wed Feb 12 16:52:00 2020
 
+function used to treat an EKG signal and extract the heart rate
+typycally=
+0- view if files are loaded
+    print(check())
+1- params
+    params = monitorWave.param
+    #data = monitorWave.data
+    # build a dataframe to work with (waves)
+    ekg_df = pd.DataFrame(monitorWave.data.wekg)
+
+2- low pass filtering
+    ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
+                                                monitorWave.param['fs'])
+3- beats locations (beat based dataFrame)
+    beat_df = detect_beats(ekg_df.wekg_lowpass, params)
+4- plot
+    figure = plot_beats(ekg_df.wekg_lowpass, beat_df)
+
+    #fs=300
+    beat_df = compute_rr(beat_df, monitorWave.param)
+    hr_df = interpolate_rr(beat_df)
+    figure = plot_rr(hr_df, params, HR=True)
+
+
 @author: cdesbois
 """
 
@@ -15,33 +39,10 @@ from scipy.interpolate import interp1d
 import treatrec.wave_func as wf
 
 #%
-def check():
-    """ test if the files are present """
-    issue = 'able to proceed'
-    try:
-        monitorTrend
-    except NameError:
-        print('monitor Trend data are missing')
-        print('run record_main and load a monitor trendFile')
-        issue = 'unableToProceed'
-    try:
-        monitorWave
-    except NameError:
-        print('monitor Wave data are missing')
-        print('run record_main and load a monitor waveFile')
-        issue = 'unableToProceed'
-    try:
-        monitorTrend.header['Patient Name'] == monitorWave.header['Patient Name']
-    except NameError:
-        print('the trend and wave data are not belonging to the same recording !!')
-        issue = 'unableToProceed'
-    return issue
-
-#%
-def detect_beats(ser, param, species='horse'):
+def detect_beats(ser, fs=300, species='horse'):
     """ detect the peak locations """
     df = pd.DataFrame()
-    fs = param.get('fs', 300)
+#    fs = param.get('fs', 300)
     if species == 'horse':
         height = 0.5      # min, max
         distance = 0.7*fs    # sec
@@ -116,10 +117,12 @@ def interpolate_rr(abeat_df):
     """
     ahr_df = pd.DataFrame()
     
-    ahr_df['espts'] = np.arange(abeat_df.pLoc.iloc[1], abeat_df.pLoc.iloc[-1])
+    first_beat_pt = int(beat_df.iloc[0].pLoc)
+    last_beat_pt = int(beat_df.iloc[-1].pLoc)
+    ahr_df['espts'] = np.arange(first_beat_pt, last_beat_pt)
     
     # interpolate rr
-    rrx = abeat_df.pLoc[1:].values        # rr locations
+    rrx = abeat_df.pLoc[:-1].values        # rr locations
     rry = abeat_df.rr[:-1].values         # rr values
     # f = interp1d(rrx, rry, kind='cubic', bounds_error=False, fill_value="extrapolate")
     f = interp1d(rrx, rry, kind='linear')
@@ -148,7 +151,7 @@ def plot_rr(ahr_df, param, HR=False):
     fig = plt.figure(figsize=(8, 4))
     ax = fig.add_subplot(211)
     ax.set_title('RR duration')
-    xvals = ahr_df.espts.values/param['fs']/60
+    xvals = ahr_df.espts.values/fs/60
     ax.plot(xvals, ahr_df.rrInterpol.values)
     ax.set_ylabel('RR (msec)')
     ax.set_xlabel('min (fs  ' + str(fs) + ')')
