@@ -63,22 +63,24 @@ def detect_beats(ser, fs=300, species='horse'):
     del pk, beats_params
     return df
 
-def plot_beats(ecg, beats, rrdiff=False):
+def plot_beats(ecg, beats):
     """ plot ecg waveform + beat location """
-    fig = plt.figure(figsize=(12, 6))
+    fig = plt.figure(figsize=(12, 8))
     fig.suptitle('verify the accuracy of the beat detection')
-    ax = fig.add_subplot(111)
-    ax.plot(ecg.values, label='ekg')
-    ax.set_ylabel('ekg (mV)')
-    ax.set_xlabel('pt value')
-    ax.plot(beats.pLoc, beats.yLoc, 'o', color='orange', label='R')
-    for locs in ['top', 'right']:
-        ax.spines[locs].set_visible(False)
-    if rrdiff:
-        ax2 = ax.twinx()
-        ax2.plot(beats.pLoc[:-1], np.diff(beats.pLoc), 'r-', label='rr')
-        ax2.spines['top'].set_visible(False)
+    ax0 = fig.add_subplot(211)
+    ax0.plot(ecg.values, label='ekg')
+    ax0.set_ylabel('ekg (mV)')
+    ax0.set_xlabel('pt value')
+    ax0.plot(beats.pLoc, beats.yLoc, 'o', color='orange', label='R')
+    
+    ax1 = fig.add_subplot(212, sharex=ax0)
+    ax1.plot(beats.pLoc[:-1], np.diff(beats.pLoc), 'r-', label='rr')
+    ax1.set_ylabel('rr (pt value)')
+    ax1.set_xlabel('pt value')
     fig.legend()
+    for ax in fig.get_axes():
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
     fig.tight_layout()
     return fig
 
@@ -116,11 +118,11 @@ def interpolate_rr(abeat_df):
         'rrInterpol' = interpolated rr
     """
     ahr_df = pd.DataFrame()
-    
+
     first_beat_pt = int(beat_df.iloc[0].pLoc)
     last_beat_pt = int(beat_df.iloc[-1].pLoc)
     ahr_df['espts'] = np.arange(first_beat_pt, last_beat_pt)
-    
+
     # interpolate rr
     rrx = abeat_df.pLoc[:-1].values        # rr locations
     rry = abeat_df.rr[:-1].values         # rr values
@@ -221,7 +223,7 @@ if __name__ == '__main__':
 
     #low pass filtering
     ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
-                                                monitorWave.param['fs'])
+                                                    monitorWave.param['fs'])
     # beats locations (beat based dataFrame)
     beat_df = detect_beats(ekg_df.wekg_lowpass, params)
     #plot
