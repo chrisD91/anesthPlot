@@ -60,7 +60,6 @@ def detect_beats(ser, fs=300, species='horse'):
     if 'peak_heights' in df.columns:
         df = df.rename(columns={'peak_heights': 'yLoc'})
         df.yLoc *= -1
-    del pk, beats_params
     return df
 
 def plot_beats(ecg, beats):
@@ -83,6 +82,43 @@ def plot_beats(ecg, beats):
             ax.spines[loca].set_visible(False)
     fig.tight_layout()
     return fig
+
+def locate_beat(df, fig):
+    """ locate the beat location identified in the figure """
+    # find irrelevant beat location
+    # see https://stackoverflow.com/questions/21415661/
+    #logical-operators-for-boolean-indexing-in-pandas
+    lims = fig.get_axes()[0].get_xlim()
+    position = df.pLoc[(lims[0] < df.pLoc) & (df.pLoc < lims[1])].index
+    print('to add a peak use df.drop(<position>, inplace=True)')
+    print("don't forget to rebuild the index") 
+    print("df.sort_value(by=['pLoc']).reset_index(drop=True)")
+    return position
+
+def append_a_peak(beatdf, ekgdf, fig, lim=None):
+    """ append the beat location in the fig to the beat_df 
+        input : beat_df, 
+                figure scaled to see one peak,
+                lim = tuple(xmin, xmax), default=None
+        output : df sorted and reindexed
+    """
+    # find the limits of the figure
+    if not lim:
+        lim = fig.get_axes()[0].get_xlim()
+    #restrict area around the undetected pic
+    df = ekgdf.wekg_lowpass.loc[lim[0]:lim[1]]
+    #locate the beat (external call)
+    local_df = detect_beats(df)
+    locpic = local_df.pLoc.values[0]
+    # reassign the pt value
+    pt_pic = ekgdf.wekg_lowpass.loc[lim[0]:lim[1]].index[locpic]
+    local_df.pLoc.values[0] = pt_pic
+    local_df.left_bases.values[0] += (pt_pic - locpic)
+    local_df.right_bases.values[0] += (pt_pic - locpic)
+    # reinsert in the beat_df
+    beatdf = pd.concat([beatdf, local_df])
+    beatdf = beatdf.sort_values(by=['pLoc']).reset_index(drop=True)
+    return beatdf
 
 #%
 def compute_rr(abeat_df, param):
