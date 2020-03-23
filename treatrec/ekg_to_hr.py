@@ -4,21 +4,51 @@
 Created on Wed Feb 12 16:52:00 2020
 
 function used to treat an EKG signal and extract the heart rate
-typycally=
-0- view if files are loaded
-    print(check())
-1- params
-    params = monitorWave.param
-    #data = monitorWave.data
-    # build a dataframe to work with (waves)
-    ekg_df = pd.DataFrame(monitorWave.data.wekg)
+typically
+(
+after
+import anesthPlot.record_main as rec
+from treatrec import ekg_to_hr as tohr
+)
 
-2- low pass filtering
+0- load the data in a pandas dataframe
+    (through classes rec.MonitorTrend & rec.MonitorWave)
+    trends = rec.MonitorTrend(trendname)
+    waves = rec.MonitorWave(wavename)
+
+1- treat the ekg wave :
+    params = waves.param
+    # build a dataframe to work with (waves)
+    ekg_df = pd.DataFrame(waves.data.wekg)
+    #low pass filtering
     ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
-                                                monitorWave.param['fs'])
-3- beats locations (beat based dataFrame)
+                                                waves.param['fs'])
+    # build the beat locations (beat based dataFrame)
     beat_df = detect_beats(ekg_df.wekg_lowpass, params)
-4- plot
+
+2- perform the manual adjustments required:
+    (based on a graphical display of beat locations, an rr values)
+    figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
+    # remove the first bas detections:
+    beat_df = beat_df.loc[beat_df.pLoc > <ptValues>]
+    # add missed peaks (using the figure limits or lims=(xmin, xmax)):
+    beat_df = tohr.append_a_peak(beat_df, ekg_df, figure, lims)
+    # remove extra peaks:
+    tohr.locate_beat(beat_df, figure, lim=lims) -> locate a peak index val
+    beat_df.drop("peak index val", inplace=True)
+
+4- go from points values to continuous time
+    beat_df = tohr.compute_rr(beat_df)
+    ahr_df = tohr.interpolate_rr(beat_df)
+    tohr.plot_rr(ahr_df, params)
+
+5- append intantaneous heart rate to the initial data:
+    ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
+    waves.data = tohr.append_rr_and_ihr_to_wave(waves.data, ahr_df)
+    trends.data = tohr.append_ihr_to_trend(trends.data, waves.data, ekg_df)
+
+
+
     figure = plot_beats(ekg_df.wekg_lowpass, beat_df)
 
     #fs=300
@@ -38,7 +68,7 @@ import scipy.signal as sg
 from scipy.interpolate import interp1d
 import treatrec.wave_func as wf
 
-#%
+#%%
 def detect_beats(ser, fs=300, species='horse'):
     """ detect the peak locations """
     df = pd.DataFrame()
@@ -71,7 +101,7 @@ def plot_beats(ecg, beats):
     ax0.set_ylabel('ekg (mV)')
     ax0.set_xlabel('pt value')
     ax0.plot(beats.pLoc, beats.yLoc, 'o', color='orange', label='R')
-    
+
     ax1 = fig.add_subplot(212, sharex=ax0)
     ax1.plot(beats.pLoc[:-1], np.diff(beats.pLoc), 'r-', label='rr')
     ax1.set_ylabel('rr (pt value)')
@@ -81,23 +111,39 @@ def plot_beats(ecg, beats):
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
     fig.tight_layout()
+    txt0 = 'locate the peak to remove : zoom and use'
+    txt1 = 'tohr.locate_beat(beat_df, figure)'
+    fig.text(0.99, 0.03, txt0, ha='right', va='bottom', alpha=0.5)
+    fig.text(0.99, 0.01, txt1, ha='right', va='bottom', alpha=0.5)
+    txt0 = 'add peak : zoom and use'
+    txt1 = "beat_df = tohr.append_a_peak(beat_df, ekg_df, figure)'"
+    fig.text(0.01, 0.03, txt0, ha='left', va='bottom', alpha=0.5)
+    fig.text(0.01, 0.01, txt1, ha='left', va='bottom', alpha=0.5)
     return fig
 
-def locate_beat(df, fig):
+def locate_beat(df, fig, lim=None):
     """ locate the beat location identified in the figure """
     # find irrelevant beat location
     # see https://stackoverflow.com/questions/21415661/
     #logical-operators-for-boolean-indexing-in-pandas
-    lims = fig.get_axes()[0].get_xlim()
-    position = df.pLoc[(lims[0] < df.pLoc) & (df.pLoc < lims[1])].index
-    print('to add a peak use df.drop(<position>, inplace=True)')
-    print("don't forget to rebuild the index") 
+    # find the limits of the figure
+    if not lim:
+        lim = fig.get_axes()[0].get_xlim()
+    position = df.pLoc[(lim[0] < df.pLoc) & (df.pLoc < lim[1])].index
+    iloc = position.values
+    if len(iloc) > 1:
+        print('several beats detected')
+        return
+    pos = iloc[0]
+    print("position is ", pos)
+    print('to remove a peak use df.drop(<position>, inplace=True)')
+    print("don't forget to rebuild the index")
     print("df.sort_value(by=['pLoc']).reset_index(drop=True)")
-    return position
+    return pos
 
-def append_a_peak(beatdf, ekgdf, fig, lim=None):
-    """ append the beat location in the fig to the beat_df 
-        input : beat_df, 
+def append_a_beat(beatdf, ekgdf, fig, lim=None):
+    """ append the beat location in the fig to the beat_df
+        input : beat_df,
                 figure scaled to see one peak,
                 lim = tuple(xmin, xmax), default=None
         output : df sorted and reindexed
@@ -112,25 +158,31 @@ def append_a_peak(beatdf, ekgdf, fig, lim=None):
     locpic = local_df.pLoc.values[0]
     # reassign the pt value
     pt_pic = ekgdf.wekg_lowpass.loc[lim[0]:lim[1]].index[locpic]
+    print('founded ', pt_pic)
     local_df.pLoc.values[0] = pt_pic
     local_df.left_bases.values[0] += (pt_pic - locpic)
     local_df.right_bases.values[0] += (pt_pic - locpic)
     # reinsert in the beat_df
     beatdf = pd.concat([beatdf, local_df])
+    beatdf = beatdf.drop_duplicates('pLoc')
     beatdf = beatdf.sort_values(by=['pLoc']).reset_index(drop=True)
     return beatdf
 
-#%
-def compute_rr(abeat_df, param):
+
+#TODO append the missing R in case of BAV2
+
+#% =========================================
+def compute_rr(abeat_df, fs=None):
     """
-    compute rr intervals
+    compute rr intervals (from pt to time)
     intput : pd.DataFrame with 'pLoc', and fs=sampling frequency
     output : pd.DataFrame appendend with:
         'rr' =  rr duration
         'rrDiff' = rrVariation
         'rrSqDiff' = rrVariation^2
     """
-    fs = param.get('fs', 300)
+    if not fs:
+        fs = 300
     # compute rr intervals
 #    beat_df['rr'] = np.diff(beat_df.pLoc)
     abeat_df['rr'] = abeat_df.pLoc.shift(-1) - abeat_df.pLoc # pt duration
@@ -145,36 +197,41 @@ def compute_rr(abeat_df, param):
     abeat_df['rrSqDiff'] = (abeat_df.rr.shift(-1) - abeat_df.rr)**2
     return abeat_df
 
-def interpolate_rr(abeat_df):
+def interpolate_rr(abeat_df, kind=None):
     """
     interpolate the beat_df (pt -> time values)
-    input : beat Df
+    input : beat Df, kind='linear' or 'cubic'(default)
     output : pdDatatrame with evenly spaced data
         'espts' = evenly spaced points
         'rrInterpol' = interpolated rr
     """
+    if not kind:
+        kind = 'cubic'
     ahr_df = pd.DataFrame()
+    #prepare = sorting and removing possible duplicates
+    abeat_df = abeat_df.sort_values(by='pLoc')
+    abeat_df = abeat_df.drop_duplicates('pLoc')
 
-    first_beat_pt = int(beat_df.iloc[0].pLoc)
-    last_beat_pt = int(beat_df.iloc[-1].pLoc)
-    ahr_df['espts'] = np.arange(first_beat_pt, last_beat_pt)
-
+    first_beat_pt = int(abeat_df.iloc[0].pLoc)
+    last_beat_pt = int(abeat_df.iloc[-2].pLoc) # last interval
+    newx = np.arange(first_beat_pt, last_beat_pt)
     # interpolate rr
     rrx = abeat_df.pLoc[:-1].values        # rr locations
     rry = abeat_df.rr[:-1].values         # rr values
-    # f = interp1d(rrx, rry, kind='cubic', bounds_error=False, fill_value="extrapolate")
-    f = interp1d(rrx, rry, kind='linear')
-    ahr_df['rrInterpol'] = f(ahr_df['espts'])
+    f = interp1d(rrx, rry, kind=kind)
+    newy = f(newx)
+    ahr_df['espts'] = newx
+    ahr_df['rrInterpol'] = newy
     # interpolate rrDiff
     rry = abeat_df.rrDiff[:-1].values
-    # f = interp1d(rrx, rry, bounds_error=False, fill_value="extrapolate")
-    f = interp1d(rrx, rry, kind='linear')
-    ahr_df['rrInterpolDiff'] = f(ahr_df['espts'])
+    f = interp1d(rrx, rry, kind=kind)
+    newy = f(newx)
+    ahr_df['rrInterpolDiff'] = newy
     # interpolate rrSqrDiff
     rry = abeat_df.rrSqDiff[:-1].values
-    # f = interp1d(rrx, rry, bounds_error=False, fill_value="extrapolate")
-    f = interp1d(rrx, rry, kind='linear')
-    ahr_df['rrInterpolSqDiff'] = f(ahr_df['espts'])
+    f = interp1d(rrx, rry, kind=kind)
+    newy = f(newx)
+    ahr_df['rrInterpolSqDiff'] = newy
     return ahr_df
 
 def plot_rr(ahr_df, param, HR=False):
@@ -214,74 +271,70 @@ def plot_rr(ahr_df, param, HR=False):
         ax2.spines[loca].set_visible(False)
 #    file = os.path.basename(filename)
     fig.text(0.99, 0.01, param['file'], ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, 'cdesbois', ha='left', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, 'anesthPlot', ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
 
 #%% heart rate
-def plot_agreement(trend_data, ekgdf):
+
+#TOTO = correct wave.datetime (multiple repetitions of the same value)
+
+def append_rr_and_ihr_to_wave(wave, ahrdf):
+    """ append rr and ihr to the waves based on pt value (ie index) """
+    df = pd.concat([wave, ahrdf.set_index('espts')], axis=1)
+    df['ihr'] = 1/df.rrInterpol*60*1000
+    return df
+
+def plot_agreement(trend, ekgdf):
     """ plot ip1HR & hr to check agreement """
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(trend_data.hr)
+    ax.plot(trend.hr)
     axt = ax.twiny()
     axt.plot(1/ekgdf.rrInterpol*60*1000, 'r-')
     return fig
 
-def replace_hr_in_monitorTrend(trend_data, ekgdf):
-    """ append an 'hr' column in the dataframe """
+def append_ihr_to_trend(trend, wave, ekgdf):
+    """ append 'ihr' (instataneous heart rate) to the trends """
+    #build a new index
+    ratio = len(wave)/len(trend)
+    ser = (wave.index.to_series() / ratio).astype(int)
+    # fill the data
     df = pd.DataFrame()
-    df['hr'] = 1/ekgdf.rrInterpol*60*1000
-    df['datetime'] = monitorWave.data.datetime
-    df = df.set_index('datetime').resample('5s').mean()
-    #tdata = monitorTrend.data
-    #df.reset_index(inplace=True)
-    #tdata['hr'] = df.hr
-    trend_data['hr'] = df.reset_index()['hr']
-    return trend_data
+    df['ihr'] = 1/ekgdf.rrInterpol*60*1000
+    # downsample
+    df = df['ihr'].groupby(ser).median()
+    # concatenate
+    trend = pd.concat([trend, df], axis=1)
+    return trend
 
-def append_rr_to_monitorWave(wave_data, ekgdf):
-    """ append an 'hr' column in the dataframe """
-    wave_data['rr'] = ekgdf['rrInterpol']
-    return wave_data
-
-
-################################
-
-if __name__ == '__main__':
-    # view if files are loaded
-    print(check())
-    #%detect beats after record_main for monitorWave
-    params = monitorWave.param
-    #data = monitorWave.data
-    # build a dataframe to work with (waves)
-    ekg_df = pd.DataFrame(monitorWave.data.wekg)
-
-    #low pass filtering
-    ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
-                                                    monitorWave.param['fs'])
-    # beats locations (beat based dataFrame)
-    beat_df = detect_beats(ekg_df.wekg_lowpass, params)
-    #plot
-    figure = plot_beats(ekg_df.wekg_lowpass, beat_df)
-
-    #fs=300
-    beat_df = compute_rr(beat_df, monitorWave.param)
-    hr_df = interpolate_rr(beat_df)
-    figure = plot_rr(hr_df, params, HR=True)
-
-#%% merge the wave and treated df
-    # loc of the first beat
-    first_beat_loc = int(beat_df.pLoc.iloc[0] - ekg_df.index.min())
-    #append to ekg_df (ie contain ekg, ekg_lowpass,
-    ekg_df = pd.concat([ekg_df, hr_df.shift(first_beat_loc)], axis=1, join='outer')
-
-    #del first_beat_loc
-    #del hr_df
-    #del beat_df
-    # NB HR is 1/ekg_df.rrInterpol*60*1000
-
-    figure = plot_agreement(monitorTrend.data, ekg_df)
 #%%
-    monitorTrend.data = replace_hr_in_monitorTrend(monitorTrend.data, ekg_df)
-    monitorWave.data = append_rr_to_monitorWave(monitorWave.data, ekg_df)
+ekg_df = append_rr_and_ihr_to_wave(ekg_df, ahr_df)
+waves.data = append_rr_and_ihr_to_wave(waves.data, ahr_df)
+trends.data = append_ihr_to_trend(trends.data, waves.data, ekg_df)
+
+
+# ################################
+
+# if __name__ == '__main__':
+#     # view if files are loaded
+#     print(check())
+#     #%detect beats after record_main for monitorWave
+#     params = monitorWave.param
+#     #data = monitorWave.data
+#     # build a dataframe to work with (waves)
+#     ekg_df = pd.DataFrame(monitorWave.data.wekg)
+
+#     #low pass filtering
+#     ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
+#                                                     monitorWave.param['fs'])
+#     # beats locations (beat based dataFrame)
+#     beat_df = detect_beats(ekg_df.wekg_lowpass, params)
+#     #plot
+#     figure = plot_beats(ekg_df.wekg_lowpass, beat_df)
+
+#     #fs=300
+#     beat_df = compute_rr(beat_df, monitorWave.param)
+#     hr_df = interpolate_rr(beat_df)
+#     figure = plot_rr(hr_df, params, HR=True)
+
