@@ -309,9 +309,9 @@ def append_ihr_to_trend(trend, wave, ekgdf):
     return trend
 
 #%%
-ekg_df = append_rr_and_ihr_to_wave(ekg_df, ahr_df)
-waves.data = append_rr_and_ihr_to_wave(waves.data, ahr_df)
-trends.data = append_ihr_to_trend(trends.data, waves.data, ekg_df)
+#ekg_df = append_rr_and_ihr_to_wave(ekg_df, ahr_df)
+#waves.data = append_rr_and_ihr_to_wave(waves.data, ahr_df)
+#trends.data = append_ihr_to_trend(trends.data, waves.data, ekg_df)
 
 
 # ################################
