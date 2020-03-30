@@ -24,18 +24,23 @@ from treatrec import ekg_to_hr as tohr
     ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
                                                 waves.param['fs'])
     # build the beat locations (beat based dataFrame)
-    beat_df = detect_beats(ekg_df.wekg_lowpass, params)
+    beat_df = tohr.detect_beats(ekg_df.wekg_lowpass)
 
 2- perform the manual adjustments required:
-    (based on a graphical display of beat locations, an rr values)
+    # based on a graphical display of beat locations, an rr values
     figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
-    # remove the first bas detections:
-    beat_df = beat_df.loc[beat_df.pLoc > <ptValues>]
-    # add missed peaks (using the figure limits or lims=(xmin, xmax)):
-    beat_df = tohr.append_a_peak(beat_df, ekg_df, figure, lims)
-    # remove extra peaks:
-    tohr.locate_beat(beat_df, figure, lim=lims) -> locate a peak index val
-    beat_df.drop("peak index val", inplace=True)
+    build a container for the manual corrections:
+    to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
+
+    # remove or add peaks : zoom on the figure to observe only one peak, then
+    to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
+    to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure)   
+    
+    #save the peak and to_change to csv
+    see save_temp()
+    
+    # load and combine to update the beat_df
+    beat_df = update_beat_df()
 
 4- go from points values to continuous time
     beat_df = tohr.compute_rr(beat_df)
@@ -60,7 +65,7 @@ from treatrec import ekg_to_hr as tohr
 @author: cdesbois
 """
 
-#import os
+import os
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -74,9 +79,10 @@ def detect_beats(ser, fs=300, species='horse'):
     df = pd.DataFrame()
 #    fs = param.get('fs', 300)
     if species == 'horse':
-        height = 0.5      # min, max
-        distance = 0.7*fs    # sec
-        prominence = 1
+        height = 1      # mini
+        hr_max = 120    # bpm
+        distance = fs * 60 / hr_max    # sec
+        prominence = 1  # mini/surrounding
         #    width=(2,15)
         #    plateau_size= 1
     else:
@@ -89,12 +95,12 @@ def detect_beats(ser, fs=300, species='horse'):
         df[key] = beats_params[key]
     if 'peak_heights' in df.columns:
         df = df.rename(columns={'peak_heights': 'yLoc'})
-        df.yLoc *= -1
+        df.yLoc *= -1   # inverted trace <-> horse R wave
     return df
 
 def plot_beats(ecg, beats):
     """ plot ecg waveform + beat location """
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(13, 5))
     fig.suptitle('verify the accuracy of the beat detection')
     ax0 = fig.add_subplot(211)
     ax0.plot(ecg.values, label='ekg')
@@ -111,67 +117,139 @@ def plot_beats(ecg, beats):
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
     fig.tight_layout()
-    txt0 = 'locate the peak to remove : zoom and use'
-    txt1 = 'tohr.locate_beat(beat_df, figure)'
+    txt0 = 'locate the peak to add : zoom and use'
+    txt1 = 'to_change_df = tohr.add_beat(beat_df, ekg_df, to_change_df, figure)'
     fig.text(0.99, 0.03, txt0, ha='right', va='bottom', alpha=0.5)
-    fig.text(0.99, 0.01, txt1, ha='right', va='bottom', alpha=0.5)
-    txt0 = 'add peak : zoom and use'
-    txt1 = "beat_df = tohr.append_a_peak(beat_df, ekg_df, figure)'"
+    fig.text(0.99, 0.00, txt1, ha='right', va='bottom', alpha=0.5)
+    txt0 = 'locate the peak to remove : zoom and use'
+    txt1 = 'to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)'
     fig.text(0.01, 0.03, txt0, ha='left', va='bottom', alpha=0.5)
-    fig.text(0.01, 0.01, txt1, ha='left', va='bottom', alpha=0.5)
+    fig.text(0.01, 0.00, txt1, ha='left', va='bottom', alpha=0.5)
     return fig
 
-def locate_beat(df, fig, lim=None):
-    """ locate the beat location identified in the figure """
-    # find irrelevant beat location
-    # see https://stackoverflow.com/questions/21415661/
-    #logical-operators-for-boolean-indexing-in-pandas
-    # find the limits of the figure
-    if not lim:
-        lim = fig.get_axes()[0].get_xlim()
-    position = df.pLoc[(lim[0] < df.pLoc) & (df.pLoc < lim[1])].index
-    iloc = position.values
-    if len(iloc) > 1:
-        print('several beats detected')
-        return
-    pos = iloc[0]
-    print("position is ", pos)
-    print('to remove a peak use df.drop(<position>, inplace=True)')
-    print("don't forget to rebuild the index")
-    print("df.sort_value(by=['pLoc']).reset_index(drop=True)")
-    return pos
-
-def append_a_beat(beatdf, ekgdf, fig, lim=None):
-    """ append the beat location in the fig to the beat_df
-        input : beat_df,
-                figure scaled to see one peak,
-                lim = tuple(xmin, xmax), default=None
-        output : df sorted and reindexed
+def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
+    """ 
+    locate the beat in the figure, append to a dataframe['toAppend']
+    input:
+        beatdf (pLocs), ekgdf (wekg_lowpass), 
+        fig figure, changedf(toAppend, to Remove)
+    output: incremented changedf (pt location)
+    """
+    """ locate the beat in the figure, append to a dataframe['toAppend']
+       0: if not present : build a dataframe :  
+           to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
+       1: locate the extra beat in the figure (cf plot_beats())
+       and zoom to observe only a negative peak
+       2- call the function:
+           to_change_df = remove_beat(beatdf, ekgdf, tochange_df, fig)
+    -> the beat parameters will be added the dataFrame
+    (in the end of the manual check, update the beat_df 
+    first : save beat_df and to_change_df
+    second : run beat_df = update_beat_df())
     """
     # find the limits of the figure
     if not lim:
-        lim = fig.get_axes()[0].get_xlim()
-    #restrict area around the undetected pic
+        lims = fig.get_axes()[0].get_xlim()
+        lim = (int(lims[0]), int(lims[1]))
+    #restrict area around the undetected pic (based on pt x val)
     df = ekgdf.wekg_lowpass.loc[lim[0]:lim[1]]
     #locate the beat (external call)
-    local_df = detect_beats(df)
-    locpic = local_df.pLoc.values[0]
+    onepoint_beatdf = detect_beats(df)
+    onepoint_beatdf['action'] = 'append'
+    if len(onepoint_beatdf) < 1 :
+        print('no beat founded')
+        return tochange_df
+    found_loc = onepoint_beatdf.pLoc.values[0]
+    yloc = onepoint_beatdf.yLoc.values[0]
     # reassign the pt value
-    pt_pic = ekgdf.wekg_lowpass.loc[lim[0]:lim[1]].index[locpic]
-    print('founded ', pt_pic)
-    local_df.pLoc.values[0] = pt_pic
-    local_df.left_bases.values[0] += (pt_pic - locpic)
-    local_df.right_bases.values[0] += (pt_pic - locpic)
-    # reinsert in the beat_df
-    beatdf = pd.concat([beatdf, local_df])
-    beatdf = beatdf.drop_duplicates('pLoc')
-    beatdf = beatdf.sort_values(by=['pLoc']).reset_index(drop=True)
-    return beatdf
+    ploc = ekgdf.wekg_lowpass.loc[lim[0]:lim[1]].index[found_loc]
+    onepoint_beatdf['pLoc'] = ploc
+    print('founded ', ploc)
+    # append to figure
+    fig.get_axes()[0].plot(ploc, yloc, 'og')
+    onepoint_beatdf.pLoc = ploc
+    onepoint_beatdf.left_bases += (ploc - found_loc)
+    onepoint_beatdf.right_bases.values[0] += (ploc - found_loc)
+    # insert in the tochange_df
+    # beatdf = beatdf.drop_duplicates('pLoc')
+    tochange_df = tochange_df.append(onepoint_beatdf)
+    return tochange_df
 
+def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
+    """ locate the beat in the figure, append to a dataframe['toRemove']
+       0: if not present build a dataframe :  
+           to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
+       1: locate the extra beat in the figure (cf plot_beats())
+       and zoom to observe only a negative peak
+       2- call the function:
+           to_change_df = remove_beat(beatdf, ekgdf, tochange_df, fig)
+    -> the beat parameters will be added the dataFrame
+    (in the end of the manual check, update the beat_df 
+    first : save beat_df and to_change_df
+    second : run beat_df = update_beat_df())
+    """
+    # find the limits of the figure
+    if not lim:
+        lims = fig.get_axes()[0].get_xlim()
+        lim = (int(lims[0]), int(lims[1]))
+    position = beatdf.pLoc[(lim[0] < beatdf.pLoc) & (beatdf.pLoc < lim[1])]
+    iloc = position.index.values[0]
+    ptloc = position.values      #pt values of the peak
+    if len(ptloc) > 1:
+        print('several beats detected')
+        return tochange_df
+    pos = int(ptloc[0])               # array -> value
+    # mark on the graph
+    pLoc, yLoc = beatdf.loc[iloc, ['pLoc', 'yLoc']]
+    pLoc = int(pLoc)
+    ax = fig.get_axes()[0]
+    ax.plot(pLoc, yLoc, 'Xr')
+    # mark to remove
+    onepoint_beatdf = beatdf.loc[iloc].copy()
+    onepoint_beatdf['action'] = 'remove'
+    tochange_df =tochange_df.append(onepoint_beatdf, ignore_index=True)    
+    # beatdf.loc[pos, ['yLoc']] = np.NaN
+    print("position is ", pos)
+    return tochange_df
 
 #TODO append the missing R in case of BAV2
 
-#% =========================================
+def save_temp():
+    name = os.path.join(paths['save'], 'beatDf.csv')
+    beat_df.to_csv(name)
+    name = os.path.join(paths['save'], 'toChange.csv')
+    to_change_df.to_csv(name)
+    
+#%% apply changes to the beatdf
+    
+def update_beat_df(from_file=False):
+    """ implement in the beat location the manual corrections 
+        fromFile = True force the disk loading of the dataframes
+    """
+    if from_file:
+        name = os.path.join(paths['save'], 'beatDf.csv')
+        beat_df = pd.read_csv(name, index_col=0)
+        name = os.path.join(paths['save'], 'toChange.csv')
+        to_change_df = pd.read_csv(name, index_col=0)
+    for col in ['pLoc', 'left_bases', 'right_bases']:
+        to_change_df[col] = to_change_df[col].astype(int)
+    # remove
+    to_remove = to_change_df.loc[
+        to_change_df['action'] == 'remove', ['pLoc']]
+    to_remove = to_remove.values.flatten().tolist()
+    beat_df = beat_df.set_index('pLoc').drop(to_remove)
+    beat_df.reset_index(inplace = True)
+    #append
+    temp_df = to_change_df.loc[to_change_df['action'] == 'append'].set_index('action')
+    beat_df.append(temp_df, ignore_index=True)
+    #rebuild
+    beat_df.drop_duplicates(keep=False, inplace=True)
+    beat_df.sort_values(by='pLoc').reset_index(drop=True, inplace=True)
+    return beat_df
+
+# beat_df = update_beat_df()
+
+#%% =========================================
 def compute_rr(abeat_df, fs=None):
     """
     compute rr intervals (from pt to time)
