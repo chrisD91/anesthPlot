@@ -222,14 +222,14 @@ def save_temp():
     
 #%% apply changes to the beatdf
     
-def update_beat_df(from_file=False):
+def update_beat_df(beat_df, to_change_df, path_to_file='', from_file=False):
     """ implement in the beat location the manual corrections 
         fromFile = True force the disk loading of the dataframes
     """
     if from_file:
-        name = os.path.join(paths['save'], 'beatDf.csv')
+        name = os.path.join(path_to_file, 'beatDf.csv')
         beat_df = pd.read_csv(name, index_col=0)
-        name = os.path.join(paths['save'], 'toChange.csv')
+        name = os.path.join(path_to_file, 'toChange.csv')
         to_change_df = pd.read_csv(name, index_col=0)
     for col in ['pLoc', 'left_bases', 'right_bases']:
         to_change_df[col] = to_change_df[col].astype(int)
@@ -237,17 +237,17 @@ def update_beat_df(from_file=False):
     to_remove = to_change_df.loc[
         to_change_df['action'] == 'remove', ['pLoc']]
     to_remove = to_remove.values.flatten().tolist()
-    beat_df = beat_df.set_index('pLoc').drop(to_remove)
+    beat_df = beat_df.set_index('pLoc').drop(to_remove, errors='ignore')
     beat_df.reset_index(inplace = True)
     #append
     temp_df = to_change_df.loc[to_change_df['action'] == 'append'].set_index('action')
-    beat_df.append(temp_df, ignore_index=True)
+    beat_df = beat_df.append(temp_df, ignore_index=True)
     #rebuild
     beat_df.drop_duplicates(keep=False, inplace=True)
     beat_df.sort_values(by='pLoc').reset_index(drop=True, inplace=True)
     return beat_df
 
-# beat_df = update_beat_df()
+# beat_df = update_beat_df(beat_df, to_change_df)
 
 #%% =========================================
 def compute_rr(abeat_df, fs=None):
@@ -264,9 +264,9 @@ def compute_rr(abeat_df, fs=None):
     # compute rr intervals
 #    beat_df['rr'] = np.diff(beat_df.pLoc)
     abeat_df['rr'] = abeat_df.pLoc.shift(-1) - abeat_df.pLoc # pt duration
-    abeat_df.rr = abeat_df.rr / fs*1000     # time duration
-    #remove outliers
-    abeat_df = abeat_df.replace(abeat_df.loc[abeat_df.rr > 2000], np.nan)
+    abeat_df.rr = abeat_df.rr / fs*1_000     # time duration
+    #remove outliers (HR < 20)
+    abeat_df = abeat_df.replace(abeat_df.loc[abeat_df.rr > 20_000], np.nan)
     abeat_df = abeat_df.interpolate()
     abeat_df = abeat_df.dropna(how='all')
     abeat_df = abeat_df.dropna(axis=1, how='all')
