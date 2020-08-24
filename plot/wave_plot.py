@@ -19,6 +19,35 @@ params = {'font.sans-serif': ['Arial'],
           'axes.xmargin': 0}
 plt.rcParams.update(params)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
+
+bright = {
+        'blue' : [x/256 for x in [0, 119, 170]],
+        'cyan' : [x/256 for x in [102, 204, 238]],
+        'green' : [x/256 for x in [34, 136, 51]],
+        'yellow' : [x/256 for x in [204, 187, 68]],
+        'red' : [x/256 for x in [238, 103, 119]],
+        'purple' : [x/256 for x in [170, 51, 119]],
+        'grey' : [x/256 for x in [187, 187, 187]]
+        }
+
+colors = bright
+
+#////////////////////////////////////////////////////////////////
+def color_axis(ax, spine='bottom', color='r'):
+    """
+    change the color of the label + tick + spine
+    input:
+        ax = matplotlib axis
+        spine = in ['left', 'right', 'bottom']
+        color = matplotlib color
+    """
+    ax.spines[spine].set_color(color)
+    if spine == 'bottom':
+        ax.xaxis.label.set_color(color)
+        ax.tick_params(axis='x', colors=color)
+    elif spine in ['left', 'right']:
+        ax.yaxis.label.set_color(color)
+        ax.tick_params(axis='y', colors=color)
 #%%
 def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
     """

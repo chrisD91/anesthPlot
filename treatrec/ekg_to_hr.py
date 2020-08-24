@@ -34,11 +34,11 @@ from treatrec import ekg_to_hr as tohr
 
     # remove or add peaks : zoom on the figure to observe only one peak, then
     to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
-    to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure)   
-    
+    to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure)
+
     #save the peak and to_change to csv
     see save_temp()
-    
+
     # load and combine to update the beat_df
     beat_df = update_beat_df()
 
@@ -74,10 +74,19 @@ from scipy.interpolate import interp1d
 import treatrec.wave_func as wf
 
 #%%
-def detect_beats(ser, fs=300, species='horse'):
-    """ detect the peak locations """
+def detect_beats(ser, fs=300, species='horse', mult=1):
+    """
+    detect the peak locations
+    input:
+        ser: pandas series,
+        fs: sampling frequency
+        species in [horse]
+        mult: correction / 1 for qRs amplitude
+    output:
+        pandas dataframe
+    """
     df = pd.DataFrame()
-#    fs = param.get('fs', 300)
+    # fs = param.get('fs', 300)
     if species == 'horse':
         height = 1      # mini
         hr_max = 120    # bpm
@@ -88,6 +97,10 @@ def detect_beats(ser, fs=300, species='horse'):
     else:
         print('no parametrisation performed ... to be done')
         return df
+    #correcttion
+    height *= mult
+    prominence *= mult
+    #detect
     pk, beats_params = sg.find_peaks(ser*-1, height=height, distance=distance,
                                      prominence=prominence)
     df['pLoc'] = pk
@@ -122,28 +135,31 @@ def plot_beats(ecg, beats):
     fig.text(0.99, 0.03, txt0, ha='right', va='bottom', alpha=0.5)
     fig.text(0.99, 0.00, txt1, ha='right', va='bottom', alpha=0.5)
     txt0 = 'locate the peak to remove : zoom and use'
-    txt1 = 'to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)'
+    txt1 = 'to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure, scale=1)'
     fig.text(0.01, 0.03, txt0, ha='left', va='bottom', alpha=0.5)
     fig.text(0.01, 0.00, txt1, ha='left', va='bottom', alpha=0.5)
     return fig
 
-def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
-    """ 
+def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None, yscale=1):
+    """
     locate the beat in the figure, append to a dataframe['toAppend']
     input:
-        beatdf (pLocs), ekgdf (wekg_lowpass), 
-        fig figure, changedf(toAppend, to Remove)
+        beatdf (pLocs), ekgdf (wekg_lowpass),
+        fig:figure to fing limits
+        lim: to give it manually
+        tochange_df(toAppend, to Remove)
+        mult = amplitude mutliplication factor for detection (default=1)
     output: incremented changedf (pt location)
     """
     """ locate the beat in the figure, append to a dataframe['toAppend']
-       0: if not present : build a dataframe :  
+       0: if not present : build a dataframe :
            to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
        1: locate the extra beat in the figure (cf plot_beats())
        and zoom to observe only a negative peak
        2- call the function:
            to_change_df = remove_beat(beatdf, ekgdf, tochange_df, fig)
     -> the beat parameters will be added the dataFrame
-    (in the end of the manual check, update the beat_df 
+    (in the end of the manual check, update the beat_df
     first : save beat_df and to_change_df
     second : run beat_df = update_beat_df())
     """
@@ -154,9 +170,9 @@ def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
     #restrict area around the undetected pic (based on pt x val)
     df = ekgdf.wekg_lowpass.loc[lim[0]:lim[1]]
     #locate the beat (external call)
-    onepoint_beatdf = detect_beats(df)
+    onepoint_beatdf = detect_beats(df, mult=yscale)
     onepoint_beatdf['action'] = 'append'
-    if len(onepoint_beatdf) < 1 :
+    if len(onepoint_beatdf) < 1:
         print('no beat founded')
         return tochange_df
     found_loc = onepoint_beatdf.pLoc.values[0]
@@ -177,14 +193,14 @@ def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
 
 def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
     """ locate the beat in the figure, append to a dataframe['toRemove']
-       0: if not present build a dataframe :  
+       0: if not present build a dataframe :
            to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
        1: locate the extra beat in the figure (cf plot_beats())
        and zoom to observe only a negative peak
        2- call the function:
            to_change_df = remove_beat(beatdf, ekgdf, tochange_df, fig)
     -> the beat parameters will be added the dataFrame
-    (in the end of the manual check, update the beat_df 
+    (in the end of the manual check, update the beat_df
     first : save beat_df and to_change_df
     second : run beat_df = update_beat_df())
     """
@@ -207,7 +223,7 @@ def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
     # mark to remove
     onepoint_beatdf = beatdf.loc[iloc].copy()
     onepoint_beatdf['action'] = 'remove'
-    tochange_df =tochange_df.append(onepoint_beatdf, ignore_index=True)    
+    tochange_df = tochange_df.append(onepoint_beatdf, ignore_index=True)
     # beatdf.loc[pos, ['yLoc']] = np.NaN
     print("position is ", pos)
     return tochange_df
@@ -219,11 +235,11 @@ def save_temp():
     beat_df.to_csv(name)
     name = os.path.join(paths['save'], 'toChange.csv')
     to_change_df.to_csv(name)
-    
+
 #%% apply changes to the beatdf
-    
+
 def update_beat_df(beat_df, to_change_df, path_to_file='', from_file=False):
-    """ implement in the beat location the manual corrections 
+    """ implement in the beat location the manual corrections
         fromFile = True force the disk loading of the dataframes
     """
     if from_file:
@@ -238,13 +254,13 @@ def update_beat_df(beat_df, to_change_df, path_to_file='', from_file=False):
         to_change_df['action'] == 'remove', ['pLoc']]
     to_remove = to_remove.values.flatten().tolist()
     beat_df = beat_df.set_index('pLoc').drop(to_remove, errors='ignore')
-    beat_df.reset_index(inplace = True)
+    beat_df.reset_index(inplace=True)
     #append
     temp_df = to_change_df.loc[to_change_df['action'] == 'append'].set_index('action')
     beat_df = beat_df.append(temp_df, ignore_index=True)
     #rebuild
     beat_df.drop_duplicates(keep=False, inplace=True)
-    beat_df.sort_values(by='pLoc').reset_index(drop=True, inplace=True)
+    beat_df = beat_df.sort_values(by='pLoc').reset_index(drop=True)
     return beat_df
 
 # beat_df = update_beat_df(beat_df, to_change_df)

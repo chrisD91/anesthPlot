@@ -1,5 +1,10 @@
 
 
+"""
+build a yaml file to store che configuration of scripts 
+input (data) and output(save)
+"""
+
 import os, sys
 import yaml
 from PyQt5.QtWidgets import QFileDialog, QDialog, QApplication
@@ -85,7 +90,7 @@ if __name__ == '__main__':
     try:
         paths
     except:
-        key = 'recordMain.py'
+        key = 'record_main.py'
 #        recordMainPath = fileDialog(kind=key, directory= os.getcwd(), isFolder=True)
         recordMainPath = fileDialog(kind=key, directory= os.getcwd())
         if os.path.isfile(recordMainPath):
