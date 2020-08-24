@@ -131,14 +131,14 @@ def hist_pam(data, param={}):
     ax2.set_title('heart rate', color='k')
     ax2.set_xlabel('bpm', alpha=0.5)
     axes = [ax1, ax2]
-    quart = False
+    quart = True
     if quart:
         for i, item in enumerate(['ip1m', 'hr']):
             try:
                 q25, q50, q75 = np.percentile(data[item].dropna(), [25, 50, 75])
                 axes[i].axvline(q50, linestyle='dashed', linewidth=2, color='k', alpha=0.5)
-                axes[i].axvline(q25, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
-                axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
+             #   axes[i].axvline(q25, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
+              #  axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
             except:
                 print('no arterial pressure recorded')
     for ax in axes:
@@ -198,14 +198,14 @@ def hist_co2_iso(data, param={}):
     ax2.set_xlabel('%', alpha=0.5)
     
     axes = [ax1, ax2]
-    quart=False
+    quart=True
     if quart:
         for i, item in enumerate(['co2exp', 'aaExp']):
             try:
                 q25, q50, q75 = np.percentile(data[item].dropna(), [25, 50, 75])
                 axes[i].axvline(q50, linestyle='dashed', linewidth=2, color='k', alpha=0.5)
-                axes[i].axvline(q25, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
-                axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
+#                axes[i].axvline(q25, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
+ #               axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
             except:
                 print(item, 'not used')
 
