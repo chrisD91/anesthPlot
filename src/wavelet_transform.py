@@ -11,14 +11,14 @@ def Morlet_Wavelet(t, f, w0=6.):
 
 def Morlet_Wavelet_Decay(f, w0=6.):
     """
-    Time value of the wavelet where the amplitude decays of 
+    Time value of the wavelet where the amplitude decays of
     """
     return 2 ** .5 * (w0/(np.pi*f))
 
 def from_fourier_to_morlet(freq):
     x = np.linspace(0.1/freq, 2.*freq, 1e3)
     return x[np.argmin((x-freq*(1-np.exp(-freq*x)))**2)]
-    
+
 def get_Morlet_of_right_size(f, dt, w0=6., with_t=False):
     Tmax = Morlet_Wavelet_Decay(f, w0=w0)
     t = np.arange(-int(Tmax/dt), int(Tmax/dt)+1)*dt

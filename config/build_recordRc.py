@@ -1,11 +1,12 @@
 
 
 """
-build a yaml file to store che configuration of scripts 
+build a yaml file to store che configuration of scripts
 input (data) and output(save)
 """
 
-import os, sys
+import os
+import sys
 import yaml
 from PyQt5.QtWidgets import QFileDialog, QDialog, QApplication
 from PyQt5 import QtCore
@@ -30,7 +31,8 @@ def fileDialog(kind='',
     else:
         dialog.setFileMode(QFileDialog.AnyFile)
     # OPENING OR SAVING
-    dialog.setAcceptMode(QFileDialog.AcceptOpen) if forOpen else dialog.setAcceptMode(QFileDialog.AcceptSave)
+    dialog.setAcceptMode(QFileDialog.AcceptOpen
+                         ) if forOpen else dialog.setAcceptMode(QFileDialog.AcceptSave)
 
     # SET FORMAT, IF SPECIFIED
     if fmt != '' and isFolder is False:
@@ -45,17 +47,17 @@ def fileDialog(kind='',
 
     if dialog.exec_() == QDialog.Accepted:
         path = dialog.selectedFiles()[0]  # returns a list
-        return path
     else:
-        return ''
+        path = ''
+    return path
 
 def readConfig():
     #locate
     try:
         # for external call
-        #NB __file__ is supposed to 
-        #"always give you the path to the current file", 
-        #and sys.argv[0] is supposed to 
+        #NB __file__ is supposed to
+        #"always give you the path to the current file",
+        #and sys.argv[0] is supposed to
         #"always give the path of the script that initiated the process"
         print(os.path.dirname(__file__))
         localModPath = os.path.dirname(__file__)
@@ -67,16 +69,16 @@ def readConfig():
     if os.path.isfile(filename):
         with open(filename, 'r') as ymlfile:
             cfg = yaml.safe_load(ymlfile)
-            return(cfg)
+            return cfg
     else:
-        print ('no config file present')
-        print ('please build one -> cf buildConfig.py')
-        return(None)
+        print('no config file present')
+        print('please build one -> cf buildConfig.py')
+        return None
 
-def writeConfigFile(paths):
+def writeConfigFile(path):
     os.chdir(paths['recordMain'])
-    with open('recordRc.yaml', 'w') as ymlfile: 
-        yaml.dump(paths, ymlfile, default_flow_style=False) 
+    with open('recordRc.yaml', 'w') as ymlfile:
+        yaml.dump(path, ymlfile, default_flow_style=False)
 
 
 
@@ -92,25 +94,25 @@ if __name__ == '__main__':
     except:
         key = 'record_main.py'
 #        recordMainPath = fileDialog(kind=key, directory= os.getcwd(), isFolder=True)
-        recordMainPath = fileDialog(kind=key, directory= os.getcwd())
+        recordMainPath = fileDialog(kind=key, directory=os.getcwd())
         if os.path.isfile(recordMainPath):
             recordMainPath = os.path.dirname(recordMainPath)
         configName = os.path.join(recordMainPath, 'config', 'recordRc.yaml')
         if os.path.isfile(configName):
             # build from config file
-            paths = readConfig()       
-        else:   
+            paths = readConfig()
+        else:
             # build from trash
             paths = {}
             paths['recordMain'] = recordMainPath
-            paths['cwd']= os.getcwd()
+            paths['cwd'] = os.getcwd()
     home = os.path.expanduser('~')
-    # manual define/confirm the paths    
+    # manual define/confirm the paths
     for key in ['root', 'data', 'save']:
         if key in paths.keys():
-            paths[key] = fileDialog(kind=key, directory= paths[key], isFolder=True)
+            paths[key] = fileDialog(kind=key, directory=paths[key], isFolder=True)
         else:
-            paths[key] = fileDialog(kind=key, directory= home, isFolder=True)
+            paths[key] = fileDialog(kind=key, directory=home, isFolder=True)
     paths['sFig'] = paths['save']
     paths['sBg'] = paths['save']
     paths['utils'] = '~'
@@ -120,5 +122,3 @@ if __name__ == '__main__':
         app
     except:
         app.exec_()
-         
-        

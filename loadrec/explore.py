@@ -5,25 +5,19 @@ Created on Thu Mar 12 16:52:13 2020
 
 @author: cdesbois
 """
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-"""
-Created on Mer 11 mar 2020 14:27:07 CET
-
-@author: cdesbois
-"""
-
-import os
-from glob import glob
+#import os
+# from glob import glob
 from PyQt5.QtWidgets import QFileDialog
 import matplotlib.pyplot as plt
 
 #%%
 
-def gui_choosefile(paths={}):
+def gui_choosefile(paths=None):
     """ Select a file via a dialog and return the file name.
     """
+    if not paths:
+        paths = dict()
     apath = paths.get('data', '~')
     fname = QFileDialog.getOpenFileName(caption='choose a file',
                                         directory=apath, filter='*.csv')

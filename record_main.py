@@ -31,7 +31,7 @@ paths = config.load_recordRc.paths
 from plot import trend_plot as tplot
 from plot import wave_plot as wplot
 import treatrec.wave_func as wf
-# import treatrec.clean_data as clean
+import treatrec.clean_data as clean
 # ##import bloodGases2 as bg
 
 # from loadrec import loadmonitor_trendrecord, loadmonitor_waverecord
@@ -111,15 +111,15 @@ def check():
     imported = {}
     for item in gc.get_objects():
         if isinstance(item, MonitorTrend):
-            alist = [k for k,v in locals().items() if v is item]
+            alist = [k for k, v in locals().items() if v is item]
             imported[alist[0]] = item.file
             print(alist)
         elif isinstance(item, MonitorWave):
-            alist = [k for k,v in locals().items() if v is item]
+            alist = [k for k, v in locals().items() if v is item]
             imported[alist[0]] = item.file
             print(alist)
     for key, val in imported.items():
-        print(key, '<->', val)  
+        print(key, '<->', val)
 
 
 def list_loaded():
@@ -217,19 +217,12 @@ class Waves():
         self.source = None
         self.data = None
         self.header = None
-        self.param = {
-                'xmin': None,
-                'xmax': None,
-                'ymin': 0,
-                'ymax': None,
-                'path': paths['sFig'],
-                'unit': 'min',
-                'save': False,
-                'memo': False,
-                'file': os.path.basename(filename),
-                'source': None,
-                'fs' : None
-                }
+        self.param = dict(xmin=None, xmax=None,
+                          ymin=0, ymax=None,
+                          path=paths['sFig'], unit='min',
+                          save=False, memo=False,
+                          file=os.path.basename(filename),
+                          source=None, fs=None)
 
 #+++++++
 class SlowWave(Waves):

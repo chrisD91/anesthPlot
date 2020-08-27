@@ -18,7 +18,7 @@ This generated tends (~1pt/5sec) and waves (~300pt/sec) recordings
 
    some  additional packages can be required
 
-	```
+	```bash
 	pip install pyyaml
  	conda install -c conda-forge pyperclip,
 	```
@@ -33,8 +33,22 @@ This generated tends (~1pt/5sec) and waves (~300pt/sec) recordings
 ie should create 'recordRC.yaml' in the same folder as 'recordMain.py)
 NB (install the missing packages if necessary)
 
+## using the code as a module
 
-## using the code
+to be able to manipulate the data (trends & waves) 
+
+``` python
+import anesthPlot.record_main as rec
+import anesthPlot.plot.trend_plot as tplot
+...
+```
+
+
+
+## using the code from terminal
+
+to obtain a rapid view of the data for visualisation or to save the plots
+
 1. run the main file (run > "python recordMain.py")
 * choose the file you want to load
 * select the kind of file
@@ -48,8 +62,8 @@ NB (install the missing packages if necessary)
             (histogram of etco2 & isoflurane used)
     c. display of the trends parameters
             (scale can be adjusted and pictures can be saved)
-  2. for the wave data
-     a. you will be prompted to choose a wave to be displayed
+     2. for the wave data
+        a. you will be prompted to choose a wave to be displayed
 
 # example of pictures generated
 

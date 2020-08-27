@@ -58,7 +58,7 @@ try:
 except:
     paths = {}
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
     filename = choosefile_gui(paths)
