@@ -234,9 +234,9 @@ def cardiovasc(data, param={}):
     cardiovascular plot
     input = 
         data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-        param : dict(save: boolean, path['save'], xmin, xmax, unit)
-        dtime = boolean for time display in HH:MM format
-    output=
+        param : dict(save: boolean, path['save'], xmin, xmax, unit,
+                     dtime = boolean for time display in HH:MM format)
+    output = 
         pyplot figure
     """
     if 'hr' not in data.columns:
@@ -303,7 +303,12 @@ def cardiovasc(data, param={}):
 def co2iso(data, param={}):
     """
     anesth plot (CO2/iso)
-    input = dataFrame, dic(path, xmin, xmax,unit)
+    input = 
+        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+        param : dict(save: boolean, path['save'], xmin, xmax, unit,
+                     dtime = boolean for time display in HH:MM format)
+    output = 
+        pyplot figure
     """
     if 'co2exp' not in data.columns:
         print('no co2exp in the recording')
@@ -385,8 +390,12 @@ def func(ax, x, y1, y2, color=colors['blue'], x0=38):
 def co2o2(data, param):
     """
     respiratory plot (CO2 and Iso)
-    input = dataFrame, dic(path, xmin, xmax,unit)
-    output = plot
+    input = 
+        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+        param : dict(save: boolean, path['save'], xmin, xmax, unit,
+                     dtime = boolean for time display in HH:MM format)
+    output = 
+        pyplot figure
     """
     try:
         etCO2 = data.co2exp
@@ -451,7 +460,12 @@ def co2o2(data, param):
 def ventil(data, param):
     """
     ventilation plot (.tvInsp, .pPeak, .pPlat, .peep, .minVexp, .co2RR, .co2exp )
-    input = dataFrame, dic(path, xmin, xmax,unit)
+    input = 
+        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+        param : dict(save: boolean, path['save'], xmin, xmax, unit,
+                     dtime = boolean for time display in HH:MM format)
+    output = 
+        pyplot figure
     """
     path = param.get('path', '')
     xmin = param.get('xmin', None)
@@ -529,7 +543,12 @@ def ventil(data, param):
 def recrut(data, param):
     """
     to show a recrut manoeuver (.pPeak, .pPlat, .peep, .tvInsp)
-    input = dataFrame, dic(path, xmin, xmax,unit)
+    input = 
+        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+        param : dict(save: boolean, path['save'], xmin, xmax, unit,
+                     dtime = boolean for time display in HH:MM format)
+    output = 
+        pyplot figure
     """
     
     path = param.get('path', '')
@@ -586,8 +605,16 @@ def recrut(data, param):
             fig_memo(path, fig_name)
     return fig
 
+
 def ventil_cardio(data, param):
-        
+    """
+        input = 
+        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+        param : dict(save: boolean, path['save'], xmin, xmax, unit,
+                     dtime = boolean for time display in HH:MM format)
+    output = 
+        pyplot figure
+    """
     path = param.get('path', '')
     xmin = param.get('xmin', None)
     xmax = param.get('xmax', None)
