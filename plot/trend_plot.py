@@ -54,6 +54,27 @@ def color_axis(ax, spine='bottom', color='r'):
         ax.yaxis.label.set_color(color)
         ax.tick_params(axis='y', colors=color)
 
+def append_loc_to_fig(ax, dt_list, label='g'):
+    """
+    append vertical lines to indicate a location 'eg: arterial blood gas'
+    Parameters
+    ----------
+    ax : matplotlib figure.axis
+    dt_list = datetime list
+    label = a key to add to the label (default is 'g')
+    Returns
+    -------
+    dictionary containing the locations
+
+    """
+    num_times = mdates.date2num(dt_list)
+    res = {}
+    for i, num_time in enumerate(num_times):
+        st = label + str(i + 1)
+        ax.axvline(num_time, color='tab:blue')
+        ax.text(num_time, ax.get_ylim()[1], st, color='tab:blue')
+        res[i] = num_time
+    return res            
 
 
 #%%
@@ -679,6 +700,7 @@ def ventil_cardio(data, param):
 
     fig.tight_layout()
     return fig
+
 
 #------------------------------------------------------------------------
 def save_distri(data, path):
