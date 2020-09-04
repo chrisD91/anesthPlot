@@ -12,10 +12,10 @@ def build_paths():
     #locate
     try:
         local_mod_path = os.path.dirname(__file__)
-        print(__file__)
+        # print(__file__)
     except NameError:
         # for inside spyder
-        local_mod_path = '/Users/cdesbois/pg/chrisPg/anesthplot'
+        local_mod_path = '/Users/cdesbois/pg/chrisPg/anesthplot/config'
     rc_file = os.path.join(local_mod_path, 'recordRc.yaml')
     #load
     if os.path.isfile(rc_file):
@@ -23,6 +23,7 @@ def build_paths():
             cfg = yaml.safe_load(ymlfile)
             return cfg
     else:
+        print('rc_file should be ', rc_file)
         print('no recordRc.yaml configFile present')
         print('please build one -> cf buildConfig.py')
         return None
@@ -41,4 +42,6 @@ def adapt_with_syspath(path_dico):
 
 paths = build_paths()
 if paths:
-    adapt_with_syspath(paths)
+    pass
+#    adapt_with_syspath(paths)
+# trying to avoid to have a python package in the path

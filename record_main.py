@@ -23,15 +23,19 @@ from pylab import rcParams
 rcParams['axes.xmargin'] = 0
 rcParams['axes.ymargin'] = 0
 
-
-import config.load_recordRc
-paths = config.load_recordRc.paths
+#print(dir())
+#TODO test to change all to absolute import
+from anesthPlot.config import load_recordRc
+paths = load_recordRc.paths
+#import config.load_recordRc
+#paths = config.load_recordRc.paths
 #import utils
 #import bloodGases2 as bg
-from plot import trend_plot as tplot
-from plot import wave_plot as wplot
-import treatrec.wave_func as wf
-import treatrec.clean_data as clean
+from anesthPlot.plot import trend_plot as tplot
+#from anesthPlot.plot import trend_plot as tplot
+from anesthPlot.plot import wave_plot as wplot
+from anesthPlot.treatrec import wave_func as wf
+from anesthPlot.treatrec import clean_data as clean
 # ##import bloodGases2 as bg
 
 # from loadrec import loadmonitor_trendrecord, loadmonitor_waverecord
@@ -40,11 +44,11 @@ import treatrec.clean_data as clean
 # import plot
 # import treatrec as treat
 
-import loadrec.loadmonitor_trendrecord as lmt
-import loadrec.loadmonitor_waverecord as lmw
-import loadrec.loadtaph_trendrecord as ltt
-import loadrec.loadtelevet as ltv
-import loadrec.explore as explore
+from anesthPlot.loadrec import loadmonitor_trendrecord as lmt
+from anesthPlot.loadrec  import loadmonitor_waverecord as lmw
+from anesthPlot.loadrec  import loadtaph_trendrecord as ltt
+from anesthPlot.loadrec  import loadtelevet as ltv
+from anesthPlot.loadrec  import explore as explore
 #
 
 def choosefile_gui(dir_path=None, caption='choose a recording'):
@@ -293,7 +297,7 @@ class FastWave(Waves):
         super().__init__(filename)
     def plot_wave(self):
         """
-        simple choose and plot for a wave
+20        simple choose and plot for a wave
         """
         cols = [w for w in self.data.columns if w[0] == 'w']
         trace = select_type(caption='choose wave', items=cols)
