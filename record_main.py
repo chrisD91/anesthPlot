@@ -250,12 +250,18 @@ class SlowWave(Waves):
         return fig_list
 
 class MonitorTrend(SlowWave):
-    """ monitor trends recordings"""
-    def __init__(self, filename):
+    """ 
+    monitor trends recordings:
+        input = filename : path to file
+        load = boolean to load data (default is True)
+    """
+    def __init__(self, filename, load=True):
         super().__init__(filename)
         self.header = lmt.loadmonitor_trendheader(self.filename)
+        self.load = load
         if self.header:
-            self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
+            if self.load:
+                self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
             self.source = 'monitor'
             self.fs = self.header['Sampling Rate']
             self.param['source'] = 'monitorTrend'
@@ -345,14 +351,18 @@ class TelevetWave(FastWave):
 class MonitorWave(FastWave):
     """
     class to organise monitorWave recordings
+        input : filename = path to file
+        load = boolean to load data (default is True)
     """
-    def __init__(self, filename):
+    def __init__(self, filename, load=True):
         super().__init__(filename)
         header = lmw.loadmonitor_waveheader(filename)
         self.header = dict(zip(header[0], header[1]))
-        data = lmw.loadmonitor_wavedata(filename)
-        data = lmw.append_monitorwave_datetime(data)
-        self.data = data
+        self.load = load
+        if self.load:
+            data = lmw.loadmonitor_wavedata(filename)
+            data = lmw.append_monitorwave_datetime(data)
+            self.data = data
         self.source = 'monitorWave'
         self.fs = 300
         self.param['fs'] = 300
