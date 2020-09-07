@@ -133,11 +133,11 @@ def plot_beats(ecg, beats):
     txt0 = 'locate the peak to add : zoom and use'
     txt1 = 'to_change_df = tohr.add_beat(beat_df, ekg_df, to_change_df, figure)'
     fig.text(0.99, 0.03, txt0, ha='right', va='bottom', alpha=0.5)
-    fig.text(0.99, 0.00, txt1, ha='right', va='bottom', alpha=0.5)
+    fig.text(0.99, 0.00, txt1, ha='right', va='bottom', alpha=0.5, size='small')
     txt0 = 'locate the peak to remove : zoom and use'
     txt1 = 'to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure, scale=1)'
     fig.text(0.01, 0.03, txt0, ha='left', va='bottom', alpha=0.5)
-    fig.text(0.01, 0.00, txt1, ha='left', va='bottom', alpha=0.5)
+    fig.text(0.01, 0.00, txt1, ha='left', va='bottom', alpha=0.5, size='small')
     return fig
 
 def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None, yscale=1):

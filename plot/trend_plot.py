@@ -25,18 +25,6 @@ params = {'font.sans-serif': ['Arial'],
 plt.rcParams.update(params)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
 
-bright = {
-        'blue' : [x/256 for x in [0, 119, 170]],
-        'cyan' : [x/256 for x in [102, 204, 238]],
-        'green' : [x/256 for x in [34, 136, 51]],
-        'yellow' : [x/256 for x in [204, 187, 68]],
-        'red' : [x/256 for x in [238, 103, 119]],
-        'purple' : [x/256 for x in [170, 51, 119]],
-        'grey' : [x/256 for x in [187, 187, 187]]
-        }
-
-colors = bright
-
 #////////////////////////////////////////////////////////////////
 def color_axis(ax, spine='bottom', color='r'):
     """
@@ -108,6 +96,10 @@ def plot_header(descr, param={'save':False}):
     for sp in ax.spines.values():
         sp.set_color('w')
         sp.set_zorder(0)
+    #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
+    #save process
     if param['save']:
         fig_name = 'header'+ str(param['item'])
         name = os.path.join(param['path'], fig_name)
@@ -139,15 +131,15 @@ def hist_pam(data, param={}):
     fig = plt.figure(figsize=(8, 4))
 
     ax1 = fig.add_subplot(121)
-    ax1.set_title('arterial pressure', color=colors['red']) 
+    ax1.set_title('arterial pressure', color='tab:red') 
     ax1.set_xlabel('mmHg', alpha=0.5)
-    ax1.axvspan(70, 80, -0.1, 1, color=colors['grey'], alpha=0.5)
-    ax1.hist(data.ip1m.dropna(), bins=50, color=colors['red'],
+    ax1.axvspan(70, 80, -0.1, 1, color='tab:grey', alpha=0.5)
+    ax1.hist(data.ip1m.dropna(), bins=50, color='tab:red',
              edgecolor='r')
-    ax1.axvline(70, color=colors['grey'], alpha=1)
-    ax1.axvline(80, color=colors['grey'], alpha=1)
+    ax1.axvline(70, color='tab:grey', alpha=1)
+    ax1.axvline(80, color='tab:grey', alpha=1)
     ax2 = fig.add_subplot(122)
-    ax2.hist(data.hr.dropna(), bins=50, range=(25, 65), color=colors['grey'],
+    ax2.hist(data.hr.dropna(), bins=50, range=(25, 65), color='tab:grey',
              edgecolor='k')
     ax2.set_title('heart rate', color='k')
     ax2.set_xlabel('bpm', alpha=0.5)
@@ -157,18 +149,21 @@ def hist_pam(data, param={}):
         for i, item in enumerate(['ip1m', 'hr']):
             try:
                 q25, q50, q75 = np.percentile(data[item].dropna(), [25, 50, 75])
-                axes[i].axvline(q50, linestyle='dashed', linewidth=2, color='k', alpha=0.5)
+                axes[i].axvline(q50, linestyle='dashed', linewidth=2, color='k', alpha=0.8)
              #   axes[i].axvline(q25, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
               #  axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
             except:
                 print('no arterial pressure recorded')
     for ax in axes:
         #call
-        color_axis(ax, 'bottom', colors['grey'])
+        color_axis(ax, 'bottom', 'tab:grey')
         ax.get_yaxis().set_visible(False)
         ax.get_xaxis().tick_bottom()
         for locs in ['top', 'right', 'left']:
             ax.spines[locs].set_visible(False)
+        #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if save:
         fig_name = 'hist_pam'+ str(param['item'])
@@ -190,6 +185,9 @@ def plot_one_over_time(x, y, colour):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     fig.tight_layout()
+    #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    #fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     return fig
 
 #----------------------------------------------------------------------------------------
@@ -204,17 +202,17 @@ def hist_co2_iso(data, param={}):
     fig = plt.figure(figsize=(8, 4))
 
     ax1 = fig.add_subplot(121)
-    ax1.set_title('$End_{tidal}$ $CO_2$', color=colors['blue'])
-    ax1.axvspan(35, 45, color=colors['grey'], alpha=0.5)
+    ax1.set_title('$End_{tidal}$ $CO_2$', color='tab:blue')
+    ax1.axvspan(35, 45, color='tab:grey', alpha=0.5)
     ax1.hist(data.co2exp.dropna(), bins=50, 
-             color=colors['blue'], edgecolor='blue', alpha=.8)
-    ax1.axvline(35, color=colors['grey'], alpha=1)
-    ax1.axvline(45, color=colors['grey'], alpha=1)
+             color='tab:blue', edgecolor='blue', alpha=.8)
+    ax1.axvline(35, color='tab:grey', alpha=1)
+    ax1.axvline(45, color='tab:grey', alpha=1)
     ax1.set_xlabel('mmHg', alpha=0.5)
 
     ax2 = fig.add_subplot(122)
-    ax2.set_title('$End_{tidal}$ isoflurane', color=colors['purple'])
-    ax2.hist(data.aaExp.dropna(), bins=50, color=colors['purple'], 
+    ax2.set_title('$End_{tidal}$ isoflurane', color='tab:purple')
+    ax2.hist(data.aaExp.dropna(), bins=50, color='tab:purple', 
              range=(0.5, 2), edgecolor='k', alpha=.8)
     ax2.set_xlabel('%', alpha=0.5)
     
@@ -224,7 +222,7 @@ def hist_co2_iso(data, param={}):
         for i, item in enumerate(['co2exp', 'aaExp']):
             try:
                 q25, q50, q75 = np.percentile(data[item].dropna(), [25, 50, 75])
-                axes[i].axvline(q50, linestyle='dashed', linewidth=2, color='k', alpha=0.5)
+                axes[i].axvline(q50, linestyle='dashed', linewidth=2, color='k', alpha=0.8)
 #                axes[i].axvline(q25, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
  #               axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
             except:
@@ -232,11 +230,14 @@ def hist_co2_iso(data, param={}):
 
     for ax in axes:
         #call
-        color_axis(ax, 'bottom', colors['grey'])
+        color_axis(ax, 'bottom', 'tab:grey')
         ax.get_yaxis().set_visible(False)
         ax.get_xaxis().tick_bottom()
         for locs in ['top', 'right', 'left']:
             ax.spines[locs].set_visible(False)
+        #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if save:
         fig_name = 'hist_co2_iso'+ str(param['item'])
@@ -278,29 +279,32 @@ def cardiovasc(data, param={}):
     # fig.suptitle('cardiovascular')
     axL = fig.add_subplot(111)
     # axL.set_xlabel('time (' + unit +')')
-    axL.set_ylabel('arterial Pressure', color='red')
+    axL.set_ylabel('arterial Pressure', color='tab:red')
     #call
-    color_axis(axL, 'left', colors['red'])
+    color_axis(axL, 'left', 'tab:red')
     for spine in ['top', 'right']:
         axL.spines[spine].set_visible(False)
     axL.plot(df.ip1m, '-', color='red', label='arterial pressure', linewidth=2)
-    axL.fill_between(df.index, df.ip1d, df.ip1s, color = colors['red'], alpha=0.5)
+    axL.fill_between(df.index, df.ip1d, df.ip1s, color='tab:red', alpha=0.5)
     axL.set_ylim(30, 150)
-    axL.axhline(70, linewidth=1, linestyle='dashed', color=colors['red'])
+    axL.axhline(70, linewidth=1, linestyle='dashed', color='tab:red')
 
     axR = axL.twinx()
     axR.set_ylabel('heart Rate')
     axR.set_ylim(20, 100)
-    axR.plot(df.hr, color = colors['grey'], label='heart rate', linewidth=2)
+    axR.plot(df.hr, color='tab:grey', label='heart rate', linewidth=2)
     #call
-    color_axis(axR, 'right', colors['grey'])
+    color_axis(axR, 'right', 'tab:grey')
     axR.yaxis.label.set_color('black')
     for spine in ['top', 'left']:
         axR.spines[spine].set_visible(False)
 
     for ax in fig.get_axes():
         #call
-        color_axis(ax, 'bottom', colors['grey'])
+        color_axis(ax, 'bottom', 'tab:grey')
+        #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if xmin and xmax:
         axR.set_xlim(xmin,xmax)
@@ -361,22 +365,22 @@ def co2iso(data, param={}):
 
     axL.set_ylabel('$CO_2$')
     # call
-    color_axis(axL, 'left', colors['blue'])
+    color_axis(axL, 'left', 'tab:blue')
 
-    axL.plot(df.co2exp, color=colors['blue'])
-    axL.plot(df.co2insp, color=colors['blue'])
+    axL.plot(df.co2exp, color='tab:blue')
+    axL.plot(df.co2insp, color='tab:blue')
     axL.fill_between(df.index, df.co2exp, df.co2insp, 
-                     color=colors['blue'], alpha=0.5)
-    axL.axhline(38, linewidth=2, linestyle='dashed', color=colors['blue'])
+                     color='tab:blue', alpha=0.5)
+    axL.axhline(38, linewidth=2, linestyle='dashed', color='tab:blue')
 
     axR = axL.twinx()
     axR.set_ylabel('isoflurane')
-    color_axis(axR, 'right', colors['purple'])
+    color_axis(axR, 'right', 'tab:purple')
     # func(axR, x, etIso, inspIs, color='m', x0=38)
-    axR.plot(df.aaExp, color=colors['purple'])
-    axR.plot(df.aaInsp, color=colors['purple'])
+    axR.plot(df.aaExp, color='tab:purple')
+    axR.plot(df.aaInsp, color='tab:purple')
     axR.fill_between(df.index, df.aaExp, df.aaInsp, 
-                     color=colors['purple'], alpha=0.5)
+                     color='tab:purple', alpha=0.5)
     axR.set_ylim(0, 3)
 
     if dtime:
@@ -384,10 +388,13 @@ def co2iso(data, param={}):
         axR.xaxis.set_major_formatter(myFmt)
 
     for ax in [axL, axR]:
-        color_axis(ax, 'bottom', colors['grey'])
+        color_axis(ax, 'bottom', 'tab:grey')
         ax.spines["top"].set_visible(False)
         ax.get_xaxis().tick_bottom()
         ax.set_xlim(xmin, xmax)
+        #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
 
     if save:
@@ -401,7 +408,7 @@ def co2iso(data, param={}):
     return fig
 
 # proposition de yann pour simplifier le code (à implémenter)
-def func(ax, x, y1, y2, color=colors['blue'], x0=38):
+def func(ax, x, y1, y2, color='tab:blue', x0=38):
     ax.plot(x, y1, color=color)
     ax.plot(x, y2, color=color)
     ax.fill_between(x, y1, y2, color=color, alpha=0.1)
@@ -439,22 +446,22 @@ def co2o2(data, param):
     axL = fig.add_subplot(111)
     axL.set_ylabel('$CO_2$')
     # axL.set_xlabel('time (' + unit +')')
-    color_axis(axL, 'left', colors['blue'])
-    axL.plot(df.co2exp, color=colors['blue'])
-    axL.plot(df.co2insp, color=colors['blue'])
+    color_axis(axL, 'left', 'tab:blue')
+    axL.plot(df.co2exp, color='tab:blue')
+    axL.plot(df.co2insp, color='tab:blue')
     axL.fill_between(df.index, df.co2exp, df.co2insp, 
-                     color=colors['blue'], alpha=0.5)
-    axL.axhline(38, linestyle='dashed', linewidth=2, color=colors['blue'])
+                     color='tab:blue', alpha=0.5)
+    axL.axhline(38, linestyle='dashed', linewidth=2, color='tab:blue')
 
     axR = axL.twinx()
     axR.set_ylabel('$0_2$')
-    color_axis(axR, 'right', colors['green'])
-    axR.plot(df.o2insp, color=colors['green'])
-    axR.plot(df.o2exp, color=colors['green'])
+    color_axis(axR, 'right', 'tab:green')
+    axR.plot(df.o2insp, color='tab:green')
+    axR.plot(df.o2exp, color='tab:green')
     axR.fill_between(df.index, df.o2insp, df.o2exp, 
-                     color=colors['green'], alpha=0.5)
+                     color='tab:green', alpha=0.5)
     axR.set_ylim(21, 80)
-    axR.axhline(30, linestyle='dashed', linewidth=3, color=colors['yellow'])
+    axR.axhline(30, linestyle='dashed', linewidth=3, color='tab:olive')
 
     if dtime:
         myFmt = mdates.DateFormatter('%H:%M')
@@ -462,10 +469,13 @@ def co2o2(data, param):
 
     axes = [axL, axR]
     for ax in axes:
-        color_axis(ax, 'bottom', colors['grey'])
+        color_axis(ax, 'bottom', 'tab:grey')
         ax.spines["top"].set_visible(False)
         ax.get_xaxis().tick_bottom()
         ax.set_xlim(xmin, xmax)
+        #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
 
     if param['save']:
@@ -506,26 +516,26 @@ def ventil(data, param):
 
     ax1 = fig.add_subplot(211)
     ax1.set_ylabel('tidal volume')
-    color_axis(ax1, 'left', colors['yellow'])
+    color_axis(ax1, 'left', 'tab:olive')
     ax1.yaxis.label.set_color('k')
     try:
-        ax1.plot(df.tvInsp, color=colors['yellow'], linewidth=2)
+        ax1.plot(df.tvInsp, color='tab:olive', linewidth=2)
     except:
         print('no spirometry data in the recording')
     ax1R = ax1.twinx()
     ax1R.set_ylabel('pression')
-    color_axis(ax1R, 'right', colors['red'])
+    color_axis(ax1R, 'right', 'tab:red')
     try:
-        ax1R.plot(df.pPeak, color=colors['red'], linewidth=1, linestyle='-')
-        ax1R.plot(df.pPlat, color=colors['red'], linewidth=1, linestyle=':')
-        ax1R.plot(df.peep, color=colors['red'], linewidth=1, linestyle='-')
-        ax1R.fill_between(df.index, df.peep, df.pPeak, color=colors['red'], alpha=0.1)
+        ax1R.plot(df.pPeak, color='tab:red', linewidth=1, linestyle='-')
+        ax1R.plot(df.pPlat, color='tab:red', linewidth=1, linestyle=':')
+        ax1R.plot(df.peep, color='tab:red', linewidth=1, linestyle='-')
+        ax1R.fill_between(df.index, df.peep, df.pPeak, color='tab:red', alpha=0.1)
     except:
         print('no spirometry data in the recording')
     ax2 = fig.add_subplot(212, sharex=ax1)
     ax2.set_ylabel('MinVol & RR')
     try:
-        ax2.plot(df.minVexp, color=colors['yellow'], linewidth=2)
+        ax2.plot(df.minVexp, color='tab:olive', linewidth=2)
         ax2.plot(df.co2RR, color='black', linewidth=1, linestyle='--')
     except:
         print('no spirometry data recorded')
@@ -533,9 +543,9 @@ def ventil(data, param):
 
     ax2R = ax2.twinx()
     ax2R.set_ylabel('Et $CO_2$')
-    color_axis(ax2R, 'right', colors['blue'])
+    color_axis(ax2R, 'right', 'tab:blue')
     try:
-        ax2R.plot(df.co2exp, color=colors['blue'], linewidth=1, linestyle='-')
+        ax2R.plot(df.co2exp, color='tab:blue', linewidth=2, linestyle='-')
     except:
         print('no capnometry in the recording')
     ax1R.set_ylim(0, 50)
@@ -546,10 +556,13 @@ def ventil(data, param):
         if dtime:
             myFmt = mdates.DateFormatter('%H:%M')
             ax.xaxis.set_major_formatter(myFmt)
-        color_axis(ax, 'bottom', colors['grey'])
+        color_axis(ax, 'bottom', 'tab:grey')
         ax.spines["top"].set_visible(False)
         ax.get_xaxis().tick_bottom()
         ax.set_xlim(xmin, xmax)
+        #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if param['save']:
         fig_name = 'ventil'+ str(param['item'])
@@ -589,20 +602,20 @@ def recrut(data, param):
     # ax1.set_xlabel('time (' + unit +')')
     ax1.spines["top"].set_visible(False)
     ax1.set_ylabel('peep & Peak, (cmH2O)')
-    color_axis(ax1, 'left', colors['red'])
+    color_axis(ax1, 'left', 'tab:red')
     ax1.spines["right"].set_visible(False)
-    ax1.plot(df.pPeak, color=colors['red'], linewidth=1, linestyle='-')
-    ax1.plot(df.pPlat, color=colors['red'], linewidth=1, linestyle=':')
-    ax1.plot(df.peep, color=colors['red'], linewidth=2, linestyle='-')
-    ax1.fill_between(df.index, df.peep, df.pPeak, color=colors['red'], alpha=0.1)
+    ax1.plot(df.pPeak, color='tab:red', linewidth=2, linestyle='-')
+    ax1.plot(df.pPlat, color='tab:red', linewidth=1, linestyle=':')
+    ax1.plot(df.peep, color='tab:red', linewidth=2, linestyle='-')
+    ax1.fill_between(df.index, df.peep, df.pPeak, color='tab:red', alpha=0.1)
     ax1.set_ylim(0, 50)
 
     ax2 = ax1.twinx()
     ax2.set_ylabel('volume')
-    color_axis(ax2, 'right', colors['yellow'])
+    color_axis(ax2, 'right', 'tab:olive')
     ax2.spines["left"].set_visible(False)
     ax2.yaxis.label.set_color('black')
-    ax2.plot(df.tvInsp, color=colors['yellow'], linewidth=2)
+    ax2.plot(df.tvInsp, color='tab:olive', linewidth=2)
 
     ax1.set_xlim(xmin, xmax)
     #ax2.set_xlim(xmin, xmax)
@@ -613,9 +626,11 @@ def recrut(data, param):
 
     axes = [ax1, ax2]
     for ax in axes:
-        color_axis(ax, 'bottom', colors['grey'])
+        color_axis(ax, 'bottom', 'tab:grey')
         ax.spines["top"].set_visible(False)
-
+    #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if param['save']:
         fig_name = 'recrut'+ str(param['item'])
@@ -649,36 +664,37 @@ def ventil_cardio(data, param):
     if 'tvInsp' not in data.columns:
         print('no spirometry data in the recording')
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(6,12))
     # fig.suptitle('ventilation & cardiovasc')
 
     ax1 = fig.add_subplot(211)
     ax1.set_ylabel('tidal vol.')
-    color_axis(ax1, 'left', colors['yellow'])
+    color_axis(ax1, 'left', 'tab:olive')
     ax1.yaxis.label.set_color('k')
-    ax1.plot(df.tvInsp, color=colors['yellow'], linewidth=2)
+    ax1.plot(df.tvInsp, color='tab:olive', linewidth=2)
     ax1.spines['right'].set_visible(False)
     ax1.spines['bottom'].set_visible(False)
     ax1.tick_params('x')    
     
     ax1R = ax1.twinx()
     ax1R.set_ylabel('P_resp')
-    color_axis(ax1R, 'right', colors['red'])
-    ax1R.plot(df.pPeak, color=colors['red'], linewidth=1, linestyle='-')
-    ax1R.plot(df.pPlat, color=colors['red'], linewidth=1, linestyle=':')
-    ax1R.plot(df.peep, color=colors['red'], linewidth=1, linestyle='-')
-    ax1R.fill_between(df.index, df.peep, df.pPeak, color=colors['red'], alpha=0.1)
+    color_axis(ax1R, 'right', 'tab:red')
+    ax1R.plot(df.pPeak, color='tab:red', linewidth=1, linestyle='-')
+    ax1R.plot(df.pPlat, color='tab:red', linewidth=1, linestyle=':')
+    ax1R.plot(df.peep, color='tab:red', linewidth=1, linestyle='-')
+    ax1R.fill_between(df.index, df.peep, df.pPeak, color='tab:red', alpha=0.1)
     ax1R.spines['left'].set_visible(False)
     ax1R.spines['bottom'].set_visible(False)
 
     ax2 = fig.add_subplot(212, sharex=ax1)
     ax2.set_ylabel('P_art')
-    color_axis(ax2, 'left', colors['red'])
+    color_axis(ax2, 'left', 'tab:red')
     ax2.spines['right'].set_visible(False)    
-    ax2.plot(df.ip1m, color=colors['red'], linewidth=1, linestyle='-')
-    ax2.plot(df.ip1s, color=colors['red'], linewidth=0, linestyle='-')
-    ax2.plot(df.ip1d, color=colors['red'], linewidth=0, linestyle='-')
-    ax2.fill_between(df.index, df.ip1s, df.ip1d, color=colors['red'], alpha=0.2)
+    ax2.plot(df.ip1m, color='tab:red', linewidth=1, linestyle='-')
+    ax2.plot(df.ip1s, color='tab:red', linewidth=0, linestyle='-')
+    ax2.plot(df.ip1d, color='tab:red', linewidth=0, linestyle='-')
+    ax2.fill_between(df.index, df.ip1s, df.ip1d, color='tab:red', alpha=0.2)
+    
     # ax2.set_xlabel('time (' + unit +')')
 
     # ax1.set_xlim(108, 114)
@@ -694,10 +710,14 @@ def ventil_cardio(data, param):
 
     axes = [ax1, ax1R, ax2]
     for ax in axes:
-        color_axis(ax, 'bottom', colors['grey'])
+        ax.grid()
+        color_axis(ax, 'bottom', 'tab:grey')
         ax.spines["top"].set_visible(False)
         ax.get_xaxis().tick_bottom()
 
+    #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
 

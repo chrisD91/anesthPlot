@@ -186,10 +186,10 @@ def plot_trenddata(file, df, header, param_dico):
     for func in plot_func_list:
         afig_list.append(func(df.set_index('eTimeMin'), param_dico))
     afig_list.append(tplot.plot_header(header, param_dico))
-    for fig in afig_list:
-        if fig:                 # test if figure is present
-            fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
-            fig.text(0.01, 0.01, file, ha='left', va='bottom', alpha=0.4)
+    # for fig in afig_list:
+    #     if fig:                 # test if figure is present
+    #         fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    #         fig.text(0.01, 0.01, file, ha='left', va='bottom', alpha=0.4)
     print('plt.show')
     plt.show()
     return afig_list
@@ -309,7 +309,7 @@ class FastWave(Waves):
         trace = select_type(caption='choose wave', items=cols)
         if trace:
 #            fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
-            fig, _ = wplot.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
+            fig, _ = wplot.plot_wave(self.data, keys=[trace], param=self.param)
             fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
             fig.text(0.01, 0.01, self.file, ha='left', va='bottom', alpha=0.4)
             self.trace = trace
@@ -361,7 +361,6 @@ class MonitorWave(FastWave):
         self.load = load
         if self.load:
             data = lmw.loadmonitor_wavedata(filename)
-            data = lmw.append_monitorwave_datetime(data)
             self.data = data
         self.source = 'monitorWave'
         self.fs = 300

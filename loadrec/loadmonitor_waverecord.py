@@ -87,8 +87,7 @@ def loadmonitor_wavedata(filename):
     df.time = df.time.apply(convert)
     ser = pd.Series(df.time.values.astype('int64'))
     ser[ser < 0] = np.nan
-    df.time = pd.to_datetime(ser.interpolate(), unit='ns')
-
+    df['datetime'] = pd.to_datetime(ser.interpolate(), unit='ns')
     #date = wheader.iloc[0,1]
     #heure = df.iloc[0][df.columns[0]]
     #pd.Timestamp(date + '-' + heure)
@@ -120,20 +119,8 @@ def loadmonitor_wavedata(filename):
     df.loc[df.wap > 200, 'wap'] = np.nan
     if 'wco2' in df.columns:
         df.loc[df.wco2 < 0, 'wco2'] = 0
-
     return df
 
-def append_monitorwave_datetime(df):
-    """ add a time base to the pandasDataframe """
-    df['seconds'] = \
-    [time.mktime(t.timetuple()) if t is not pd.NaT else float('nan') for t in df['time']]
-    df['intepolated'] = df['seconds'].interpolate('values')
-    df['datetime'] = [datetime.utcfromtimestamp(t) for t in df['intepolated']]
-    #correction for localzone
-    lag = df.iloc[0].time - df.iloc[0].datetime
-    df.datetime += lag
-    del df['intepolated'], df['time'], df['seconds'], df['point']
-    return df
 
 #%%
 if __name__ == '__main__':
@@ -145,4 +132,3 @@ if __name__ == '__main__':
         if 'Wave' in file:
             wheader = loadmonitor_waveheader(filename)
             wdata = loadmonitor_wavedata(filename)
-            wdata = append_monitorwave_datetime(wdata)

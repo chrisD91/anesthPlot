@@ -20,17 +20,17 @@ params = {'font.sans-serif': ['Arial'],
 plt.rcParams.update(params)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
 
-bright = {
-        'blue' : [x/256 for x in [0, 119, 170]],
-        'cyan' : [x/256 for x in [102, 204, 238]],
-        'green' : [x/256 for x in [34, 136, 51]],
-        'yellow' : [x/256 for x in [204, 187, 68]],
-        'red' : [x/256 for x in [238, 103, 119]],
-        'purple' : [x/256 for x in [170, 51, 119]],
-        'grey' : [x/256 for x in [187, 187, 187]]
-        }
+# bright = {
+#         'blue' : [x/256 for x in [0, 119, 170]],
+#         'cyan' : [x/256 for x in [102, 204, 238]],
+#         'green' : [x/256 for x in [34, 136, 51]],
+#         'yellow' : [x/256 for x in [204, 187, 68]],
+#         'red' : [x/256 for x in [238, 103, 119]],
+#         'purple' : [x/256 for x in [170, 51, 119]],
+#         'grey' : [x/256 for x in [187, 187, 187]]
+#         }
 
-colors = bright
+# colors = bright
 
 #////////////////////////////////////////////////////////////////
 def color_axis(ax, spine='bottom', color='r'):
@@ -49,7 +49,8 @@ def color_axis(ax, spine='bottom', color='r'):
         ax.yaxis.label.set_color(color)
         ax.tick_params(axis='y', colors=color)
 #%%
-def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
+#def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
+def plot_wave(data, keys=[], param={}):
     """
     plot the waves recorded (from as5)
     input:  df= dataFrame
@@ -59,32 +60,43 @@ def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
     output: plt.figure
     (Nb plot data/index, but the xscale is indicated as sec)
     """
+    for key in keys:
+        try:
+            key in data.columns
+        except:
+            print('the trace {} is not in the data'.format(key))
+            return
+    if len(keys) not in [1, 2]:
+        print('only one or two keys are allowed ', keys, 'were used')
+        return
     names = {'wekg': ['ECG', 'b', 'mVolt'],
              'wco2' : ['expired CO2', 'b', 'mmHg'],
              'wawp': ['airway pressure', 'r', 'cmH2O'],
              'wflow': ['expiratory flow', 'g', 'flow'],
              'wap': ['arterial pressure', 'r', 'mmHg']}
-    if not mini:
-        mini = df.index[0]
-    if not maxi:
-        maxi = df.index[-1]
-    if not df.index[0] <= mini <= df.index[-1]:
+    # time scaling
+    mini = param.get('mini', data.index[0])
+    maxi = param.get('maxi', data.index[-1])
+    if not data.index[0] <= mini <= data.index[-1]:
         print('mini value not in range, replaced by start time value')
-        mini = df.index[0]
-    if not df.index[0] <= maxi <= df.index[-1]:
+        mini = data.index[0]
+    if not data.index[0] <= maxi <= data.index[-1]:
         print('maxi value not in range, replaced by end time value')
-        maxi = df.index[-1]
-    if datetime:
+        maxi = data.index[-1]
+    # datetime or elapsed time sec
+    dtime = param.get('dtime', False)
+    # dtime = False
+    if dtime:
+        cols = keys.copy()
+        cols.append('datetime')
+        df = data[cols].copy()        
         df = df.iloc[mini : maxi].set_index('datetime')
     else:
+        cols = keys.copy()
+        cols.append('sec')
+        df = data[cols].copy()
         df = df.iloc[mini : maxi].set_index('sec')    
-    for key in keys:
-        if key not in names.keys():
-            print(key, 'is not in ', names.keys())
-            return
-    if len(keys) not in [1, 2]:
-        print('only one or two keys are allowed ', keys, 'were used')
-        
+
     lines = []
     # one wave
     if len(keys) == 1:
@@ -114,7 +126,7 @@ def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
                 pass
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
-        if not datetime:
+        if not dtime:
             ax.set_xlabel('time (sec)')
     #two waves
     elif len(keys) == 2:
@@ -128,18 +140,21 @@ def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
         ax_list.append(ax2)
         for i, key in enumerate(keys):
             ax = ax_list[i]
-            ax.set_title(names[key][0])
+            # ax.set_title(names[key][0])
+            ax.set_ylabel(names[key][0], size='small')
             line, = ax.plot(df[key], color=names[key][1], alpha=0.6)
             lines.append(line)
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.3)
-            ax.set_ylabel(names[key][2])
+            #ax.set_ylabel(names[key][2])
             if key == 'wco2':
                 ax.hlines(38, lims[0], lims[1], linestyle='dashed',
                           color=names[key][1], alpha=0.5)
                 ax.set_ylim(0, 50)
             if key == 'wekg':
                 ax.grid()
+                ax.set_ylim(1.05 * df['wekg'].quantile(.001),  
+                            1.05 * df['wekg'].quantile(.999))
             if key == 'wflow':
 #                ax.fill_between(set.index, set[key], where = set[key] > 0,
 #                                color = names[key][1], alpha=0.4)
@@ -147,15 +162,20 @@ def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
             if key == 'wap':
                 ax.hlines(70, lims[0], lims[1], color=names[key][1],
                           linestyle='dashed', alpha=0.5)
-                ax.set_ylim(50, 110)
+                ax.set_ylim(40, 1.10 * df['wap'].quantile(.99))
             ax.get_xaxis().tick_bottom()
             if i > 0:
-                if not datetime:
+                if not dtime:
                     ax.set_xlabel('time (sec)')
         for ax in ax_list:
+            color_axis(ax, spine='bottom', color='tab:grey')
+            color_axis(ax, spine='left', color='tab:grey')
             for loca in ['top', 'right']:
                 ax.spines["top"].set_visible(False)
                 ax.spines["right"].set_visible(False)
+    #annotations
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig, lines
 
