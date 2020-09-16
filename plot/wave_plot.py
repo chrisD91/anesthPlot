@@ -4,9 +4,10 @@ Created on Tue Apr 19 09:08:56 2016
 
 @author: cdesbois
 """
+#import numpy as np
+#import pandas as pd
 import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
+import matplotlib.dates as mdates
 font_size = 'medium' # large, medium
 params = {'font.sans-serif': ['Arial'],
           'font.size': 14,
@@ -57,7 +58,7 @@ def plot_wave(data, keys=[], param={}):
             keys= list of one or two of
                 'wekg','ECG','wco2','wawp','wflow','wap'
             mini, maxi : limits in point value
-    output: plt.figure
+    output: plt.figure, line2D
     (Nb plot data/index, but the xscale is indicated as sec)
     """
     for key in keys:
@@ -69,11 +70,11 @@ def plot_wave(data, keys=[], param={}):
     if len(keys) not in [1, 2]:
         print('only one or two keys are allowed ', keys, 'were used')
         return
-    names = {'wekg': ['ECG', 'b', 'mVolt'],
-             'wco2' : ['expired CO2', 'b', 'mmHg'],
-             'wawp': ['airway pressure', 'r', 'cmH2O'],
-             'wflow': ['expiratory flow', 'g', 'flow'],
-             'wap': ['arterial pressure', 'r', 'mmHg']}
+    names = {'wekg': ['ECG', 'tab:blue', 'mVolt'],
+             'wco2' : ['expired CO2', 'tab:blue', 'mmHg'],
+             'wawp': ['airway pressure', 'tab:red', 'cmH2O'],
+             'wflow': ['expiratory flow', 'tab:green', 'flow'],
+             'wap': ['arterial pressure', 'tab:red', 'mmHg']}
     # time scaling
     mini = param.get('mini', data.index[0])
     maxi = param.get('maxi', data.index[-1])
@@ -87,7 +88,7 @@ def plot_wave(data, keys=[], param={}):
     dtime = param.get('dtime', False)
     # dtime = False
     if dtime:
-        cols = keys.copy()
+        cols = keys[:]
         cols.append('datetime')
         df = data[cols].copy()        
         df = df.iloc[mini : maxi].set_index('datetime')
@@ -102,7 +103,7 @@ def plot_wave(data, keys=[], param={}):
     if len(keys) == 1:
         for key in keys:
             fig = plt.figure(figsize=(10, 4))
-            fig.suptitle(names[key][0])
+            fig.suptitle(names[key][0], color='tab:grey')
             ax = fig.add_subplot(111)
             ax.margins(0)
             line, = ax.plot(df[key], color=names[key][1], alpha=0.6)
@@ -113,6 +114,7 @@ def plot_wave(data, keys=[], param={}):
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.3)
             ax.set_ylabel(names[key][2])
+            ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
             if key == 'wco2':
                 ax.hlines(38, lims[0], lims[1], linestyle='dashed', alpha=0.5)
                 ax.set_ylim(0, 50)
@@ -124,8 +126,10 @@ def plot_wave(data, keys=[], param={}):
 #                ax.fill_between(set.index, set[key], where = set[key] > 0,
 #                                color = names[key][1], alpha=0.4)
                 pass
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['left', 'bottom']:
+            color_axis(ax, spine=spine, color='tab:grey')
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
         if not dtime:
             ax.set_xlabel('time (sec)')
     #two waves
@@ -168,11 +172,11 @@ def plot_wave(data, keys=[], param={}):
                 if not dtime:
                     ax.set_xlabel('time (sec)')
         for ax in ax_list:
-            color_axis(ax, spine='bottom', color='tab:grey')
-            color_axis(ax, spine='left', color='tab:grey')
-            for loca in ['top', 'right']:
-                ax.spines["top"].set_visible(False)
-                ax.spines["right"].set_visible(False)
+            ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+            for spine in ['left', 'right', 'bottom']:
+                color_axis(ax, spine=spine, color='tab:grey')
+            for spine in ['top', 'right']:
+                ax.spines[spine].set_visible(False)
     #annotations
     fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
