@@ -601,7 +601,7 @@ def recrut(data, param):
     ax1 = fig.add_subplot(111)
     # ax1.set_xlabel('time (' + unit +')')
     ax1.spines["top"].set_visible(False)
-    ax1.set_ylabel('peep & Peak, (cmH2O)')
+    ax1.set_ylabel('peep & Peak')
     color_axis(ax1, 'left', 'tab:red')
     ax1.spines["right"].set_visible(False)
     ax1.plot(df.pPeak, color='tab:red', linewidth=2, linestyle='-')
