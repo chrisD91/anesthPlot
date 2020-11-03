@@ -135,12 +135,12 @@ def hist_pam(data, param={}):
     ax1.set_xlabel('mmHg', alpha=0.5)
     ax1.axvspan(70, 80, -0.1, 1, color='tab:grey', alpha=0.5)
     ax1.hist(data.ip1m.dropna(), bins=50, color='tab:red',
-             edgecolor='r')
+             edgecolor='tab:red')
     ax1.axvline(70, color='tab:grey', alpha=1)
     ax1.axvline(80, color='tab:grey', alpha=1)
     ax2 = fig.add_subplot(122)
     ax2.hist(data.hr.dropna(), bins=50, range=(25, 65), color='tab:grey',
-             edgecolor='k')
+             edgecolor='tab:grey')
     ax2.set_title('heart rate', color='k')
     ax2.set_xlabel('bpm', alpha=0.5)
     axes = [ax1, ax2]
@@ -205,7 +205,7 @@ def hist_co2_iso(data, param={}):
     ax1.set_title('$End_{tidal}$ $CO_2$', color='tab:blue')
     ax1.axvspan(35, 45, color='tab:grey', alpha=0.5)
     ax1.hist(data.co2exp.dropna(), bins=50, 
-             color='tab:blue', edgecolor='blue', alpha=.8)
+             color='tab:blue', edgecolor='tab:blue', alpha=.8)
     ax1.axvline(35, color='tab:grey', alpha=1)
     ax1.axvline(45, color='tab:grey', alpha=1)
     ax1.set_xlabel('mmHg', alpha=0.5)
@@ -213,7 +213,7 @@ def hist_co2_iso(data, param={}):
     ax2 = fig.add_subplot(122)
     ax2.set_title('$End_{tidal}$ isoflurane', color='tab:purple')
     ax2.hist(data.aaExp.dropna(), bins=50, color='tab:purple', 
-             range=(0.5, 2), edgecolor='k', alpha=.8)
+             range=(0.5, 2), edgecolor='tab:purple', alpha=.8)
     ax2.set_xlabel('%', alpha=0.5)
     
     axes = [ax1, ax2]
