@@ -23,14 +23,14 @@ def choosefile_gui(dir_path=None, caption='choose a recording'):
     if not dir_path:
         dir_path = os.path.expanduser('~')
     options = QFileDialog.Options()
-# to be able to see the caption, but impose to work with the mouse
-#    options |= QFileDialog.DontUseNativeDialog
+    # to be able to see the caption, but impose to work with the mouse
+    # options |= QFileDialog.DontUseNativeDialog
     fname = QFileDialog.getOpenFileName(caption=caption,
                                         directory=dir_path, filter='*.csv',
                                         options=options)
-#    fname = QFileDialog.getOpenfilename(caption=caption,
-#                                        directory=direct, filter='*.csv')
-    #TODO : be sure to be able to see the caption
+    # fname = QFileDialog.getOpenfilename(caption=caption,
+                                        # directory=direct, filter='*.csv')
+    # TODO : be sure to be able to see the caption
     return fname[0]
 
 #%%
@@ -44,10 +44,6 @@ def loadmonitor_wavedata(filename):
     """ load a monitor csvDataFile, return a pandasDataframe """
     print('loading ', os.path.basename(filename))
     fs = 300    # sampling rate
-#    filename = os.path.join(paths['data'], file)
-    # bug in the header caused by an acentuated character in line 9 ('césarienne')
-    # header and data to dataFrame
-
     #header :
     header_df = pd.read_csv(filename, sep=',', header=None, index_col=None, nrows=12,
                             encoding='iso-8859-1')
@@ -66,12 +62,6 @@ def loadmonitor_wavedata(filename):
                 '~AirV': 'wVol',
                 'Unnamed: 0': 'time'}
     df = df.rename(columns=colnames)
-    # NO MORE NEEDED
-    #wData.reset_index(inplace=True)
-    #build a time column
-    #wData.rename(columns={'index':'time'}, inplace=True)
-    #TODO = rebuilt a timeserie index
-    #see pandas fill_method
 
     # scaling correction
     if 'wco2' in df.columns:
@@ -79,37 +69,15 @@ def loadmonitor_wavedata(filename):
         df['wco2'] *= 7.6    # CO2 % -> mmHg
     df['wekg'] /= 100    # tranform EKG in mVolts
     df['wawp'] *= 10     # mmH2O -> cmH2O
-    # datetime implementation
-    def convert(x):
-        if not pd.isna(x):
-            x = pd.to_datetime(date + '-' + x)
-        return x
-    df.time = df.time.apply(convert)
+    df.time = df.time.apply(lambda x: pd.to_datetime(date + '-' + x) 
+                            if not pd.isna(x) else x)
     ser = pd.Series(df.time.values.astype('int64'))
     ser[ser < 0] = np.nan
     df['datetime'] = pd.to_datetime(ser.interpolate(), unit='ns')
-    #date = wheader.iloc[0,1]
-    #heure = df.iloc[0][df.columns[0]]
-    #pd.Timestamp(date + '-' + heure)
-    # to be implemented in the column
-#    df.time = pd.to_datetime(df.time) # time column to dateTime format
     df['point'] = df.index         # point location
 
     # add a 'sec'
     df['sec'] = df.index/fs
-#    wData.set_index('sec')
-#   wData.set_index('sec', inplace=True)
-
-
-    # build a column containing a calibrated time series
-    #start = wData.time[0]
-    #ptPerSec = 300   # see end of this file to verify
-    #end = start + datetime.timedelta(0,(len(wData.time)/ptPerSec))
-    #
-    #rng = pd.date_range(start= start, end= end,  freq='ms')
-    #df.set_index(rng[:-1], inplace=True)
-    # bug : the index doen't correspond)
-    # the data doesnt seem to be equally spaced (wData.time[wData.time.notnull()])
 
     # clean data
     #params = ['wekg', 'wap', 'wco2', 'wawp', 'wflow']
