@@ -2,7 +2,7 @@
 
 
 """
-typîca use when importing the module 
+typical use when importing the module 
 to build a clinical case 
 
 import os
@@ -19,6 +19,46 @@ import anesthPlot.plot.wave_plot as wplot
 import bloodGases.bgmain_manual as bgman
 
 paths = rec.paths
-paths['save'] = '/Users/cdesbois/enva/clinique/recordings/casClin/poney'
+paths['save'] = os.path.expanduser('~/toPlay/temp/')
 os.chdir(paths['save'])
+
+## globals
+def save_plot(name):
+    filename = os.path.join(paths['save'], 'fig', name)
+    saveGraph(filename, ext='png', close=False, verbose=True)
+    
+def explore_hdf(filename):
+    try:
+        hdf = pd.HDFStore(filename)
+        keys= [key.replace('/', '') for key in hdf.keys()]
+        print(' found h5_file {} 
+              that contains {}'.format(filename, keys))
+        hdf.close()
+    except:
+        print('{} is not an h5 file'.format(filename))
+
+
+saveName = os.path.join(paths['save'], 'data', 'aname.h5')
+
+explore_hdf(saveName)
+
+
+## load and work
+trendName = rec.choosefile_gui(paths['data'])
+WaveName = rec.choosefile_gui(paths['data'])
+
+
+# build objects with headers
+trends = rec.MonitorTrend(trendName, load=True)
+waves = rec.MonitorWave(waveName, load=True
+
+# or append data (pretreated ones)
+#trends.data = pd.read_hdf(saveName, 'trend_df')
+#waves.data = pd.read_hdf(saveName, 'wave_df')
+
+#remove  filenames
+del waveName, trendName
+
+# now you are ready to work with loaded trends and waves
+
 """

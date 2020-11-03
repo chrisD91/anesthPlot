@@ -57,7 +57,7 @@ def plot_wave(data, keys=[], param={}):
     input:  df= dataFrame
             keys= list of one or two of
                 'wekg','ECG','wco2','wawp','wflow','wap'
-            mini, maxi : limits in point value
+            mini, maxi : limits in point value (index)
     output: plt.figure, line2D
     (Nb plot data/index, but the xscale is indicated as sec)
     """
@@ -70,12 +70,13 @@ def plot_wave(data, keys=[], param={}):
     if len(keys) not in [1, 2]:
         print('only one or two keys are allowed ', keys, 'were used')
         return
-    names = {'wekg': ['ECG', 'tab:blue', 'mVolt'],
-             'wco2' : ['expired CO2', 'tab:blue', 'mmHg'],
-             'wawp': ['airway pressure', 'tab:red', 'cmH2O'],
-             'wflow': ['expiratory flow', 'tab:green', 'flow'],
-             'wap': ['arterial pressure', 'tab:red', 'mmHg']}
-    # time scaling
+    names = dict(
+        wekg = ['ECG', 'tab:blue', 'mVolt'],
+        wco2 = ['expired CO2', 'tab:blue', 'mmHg'],
+        wawp = ['airway pressure', 'tab:red', 'cmH2O'],
+        wflow = ['expiratory flow', 'tab:green', 'flow'],
+        wap = ['arterial pressure', 'tab:red', 'mmHg'])
+    # time scaling (index value)
     mini = param.get('mini', data.index[0])
     maxi = param.get('maxi', data.index[-1])
     if not data.index[0] <= mini <= data.index[-1]:
@@ -86,7 +87,6 @@ def plot_wave(data, keys=[], param={}):
         maxi = data.index[-1]
     # datetime or elapsed time sec
     dtime = param.get('dtime', False)
-    # dtime = False
     if dtime:
         cols = keys[:]
         cols.append('datetime')
@@ -97,7 +97,6 @@ def plot_wave(data, keys=[], param={}):
         cols.append('sec')
         df = data[cols].copy()
         df = df.iloc[mini : maxi].set_index('sec')    
-
     lines = []
     # one wave
     if len(keys) == 1:
@@ -108,20 +107,17 @@ def plot_wave(data, keys=[], param={}):
             ax.margins(0)
             line, = ax.plot(df[key], color=names[key][1], alpha=0.6)
             lines.append(line)
-#            ax.set_xlim(set.sec.min(), set.sec.max())
-#            ax.set_xlim(df.sec.min(), df.sec.max()) # thats sec values, not pt values
-#            ax.set_xlim(set.index.min(), set.index.max())
-            lims = ax.get_xlim()
-            ax.hlines(0, lims[0], lims[1], alpha=0.3)
+            ax.axhline(0, alpha=0.3)
             ax.set_ylabel(names[key][2])
-            ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+            if dtime:
+                ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
             if key == 'wco2':
-                ax.hlines(38, lims[0], lims[1], linestyle='dashed', alpha=0.5)
+                ax.axhlines(38, linestyle='dashed', alpha=0.5)
                 ax.set_ylim(0, 50)
             if key == 'wekg':
                 ax.grid()
             if key == 'wap':
-                ax.hlines(70, lims[0], lims[1], linestyle='dashed', alpha=0.5)
+                ax.axhline(70, linestyle='dashed', alpha=0.5)
             if key == 'wflow':
 #                ax.fill_between(set.index, set[key], where = set[key] > 0,
 #                                color = names[key][1], alpha=0.4)

@@ -9,40 +9,31 @@ main program to load and display an anesthesia record file
 import os
 import sys
 import pyperclip
+from importlib import reload
+
 import numpy as np
 import pandas as pd
-from importlib import reload
 import matplotlib
 matplotlib.use('Qt5Agg')  #NB use automatic for updating
 import matplotlib.pyplot as plt
+
 #from socket import gethostname
 from PyQt5.QtWidgets import QFileDialog, QApplication
 from PyQt5.QtWidgets import QInputDialog, QWidget
 # to have the display beginning from 0
 from pylab import rcParams
+
 rcParams['axes.xmargin'] = 0
 rcParams['axes.ymargin'] = 0
 
-#print(dir())
-#TODO test to change all to absolute import
 from anesthPlot.config import load_recordRc
 paths = load_recordRc.paths
-#import config.load_recordRc
-#paths = config.load_recordRc.paths
-#import utils
-#import bloodGases2 as bg
+
 from anesthPlot.plot import trend_plot as tplot
-#from anesthPlot.plot import trend_plot as tplot
 from anesthPlot.plot import wave_plot as wplot
 from anesthPlot.treatrec import wave_func as wf
 from anesthPlot.treatrec import clean_data as clean
-# ##import bloodGases2 as bg
 
-# from loadrec import loadmonitor_trendrecord, loadmonitor_waverecord
-# from loadrec import loadtaph_trendrecord
-#from loadrec import explore
-# import plot
-# import treatrec as treat
 
 from anesthPlot.loadrec import loadmonitor_trendrecord as lmt
 from anesthPlot.loadrec  import loadmonitor_waverecord as lmw
@@ -163,6 +154,7 @@ def list_loaded():
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
     return records
 
+
 def plot_trenddata(file, df, header, param_dico):
     """
     plot the trend recordings
@@ -208,6 +200,7 @@ def plot_monitorwave_data(headdf, wavedf):
     # and then axList = fig.axes
     # use axes in this list to change the scales
 #
+
 class Waves():
     """
     base class for the records
@@ -250,7 +243,7 @@ class SlowWave(Waves):
         return fig_list
 
 class MonitorTrend(SlowWave):
-    """ 
+    """
     monitor trends recordings:
         input = filename : path to file
         load = boolean to load data (default is True)
