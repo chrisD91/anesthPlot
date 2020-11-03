@@ -21,8 +21,8 @@ def choosefile_gui(dir_path=None, caption='choose a recording'):
     if not dir_path:
         dir_path = os.path.expanduser('~')
     options = QFileDialog.Options()
-# to be able to see the caption, but impose to work with the mouse
-#    options |= QFileDialog.DontUseNativeDialog
+    # to be able to see the caption, but impose to work with the mouse
+    # options |= QFileDialog.DontUseNativeDialog
     fname = QFileDialog.getOpenFileName(caption=caption,
                                         directory=dir_path, filter='*.csv',
                                         options=options)
@@ -38,19 +38,24 @@ def loadmonitor_trendheader(datafile):
                      nrows=11, encoding='iso8859_15')
     #NB encoding needed for accentuated letters
     df = df.set_index(0).T
-    # convert to num
-    df.Weight = df.Weight.astype(float)
-    df.Height = df.Height.astype(float)
     if 'Sampling Rate' not in df.columns:
         print('>>> this is not a trend record')
         return
+    for col in ['Weight', 'Height', 'Sampling Rate']:
+        df[col] = df[col].astype(float)
     # convert to a dictionary
-    df['Sampling Rate'] = df['Sampling Rate'].astype(float)
     descr = df.loc[1].to_dict()
     return descr
 
 def loadmonitor_trenddata(datafile, header):
-    """ load the monitor trend data, return a pandasDataframe """
+    """ 
+    load the monitor trend data, return a pandasDataframe 
+    input : 
+        datafile <-> filename
+        header <-> dictionary
+    output :
+        pandas dataframe
+    """
     try:
         df = pd.read_csv(datafile, sep=',', skiprows=[13], header=12)
     except:
@@ -69,10 +74,7 @@ def loadmonitor_trenddata(datafile, header):
             if col != 'Time':
                 to_fix.append(col)
     for col in to_fix:
-#        print(col, '\t dtype is', data[col].dtype)
         df[col] = pd.to_numeric(df[col], errors='coerce')
-#        print('after')
-#        print(col, '\t dtype is', data[col].dtype)
 
     #elapsed time(in seconds)
     df['eTime'] = df.index * header['Sampling Rate']
@@ -99,16 +101,20 @@ def loadmonitor_trenddata(datafile, header):
                   'I:E': 'ieRat', 'Inp_T': 'inspT', 'Exp_T': 'expT', 'eTime': 'eTime',
                   'S_comp': 'sCompl', 'Spplat': 'sPplat'}
     df.rename(columns=corr_title, inplace=True)
-
-#TODO : implement aalabel decoding(4 = iso, 6 = sevo ... and adjust the plot functions
+    anesthCode = {4 : 'iso',
+                  6 : 'sevo'}    
+    df.aaLabel.apply(lambda x: anesthCode[int(x)])
 
     # remove empty rows and columns
     df.dropna(axis=0, how='all', inplace=True)
     df.dropna(axis=1, how='all', inplace=True)
 
+    # should be interesting to export the comment
+    for index, row in df.iterrows():
+         if len(row) < 6: 
+             print(index, row)
     # remove comments present in colon 1(ie suppres if less than 5 item rows)
     df = df.dropna(thresh=6)
-    # should be interesting to export the comment
 
     # CO2: from % to mmHg
     try:
