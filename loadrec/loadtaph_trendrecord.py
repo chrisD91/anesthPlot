@@ -21,14 +21,14 @@ def choosefile_gui(dir_path=None, caption='choose a recording'):
     if not dir_path:
         dir_path = os.path.expanduser('~')
     options = QFileDialog.Options()
-# to be able to see the caption, but impose to work with the mouse
-#    options |= QFileDialog.DontUseNativeDialog
+    # to be able to see the caption, but impose to work with the mouse
+    # options |= QFileDialog.DontUseNativeDialog
     fname = QFileDialog.getOpenFileName(caption=caption,
                                         directory=dir_path, filter='*.csv',
                                         options=options)
-#    fname = QFileDialog.getOpenfilename(caption=caption,
-#                                        directory=direct, filter='*.csv')
-    #TODO : be sure to be able to see the caption
+    # fname = QFileDialog.getOpenfilename(caption=caption,
+                                        # directory=direct, filter='*.csv')
+    # TODO : be sure to be able to see the caption
     return fname[0]
 
 def loadtaph_trenddata(filename):
