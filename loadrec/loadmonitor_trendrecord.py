@@ -101,8 +101,10 @@ def loadmonitor_trenddata(datafile, header):
                   'I:E': 'ieRat', 'Inp_T': 'inspT', 'Exp_T': 'expT', 'eTime': 'eTime',
                   'S_comp': 'sCompl', 'Spplat': 'sPplat'}
     df.rename(columns=corr_title, inplace=True)
-    anesthCode = {4 : 'iso',
+    anesthCode = {0 : 'none',
+                  4 : 'iso',
                   6 : 'sevo'}    
+    df.aaLabel = df.aaLabel.fillna(0)
     df.aaLabel.apply(lambda x: anesthCode[int(x)])
 
     # remove empty rows and columns
