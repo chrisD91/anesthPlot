@@ -1,4 +1,5 @@
-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 """
 build a yaml file to store che configuration of scripts
@@ -7,9 +8,10 @@ input (data) and output(save)
 
 import os
 import sys
+
 import yaml
-from PyQt5.QtWidgets import QFileDialog, QDialog, QApplication
 from PyQt5 import QtCore
+from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 
 
 #%%

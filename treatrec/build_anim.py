@@ -5,9 +5,10 @@
 plot the waves of a waveRecording
 
 """
-import treatrec.wave_func as wf
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
+
+import treatrec.wave_func as wf
 
 #%% choose an area of interest
 
@@ -233,6 +234,7 @@ ax.plot(x, y)
 ser = wdata.time
 
 from collections import OrderedDict
+
 dico = OrderedDict()
 aList = []
 for i, item in wdata.time[wdata.time.notnull()].iteritems():
@@ -262,11 +264,11 @@ print('point per seconds are', ptPerSec)
 # normally 300 points per seconds
 
 
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
 #%% scope
 import numpy as np
 from matplotlib.lines import Line2D
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 
 class Scope(object):

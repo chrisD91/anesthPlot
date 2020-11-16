@@ -4,10 +4,11 @@ Created on Tue Apr 19 09:08:56 2016
 
 @author: cdesbois
 """
+import matplotlib.dates as mdates
 #import numpy as np
 #import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+
 font_size = 'medium' # large, medium
 params = {'font.sans-serif': ['Arial'],
           'font.size': 14,

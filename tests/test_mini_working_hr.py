@@ -6,10 +6,12 @@ Created on Wed Feb 19 16:15:27 2020
 @author: cdesbois
 """
 
-import os, sys
-import pandas as pd
+import os
+import sys
+
 import matplotlib.pylab as plt
 import numpy as np
+import pandas as pd
 
 try:
     from .context import recmain, wavelet
@@ -18,6 +20,7 @@ except ModuleNotFoundError:
 
 import treatrec as treat
 from treatrec import ekg_to_hr
+
 
 #%%
 def load(tfile = 'M2020_2_4-9_49_5.csv',

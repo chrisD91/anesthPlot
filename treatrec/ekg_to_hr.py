@@ -66,12 +66,15 @@ from treatrec import ekg_to_hr as tohr
 """
 
 import os
+
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
+import pandas as pd
 import scipy.signal as sg
 from scipy.interpolate import interp1d
+
 import treatrec.wave_func as wf
+
 
 #%%
 def detect_beats(ser, fs=300, species='horse', mult=1):

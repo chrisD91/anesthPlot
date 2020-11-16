@@ -11,9 +11,10 @@ import sys
 import time
 from datetime import datetime
 
-import pandas as pd
 import numpy as np
-from PyQt5.QtWidgets import QFileDialog, QApplication
+import pandas as pd
+from PyQt5.QtWidgets import QApplication, QFileDialog
+
 
 #%%
 def choosefile_gui(dir_path=None, caption='choose a recording'):

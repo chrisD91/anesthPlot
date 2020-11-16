@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 """
 Created on Thu Mar 12 16:52:13 2020
 
 @author: cdesbois
 """
 
+import matplotlib.pyplot as plt
 #import os
 # from glob import glob
 from PyQt5.QtWidgets import QFileDialog
-import matplotlib.pyplot as plt
 
 #%%
 

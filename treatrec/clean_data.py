@@ -8,6 +8,7 @@ Created on Wed Jul 31 16:05:29 2019
 import numpy as np
 import pandas as pd
 
+
 def clean_trenddata(df):
     """ remove artifacts in the recorded trends """
     param_list = ['ip1s', 'ip1d', 'ip1m', 'hr',

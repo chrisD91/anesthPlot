@@ -8,9 +8,11 @@ Created on Wed Jul 24 15:30:07 2019
 
 import os
 import sys
+
 import pandas as pd
 #import numpy as np
-from PyQt5.QtWidgets import QFileDialog, QApplication
+from PyQt5.QtWidgets import QApplication, QFileDialog
+
 
 #%%
 def choosefile_gui(dir_path=None, caption='choose a recording'):

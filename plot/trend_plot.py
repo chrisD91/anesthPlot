@@ -8,9 +8,11 @@ functions to plot the trend data
 
 """
 import os
-import numpy as np
-import matplotlib.pyplot as plt
+
 import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import numpy as np
+
 #import utils
 font_size = 'medium' # large, medium
 params = {'font.sans-serif': ['Arial'],
