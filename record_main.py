@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#%reset -f      # NB if uncomented if prevent the use from the terminal !!
+
 """
 main program to load and display an anesthesia record file
 
@@ -10,6 +10,7 @@ import os
 import sys
 import pyperclip
 from importlib import reload
+import gc
 
 import numpy as np
 import pandas as pd
@@ -49,7 +50,7 @@ def choosefile_gui(dir_path=None):
     ----
     dir_path : str
         location to place the gui ('generally paths['data']) else home
-                                   
+
     return
     ----
     fname[0] : str
@@ -73,53 +74,55 @@ def trendname_to_wavename(name):
     return name.split('.')[0] + 'Wave.csv'
 
 
-
 def select_type(caption=None, items=None):
     """select the recording type:
-       
+
     parameters
     ----
-    
+
     return
     ----
     kind : str
         kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
        """
-#    if kind=='record':
-#        caption = "choose kind of file"
-#        items = ("monitorTrend","monitorWave","taphTrend", "telVet")
-#    elif kind
-#    item, ok_pressed = QInputDialog.getItem(caption = \
-# "choose kind of file","kind:", items, 1, False)
+    if items is None:
+        items = ("monitorTrend", "monitorWave", "taphTrend", "telVet")
+    if caption is None:
+        caption = 'choose kind of file'
     qw = QWidget()
     kind, ok_pressed = QInputDialog.getItem(qw, caption,
                                             "kind ?", items, 0, False)
     if ok_pressed and kind:
         return kind
 
-def build_param_dico(file='', source=''):
+
+def build_param_dico(file=None, source=None, pathdico=paths):
     """initialise a dict save parameters  ----> TODO see min vs sec
+
     parameters
     ----
-    
+    file : str
+        the recording filename
+    source : str
+        the origin of the recording
     return
     ----
-    
+    dico : dict
+        a dictionary describing the situation
+            [item, xmin, xmax, ymin, ymax, path, unit, save, memo, file, source]
     """
-    dico = {'item': 1,
-            'xmin': None,
-            'xmax': None,
-            'ymin': 0,
-            'ymax': None,
-            'path': paths['sFig'],
-            'unit': 'min',
-            'save': False,
-            'memo': False,
-            'file': file,
-            'source': source}
+    dico = dict(item = 1,
+                xmin = None,
+                xmax = None,
+                ymin = 0,
+                ymax = None,
+                path = pathdico.get('sFig', '~'),
+                unit = 'min',
+                save = False,
+                memo = False,
+                file = file,
+                source = source)
     return dico
-
-import gc
 
 #%
 def check():
@@ -178,11 +181,23 @@ def list_loaded():
 
 
 def plot_trenddata(file, df, header, param_dico):
-    """
-    plot the trend recordings
-        input : file, df=pdDataframe, header=dictionary, params=dict,
-            params=dictionary
-        output : matplotlib plots
+    """clinical main plots of a trend recordings
+
+    parameters
+    ----
+    file : str
+        the filename
+    df : pdDataframe
+        recorded data (MonitorTrend.data)
+    header : dict
+        recording parameters (MonitorTrend.header)
+    param_dico : dict
+        plotting parameters (MonitorTrend.param)
+
+    return
+    ----
+    afig_list : list
+        list of
     """
     # clean the data for taph monitoring
     if param_dico['source'] == 'taphTrend':
@@ -226,9 +241,10 @@ def plot_monitorwave_data(headdf, wavedf):
 class Waves():
     """
     base class for the records
+
     """
     def __init__(self, filename=None):
-        if not filename:
+        if filename is None:
             filename = choosefile_gui(paths['data'])
         self.filename = filename
         self.file = os.path.basename(filename)
@@ -247,8 +263,22 @@ class Waves():
 class SlowWave(Waves):
     """
     class for slowWaves = trends
+
+    attributes:
+    ----
+        file : str
+            short name
+        filename : str
+            long name
+
+    methods
+    ----
+        clean_trend : external
+            clean the data
+        show_graphs : external
+            plot clinical main plots
     """
-    def __init__(self, filename):
+    def __init__(self, filename=None):
         super().__init__(filename)
     def clean_trend(self):
         """
@@ -264,27 +294,45 @@ class SlowWave(Waves):
         fig_list = plot_trenddata(self.file, self.data, self.header, self.param)
         return fig_list
 
+
 class MonitorTrend(SlowWave):
-    """
-    monitor trends recordings:
+    """ monitor trends recordings:
+
         input = filename : path to file
         load = boolean to load data (default is True)
 
     attibutes:
-        header : dictionary
-        source : defautl is 'monitor'
-        fs : sampling rate
-        param : a dictionary
+    ----
+        file : str
+            short name
+        filename : str
+            long name
+        header : dict
+            record parameters
+        source : str
+            recording apparatus (default = 'monitor')
+        fs : float
+            sampling rate
+        param : dict
+            display parameters
+
+    methods (inherited)
+    ----
+        clean_trend : external
+            clean the data
+        show_graphs : external
+            plot clinical main plots
     """
-    def __init__(self, filename, load=True):
+    def __init__(self, filename=None, load=True):
         super().__init__(filename)
         self.header = lmt.loadmonitor_trendheader(self.filename)
         self.load = load
+        # load if header is present & not data
         if self.header:
             if self.load:
                 self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
             self.source = 'monitor'
-            self.fs = self.header['Sampling Rate']
+            self.fs = self.header.get('Sampling Rate', None)
             self.param['source'] = 'monitorTrend'
             #self.param'file' : os.path.basename(filename)}
 
@@ -297,7 +345,7 @@ class TaphTrend(SlowWave):
 
 
     """
-    def __init__(self, filename):
+    def __init__(self, filename=None):
         super().__init__(filename)
         self.data = ltt.loadtaph_trenddata(self.filename)
         self.source = 'taphTrend'
@@ -305,17 +353,24 @@ class TaphTrend(SlowWave):
     def load_header(self):
         """ load the header -> pandas.dataframe """
         headername = choosefile_gui(dir_path=os.path.dirname(filename),
-                                    caption='choose Patient Data')
-        if headername != '':
+                                        caption='choose data')
+        if headername:
             header = ltt.loadtaph_patientfile(headername)
         else:
-            header = ''
+            header = None
         return header
     def extract_taph_events(self):
-        """
-        extract Taph events
-        input = tdata (record df form taphonius recording)
-        output : dataFrame
+        """ extract Taph events
+
+        parameters
+        ----
+        data : pandas dataframe
+            record df form taphonius recording)
+
+        return
+        ----
+        eventdf pandas dataframe
+            events dataframe
         """
         eventdf = self.data[['events', 'datetime']].dropna()
         # remove time, keep event
@@ -324,8 +379,10 @@ class TaphTrend(SlowWave):
 
 #++++++++
 class FastWave(Waves):
-    """
-    class for Fastwaves = continuous recordings
+    """ class for Fastwaves = continuous recordings
+
+
+
     """
     def __init__(self, filename):
         super().__init__(filename)
@@ -424,7 +481,7 @@ if __name__ == '__main__':
     # general parameters
     params = build_param_dico(file=os.path.basename(filename),
                               source=source)
-# TODO check the validity of the file    email
+# TODO check the validity of the file
     if source == 'telVet':
         telvet = TelevetWave(filename)
         params['fs'] = 500
