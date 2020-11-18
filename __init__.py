@@ -62,3 +62,9 @@ del waveName, trendName
 # now you are ready to work with loaded trends and waves
 
 """
+
+
+from anesthPlot import config
+from anesthPlot import loadrec
+from anesthPlot import treatrec
+from anesthPlot import record_main

@@ -7,7 +7,7 @@ import sys
 
 import yaml
 
-
+#TODO see https://www.oreilly.com/library/view/python-cookbook/0596001673/ch17s02.html
 def build_paths():
     """
     read the yaml configuration file
