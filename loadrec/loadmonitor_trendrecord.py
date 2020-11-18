@@ -15,13 +15,16 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 #%%
-def choosefile_gui(dir_path=None, caption='choose a recording'):
+def choosefile_gui(dir_path=None):
     """
-    Select a file via a dialog and return the (full) filename.
+    Select a file using a dialog and return the filename.
+
     input : dir_path = location ('generally paths['data']) else home
+    output : filename (full path)
     """
-    if not dir_path:
+    if dir_path is None:
         dir_path = os.path.expanduser('~')
+    caption = 'choose a recording'
     options = QFileDialog.Options()
     # to be able to see the caption, but impose to work with the mouse
     # options |= QFileDialog.DontUseNativeDialog
@@ -34,9 +37,9 @@ def choosefile_gui(dir_path=None, caption='choose a recording'):
     return fname[0]
 
 #%% Monitor trend
-def loadmonitor_trendheader(datafile):
-    """ extract the header and return a dictionary """
-    df = pd.read_csv(datafile, sep=',', header=None, index_col=None,
+def loadmonitor_trendheader(filename):
+    """ read filename (fullname) and return a dictionary """
+    df = pd.read_csv(filename, sep=',', header=None, index_col=None,
                      nrows=11, encoding='iso8859_15')
     #NB encoding needed for accentuated letters
     df = df.set_index(0).T
@@ -49,22 +52,22 @@ def loadmonitor_trendheader(datafile):
     descr = df.loc[1].to_dict()
     return descr
 
-def loadmonitor_trenddata(datafile, header):
-    """ 
-    load the monitor trend data, return a pandasDataframe 
-    input : 
-        datafile <-> filename
+def loadmonitor_trenddata(filename, header):
+    """
+    load the monitor trend data, return a pandasDataframe
+    input :
+        filename <-> fullname
         header <-> dictionary
     output :
         pandas dataframe
     """
     try:
-        df = pd.read_csv(datafile, sep=',', skiprows=[13], header=12)
+        df = pd.read_csv(filename, sep=',', skiprows=[13], header=12)
     except:
-        df = pd.read_csv(datafile, sep=',', skiprows=[13], header=12,
+        df = pd.read_csv(filename, sep=',', skiprows=[13], header=12,
                          encoding="ISO-8859-1")
     if len(df) == 0:
-        print('no recorded values in this file', datafile.split('/')[-1])
+        print('no recorded values in this file', filename.split('/')[-1])
         return df
     #remove waves time indicators(column name beginning with a '~')
     for col in df.columns:
@@ -104,13 +107,13 @@ def loadmonitor_trenddata(datafile, header):
                   'S_comp': 'sCompl', 'Spplat': 'sPplat'}
     df.rename(columns=corr_title, inplace=True)
 #TODO fix the code for 1 and 2
-    anesthCode = {0 : 'none',
+    anesth_code = {0 : 'none',
 #                  1 : '',
  #                 2 : '',
                   4 : 'iso',
-                  6 : 'sevo'}    
+                  6 : 'sevo'}
     df.aaLabel = df.aaLabel.fillna(0)
-    df.aaLabel.apply(lambda x: anesthCode.get(int(x), ''))
+    df.aaLabel.apply(lambda x: anesth_code.get(int(x), ''))
 
     # remove empty rows and columns
     df.dropna(axis=0, how='all', inplace=True)
@@ -118,8 +121,8 @@ def loadmonitor_trenddata(datafile, header):
 
     # should be interesting to export the comment
     for index, row in df.iterrows():
-         if len(row) < 6: 
-             print(index, row)
+        if len(row) < 6:
+            print(index, row)
     # remove comments present in colon 1(ie suppres if less than 5 item rows)
     df = df.dropna(thresh=6)
 
@@ -143,14 +146,13 @@ def loadmonitor_trenddata(datafile, header):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    filename = choosefile_gui()
-    file = os.path.basename(filename)
+    file_name = choosefile_gui()
+    file = os.path.basename(file_name)
     if file[0] == 'M':
         if 'Wave' not in file:
-            header = loadmonitor_trendheader(filename)
-            if header is not None:
-                mdata = loadmonitor_trenddata(filename, header)
+            header_dict = loadmonitor_trendheader(file_name)
+            if header_dict is not None:
+                mdata_df = loadmonitor_trenddata(file_name, header_dict)
                 #mdata= cleanMonitorTrendData(mdata)
             else:
-                mdata = None
-            
+                mdata_df = None

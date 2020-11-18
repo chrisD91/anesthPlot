@@ -13,14 +13,17 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 #%%
-def choosefile_gui(dir_path=None, caption='choose a recording'):
+def choosefile_gui(dir_path=None):
     """
-    Select a file via a dialog and return the (full) filename.
+    Select a file using a dialog and return the filename.
+
     input : dir_path = location ('generally paths['data']) else home
+    output : filename (full path)
     """
-    if not dir_path:
+    if dir_path is None:
         dir_path = os.path.expanduser('~')
     options = QFileDialog.Options()
+    caption='choose a recording'
 # to be able to see the caption, but impose to work with the mouse
 #    options |= QFileDialog.DontUseNativeDialog
     fname = QFileDialog.getOpenFileName(caption=caption,
@@ -35,7 +38,7 @@ def choosefile_gui(dir_path=None, caption='choose a recording'):
 def loadtelevet(file=None, all_traces=False):
     """ load the televetCsvExportedFile, return a pandasDataframe """
     filepath = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTelVetRecorded'
-    if not file:
+    if file is None:
         file = 'STEF_0031_00114_20171205_121305.csv'
     filename = os.path.join(filepath, file)
     if not os.path.isfile(filename):
@@ -63,6 +66,6 @@ except:
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    filename = choosefile_gui(paths)
-    file = os.path.basename(filename)
-    ekg_data = loadtelevet(filename, all_traces=False)
+    file_name = choosefile_gui(paths)
+    file = os.path.basename(file_name)
+    ekg_data = loadtelevet(file_name, all_traces=False)

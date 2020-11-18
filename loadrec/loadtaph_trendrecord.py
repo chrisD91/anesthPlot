@@ -15,13 +15,16 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 #%%
-def choosefile_gui(dir_path=None, caption='choose a recording'):
+def choosefile_gui(dir_path=None):
     """
-    Select a file via a dialog and return the (full) filename.
+    Select a file using a dialog and return the filename.
+
     input : dir_path = location ('generally paths['data']) else home
+    output : filename (full path)
     """
-    if not dir_path:
+    if dir_path is None:
         dir_path = os.path.expanduser('~')
+    caption='choose a recording'
     options = QFileDialog.Options()
     # to be able to see the caption, but impose to work with the mouse
     # options |= QFileDialog.DontUseNativeDialog
@@ -121,7 +124,7 @@ def loadtaph_patientfile(headername):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    filename = choosefile_gui(dir_path=os.path.expanduser('~'))
-    file = os.path.basename(filename)
+    file_name = choosefile_gui(dir_path=os.path.expanduser('~'))
+    file = os.path.basename(file_name)
     if file[:2] == 'SD':
-        tdata = loadtaph_trenddata(filename)
+        tdata_df = loadtaph_trenddata(file_name)
