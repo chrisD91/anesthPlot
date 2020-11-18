@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-build a yaml file to store che configuration of scripts
-input (data) and output(save)
+build a yaml configuration file to adapt to a specific computer
+
+    input <-> 'data' : to load the records
+    output <-> 'save' : to save the plots
 """
 
 import os

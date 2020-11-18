@@ -5,11 +5,16 @@
 
 
 """
-anesthPlot a package to plot/use clinical anesthesia records for teaching
+anesthPlot is a package to plot/use clinical anesthesia records for teaching
+
 two way to use it:
     1. directly call the record_main.py from a terminal
         -> generate a quick plotting of most interestings parts
     2. import the module to in a python environment (see below)
+
+(the presets are actually designed 
+     - for use with equine anesthesia
+     - to load data from a Monitor generated datex AS3/5 monitoring machine)
 
 
 typical use when importing the module 

@@ -42,13 +42,22 @@ from anesthPlot.loadrec  import loadtelevet as ltv
 from anesthPlot.loadrec  import explore as explore
 #
 
-def choosefile_gui(dir_path=None, caption='choose a recording'):
+def choosefile_gui(dir_path=None):
+    """Select a file via a dialog and return the (full) filename.
+
+    parameters
+    ----
+    dir_path : str
+        location to place the gui ('generally paths['data']) else home
+                                   
+    return
+    ----
+    fname[0] : str
+        filename
     """
-    Select a file via a dialog and return the (full) filename.
-    input : dir_path = location ('generally paths['data']) else home
-    """
-    if not dir_path:
+    if dir_path is None:
         dir_path = os.path.expanduser('~')
+    caption='choose a recording'
     options = QFileDialog.Options()
 # to be able to see the caption, but impose to work with the mouse
 #    options |= QFileDialog.DontUseNativeDialog
@@ -66,9 +75,15 @@ def trendname_to_wavename(name):
 
 
 def select_type(caption=None, items=None):
-    """
-    select the recording type:
-       return : monitorTrend, monitorWave, taphTrend or telvet
+    """select the recording type:
+       
+    parameters
+    ----
+    
+    return
+    ----
+    kind : str
+        kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
        """
 #    if kind=='record':
 #        caption = "choose kind of file"
@@ -77,12 +92,19 @@ def select_type(caption=None, items=None):
 #    item, ok_pressed = QInputDialog.getItem(caption = \
 # "choose kind of file","kind:", items, 1, False)
     qw = QWidget()
-    item, ok_pressed = QInputDialog.getItem(qw, caption, "kind:", items, 0, False)
-    if ok_pressed and item:
-        return item
+    kind, ok_pressed = QInputDialog.getItem(qw, caption,
+                                            "kind ?", items, 0, False)
+    if ok_pressed and kind:
+        return kind
 
 def build_param_dico(file='', source=''):
     """initialise a dict save parameters  ----> TODO see min vs sec
+    parameters
+    ----
+    
+    return
+    ----
+    
     """
     dico = {'item': 1,
             'xmin': None,
@@ -247,7 +269,7 @@ class MonitorTrend(SlowWave):
     monitor trends recordings:
         input = filename : path to file
         load = boolean to load data (default is True)
-    
+
     attibutes:
         header : dictionary
         source : defautl is 'monitor'
@@ -268,12 +290,12 @@ class MonitorTrend(SlowWave):
 
 class TaphTrend(SlowWave):
     """ taphonius trends recordings
-    
+
     input  ... FILLME
-    
+
     attributes ... FILLME
-    
-    
+
+
     """
     def __init__(self, filename):
         super().__init__(filename)
@@ -359,10 +381,10 @@ class MonitorWave(FastWave):
     class to organise monitorWave recordings
         input : filename = path to file
         load = boolean to load data (default is True)
-        
+
     attibutes ... FILLME
-    
-    
+
+
     methods ... FILLME
     """
     def __init__(self, filename, load=True):
@@ -394,6 +416,7 @@ if __name__ == '__main__':
     except NameError:
         records = {}
     # choose file and indicate the source
+    print('select the file containing the data')
     filename = choosefile_gui(paths['data'])
     source = select_type(caption="choose kind of file",
                          items=("monitorTrend", "monitorWave",
