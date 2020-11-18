@@ -1,7 +1,17 @@
 
 
 
+
+
+
 """
+anesthPlot a package to plot/use clinical anesthesia records for teaching
+two way to use it:
+    1. directly call the record_main.py from a terminal
+        -> generate a quick plotting of most interestings parts
+    2. import the module to in a python environment (see below)
+
+
 typical use when importing the module 
 to build a clinical case 
 

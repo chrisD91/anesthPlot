@@ -247,6 +247,12 @@ class MonitorTrend(SlowWave):
     monitor trends recordings:
         input = filename : path to file
         load = boolean to load data (default is True)
+    
+    attibutes:
+        header : dictionary
+        source : defautl is 'monitor'
+        fs : sampling rate
+        param : a dictionary
     """
     def __init__(self, filename, load=True):
         super().__init__(filename)
@@ -261,7 +267,14 @@ class MonitorTrend(SlowWave):
             #self.param'file' : os.path.basename(filename)}
 
 class TaphTrend(SlowWave):
-    """ taphonius trends recordings"""
+    """ taphonius trends recordings
+    
+    input  ... FILLME
+    
+    attributes ... FILLME
+    
+    
+    """
     def __init__(self, filename):
         super().__init__(filename)
         self.data = ltt.loadtaph_trenddata(self.filename)
@@ -346,6 +359,11 @@ class MonitorWave(FastWave):
     class to organise monitorWave recordings
         input : filename = path to file
         load = boolean to load data (default is True)
+        
+    attibutes ... FILLME
+    
+    
+    methods ... FILLME
     """
     def __init__(self, filename, load=True):
         super().__init__(filename)

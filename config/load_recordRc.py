@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+""" load an already generated recordRc.yaml file"""
 
 import os
 import sys
