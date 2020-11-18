@@ -6,41 +6,40 @@ main program to load and display an anesthesia record file
 
 """
 
+import gc
 import os
 import sys
-import pyperclip
 from importlib import reload
-import gc
 
+import matplotlib
 import numpy as np
 import pandas as pd
-import matplotlib
+import pyperclip
+
 matplotlib.use('Qt5Agg')  #NB use automatic for updating
 import matplotlib.pyplot as plt
-
-#from socket import gethostname
-from PyQt5.QtWidgets import QFileDialog, QApplication
-from PyQt5.QtWidgets import QInputDialog, QWidget
 # to have the display beginning from 0
 from pylab import rcParams
+#from socket import gethostname
+from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
 rcParams['axes.xmargin'] = 0
 rcParams['axes.ymargin'] = 0
 
 from anesthPlot.config import load_recordRc
+
 paths = load_recordRc.paths
 
+from anesthPlot.loadrec import explore
+from anesthPlot.loadrec import loadmonitor_trendrecord as lmt
+from anesthPlot.loadrec import loadmonitor_waverecord as lmw
+from anesthPlot.loadrec import loadtaph_trendrecord as ltt
+from anesthPlot.loadrec import loadtelevet as ltv
 from anesthPlot.plot import trend_plot as tplot
 from anesthPlot.plot import wave_plot as wplot
-from anesthPlot.treatrec import wave_func as wf
 from anesthPlot.treatrec import clean_data as clean
+from anesthPlot.treatrec import wave_func as wf
 
-
-from anesthPlot.loadrec import loadmonitor_trendrecord as lmt
-from anesthPlot.loadrec  import loadmonitor_waverecord as lmw
-from anesthPlot.loadrec  import loadtaph_trendrecord as ltt
-from anesthPlot.loadrec  import loadtelevet as ltv
-from anesthPlot.loadrec  import explore as explore
 #
 
 def choosefile_gui(dir_path=None):
@@ -71,6 +70,7 @@ def choosefile_gui(dir_path=None):
     return fname[0]
 
 def trendname_to_wavename(name):
+    """ just compute the supposed name """
     return name.split('.')[0] + 'Wave.csv'
 
 
@@ -93,10 +93,13 @@ def select_type(caption=None, items=None):
     kind, ok_pressed = QInputDialog.getItem(qw, caption,
                                             "kind ?", items, 0, False)
     if ok_pressed and kind:
-        return kind
+        to_return = kind
+    else:
+        to_return = None
+    return to_return
 
 
-def build_param_dico(file=None, source=None, pathdico=paths):
+def build_param_dico(file=None, asource=None, pathdico=paths):
     """initialise a dict save parameters  ----> TODO see min vs sec
 
     parameters
@@ -121,7 +124,7 @@ def build_param_dico(file=None, source=None, pathdico=paths):
                 save = False,
                 memo = False,
                 file = file,
-                source = source)
+                source = asource)
     return dico
 
 #%
@@ -147,37 +150,37 @@ def list_loaded():
     list the loaded files
     return a dictionary recordObj : file
     """
-    records = {}
+    recorded = {}
     try:
         taphTrend
     except NameError:
         pass
     else:
-        records['taphTrend'] = taphTrend
+        recorded['taphTrend'] = taphTrend
     try:
         monitorTrend
     except NameError:
         pass
     else:
-        records['monitorTrend'] = monitorTrend
+        recorded['monitorTrend'] = monitorTrend
     try:
         monitorWave
     except NameError:
         pass
     else:
-        records['monitorWave'] = monitorWave
+        recorded['monitorWave'] = monitorWave
     try:
         telvet
     except NameError:
         pass
     else:
-        records['telvet'] = telvet
+        recorded['telvet'] = telvet
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
     print('records loaded:')
     for key in records:
         print(key, records[key].file.split('.')[0])
     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-    return records
+    return recorded
 
 
 def plot_trenddata(file, df, header, param_dico):
@@ -352,8 +355,7 @@ class TaphTrend(SlowWave):
         self.header = self.load_header()
     def load_header(self):
         """ load the header -> pandas.dataframe """
-        headername = choosefile_gui(dir_path=os.path.dirname(filename),
-                                        caption='choose data')
+        headername = choosefile_gui(dir_path=os.path.dirname(self.filename))
         if headername:
             header = ltt.loadtaph_patientfile(headername)
         else:
@@ -474,33 +476,33 @@ if __name__ == '__main__':
         records = {}
     # choose file and indicate the source
     print('select the file containing the data')
-    filename = choosefile_gui(paths['data'])
+    file_name = choosefile_gui(paths['data'])
     source = select_type(caption="choose kind of file",
                          items=("monitorTrend", "monitorWave",
                                 "taphTrend", "telVet"))
     # general parameters
-    params = build_param_dico(file=os.path.basename(filename),
-                              source=source)
+    params = build_param_dico(file=os.path.basename(file_name),
+                              asource=source)
 # TODO check the validity of the file
     if source == 'telVet':
-        telvet = TelevetWave(filename)
+        telvet = TelevetWave(file_name)
         params['fs'] = 500
         params['kind'] = 'telVet'
         telvet.param = params
         telvet.plot_wave()
     elif source == 'monitorTrend':
-        monitorTrend = MonitorTrend(filename)
+        monitorTrend = MonitorTrend(file_name)
         monitorTrend.param = params
         if monitorTrend.data is not None:
             fig_list = monitorTrend.show_graphs()
     elif source == 'monitorWave':
-        monitorWave = MonitorWave(filename)
+        monitorWave = MonitorWave(file_name)
         params['fs'] = float(monitorWave.header['Data Rate (ms)'])*60/1000
         params['kind'] = 'as3'
         monitorWave.param = params
         monitorWave.plot_wave()
     elif source == 'taphTrend':
-        taphTrend = TaphTrend(filename)
+        taphTrend = TaphTrend(file_name)
         taphTrend.param = params
 #        tdata= clean.clean_trendData(tdata)
         fig_list = taphTrend.show_graphs()
