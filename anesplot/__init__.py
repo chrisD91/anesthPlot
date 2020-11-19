@@ -78,8 +78,16 @@ del waveName, trendName
 
 """
 
+print('this is {} file and __name__ is {}'.format('__init__', __name__))
 
-# import anestplot.config
-# import anestplotloadrec
-# import anestplot.treatrec
-#from . import  record_main
+
+# import anesplot.config
+# import anesplotloadrec
+# import anesplot.treatrec
+# import  anesPlot.record_main
+
+# import anesplot.config
+# import anesplotloadrec
+# import anesplot.treatrec
+
+from . import record_main as rec

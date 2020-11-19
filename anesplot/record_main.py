@@ -6,6 +6,9 @@ main program to load and display an anesthesia record file
 
 """
 
+print('this is {} file and __name__ is {}'.format('record_main', __name__))
+
+
 import gc
 import os
 import sys
@@ -145,42 +148,42 @@ def check():
         print(key, '<->', val)
 
 
-def list_loaded():
-    """
-    list the loaded files
-    return a dictionary recordObj : file
-    """
-    recorded = {}
-    try:
-        taphTrend
-    except NameError:
-        pass
-    else:
-        recorded['taphTrend'] = taphTrend
-    try:
-        monitorTrend
-    except NameError:
-        pass
-    else:
-        recorded['monitorTrend'] = monitorTrend
-    try:
-        monitorWave
-    except NameError:
-        pass
-    else:
-        recorded['monitorWave'] = monitorWave
-    try:
-        telvet
-    except NameError:
-        pass
-    else:
-        recorded['telvet'] = telvet
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-    print('records loaded:')
-    for key in records:
-        print(key, records[key].file.split('.')[0])
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-    return recorded
+# def list_loaded():
+#     """
+#     list the loaded files
+#     return a dictionary recordObj : file
+#     """
+#     recorded = {}
+#     try:
+#         taphTrend
+#     except NameError:
+#         pass
+#     else:
+#         recorded['taphTrend'] = taphTrend
+#     try:
+#         monitorTrend
+#     except NameError:
+#         pass
+#     else:
+#         recorded['monitorTrend'] = monitorTrend
+#     try:
+#         monitorWave
+#     except NameError:
+#         pass
+#     else:
+#         recorded['monitorWave'] = monitorWave
+#     try:
+#         telvet
+#     except NameError:
+#         pass
+#     else:
+#         recorded['telvet'] = telvet
+#     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+#     print('records loaded:')
+#     for key in records:
+#         print(key, records[key].file.split('.')[0])
+#     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+#     return recorded
 
 
 def plot_trenddata(file, df, header, param_dico):
@@ -507,7 +510,7 @@ def main():
         fig_list = taphTrend.show_graphs()
     else:
         print('this is not recognized recording')
-    records = list_loaded()
+    # records = list_loaded()
     plt.show()
     try:
         app
@@ -516,8 +519,8 @@ def main():
 
 
 #%%
-#if __name__ == '__main__':
-#    main()
+if __name__ == '__main__':
+    main()
     #paths = build_paths()
 #     os.chdir(paths['recordMain'])
 #     print('backEnd= ', plt.get_backend())   # required ?
