@@ -8,7 +8,7 @@ plot the waves of a waveRecording
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 
-import treatrec.wave_func as wf
+import anesplot.treatrec.wave_func as wf
 
 #%% choose an area of interest
 

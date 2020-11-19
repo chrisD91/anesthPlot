@@ -26,19 +26,19 @@ from pylab import rcParams
 rcParams['axes.xmargin'] = 0
 rcParams['axes.ymargin'] = 0
 
-from anesthPlot.config import load_recordRc
+from anesplot.config.load_recordRc import build_paths
+paths = build_paths()
+#paths = load_recordRc.paths
 
-paths = load_recordRc.paths
-
-from anesthPlot.loadrec import explore
-from anesthPlot.loadrec import loadmonitor_trendrecord as lmt
-from anesthPlot.loadrec import loadmonitor_waverecord as lmw
-from anesthPlot.loadrec import loadtaph_trendrecord as ltt
-from anesthPlot.loadrec import loadtelevet as ltv
-from anesthPlot.plot import trend_plot as tplot
-from anesthPlot.plot import wave_plot as wplot
-from anesthPlot.treatrec import clean_data as clean
-from anesthPlot.treatrec import wave_func as wf
+from anesplot.loadrec import explore
+from anesplot.loadrec import loadmonitor_trendrecord as lmt
+from anesplot.loadrec import loadmonitor_waverecord as lmw
+from anesplot.loadrec import loadtaph_trendrecord as ltt
+from anesplot.loadrec import loadtelevet as ltv
+from anesplot.plot import trend_plot as tplot
+from anesplot.plot import wave_plot as wplot
+from anesplot.treatrec import clean_data as clean
+from anesplot.treatrec import wave_func as wf
 
 #
 
@@ -457,10 +457,9 @@ class MonitorWave(FastWave):
         self.source = 'monitorWave'
         self.fs = 300
         self.param['fs'] = 300
-
-#%%
-if __name__ == '__main__':
-    #paths = build_paths()
+        
+        
+def main():
     os.chdir(paths['recordMain'])
     print('backEnd= ', plt.get_backend())   # required ?
     print('start QtApp')
@@ -482,8 +481,8 @@ if __name__ == '__main__':
                                 "taphTrend", "telVet"))
     # general parameters
     params = build_param_dico(file=os.path.basename(file_name),
-                              asource=source)
-# TODO check the validity of the file
+                          asource=source)
+    # TODO check the validity of the file
     if source == 'telVet':
         telvet = TelevetWave(file_name)
         params['fs'] = 500
@@ -504,7 +503,7 @@ if __name__ == '__main__':
     elif source == 'taphTrend':
         taphTrend = TaphTrend(file_name)
         taphTrend.param = params
-#        tdata= clean.clean_trendData(tdata)
+        # tdata= clean.clean_trendData(tdata)
         fig_list = taphTrend.show_graphs()
     else:
         print('this is not recognized recording')
@@ -514,3 +513,62 @@ if __name__ == '__main__':
         app
     except NameError:
         app.exec_()
+
+
+#%%
+#if __name__ == '__main__':
+#    main()
+    #paths = build_paths()
+#     os.chdir(paths['recordMain'])
+#     print('backEnd= ', plt.get_backend())   # required ?
+#     print('start QtApp')
+#     try:
+#         app
+#     except NameError:
+#         app = QApplication(sys.argv)
+#         app.setQuitOnLastWindowClosed(True)
+#     # list of loaded records
+#     try:
+#         records
+#     except NameError:
+#         records = {}
+#     # choose file and indicate the source
+#     print('select the file containing the data')
+#     file_name = choosefile_gui(paths['data'])
+#     source = select_type(caption="choose kind of file",
+#                          items=("monitorTrend", "monitorWave",
+#                                 "taphTrend", "telVet"))
+#     # general parameters
+#     params = build_param_dico(file=os.path.basename(file_name),
+#                               asource=source)
+# # TODO check the validity of the file
+#     if source == 'telVet':
+#         telvet = TelevetWave(file_name)
+#         params['fs'] = 500
+#         params['kind'] = 'telVet'
+#         telvet.param = params
+#         telvet.plot_wave()
+#     elif source == 'monitorTrend':
+#         monitorTrend = MonitorTrend(file_name)
+#         monitorTrend.param = params
+#         if monitorTrend.data is not None:
+#             fig_list = monitorTrend.show_graphs()
+#     elif source == 'monitorWave':
+#         monitorWave = MonitorWave(file_name)
+#         params['fs'] = float(monitorWave.header['Data Rate (ms)'])*60/1000
+#         params['kind'] = 'as3'
+#         monitorWave.param = params
+#         monitorWave.plot_wave()
+#     elif source == 'taphTrend':
+#         taphTrend = TaphTrend(file_name)
+#         taphTrend.param = params
+# #        tdata= clean.clean_trendData(tdata)
+#         fig_list = taphTrend.show_graphs()
+#     else:
+#         print('this is not recognized recording')
+#     records = list_loaded()
+#     plt.show()
+#     try:
+#         app
+#     except NameError:
+#         app.exec_()

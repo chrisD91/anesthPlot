@@ -79,7 +79,7 @@ del waveName, trendName
 """
 
 
-from . import config
-from . import loadrec
-from . import treatrec
-from . import record_main
+# import anestplot.config
+# import anestplotloadrec
+# import anestplot.treatrec
+#from . import  record_main
