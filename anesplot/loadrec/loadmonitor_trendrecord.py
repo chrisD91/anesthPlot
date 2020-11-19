@@ -107,13 +107,14 @@ def loadmonitor_trenddata(filename, header):
                   'S_comp': 'sCompl', 'Spplat': 'sPplat'}
     df.rename(columns=corr_title, inplace=True)
 #TODO fix the code for 1 and 2
-    anesth_code = {0 : 'none',
-#                  1 : '',
- #                 2 : '',
-                  4 : 'iso',
-                  6 : 'sevo'}
-    df.aaLabel = df.aaLabel.fillna(0)
-    df.aaLabel.apply(lambda x: anesth_code.get(int(x), ''))
+    if 'aaLabel' in df.columns:
+        anesth_code = {0 : 'none',
+                       1 : '',
+                       2 : '',
+                       4 : 'iso',
+                       6 : 'sevo'}
+        df.aaLabel = df.aaLabel.fillna(0)
+        df.aaLabel.apply(lambda x: anesth_code.get(int(x), ''))
 
     # remove empty rows and columns
     df.dropna(axis=0, how='all', inplace=True)
