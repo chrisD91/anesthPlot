@@ -18,11 +18,11 @@ import pyperclip
 
 matplotlib.use('Qt5Agg')  #NB use automatic for updating
 import matplotlib.pyplot as plt
-# to have the display beginning from 0
-from pylab import rcParams
 #from socket import gethostname
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
+# to have the display beginning from 0
+from pylab import rcParams
 rcParams['axes.xmargin'] = 0
 rcParams['axes.ymargin'] = 0
 

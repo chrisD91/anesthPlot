@@ -73,7 +73,7 @@ import pandas as pd
 import scipy.signal as sg
 from scipy.interpolate import interp1d
 
-import anesthPlot.treatrec.wave_func as wf
+#import anesthPlot.treatrec.wave_func as wf
 
 
 #%%

@@ -19,7 +19,7 @@ def build_paths():
         # print(__file__)
     except NameError:
         # for inside spyder
-        local_mod_path = '/Users/cdesbois/pg/chrisPg/anesthplot/config'
+        local_mod_path = '/Users/cdesbois/pg/chrisPg/anesthplot/anesthplot/config'
     rc_file = os.path.join(local_mod_path, 'recordRc.yaml')
     #load
     if os.path.isfile(rc_file):
