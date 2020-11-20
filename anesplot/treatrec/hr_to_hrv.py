@@ -29,5 +29,5 @@ try:
 except:
     print('RR series are not extracted')
     print('run wave_to_hr to build one')
-    
+
 #%%

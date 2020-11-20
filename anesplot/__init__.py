@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 """
 anesthPlot is a package to plot/use clinical anesthesia records for teaching
 

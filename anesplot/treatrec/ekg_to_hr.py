@@ -74,7 +74,7 @@ import scipy.signal as sg
 from scipy.interpolate import interp1d
 
 #import anesthPlot.treatrec.wave_func as wf
-
+#TODO import the paths construction
 
 #%%
 def detect_beats(ser, fs=300, species='horse', mult=1):
@@ -130,8 +130,8 @@ def plot_beats(ecg, beats):
     ax1.set_xlabel('pt value')
     fig.legend()
     for ax in fig.get_axes():
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
     fig.tight_layout()
     txt0 = 'locate the peak to add : zoom and use'
     txt1 = 'to_change_df = tohr.add_beat(beat_df, ekg_df, to_change_df, figure)'
@@ -167,7 +167,7 @@ def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None, yscale=1):
     second : run beat_df = update_beat_df())
     """
     # find the limits of the figure
-    if not lim:
+    if lim is None:
         lims = fig.get_axes()[0].get_xlim()
         lim = (int(lims[0]), int(lims[1]))
     #restrict area around the undetected pic (based on pt x val)
@@ -208,7 +208,7 @@ def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
     second : run beat_df = update_beat_df())
     """
     # find the limits of the figure
-    if not lim:
+    if lim is None:
         lims = fig.get_axes()[0].get_xlim()
         lim = (int(lims[0]), int(lims[1]))
     position = beatdf.pLoc[(lim[0] < beatdf.pLoc) & (beatdf.pLoc < lim[1])]
@@ -278,7 +278,7 @@ def compute_rr(abeat_df, fs=None):
         'rrDiff' = rrVariation
         'rrSqDiff' = rrVariation^2
     """
-    if not fs:
+    if fs is None:
         fs = 300
     # compute rr intervals
 #    beat_df['rr'] = np.diff(beat_df.pLoc)
@@ -302,7 +302,7 @@ def interpolate_rr(abeat_df, kind=None):
         'espts' = evenly spaced points
         'rrInterpol' = interpolated rr
     """
-    if not kind:
+    if kind is None:
         kind = 'cubic'
     ahr_df = pd.DataFrame()
     #prepare = sorting and removing possible duplicates
