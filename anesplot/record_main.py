@@ -5,8 +5,10 @@
 main program to load and display an anesthesia record file
 
 """
-
+print('-'*10)
 print('this is {} file and __name__ is {}'.format('record_main', __name__))
+print('this is {} file and __package__ is {}'.format('record_main', __package__))
+print('-'*10)
 
 
 import gc

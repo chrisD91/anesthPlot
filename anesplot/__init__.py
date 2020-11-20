@@ -77,9 +77,10 @@ del waveName, trendName
 # now you are ready to work with loaded trends and waves
 
 """
-
+print('-'*10)
 print('this is {} file and __name__ is {}'.format('__init__', __name__))
-
+print('this is {} file and __package__ is {}'.format('__init__', __package__))
+print('-'*10)
 
 # import anesplot.config
 # import anesplotloadrec

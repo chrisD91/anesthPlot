@@ -38,8 +38,9 @@ NB (install the missing packages if necessary)
 to be able to manipulate the data (trends & waves) 
 
 ``` python
-import anesthPlot.record_main as rec
-import anesthPlot.plot.trend_plot as tplot
+# move to anesthPlot
+import anesplot
+trends = anesplot.rec.MonitorTrend()
 ...
 ```
 
@@ -49,11 +50,23 @@ import anesthPlot.plot.trend_plot as tplot
 
 to obtain a rapid view of the data for visualisation or to save the plots
 
-1. run the main file (run > "python recordMain.py")
+1. run anesplot as a module : open a terminal
+
+   - either navigate to anesthPlot folder and run
+
+   ````bash
+   $ python -m anesplot
+   ````
+
+   - or run from any location (make an alias un the .bashrc)
+
+   ````bash
+   alias record='PYTHONPATH=<pathToAnesthPlot> python -m anesplot
+   ````
 * choose the file you want to load
 * select the kind of file
 * (nb for Taphonius recordings, you will be prompted to choose a second file that correspond to the patient data)
-2. pitures will be generated:
+2. pictures will be generated:
    1. for trend data
     a. description of the case
            (text entered during the setup of the recording)
