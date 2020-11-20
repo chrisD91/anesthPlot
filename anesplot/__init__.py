@@ -7,10 +7,16 @@
 """
 anesthPlot is a package to plot/use clinical anesthesia records for teaching
 
-two way to use it:
-    1. directly call the record_main.py from a terminal
+three way to use it:
+    1. run directly anesplot from a terminal
+        -> PYTHONPATH=<pathToAnesthPlot> python -m anesplot
         -> generate a quick plotting of most interestings parts
-    2. import the module to in a python environment (see below)
+    2. from an ipython terminal
+        -> import anesplot as aplot
+        -> trends = aplot.rec.MonitorTrend()
+        -> ...
+    3. import the module to in a python environment (see below)
+
 
 (the presets are actually designed 
      - for use with equine anesthesia
@@ -77,18 +83,15 @@ del waveName, trendName
 # now you are ready to work with loaded trends and waves
 
 """
-print('-'*10)
-print('this is {} file and __name__ is {}'.format('__init__', __name__))
-print('this is {} file and __package__ is {}'.format('__init__', __package__))
-print('-'*10)
+# print('-'*10)
+# print('this is {} file and __name__ is {}'.format('__init__', __name__))
+# print('this is {} file and __package__ is {}'.format('__init__', __package__))
+# print('-'*10)
 
 # import anesplot.config
 # import anesplotloadrec
 # import anesplot.treatrec
 # import  anesPlot.record_main
 
-# import anesplot.config
-# import anesplotloadrec
-# import anesplot.treatrec
 
-from . import record_main as rec
+from anesplot import record_main as rec
