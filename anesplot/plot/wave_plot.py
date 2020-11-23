@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 font_size = 'medium' # large, medium
 params = {'font.sans-serif': ['Arial'],
-          'font.size': 14,
+          'font.size': 12,
           'legend.fontsize': font_size,
           'figure.figsize': (8.5, 3),
           'axes.labelsize': font_size,

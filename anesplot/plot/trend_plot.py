@@ -18,7 +18,7 @@ import numpy as np
 #import utils
 font_size = 'medium' # large, medium
 params = {'font.sans-serif': ['Arial'],
-          'font.size': 14,
+          'font.size': 12,
           'legend.fontsize': font_size,
           'figure.figsize': (8.5, 3),
           'axes.labelsize': font_size,
@@ -28,6 +28,7 @@ params = {'font.sans-serif': ['Arial'],
           'axes.xmargin': 0}
 plt.rcParams.update(params)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
+
 
 #////////////////////////////////////////////////////////////////
 def color_axis(ax, spine='bottom', color='r'):
@@ -101,7 +102,7 @@ def plot_header(descr, param={'save':False}):
         sp.set_color('w')
         sp.set_zorder(0)
     #annotations
-    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     #save process
     if param['save']:
@@ -166,7 +167,7 @@ def hist_pam(data, param={}):
         for locs in ['top', 'right', 'left']:
             ax.spines[locs].set_visible(False)
         #annotations
-    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if save:
@@ -190,7 +191,7 @@ def plot_one_over_time(x, y, colour):
     ax.spines["right"].set_visible(False)
     fig.tight_layout()
     #annotations
-    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
     #fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     return fig
 
@@ -240,7 +241,7 @@ def hist_co2_iso(data, param={}):
         for locs in ['top', 'right', 'left']:
             ax.spines[locs].set_visible(False)
         #annotations
-    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if save:
@@ -307,7 +308,7 @@ def cardiovasc(data, param={}):
         #call
         color_axis(ax, 'bottom', 'tab:grey')
         #annotations
-    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if xmin and xmax:
@@ -397,7 +398,7 @@ def co2iso(data, param={}):
         ax.get_xaxis().tick_bottom()
         ax.set_xlim(xmin, xmax)
         #annotations
-    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
 
@@ -434,6 +435,12 @@ def co2o2(data, param):
     except:
         print('no CO2 records in this recording')
         return
+    try:
+        data.o2exp
+    except:
+        print('no O2 records in this recording')
+        return
+    
     path = param.get('path', '')
     xmin = param.get('xmin', None)
     xmax = param.get('xmax', None)
@@ -478,7 +485,7 @@ def co2o2(data, param):
         ax.get_xaxis().tick_bottom()
         ax.set_xlim(xmin, xmax)
         #annotations
-    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
 
@@ -565,7 +572,7 @@ def ventil(data, param):
         ax.get_xaxis().tick_bottom()
         ax.set_xlim(xmin, xmax)
         #annotations
-    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if param['save']:
@@ -633,7 +640,7 @@ def recrut(data, param):
         color_axis(ax, 'bottom', 'tab:grey')
         ax.spines["top"].set_visible(False)
     #annotations
-    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if param['save']:
