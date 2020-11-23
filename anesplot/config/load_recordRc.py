@@ -15,11 +15,13 @@ def build_paths():
     """
     #locate
     try:
-        local_mod_path = os.path.dirname(__file__)
-        # print(__file__)
+#        local_mod_path = os.path.dirname(__file__)
+        local_mod_path = main_loc
+        print('__file__', __file__)
+        print('argv', sys.argv)
     except NameError:
         # for inside spyder
-        local_mod_path = '/Users/cdesbois/pg/chrisPg/anesthplot/anesthplot/config'
+        local_mod_path = '/Users/cdesbois/pg/chrisPg/anesthplot/anesplot/config'
     rc_file = os.path.join(local_mod_path, 'recordRc.yaml')
     #load
     if os.path.isfile(rc_file):
