@@ -115,7 +115,7 @@ def plot_header(descr, param={'save':False}):
     return fig
 
 
-def hist_pam(data, param={}):
+def hist_cardio(data, param={}):
     """
     PaM histogramme using matplotlib 
     input : 
@@ -171,7 +171,7 @@ def hist_pam(data, param={}):
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if save:
-        fig_name = 'hist_pam'+ str(param['item'])
+        fig_name = 'hist_cardio'+ str(param['item'])
         name = os.path.join(param['path'], fig_name)
         utils.saveGraph(name, ext='png', close=False, verbose=True)
         # saveGraph(name, ext='png', close=False, verbose=True)
@@ -241,7 +241,7 @@ def hist_co2_iso(data, param={}):
         for locs in ['top', 'right', 'left']:
             ax.spines[locs].set_visible(False)
         #annotations
-    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
+    fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     if save:
@@ -739,7 +739,7 @@ def save_distri(data, path):
     bpgas(data).savefig((path['sFig'] + '0_bpgas.png'), bbox_inches='tight')
     hist_co2_iso(data).savefig((path['sFig']+ '0_hist_co2_iso.png'), bbox_inches='tight')
     bppa(data).savefig((path['sFig'] + '0_bppa.png'), bbox_inches='tight')
-    hist_pam(data).savefig((path['sFig']+ '0_hist_pam.png'), bbox_inches='tight')
+    hist_cardio(data).savefig((path['sFig']+ '0_hist_cardio.png'), bbox_inches='tight')
 
 def fig_memo(path, fig_name):
     """

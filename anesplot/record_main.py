@@ -5,10 +5,10 @@
 main program to load and display an anesthesia record file
 
 """
-print('-'*10)
-print('this is {} file and __name__ is {}'.format('record_main', __name__))
-print('this is {} file and __package__ is {}'.format('record_main', __package__))
-print('-'*10)
+# print('-'*10)
+# print('this is {} file and __name__ is {}'.format('record_main', __name__))
+# print('this is {} file and __package__ is {}'.format('record_main', __package__))
+# print('-'*10)
 
 
 import gc
@@ -204,8 +204,7 @@ def plot_trenddata(file, df, header, param_dico):
 
     return
     ----
-    afig_list : list
-        list of
+    afig_dico : dict of name:fig
     """
     # clean the data for taph monitoring
     if param_dico['source'] == 'taphTrend':
@@ -219,7 +218,7 @@ def plot_trenddata(file, df, header, param_dico):
     print('build figs')
     #plotting
     plot_func_list = (tplot.ventil, tplot.co2o2, tplot.co2iso, tplot.cardiovasc,
-                      tplot.hist_co2_iso, tplot.hist_pam)
+                      tplot.hist_co2_iso, tplot.hist_cardio)
     for func in plot_func_list:
         afig_list.append(func(df.set_index('eTimeMin'), param_dico))
     afig_list.append(tplot.plot_header(header, param_dico))
@@ -229,7 +228,10 @@ def plot_trenddata(file, df, header, param_dico):
     #         fig.text(0.01, 0.01, file, ha='left', va='bottom', alpha=0.4)
     print('plt.show')
     plt.show()
-    return afig_list
+    names = [st.__name__ for st in plot_func_list]
+    names.append('header')
+    fig_dico = dict(zip(names, afig_list))
+    return fig_dico
 
 
 def plot_monitorwave_data(headdf, wavedf):
@@ -299,8 +301,8 @@ class SlowWave(Waves):
         return df
     def show_graphs(self):
         """ basic clinical plots """
-        fig_list = plot_trenddata(self.file, self.data, self.header, self.param)
-        return fig_list
+        fig_dico = plot_trenddata(self.file, self.data, self.header, self.param)
+        return fig_dico
 
 
 class MonitorTrend(SlowWave):
