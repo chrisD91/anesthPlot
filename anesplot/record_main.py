@@ -79,7 +79,7 @@ def trendname_to_wavename(name):
     return name.split('.')[0] + 'Wave.csv'
 
 
-def select_type(caption=None, items=None):
+def select_type(caption=None, items=None, num=0):
     """select the recording type:
 
     parameters
@@ -96,7 +96,7 @@ def select_type(caption=None, items=None):
         caption = 'choose kind of file'
     qw = QWidget()
     kind, ok_pressed = QInputDialog.getItem(qw, caption,
-                                            "kind ?", items, 0, False)
+                                            "kind ?", items, num, False)
     if ok_pressed and kind:
         to_return = kind
     else:
@@ -484,10 +484,15 @@ def main():
     # choose file and indicate the source
     print('select the file containing the data')
     file_name = choosefile_gui(paths['data'])
-    #build an ordered item basd on file_name
+    kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
+    # select shown index in the scoll down    
+    num = 0
+    if "Wave" in file_name:
+        num = 1
+    if not os.path.basename(file_name).startswith('M'):
+        num = 2
     source = select_type(caption="choose kind of file",
-                         items=("monitorTrend", "monitorWave",
-                                "taphTrend", "telVet"))
+                         items=kinds, num=num)
     # general parameters
     params = build_param_dico(file=os.path.basename(file_name),
                           asource=source)
