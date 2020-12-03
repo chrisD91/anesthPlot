@@ -16,11 +16,11 @@ import os
 import sys
 from importlib import reload
 
-import matplotlib
 import numpy as np
 import pandas as pd
 import pyperclip
 
+import matplotlib
 matplotlib.use('Qt5Agg')  #NB use automatic for updating
 import matplotlib.pyplot as plt
 #from socket import gethostname
@@ -465,8 +465,8 @@ class MonitorWave(FastWave):
         self.source = 'monitorWave'
         self.fs = 300
         self.param['fs'] = 300
-        
-        
+
+
 def main():
     os.chdir(paths['recordMain'])
     print('backEnd= ', plt.get_backend())   # required ?
@@ -485,7 +485,7 @@ def main():
     print('select the file containing the data')
     file_name = choosefile_gui(paths['data'])
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
-    # select shown index in the scoll down    
+    # select base index in the scoll down
     num = 0
     if "Wave" in file_name:
         num = 1
@@ -496,7 +496,9 @@ def main():
     # general parameters
     params = build_param_dico(file=os.path.basename(file_name),
                           asource=source)
-    # TODO check the validity of the file
+    if not os.path.isfile(file_name):
+        print('this is not a file')
+        return
     if source == 'telVet':
         telvet = TelevetWave(file_name)
         params['fs'] = 500
@@ -504,8 +506,8 @@ def main():
         telvet.param = params
         telvet.plot_wave()
     elif source == 'monitorTrend':
-        # TODO append the frequency
         monitorTrend = MonitorTrend(file_name)
+        params['t_fs'] = monitorTrend.header.get('Sampling Rate')/60
         monitorTrend.param = params
         if monitorTrend.data is not None:
             fig_list = monitorTrend.show_graphs()
@@ -533,57 +535,3 @@ def main():
 #%%
 if __name__ == '__main__':
     main()
-    #paths = build_paths()
-#     os.chdir(paths['recordMain'])
-#     print('backEnd= ', plt.get_backend())   # required ?
-#     print('start QtApp')
-#     try:
-#         app
-#     except NameError:
-#         app = QApplication(sys.argv)
-#         app.setQuitOnLastWindowClosed(True)
-#     # list of loaded records
-#     try:
-#         records
-#     except NameError:
-#         records = {}
-#     # choose file and indicate the source
-#     print('select the file containing the data')
-#     file_name = choosefile_gui(paths['data'])
-#     source = select_type(caption="choose kind of file",
-#                          items=("monitorTrend", "monitorWave",
-#                                 "taphTrend", "telVet"))
-#     # general parameters
-#     params = build_param_dico(file=os.path.basename(file_name),
-#                               asource=source)
-# # TODO check the validity of the file
-#     if source == 'telVet':
-#         telvet = TelevetWave(file_name)
-#         params['fs'] = 500
-#         params['kind'] = 'telVet'
-#         telvet.param = params
-#         telvet.plot_wave()
-#     elif source == 'monitorTrend':
-#         monitorTrend = MonitorTrend(file_name)
-#         monitorTrend.param = params
-#         if monitorTrend.data is not None:
-#             fig_list = monitorTrend.show_graphs()
-#     elif source == 'monitorWave':
-#         monitorWave = MonitorWave(file_name)
-#         params['fs'] = float(monitorWave.header['Data Rate (ms)'])*60/1000
-#         params['kind'] = 'as3'
-#         monitorWave.param = params
-#         monitorWave.plot_wave()
-#     elif source == 'taphTrend':
-#         taphTrend = TaphTrend(file_name)
-#         taphTrend.param = params
-# #        tdata= clean.clean_trendData(tdata)
-#         fig_list = taphTrend.show_graphs()
-#     else:
-#         print('this is not recognized recording')
-#     records = list_loaded()
-#     plt.show()
-#     try:
-#         app
-#     except NameError:
-#         app.exec_()
