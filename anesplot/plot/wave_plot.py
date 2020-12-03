@@ -76,7 +76,9 @@ def plot_wave(data, keys=[], param={}):
         wco2 = ['expired CO2', 'tab:blue', 'mmHg'],
         wawp = ['airway pressure', 'tab:red', 'cmH2O'],
         wflow = ['expiratory flow', 'tab:green', 'flow'],
-        wap = ['arterial pressure', 'tab:red', 'mmHg'])
+        wap = ['arterial pressure', 'tab:red', 'mmHg'],
+        wvp = ['venous pressure', 'tab:blue', 'mmHg']
+        )
     # time scaling (index value)
     mini = param.get('mini', data.index[0])
     maxi = param.get('maxi', data.index[-1])

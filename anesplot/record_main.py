@@ -409,6 +409,7 @@ class FastWave(Waves):
             self.trace = trace
             self.fig = fig
             plt.show()
+            return fig
         else:
             self.trace = None
             self.fig = None
@@ -483,6 +484,7 @@ def main():
     # choose file and indicate the source
     print('select the file containing the data')
     file_name = choosefile_gui(paths['data'])
+    #build an ordered item basd on file_name
     source = select_type(caption="choose kind of file",
                          items=("monitorTrend", "monitorWave",
                                 "taphTrend", "telVet"))
@@ -497,6 +499,7 @@ def main():
         telvet.param = params
         telvet.plot_wave()
     elif source == 'monitorTrend':
+        # TODO append the frequency
         monitorTrend = MonitorTrend(file_name)
         monitorTrend.param = params
         if monitorTrend.data is not None:
