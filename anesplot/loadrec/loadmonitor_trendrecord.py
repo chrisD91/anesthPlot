@@ -39,6 +39,7 @@ def choosefile_gui(dir_path=None):
 #%% Monitor trend
 def loadmonitor_trendheader(filename):
     """ read filename (fullname) and return a dictionary """
+    print('loading header', os.path.basename(filename))
     df = pd.read_csv(filename, sep=',', header=None, index_col=None,
                      nrows=11, encoding='iso8859_15')
     #NB encoding needed for accentuated letters
@@ -61,6 +62,7 @@ def loadmonitor_trenddata(filename, header):
     output :
         pandas dataframe
     """
+    print('loading data', os.path.basename(filename))
     try:
         df = pd.read_csv(filename, sep=',', skiprows=[13], header=12)
     except:

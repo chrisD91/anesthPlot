@@ -47,7 +47,7 @@ def loadmonitor_waveheader(filename):
 
 def loadmonitor_wavedata(filename):
     """ load a monitor csvDataFile, return a pandasDataframe """
-    print('loading ', os.path.basename(filename))
+    print('loading data', os.path.basename(filename))
     fs = 300    # sampling rate
     #header :
     header_df = pd.read_csv(filename, sep=',', header=None, index_col=None, nrows=12,
