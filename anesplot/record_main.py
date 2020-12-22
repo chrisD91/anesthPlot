@@ -418,17 +418,22 @@ class FastWave(Waves):
 
 
     """
-    def __init__(self, filename):
+    def __init__(self, filename=None):
         super().__init__(filename)
     def plot_wave(self):
         """
 20        simple choose and plot for a wave
         """
         cols = [w for w in self.data.columns if w[0] == 'w']
-        trace = select_type(caption='choose wave', items=cols)
-        if trace:
-#            fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
-            fig, _ = wplot.plot_wave(self.data, keys=[trace], param=self.param)
+        traces = []
+        # trace = select_type(question='choose wave', items=cols)
+        trace = select_wave(waves=cols, num=1)
+        traces.append(trace)
+        trace = select_wave(waves=cols, num=2)
+        traces.append(trace)
+        if traces:
+            # fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
+            fig, _ = wplot.plot_wave(self.data, keys=traces, param=self.param)
             fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
             fig.text(0.01, 0.01, self.file, ha='left', va='bottom', alpha=0.4)
             self.trace = trace
@@ -462,7 +467,7 @@ class TelevetWave(FastWave):
     """
     class to organise teleVet recordings transformed to csv files
     """
-    def __init__(self, filename):
+    def __init__(self, filename=None):
         super().__init__(filename)
         self.data = ltv.loadtelevet(filename)
         self.source = 'teleVet'
@@ -479,7 +484,7 @@ class MonitorWave(FastWave):
 
     methods ... FILLME
     """
-    def __init__(self, filename, load=True):
+    def __init__(self, filename=None, load=True):
         super().__init__(filename)
         header = lmw.loadmonitor_waveheader(filename)
         self.header = dict(zip(header[0], header[1]))
