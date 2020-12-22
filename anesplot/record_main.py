@@ -79,7 +79,7 @@ def trendname_to_wavename(name):
     return name.split('.')[0] + 'Wave.csv'
 
 
-def select_type(caption=None, items=None, num=0):
+def select_type(question=None, items=None, num=0):
     """select the recording type:
 
     parameters
@@ -92,16 +92,41 @@ def select_type(caption=None, items=None, num=0):
        """
     if items is None:
         items = ("monitorTrend", "monitorWave", "taphTrend", "telVet")
-    if caption is None:
-        caption = 'choose kind of file'
+    if question is None:
+        question = 'choose kind of file'
     qw = QWidget()
-    kind, ok_pressed = QInputDialog.getItem(qw, caption,
-                                            "kind ?", items, num, False)
+    kind, ok_pressed = QInputDialog.getItem(qw, 'select',
+                                            question, items, num, False)
     if ok_pressed and kind:
-        to_return = kind
+        selection = kind
     else:
-        to_return = None
-    return to_return
+        selection = None
+    return selection
+
+def select_wave(waves, num=1):
+    """select the recording type:
+
+    parameters
+    ----
+
+    return
+    ----
+    kind : str
+        kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
+       """
+    if num == 1:
+        question = 'choose first wave'
+    if num == 2: 
+        question = 'do you want a second one ?'
+    qw = QWidget()
+    wave, ok_pressed = QInputDialog.getItem(qw, 'select',
+                                            question, waves, 0, False)
+    if ok_pressed and wave:
+        selection = wave
+    else:
+        selection = None
+    return selection
+
 
 
 def build_param_dico(file=None, asource=None, pathdico=paths):
@@ -491,7 +516,7 @@ def main():
         num = 1
     if not os.path.basename(file_name).startswith('M'):
         num = 2
-    source = select_type(caption="choose kind of file",
+    source = select_type(question="choose kind of file",
                          items=kinds, num=num)
     # general parameters
     params = build_param_dico(file=os.path.basename(file_name),
