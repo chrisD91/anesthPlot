@@ -1,8 +1,8 @@
 
 
 #__name__ = "__main__"
-from anesplot import record_main
-from anesplot import treatrec
+from anesthPlot.anesplot import record_main
+from anesthPlot.anesplot import treatrec
 
 # print('-'*10)
 # print('this is {} file and __name__ is {}'.format('__main__', __name__))

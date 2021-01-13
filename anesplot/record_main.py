@@ -31,19 +31,19 @@ from pylab import rcParams
 rcParams['axes.xmargin'] = 0
 rcParams['axes.ymargin'] = 0
 
-from anesplot.config.load_recordRc import build_paths
+from anesthPlot.anesplot.config.load_recordRc import build_paths
 paths = build_paths()
 #paths = load_recordRc.paths
 
-from anesplot.loadrec import explore
-from anesplot.loadrec import loadmonitor_trendrecord as lmt
-from anesplot.loadrec import loadmonitor_waverecord as lmw
-from anesplot.loadrec import loadtaph_trendrecord as ltt
-from anesplot.loadrec import loadtelevet as ltv
-from anesplot.plot import trend_plot as tplot
-from anesplot.plot import wave_plot as wplot
-from anesplot.treatrec import clean_data as clean
-from anesplot.treatrec import wave_func as wf
+from anesthPlot.anesplot.loadrec import explore
+from anesthPlot.anesplot.loadrec import loadmonitor_trendrecord as lmt
+from anesthPlot.anesplot.loadrec import loadmonitor_waverecord as lmw
+from anesthPlot.anesplot.loadrec import loadtaph_trendrecord as ltt
+from anesthPlot.anesplot.loadrec import loadtelevet as ltv
+from anesthPlot.anesplot.plot import trend_plot as tplot
+from anesthPlot.anesplot.plot import wave_plot as wplot
+from anesthPlot.anesplot.treatrec import clean_data as clean
+from anesthPlot.anesplot.treatrec import wave_func as wf
 
 #
 

@@ -10,10 +10,11 @@ three way to use it:
         -> PYTHONPATH=<pathToAnesthPlot> python -m anesplot
         -> generate a quick plotting of most interestings parts
     2. from an ipython terminal
-        -> import anesplot as aplot
-        -> trends = aplot.rec.MonitorTrend()
-        -> ...
-    3. import the module to in a python environment (see below)
+        -> import anesthPlot.anesplot.recordmain as rec
+        -> trends = rec.MonitorTrend()
+        -> waves = rec.MonitorWave()
+        -> ... and use the objects trends and waves
+    3. import the module in a python environment (see below)
 
 
 (the presets are actually designed 
@@ -90,5 +91,8 @@ del waveName, trendName
 # import  anesPlot.record_main
 
 
-from anesplot import record_main as rec
-from anesplot import treatrec
+from anesthPlot.anesplot import record_main as rec
+from anesthPlot.anesplot import treatrec
+
+# import record_main as rec
+# import treatrec
