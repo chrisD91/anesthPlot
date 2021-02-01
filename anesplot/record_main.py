@@ -34,7 +34,8 @@ import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
 # to have the display beginning from 0
-from pylab import rcParams
+# from pylab import rcParams
+from matplotlib import rcParams
 rcParams['axes.xmargin'] = 0
 rcParams['axes.ymargin'] = 0
 
@@ -132,7 +133,7 @@ def select_wave(waves, num=1):
        """
     if num == 1:
         question = 'choose first wave'
-    if num == 2: 
+    if num == 2:
         question = 'do you want a second one ?'
     qw = QWidget()
     wave, ok_pressed = QInputDialog.getItem(qw, 'select',
@@ -430,9 +431,8 @@ class TaphTrend(SlowWave):
 
 #++++++++
 class FastWave(Waves):
-    """ class for Fastwaves = continuous recordings
-
-
+    """
+    class for Fastwaves = continuous recordings
 
     """
     def __init__(self, filename=None):
@@ -441,16 +441,16 @@ class FastWave(Waves):
         """
         simple choose and plot for a wave
         input = none -> GUI, or list of waves to plot (max=2)
-        
+
         """
         cols = [w for w in self.data.columns if w[0] == 'w']
         if tracesList is None:
             tracesList = []
             # trace = select_type(question='choose wave', items=cols)
-            trace = select_wave(waves=cols, num=1)
-            tracesList.append(trace)
-            trace = select_wave(waves=cols, num=2)
-            tracesList.append(trace)
+            for num in [1, 2]:
+                trace = select_wave(waves=cols, num=num)
+                if trace is not None:
+                    tracesList.append(trace)
         if tracesList:
             # fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
             fig, _ = wplot.plot_wave(self.data, keys=tracesList, param=self.param)
