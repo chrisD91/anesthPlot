@@ -5,9 +5,16 @@
 main program to load and display an anesthesia record file
 
 """
+#see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
+from pathlib import Path
+print('Running' if __name__ == '__main__' else 'Importing', Path(__file__).resolve())
 # print('-'*10)
 # print('this is {} file and __name__ is {}'.format('record_main', __name__))
 # print('this is {} file and __package__ is {}'.format('record_main', __package__))
+# print('-'*10)
+
+# print('__file__={0:<35} \n __name__={1:<20} \n __package__={2:<20}'.format(
+#     __file__,__name__,str(__package__)))
 # print('-'*10)
 
 
@@ -31,21 +38,30 @@ from pylab import rcParams
 rcParams['axes.xmargin'] = 0
 rcParams['axes.ymargin'] = 0
 
-from anesthPlot.anesplot.config.load_recordRc import build_paths
+from anesplot.config.load_recordRc import build_paths
 paths = build_paths()
 #paths = load_recordRc.paths
 
-from anesthPlot.anesplot.loadrec import explore
-from anesthPlot.anesplot.loadrec import loadmonitor_trendrecord as lmt
-from anesthPlot.anesplot.loadrec import loadmonitor_waverecord as lmw
-from anesthPlot.anesplot.loadrec import loadtaph_trendrecord as ltt
-from anesthPlot.anesplot.loadrec import loadtelevet as ltv
-from anesthPlot.anesplot.plot import trend_plot as tplot
-from anesthPlot.anesplot.plot import wave_plot as wplot
-from anesthPlot.anesplot.treatrec import clean_data as clean
-from anesthPlot.anesplot.treatrec import wave_func as wf
+# works from outside, but not within spyder (relative import)
+# see https://dev.to/codemouse92/dead-simple-python-project-structure-and-imports-38c6
+#error in spyder : relative import with no known parent package
+# from .loadrec import explore
 
-#
+# requires to have '.../anesthPlot' in the path
+import anesplot.loadrec.explore
+import anesplot.loadrec.loadmonitor_trendrecord as lmt
+import anesplot.loadrec.loadmonitor_waverecord as lmw
+import anesplot.loadrec.loadtaph_trendrecord as ltt
+import anesplot.loadrec.loadtelevet as ltv
+import anesplot.plot.trend_plot as tplot
+import anesplot.plot.wave_plot as wplot
+import anesplot.treatrec.clean_data as clean
+import anesplot.treatrec.wave_func as wf
+
+# import loadrec.explore
+
+# from . import loadrec.explore
+
 
 def choosefile_gui(dir_path=None):
     """Select a file via a dialog and return the (full) filename.
@@ -154,7 +170,8 @@ def build_param_dico(file=None, asource=None, pathdico=paths):
                 save = False,
                 memo = False,
                 file = file,
-                source = asource)
+                source = asource,
+                dtime=True)
     return dico
 
 #%
@@ -240,7 +257,7 @@ def plot_trenddata(file, df, header, param_dico):
         else:
             print('no pressure tdata recorded')
     afig_list = []
-    print('build figs')
+    print('building figures')
     #plotting
     plot_func_list = (tplot.ventil, tplot.co2o2, tplot.co2iso, tplot.cardiovasc,
                       tplot.hist_co2_iso, tplot.hist_cardio)
@@ -292,7 +309,7 @@ class Waves():
                           path=paths['sFig'], unit='min',
                           save=False, memo=False,
                           file=os.path.basename(filename),
-                          source=None, fs=None)
+                          source=None, fs=None, dtime=True)
 
 #+++++++
 class SlowWave(Waves):
@@ -420,23 +437,26 @@ class FastWave(Waves):
     """
     def __init__(self, filename=None):
         super().__init__(filename)
-    def plot_wave(self):
+    def plot_wave(self, tracesList=None):
         """
-20        simple choose and plot for a wave
+        simple choose and plot for a wave
+        input = none -> GUI, or list of waves to plot (max=2)
+        
         """
         cols = [w for w in self.data.columns if w[0] == 'w']
-        traces = []
-        # trace = select_type(question='choose wave', items=cols)
-        trace = select_wave(waves=cols, num=1)
-        traces.append(trace)
-        trace = select_wave(waves=cols, num=2)
-        traces.append(trace)
-        if traces:
+        if tracesList is None:
+            tracesList = []
+            # trace = select_type(question='choose wave', items=cols)
+            trace = select_wave(waves=cols, num=1)
+            tracesList.append(trace)
+            trace = select_wave(waves=cols, num=2)
+            tracesList.append(trace)
+        if tracesList:
             # fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
-            fig, _ = wplot.plot_wave(self.data, keys=traces, param=self.param)
+            fig, _ = wplot.plot_wave(self.data, keys=tracesList, param=self.param)
             fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
             fig.text(0.01, 0.01, self.file, ha='left', va='bottom', alpha=0.4)
-            self.trace = trace
+            self.trace = tracesList
             self.fig = fig
             plt.show()
             return fig

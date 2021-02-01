@@ -171,7 +171,8 @@ def plot_wave(data, keys=[], param={}):
                 if not dtime:
                     ax.set_xlabel('time (sec)')
         for ax in ax_list:
-            ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+            if dtime:
+                ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
             for spine in ['left', 'right', 'bottom']:
                 color_axis(ax, spine=spine, color='tab:grey')
             for spine in ['top', 'right']:
