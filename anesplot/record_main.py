@@ -437,32 +437,37 @@ class FastWave(Waves):
     """
     def __init__(self, filename=None):
         super().__init__(filename)
+
     def plot_wave(self, tracesList=None):
         """
         simple choose and plot for a wave
         input = none -> GUI, or list of waves to plot (max=2)
 
         """
-        cols = [w for w in self.data.columns if w[0] == 'w']
-        if tracesList is None:
-            tracesList = []
-            # trace = select_type(question='choose wave', items=cols)
-            for num in [1, 2]:
-                trace = select_wave(waves=cols, num=num)
-                if trace is not None:
-                    tracesList.append(trace)
-        if tracesList:
-            # fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
-            fig, _ = wplot.plot_wave(self.data, keys=tracesList, param=self.param)
-            fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
-            fig.text(0.01, 0.01, self.file, ha='left', va='bottom', alpha=0.4)
-            self.trace = tracesList
+        if self.data.empty:
+            fig = None
+            print('there is no data to plot')
+        else :
+            cols = [w for w in self.data.columns if w[0] == 'w']
+            if tracesList is None:
+                tracesList = []
+                # trace = select_type(question='choose wave', items=cols)
+                for num in [1, 2]:
+                    trace = select_wave(waves=cols, num=num)
+                    if trace is not None:
+                        tracesList.append(trace)
+            if tracesList:
+                # fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
+                fig, _ = wplot.plot_wave(self.data, keys=tracesList, param=self.param)
+                fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
+                fig.text(0.01, 0.01, self.file, ha='left', va='bottom', alpha=0.4)
+                self.trace = tracesList
+                plt.show()
+            else:
+                self.trace = None
+                fig = None
             self.fig = fig
-            plt.show()
             return fig
-        else:
-            self.trace = None
-            self.fig = None
 
     def define_a_roi(self):
         """
@@ -482,6 +487,7 @@ class FastWave(Waves):
                        'dt': limdatetime
                       }
             self.roi = roidict
+
 
 class TelevetWave(FastWave):
     """
