@@ -540,6 +540,7 @@ def main():
     # choose file and indicate the source
     print('select the file containing the data')
     file_name = choosefile_gui(paths['data'])
+    pyperclip.copy(file_name)
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     # select base index in the scoll down
     num = 0
