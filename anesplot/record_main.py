@@ -524,7 +524,14 @@ class MonitorWave(FastWave):
 
 
 def main():
-# TODO allow to load from commandline with a filename    
+    # check for terminal filename passed as the first argument
+    termFile = None
+    if len(sys.argv) > 1:
+        if os.path.isfile(sys.argv[1]):
+            termFile = sys.argv[1]
+        else:
+            print('{} is not a valid filename'.format(sys.argv[1]))
+
     os.chdir(paths['recordMain'])
     print('backEnd= ', plt.get_backend())   # required ?
     print('start QtApp')
@@ -540,7 +547,10 @@ def main():
         records = {}
     # choose file and indicate the source
     print('select the file containing the data')
-    file_name = choosefile_gui(paths['data'])
+    if termFile is None:
+        file_name = choosefile_gui(paths['data'])
+    else:
+        file_name = termFile
     pyperclip.copy(file_name)
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     # select base index in the scoll down
