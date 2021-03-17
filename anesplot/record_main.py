@@ -525,10 +525,10 @@ class MonitorWave(FastWave):
 
 def main():
     # check for terminal filename passed as the first argument
-    termFile = None
+    provided_filename = None
     if len(sys.argv) > 1:
         if os.path.isfile(sys.argv[1]):
-            termFile = sys.argv[1]
+            provided_filename = sys.argv[1]
         else:
             print('{} is not a valid filename'.format(sys.argv[1]))
 
@@ -547,10 +547,10 @@ def main():
         records = {}
     # choose file and indicate the source
     print('select the file containing the data')
-    if termFile is None:
+    if provided_filename is None:
         file_name = choosefile_gui(paths['data'])
     else:
-        file_name = termFile
+        file_name = provided_filename
     pyperclip.copy(file_name)
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     # select base index in the scoll down
