@@ -40,8 +40,12 @@ def choosefile_gui(dir_path=None):
 def loadmonitor_trendheader(filename):
     """ read filename (fullname) and return a dictionary """
     print('loading header', os.path.basename(filename))
-    df = pd.read_csv(filename, sep=',', header=None, index_col=None,
-                     nrows=11, encoding='iso8859_15')
+    try:
+        df = pd.read_csv(filename, sep=',', header=None, index_col=None,
+                         nrows=11, encoding='iso8859_15')
+    except Exception as e:
+        print(e)
+        return
     #NB encoding needed for accentuated letters
     df = df.set_index(0).T
     if 'Sampling Rate' not in df.columns:

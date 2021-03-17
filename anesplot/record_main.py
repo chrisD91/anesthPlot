@@ -524,6 +524,7 @@ class MonitorWave(FastWave):
 
 
 def main():
+# TODO allow to load from commandline with a filename    
     os.chdir(paths['recordMain'])
     print('backEnd= ', plt.get_backend())   # required ?
     print('start QtApp')
@@ -564,6 +565,12 @@ def main():
         telvet.plot_wave()
     elif source == 'monitorTrend':
         monitorTrend = MonitorTrend(file_name)
+        if monitorTrend.data is None:
+            print('empty recording')
+            return
+        if monitorTrend.header is None:
+            print('empty header')
+            return
         params['t_fs'] = monitorTrend.header.get('Sampling Rate')/60
         monitorTrend.param = params
         if monitorTrend.data is not None:
