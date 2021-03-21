@@ -28,12 +28,6 @@ plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
 
 
 
-
-# filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/M2021_3_8-9_9_48.csv'
-# trends = rec.MonitorTrend(filename)
-
-trends = rec.MonitorTrend()
-
 #df = trends.data
 #%%
 
@@ -50,8 +44,8 @@ def extract_hypotension(trends, pamin=70):
     (default is 70)
     Returns
     -------
-    durdf : pandas DataFrame containing 
-        transitionts (up and down, in  seconds from beginning) 
+    durdf : pandas DataFrame containing
+        transitionts (up and down, in  seconds from beginning)
         and duration in the hypotension state (in seconds)
     """
     df = trends.data.copy()
@@ -61,7 +55,7 @@ def extract_hypotension(trends, pamin=70):
     # extract changes
     durdf = pd.DataFrame()
     durdf['down'] = df.loc[df.trans == -1].index.to_list()
-    # durdf['up'] = df.loc[df.trans == 1].index.to_list()
+    up = df.loc[df.trans == 1].index.to_list()
     durdf = durdf.join(pd.Series(name='up', data=up))
     durdf.up = durdf.up.shift(-1)
     durdf['hypo_duration'] = durdf.up - durdf.down
@@ -91,7 +85,7 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
     df = trends.data.copy()
     df = pd.DataFrame(df.set_index(df.eTime.astype(int))['ip1m'])
     param = trends.param
-    
+
     fig = plt.figure()
     fig.suptitle('peroperative hypotension')
     ax = fig.add_subplot(111)
@@ -101,12 +95,12 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
         ax.vlines(a, ymin=50, ymax=70, color='tab:red', alpha = 0.5)
         ax.vlines(b, ymin=50, ymax=70, color='tab:green', alpha = 0.5)
         if t > 15 * 60:
-            ax.axvspan(xmin=a, xmax=b, color='tab:red', alpha=0.5)
+            ax.axvspan(xmin=a, xmax=b, color='tab:red', alpha=0.3)
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
     nb = len(durdf[durdf.hypo_duration > (durmin * 60)])
     txt = '{} period(s) of significative hypotension \n (longer than {} min below {} mmHg)'.format(
-        nb, durmin, pamin, )
+        nb, durmin, pamin)
     ax.text(0.5, 0.1, txt, ha='center', va='bottom', transform=ax.transAxes,
             color='tab:grey')
     txt = 'hypotension lasting longer than 15 minutes are represented as red rectangles '
@@ -120,7 +114,7 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
         txt = 'hypotensions={} min'.format(durations)
         ax.text(0.5, 0.03, txt, ha='center', va='bottom', transform=ax.transAxes,
             color='k')
-        
+
     #annotations
     fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4, size=12)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
@@ -129,7 +123,12 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
 
 
 
-dur_df = extract_hypotension(trends, pamin=70)
-
-fig = plot_hypotension(trends, dur_df)
-    
+#%%
+# filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/M2021_3_8-9_9_48.csv'
+# trends = rec.MonitorTrend(filename)
+trends = rec.MonitorTrend()
+if not trends.data is None:
+    dur_df = extract_hypotension(trends, pamin=70)
+    fig = plot_hypotension(trends, dur_df)
+else: 
+    print('no data')
