@@ -67,6 +67,13 @@ def extract_hypotension(trends, pamin=70):
         if a > b:
             durdf.up = durdf.up.shift(-1)
         durdf['hypo_duration'] = durdf.up - durdf.down
+        # mean value
+        hypos = []
+        for i in durdf.index:
+            a, b = durdf.loc[i, ['down', 'up']]
+            hypo = df.loc[a:b, ['ip1m']].mean()[0]
+            hypos.append(hypo)
+        durdf['hypos'] = hypos
         durdf = durdf.dropna()
     return durdf
 
