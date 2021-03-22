@@ -116,8 +116,8 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
         txt = 'hypotension lasting longer than 15 minutes are represented as red rectangles '
         ax.text(0.5, 0.95, txt, ha='center', va='bottom', transform=ax.transAxes,
                 color='tab:grey')
-        durations = list(dur_df.loc[
-            dur_df.hypo_duration > 15*60, ['hypo_duration']].
+        durations = list(durdf.loc[
+            durdf.hypo_duration > 15*60, ['hypo_duration']].
             values.flatten() / 60)
         if len(durations) > 0:
             durations = [round(_) for _ in durations]
@@ -155,7 +155,7 @@ def plot_all_dir_hypo(dirname=None):
 # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/M2021_3_8-9_9_48.csv'
 # trends = rec.MonitorTrend(filename)
 plt.close('all')
-dir_name = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/2020'
+dir_name = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/2018'
 
 filename = plot_all_dir_hypo(dir_name)    
 

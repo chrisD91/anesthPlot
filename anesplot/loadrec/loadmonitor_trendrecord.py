@@ -127,9 +127,9 @@ def loadmonitor_trenddata(filename, header):
     df.dropna(axis=1, how='all', inplace=True)
 
     # should be interesting to export the comment
-    for index, row in df.iterrows():
-        if len(row) < 6:
-            print(index, row)
+    # for index, row in df.iterrows():
+    #     if len(row) < 6:
+    #         print(index, row)
     # remove comments present in colon 1(ie suppres if less than 5 item rows)
     df = df.dropna(thresh=6)
 
