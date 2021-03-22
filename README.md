@@ -20,8 +20,10 @@ This generated tends (~1pt/5sec) and waves (~300pt/sec) recordings
 
 	```bash
 	pip install pyyaml
- 	conda install -c conda-forge pyperclip,
 	```
+
+ 	conda install -c conda-forge pyperclip,
+ 	```
 
 2. download the repository
 
@@ -39,8 +41,15 @@ to be able to manipulate the data (trends & waves)
 
 ``` python
 # move to anesthPlot
-import anesplot
-trends = anesplot.rec.MonitorTrend()
+$ ipython
+
+import anesplot.record_main as rec
+trends = rec.MonitorTrend()
+trends.show_graphs()
+...
+wavename = rec.trendname_to_wavename(trends.filename)
+waves = rec.MonitorWave(wavename)
+waves.plot_wave()
 ...
 ```
 
