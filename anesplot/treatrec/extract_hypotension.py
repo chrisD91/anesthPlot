@@ -6,11 +6,11 @@ This is a temporary script file.
 """
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 
-# import anesplot.record_main as rec
 from anesplot.record_main import MonitorTrend
 
 #import utils
@@ -104,8 +104,12 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
     ax.axhline(y=70, color='tab:grey', alpha=0.5)
     if len(durdf) > 0:
         for a,b,t  in durdf.loc[durdf.hypo_duration > 60].values:
-            ax.vlines(a, ymin=50, ymax=70, color='tab:red', alpha = 0.5)
-            ax.vlines(b, ymin=50, ymax=70, color='tab:green', alpha = 0.5)
+#            ax.vlines(a, ymin=50, ymax=70, color='tab:red', alpha = 0.5)
+#            ax.vlines(b, ymin=50, ymax=70, color='tab:green', alpha = 0.5)
+            ax.add_patch(Rectangle(xy=(a, 70), width=(b-a), height=-30, color='tab:blue',
+                                   fc='tab:blue', ec=None, zorder=1, fill=False))
+#                                   min=a, xmax=b, ymin=0.4, ymax=0.6, color='tab:red', alpha=0.3)
+
             if t > 15 * 60:
                 ax.axvspan(xmin=a, xmax=b, color='tab:red', alpha=0.3)
         nb = len(durdf[durdf.hypo_duration > (durmin * 60)])
@@ -122,7 +126,7 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
         if len(durations) > 0:
             durations = [round(_) for _ in durations]
             txt = 'hypotensions={} min'.format(durations)
-            ax.text(0.5, 0.03, txt, ha='center', va='bottom', 
+            ax.text(0.5, 0.03, txt, ha='center', va='bottom',
                     transform=ax.transAxes, color='k')
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
@@ -137,7 +141,7 @@ def plot_all_dir_hypo(dirname=None):
     files = []
     for file in os.listdir(dirname):
         if os.path.isfile(os.path.join(dirname, file)):
-            files.append(file)    
+            files.append(file)
     files = [_ for _ in files if 'Wave' not in _]
     files = [_ for _ in files if not _.startswith('.')]
     for file in files:
@@ -155,13 +159,15 @@ def plot_all_dir_hypo(dirname=None):
 # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/M2021_3_8-9_9_48.csv'
 # trends = rec.MonitorTrend(filename)
 plt.close('all')
-dir_name = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/2018'
-
-filename = plot_all_dir_hypo(dir_name)    
-
-trends = MonitorTrend(filename)
-if not trends.data is None:
-    dur_df = extract_hypotension(trends, pamin=70)
-    fig = plot_hypotension(trends, dur_df)
-else: 
-    print('no data')
+folder = False
+if folder:
+    dir_name = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/2019'
+    filename = plot_all_dir_hypo(dir_name)
+else:
+    filename = None
+    trends = MonitorTrend(filename)
+    if not trends.data is None:
+        dur_df = extract_hypotension(trends, pamin=70)
+        fig = plot_hypotension(trends, dur_df)
+    else:
+        print('no data')
