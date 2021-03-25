@@ -58,7 +58,7 @@ import anesplot.plot.trend_plot as tplot
 import anesplot.plot.wave_plot as wplot
 import anesplot.treatrec.clean_data as clean
 import anesplot.treatrec.wave_func as wf
-
+import anesplot.treatrec as treat
 # import loadrec.explore
 
 # from . import loadrec.explore
