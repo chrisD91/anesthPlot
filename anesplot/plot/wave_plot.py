@@ -13,7 +13,7 @@ font_size = 'medium' # large, medium
 params = {'font.sans-serif': ['Arial'],
           'font.size': 12,
           'legend.fontsize': font_size,
-          'figure.figsize': (8.5, 3),
+          'figure.figsize': (12, 3.1),
           'axes.labelsize': font_size,
           'axes.titlesize': font_size,
           'xtick.labelsize': font_size,
@@ -104,7 +104,7 @@ def plot_wave(data, keys=[], param={}):
     # one wave
     if len(keys) == 1:
         for key in keys:
-            fig = plt.figure(figsize=(10, 4))
+            fig = plt.figure(figsize=(12, 4))
             fig.suptitle(names[key][0], color='tab:grey')
             ax = fig.add_subplot(111)
             ax.margins(0)

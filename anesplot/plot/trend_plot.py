@@ -20,7 +20,7 @@ font_size = 'medium' # large, medium
 params = {'font.sans-serif': ['Arial'],
           'font.size': 12,
           'legend.fontsize': font_size,
-          'figure.figsize': (8.5, 3),
+          'figure.figsize': (12, 3.1),
           'axes.labelsize': font_size,
           'axes.titlesize': font_size,
           'xtick.labelsize': font_size,
@@ -67,7 +67,7 @@ def append_loc_to_fig(ax, dt_list, label='g'):
         ax.axvline(num_time, color='tab:blue')
         ax.text(num_time, ax.get_ylim()[1], st, color='tab:blue')
         res[i] = num_time
-    return res            
+    return res
 
 
 #%%
@@ -117,9 +117,9 @@ def plot_header(descr, param={'save':False}):
 
 def hist_cardio(data, param={}):
     """
-    PaM histogramme using matplotlib 
-    input : 
-        data pandasDataFrame (keys used : 'ip1m' and 'hr), 
+    PaM histogramme using matplotlib
+    input :
+        data pandasDataFrame (keys used : 'ip1m' and 'hr),
         param: dictionary (save=bolean, 'path': path to directory)
     output:
         pyplot figure
@@ -133,10 +133,10 @@ def hist_cardio(data, param={}):
         return
     save = param.get('save', False)
 #    fig = plt.figure(figsize=(15,8))
-    fig = plt.figure(figsize=(8, 4))
+    fig = plt.figure(figsize=(12, 5))
 
     ax1 = fig.add_subplot(121)
-    ax1.set_title('arterial pressure', color='tab:red') 
+    ax1.set_title('arterial pressure', color='tab:red')
     ax1.set_xlabel('mmHg', alpha=0.5)
     ax1.axvspan(70, 80, -0.1, 1, color='tab:grey', alpha=0.5)
     ax1.hist(data.ip1m.dropna(), bins=50, color='tab:red',
@@ -204,12 +204,12 @@ def hist_co2_iso(data, param={}):
         return
     save = param.get('save', False)
     # fig = plt.figure(figsize=(15,8))
-    fig = plt.figure(figsize=(8, 4))
+    fig = plt.figure(figsize=(12, 5))
 
     ax1 = fig.add_subplot(121)
     ax1.set_title('$End_{tidal}$ $CO_2$', color='tab:blue')
     ax1.axvspan(35, 45, color='tab:grey', alpha=0.5)
-    ax1.hist(data.co2exp.dropna(), bins=50, 
+    ax1.hist(data.co2exp.dropna(), bins=50,
              color='tab:blue', edgecolor='tab:blue', alpha=.8)
     ax1.axvline(35, color='tab:grey', alpha=1)
     ax1.axvline(45, color='tab:grey', alpha=1)
@@ -217,10 +217,10 @@ def hist_co2_iso(data, param={}):
 
     ax2 = fig.add_subplot(122)
     ax2.set_title('$End_{tidal}$ isoflurane', color='tab:purple')
-    ax2.hist(data.aaExp.dropna(), bins=50, color='tab:purple', 
+    ax2.hist(data.aaExp.dropna(), bins=50, color='tab:purple',
              range=(0.5, 2), edgecolor='tab:purple', alpha=.8)
     ax2.set_xlabel('%', alpha=0.5)
-    
+
     axes = [ax1, ax2]
     quart=True
     if quart:
@@ -259,11 +259,11 @@ def hist_co2_iso(data, param={}):
 def cardiovasc(data, param={}):
     """
     cardiovascular plot
-    input = 
+    input =
         data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
         param : dict(save: boolean, path['save'], xmin, xmax, unit,
                      dtime = boolean for time display in HH:MM format)
-    output = 
+    output =
         pyplot figure
     """
     if 'hr' not in data.columns:
@@ -272,14 +272,14 @@ def cardiovasc(data, param={}):
     #global timeUnit
     dtime = param.get('dtime', False)
     save = param.get('save', False)
-    if dtime : 
+    if dtime :
         df = data[['datetime', 'ip1m', 'ip1d', 'ip1s', 'hr']].set_index('datetime')
     else:
         df = data[['ip1m', 'ip1d', 'ip1s', 'hr']]
     xmin = param.get('xmin', None)
     xmax = param.get('xmax', None)
     unit = param.get('unit', '')
-    
+
     fig = plt.figure()
     # fig.suptitle('cardiovascular')
     axL = fig.add_subplot(111)
@@ -333,11 +333,11 @@ def cardiovasc(data, param={}):
 def co2iso(data, param={}):
     """
     anesth plot (CO2/iso)
-    input = 
+    input =
         data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
         param : dict(save: boolean, path['save'], xmin, xmax, unit,
                      dtime = boolean for time display in HH:MM format)
-    output = 
+    output =
         pyplot figure
     """
     if 'co2exp' not in data.columns:
@@ -374,7 +374,7 @@ def co2iso(data, param={}):
 
     axL.plot(df.co2exp, color='tab:blue')
     axL.plot(df.co2insp, color='tab:blue')
-    axL.fill_between(df.index, df.co2exp, df.co2insp, 
+    axL.fill_between(df.index, df.co2exp, df.co2insp,
                      color='tab:blue', alpha=0.5)
     axL.axhline(38, linewidth=2, linestyle='dashed', color='tab:blue')
 
@@ -384,7 +384,7 @@ def co2iso(data, param={}):
     # func(axR, x, etIso, inspIs, color='m', x0=38)
     axR.plot(df.aaExp, color='tab:purple')
     axR.plot(df.aaInsp, color='tab:purple')
-    axR.fill_between(df.index, df.aaExp, df.aaInsp, 
+    axR.fill_between(df.index, df.aaExp, df.aaInsp,
                      color='tab:purple', alpha=0.5)
     axR.set_ylim(0, 3)
 
@@ -423,11 +423,11 @@ def func(ax, x, y1, y2, color='tab:blue', x0=38):
 def co2o2(data, param):
     """
     respiratory plot (CO2 and Iso)
-    input = 
+    input =
         data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
         param : dict(save: boolean, path['save'], xmin, xmax, unit,
                      dtime = boolean for time display in HH:MM format)
-    output = 
+    output =
         pyplot figure
     """
     try:
@@ -440,14 +440,14 @@ def co2o2(data, param):
     except:
         print('no O2 records in this recording')
         return
-    
+
     path = param.get('path', '')
     xmin = param.get('xmin', None)
     xmax = param.get('xmax', None)
     unit = param.get('unit', '')
     dtime = param.get('dtime', False)
     if dtime:
-        df = data[['datetime', 'co2insp', 'co2exp', 
+        df = data[['datetime', 'co2insp', 'co2exp',
                   'o2insp', 'o2exp']].set_index('datetime')
     else:
         df = data[['co2insp', 'co2exp', 'o2insp', 'o2exp']]
@@ -460,7 +460,7 @@ def co2o2(data, param):
     color_axis(axL, 'left', 'tab:blue')
     axL.plot(df.co2exp, color='tab:blue')
     axL.plot(df.co2insp, color='tab:blue')
-    axL.fill_between(df.index, df.co2exp, df.co2insp, 
+    axL.fill_between(df.index, df.co2exp, df.co2insp,
                      color='tab:blue', alpha=0.5)
     axL.axhline(38, linestyle='dashed', linewidth=2, color='tab:blue')
 
@@ -469,7 +469,7 @@ def co2o2(data, param):
     color_axis(axR, 'right', 'tab:green')
     axR.plot(df.o2insp, color='tab:green')
     axR.plot(df.o2exp, color='tab:green')
-    axR.fill_between(df.index, df.o2insp, df.o2exp, 
+    axR.fill_between(df.index, df.o2insp, df.o2exp,
                      color='tab:green', alpha=0.5)
     axR.set_ylim(21, 80)
     axR.axhline(30, linestyle='dashed', linewidth=3, color='tab:olive')
@@ -502,11 +502,11 @@ def co2o2(data, param):
 def ventil(data, param):
     """
     ventilation plot (.tvInsp, .pPeak, .pPlat, .peep, .minVexp, .co2RR, .co2exp )
-    input = 
+    input =
         data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
         param : dict(save: boolean, path['save'], xmin, xmax, unit,
                      dtime = boolean for time display in HH:MM format)
-    output = 
+    output =
         pyplot figure
     """
     path = param.get('path', '')
@@ -522,7 +522,7 @@ def ventil(data, param):
 #        print('no spirometry data in the recording')
 #        return
 
-    fig = plt.figure(figsize=(8.5, 5))
+    fig = plt.figure(figsize=(12, 5))
     # fig.suptitle('ventilation')
 
     ax1 = fig.add_subplot(211)
@@ -588,14 +588,14 @@ def ventil(data, param):
 def recrut(data, param):
     """
     to show a recrut manoeuver (.pPeak, .pPlat, .peep, .tvInsp)
-    input = 
+    input =
         data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
         param : dict(save: boolean, path['save'], xmin, xmax, unit,
                      dtime = boolean for time display in HH:MM format)
-    output = 
+    output =
         pyplot figure
     """
-    
+
     path = param.get('path', '')
     xmin = param.get('xmin', None)
     xmax = param.get('xmax', None)
@@ -655,11 +655,11 @@ def recrut(data, param):
 
 def ventil_cardio(data, param):
     """
-        input = 
+        input =
         data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
         param : dict(save: boolean, path['save'], xmin, xmax, unit,
                      dtime = boolean for time display in HH:MM format)
-    output = 
+    output =
         pyplot figure
     """
     path = param.get('path', '')
@@ -675,7 +675,7 @@ def ventil_cardio(data, param):
     if 'tvInsp' not in data.columns:
         print('no spirometry data in the recording')
 
-    fig = plt.figure(figsize=(6,12))
+    fig = plt.figure(figsize=(12,5))
     # fig.suptitle('ventilation & cardiovasc')
 
     ax1 = fig.add_subplot(211)
@@ -685,8 +685,8 @@ def ventil_cardio(data, param):
     ax1.plot(df.tvInsp, color='tab:olive', linewidth=2)
     ax1.spines['right'].set_visible(False)
     ax1.spines['bottom'].set_visible(False)
-    ax1.tick_params('x')    
-    
+    ax1.tick_params('x')
+
     ax1R = ax1.twinx()
     ax1R.set_ylabel('P_resp')
     color_axis(ax1R, 'right', 'tab:red')
@@ -700,12 +700,12 @@ def ventil_cardio(data, param):
     ax2 = fig.add_subplot(212, sharex=ax1)
     ax2.set_ylabel('P_art')
     color_axis(ax2, 'left', 'tab:red')
-    ax2.spines['right'].set_visible(False)    
+    ax2.spines['right'].set_visible(False)
     ax2.plot(df.ip1m, color='tab:red', linewidth=1, linestyle='-')
     ax2.plot(df.ip1s, color='tab:red', linewidth=0, linestyle='-')
     ax2.plot(df.ip1d, color='tab:red', linewidth=0, linestyle='-')
     ax2.fill_between(df.index, df.ip1s, df.ip1d, color='tab:red', alpha=0.2)
-    
+
     # ax2.set_xlabel('time (' + unit +')')
 
     # ax1.set_xlim(108, 114)

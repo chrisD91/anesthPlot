@@ -19,7 +19,7 @@ def clean_trenddata(df):
                   'tvInsp', 'tvExp', 'compli', 'ipeep', 'pmean', 'raw',
                   'minVinsp', 'minVexp', 'epeep', 'ieRat',
                   'inspT', 'expT', 'peepe', 'peepi']
-    param_range = {'ip1s' : (30, None),
+    range_dict = {'ip1s' : (30, None),
                    'ip1d' : (10, None),
                    'ip1m' : (20, None),
                    'hr' : (20, 80),
@@ -49,10 +49,10 @@ def clean_trenddata(df):
                    'peepi' : (None, None)
                    }
     # irrelevant
-    for item in param_range:
+    for item in range_dict:
         if item in df.columns:
-            df.loc[df[item] < param_range[item][0], item] = np.NaN
-            df.loc[df[item] > param_range[item][1], item] = np.NaN
+            df.loc[df[item] < range_dict[item][0], item] = np.NaN
+            df.loc[df[item] > range_dict[item][1], item] = np.NaN
     # outliers
     for item in param_list:
         if item in df.columns:
@@ -61,7 +61,7 @@ def clean_trenddata(df):
             df.loc[df[item] > maxi, item] = np.NaN
 
     #fill with interpolation
-    df = df.interpolate(method='linear')
+    # df = df.interpolate(method='linear')
     #TODO = pb when the animal is disconnected :
     # the linear interpolation is not relevant
     return df

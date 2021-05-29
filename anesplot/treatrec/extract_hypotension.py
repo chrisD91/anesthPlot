@@ -18,7 +18,7 @@ font_size = 'medium' # large, medium
 params = {'font.sans-serif': ['Arial'],
           'font.size': 12,
           'legend.fontsize': font_size,
-          'figure.figsize': (8.5, 3),
+          'figure.figsize': (12, 3.1),
           'axes.labelsize': font_size,
           'axes.titlesize': font_size,
           'xtick.labelsize': font_size,
@@ -118,11 +118,13 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
             if t > 15 * 60:
                 ax.axvspan(xmin=a, xmax=b, color='tab:red', alpha=0.3)
         nb = len(durdf[durdf.hypo_duration > (durmin * 60)])
-        txt = '{} period(s) of significative hypotension \n (longer than {} min below {} mmHg)'.format(
+        txt = '{} period(s) of significative hypotension \n \
+        (longer than {} min below {} mmHg)'.format(
             nb, durmin, pamin)
         ax.text(0.5, 0.1, txt, ha='center', va='bottom', transform=ax.transAxes,
                 color='tab:grey')
-        txt = 'hypotension lasting longer than 15 minutes are represented as red rectangles '
+        txt = 'hypotension lasting longer than 15 minutes \
+            are represented as red rectangles '
         ax.text(0.5, 0.95, txt, ha='center', va='bottom', transform=ax.transAxes,
                 color='tab:grey')
         durations = list(durdf.loc[
@@ -140,18 +142,28 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     return fig
 
-plt.close('all')
+
 def scatter_length_meanhypo(trends, durdf):
+    """
+    draw a scatter plot (hypotensive arterial value vs duration of hypotension)
+    Parameters
+    ----------
+    trends : MonitorTrend 
+    durdf : pandas dataframe containing the value and duration
+    Returns
+    -------
+    fig : matplotlib.pyplot figure
+    """
     param = trends.param
     if 'hypo_duration' not in durdf:
         return
     fig = plt.figure(figsize=(8,6))
-    fig.suptitle('hypotension ( < 70 mmHg) vs duration')
+    fig.suptitle('hypotension episodes')
     ax = fig.add_subplot(111)
     ax.scatter(durdf.hypo_duration/60, durdf.hypo_value, marker='o',
                color='tab:red', s=200, alpha=0.8)
-    ax.set_ylabel('mean hypotension')
-    ax.set_xlabel('duration (min)')
+    ax.set_ylabel('mean hypotension value (mmHg)')
+    ax.set_xlabel('duration of episode (min)')
     ax.axhline(y=70, color='tab:gray', alpha=0.8)
     ax.axhline(y=50, color='tab:blue', alpha=0.8)
     xlims = ax.get_xlim()
@@ -175,6 +187,7 @@ def scatter_length_meanhypo(trends, durdf):
 
 
 def plot_all_dir_hypo(dirname=None, scatter=False):
+    """ walk throught the folder and plot the values """
     if dirname is None:
         dirname = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded'
     files = []
@@ -186,13 +199,16 @@ def plot_all_dir_hypo(dirname=None, scatter=False):
     for file in files:
         filename = os.path.join(dirname, file)
         trends = MonitorTrend(filename)
-        if not trends.data is None:
-            if 'ip1m' in trends.data.columns:
-                dur_df = extract_hypotension(trends, pamin=70)
-                if scatter:
-                    scatter_length_meanhypo(trends, dur_df)
-                else:
-                    plot_hypotension(trends, dur_df)
+        # if not trends.data is None:
+        if trends.data is None:
+            continue
+        if not 'ip1m' in trends.data.columns:
+            continue
+        dur_df = extract_hypotension(trends, pamin=70)
+        if scatter:
+            scatter_length_meanhypo(trends, dur_df)
+        else:
+            plot_hypotension(trends, dur_df)
     # in case of pb
     return filename
 
@@ -201,10 +217,13 @@ def plot_all_dir_hypo(dirname=None, scatter=False):
 # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/M2021_3_8-9_9_48.csv'
 # trends = rec.MonitorTrend(filename)
 plt.close('all')
-folder = False
+# folder or file
+folder = True  # folder or file ?
+# analyse all the recordings present in a folder
 if folder:
     dir_name = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/2019'
     filename = plot_all_dir_hypo(dir_name, scatter=False)
+# analyse just a file
 else:
     filename = None
     trends = MonitorTrend(filename)
