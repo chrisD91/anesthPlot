@@ -17,11 +17,11 @@ from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 
 
 #%%
-def filedialog(kind='',
-               directory=os.path.dirname(__file__),
-               for_open=True, fmt='', is_folder=False):
+def filedialog(
+    kind="", directory=os.path.dirname(__file__), for_open=True, fmt="", is_folder=False
+):
     """ general dialog function  """
-    label = 'select the folder for ' + kind
+    label = "select the folder for " + kind
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
     options |= QFileDialog.DontUseCustomDirectoryIcons
@@ -36,16 +36,17 @@ def filedialog(kind='',
     else:
         dialog.setFileMode(QFileDialog.AnyFile)
     # OPENING OR SAVING
-    dialog.setAcceptMode(QFileDialog.AcceptOpen
-                         ) if for_open else dialog.setAcceptMode(QFileDialog.AcceptSave)
+    dialog.setAcceptMode(QFileDialog.AcceptOpen) if for_open else dialog.setAcceptMode(
+        QFileDialog.AcceptSave
+    )
 
     # SET FORMAT, IF SPECIFIED
-    if fmt != '' and is_folder is False:
+    if fmt != "" and is_folder is False:
         dialog.setDefaultSuffix(fmt)
-        dialog.setNameFilters([f'{fmt} (*.{fmt})'])
+        dialog.setNameFilters([f"{fmt} (*.{fmt})"])
 
     # SET THE STARTING DIRECTORY
-    if directory != '':
+    if directory != "":
         dialog.setDirectory(str(directory))
     else:
         dialog.setDirectory(os.getcwd())
@@ -53,41 +54,44 @@ def filedialog(kind='',
     if dialog.exec_() == QDialog.Accepted:
         path = dialog.selectedFiles()[0]  # returns a list
     else:
-        path = ''
+        path = ""
     return path
+
 
 def read_config():
     """ locate & load the yaml file """
-    #locate
+    # locate
     try:
         # for external call
-        #NB __file__ is supposed to
-        #"always give you the path to the current file",
-        #and sys.argv[0] is supposed to
-        #"always give the path of the script that initiated the process"
+        # NB __file__ is supposed to
+        # "always give you the path to the current file",
+        # and sys.argv[0] is supposed to
+        # "always give the path of the script that initiated the process"
         local_mod_path = os.path.dirname(__file__)
     except:
         # for inside spyder
-        local_mod_path = '/Users/cdesbois/pg/chrisPg/anesthPlot/anesplot/config'
-    filename = os.path.join(local_mod_path, 'recordRc.yaml')
+        local_mod_path = "/Users/cdesbois/pg/chrisPg/anesthPlot/anesplot/config"
+    filename = os.path.join(local_mod_path, "recordRc.yaml")
     # load onfiguration dico
     print(filename)
     if os.path.isfile(filename):
-        with open(filename, 'r') as ymlfile:
+        with open(filename, "r") as ymlfile:
             cfg = yaml.safe_load(ymlfile)
         ymlfile.close()
         return cfg
     else:
-        print('no config file founded')
-        print('please build one -> cf buildConfig.py')
+        print("no config file founded")
+        print("please build one -> cf buildConfig.py")
         return {}
+
 
 def write_configfile(path):
     """ record the yaml file """
-    config_loc = os.path.join(path['recordMain'], 'config')
+    config_loc = os.path.join(path["recordMain"], "config")
     os.chdir(path[config_loc])
-    with open('recordRc.yaml', 'w') as ymlfile:
+    with open("recordRc.yaml", "w") as ymlfile:
         yaml.dump(path, ymlfile, default_flow_style=False)
+
 
 def main():
     """ main function to script execution """
@@ -101,12 +105,12 @@ def main():
     except:
         # print('no paths dico defined')
         # package location
-        key = 'record_main.py'
+        key = "record_main.py"
         # record_main_path = filedialog(kind=key, directory= os.getcwd(), is_folder=True)
         record_main_path = filedialog(kind=key, directory=os.getcwd())
         if os.path.isfile(record_main_path):
             record_main_path = os.path.dirname(record_main_path)
-        config_name = os.path.join(record_main_path, 'config', 'recordRc.yaml')
+        config_name = os.path.join(record_main_path, "config", "recordRc.yaml")
         # yaml file location
         # print('yaml location shoud be {}'.format(config_name))
         if os.path.isfile(config_name):
@@ -117,26 +121,27 @@ def main():
         else:
             # build config file
             paths = {}
-            paths['recordMain'] = record_main_path
-            paths['cwd'] = os.getcwd()
-    home = os.path.expanduser('~')
+            paths["recordMain"] = record_main_path
+            paths["cwd"] = os.getcwd()
+    home = os.path.expanduser("~")
     # manual define/confirm the paths
-    for key in ['root', 'data', 'save']:
+    for key in ["root", "data", "save"]:
         if key in paths.keys():
             paths[key] = filedialog(kind=key, directory=paths[key], is_folder=True)
         else:
             paths[key] = filedialog(kind=key, directory=home, is_folder=True)
-    paths['sFig'] = paths['save']
-    paths['sBg'] = paths['save']
-    paths['utils'] = '~'
-    #write config
+    paths["sFig"] = paths["save"]
+    paths["sBg"] = paths["save"]
+    paths["utils"] = "~"
+    # write config
     write_configfile(paths)
     try:
         app
     except:
         app.exec_()
 
-
     #%%
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     main()

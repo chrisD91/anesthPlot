@@ -8,26 +8,28 @@ Created on Thu Mar 12 16:52:13 2020
 """
 
 import matplotlib.pyplot as plt
-#import os
+
+# import os
 # from glob import glob
 from PyQt5.QtWidgets import QFileDialog
 
 #%%
+
 
 def gui_choosefile(paths=None):
     """ Select a file via a dialog and return the file name.
     """
     if not paths:
         paths = dict()
-    apath = paths.get('data', '~')
-    fname = QFileDialog.getOpenFileName(caption='choose a file',
-                                        directory=apath, filter='*.csv')
+    apath = paths.get("data", "~")
+    fname = QFileDialog.getOpenFileName(
+        caption="choose a file", directory=apath, filter="*.csv"
+    )
     return fname[0]
 
 
-
 #%% list a folder
-plt.close('all')
+plt.close("all")
 
 # =============================================================================
 # def plotAllRecords(kind= 'cardio', xlims=None):
@@ -62,7 +64,6 @@ plt.close('all')
 # =============================================================================
 
 
-
 #%%
-#if __name__ == '__main__':
+# if __name__ == '__main__':
 #    pass

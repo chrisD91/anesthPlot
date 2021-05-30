@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
+# see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
 from pathlib import Path
-print('Running' if __name__ == '__main__' else 'Importing', Path(__file__).resolve())
+
+print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resolve())
 
 # For relative imports to work in Python 3.6
 import os, sys
+
 if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
     sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
@@ -110,7 +112,8 @@ del waveName, trendName
 # from . import loadrec
 # from . import plot
 import anesplot
-#from anesplot import record_main as rec
+
+# from anesplot import record_main as rec
 # from anesplot import treatrec
 
 # import record_main as rec
