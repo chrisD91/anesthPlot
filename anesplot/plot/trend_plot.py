@@ -135,27 +135,32 @@ def hist_cardio(data, param={}):
         print("no hr in the data")
         return
     save = param.get("save", False)
-    #    fig = plt.figure(figsize=(15,8))
-    fig = plt.figure(figsize=(12, 5))
 
-    ax1 = fig.add_subplot(121)
-    ax1.set_title("arterial pressure", color="tab:red")
-    ax1.set_xlabel("mmHg", alpha=0.5)
-    ax1.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
-    ax1.hist(data.ip1m.dropna(), bins=50, color="tab:red", edgecolor="tab:red")
-    ax1.axvline(70, color="tab:grey", alpha=1)
-    ax1.axvline(80, color="tab:grey", alpha=1)
-    ax2 = fig.add_subplot(122)
-    ax2.hist(
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+    axes = axes.flatten()
+
+    ax = axes[0]
+    ax.set_title("arterial pressure", color="tab:red")
+    ax.set_xlabel("mmHg", alpha=0.5)
+    ax.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
+    ax.hist(data.ip1m.dropna(), bins=50, 
+            color="tab:red", edgecolor="red", alpha=0.7)
+    ax.axvline(70, color="tab:grey", alpha=1)
+    ax.axvline(80, color="tab:grey", alpha=1)
+
+    ax = axes[1]
+    ax.hist(
         data.hr.dropna(),
         bins=50,
         range=(25, 65),
         color="tab:grey",
         edgecolor="tab:grey",
+        alpha=0.8,
     )
-    ax2.set_title("heart rate", color="k")
-    ax2.set_xlabel("bpm", alpha=0.5)
-    axes = [ax1, ax2]
+    ax.set_title("heart rate", color="k")
+    ax.set_xlabel("bpm", alpha=0.5)
+
+    # axes = [ax1, ax2]
     quart = True
     if quart:
         for i, item in enumerate(["ip1m", "hr"]):
@@ -291,24 +296,23 @@ def cardiovasc(data, param={}):
         return
     # global timeUnit
     dtime = param.get("dtime", False)
-    save = param.get("save", False)
     if dtime:
-        df = data[["datetime", "ip1m", "ip1d", "ip1s", "hr"]].set_index("datetime")
+        df = data.set_index("datetime")[["ip1m", "ip1d", "ip1s", "hr"]]
     else:
-        df = data[["ip1m", "ip1d", "ip1s", "hr"]]
+        df = data.set_index("eTimeMin")[["ip1m", "ip1d", "ip1s", "hr"]]
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
     unit = param.get("unit", "")
+    save = param.get("save", False)
 
     fig = plt.figure()
-    # fig.suptitle('cardiovascular')
     axL = fig.add_subplot(111)
     # axL.set_xlabel('time (' + unit +')')
     axL.set_ylabel("arterial Pressure", color="tab:red")
     # call
     color_axis(axL, "left", "tab:red")
-    for spine in ["top", "right"]:
-        axL.spines[spine].set_visible(False)
+    # for spine in ["top", "right"]:
+    #     axL.spines[spine].set_visible(False)
     axL.plot(df.ip1m, "-", color="red", label="arterial pressure", linewidth=2)
     axL.fill_between(df.index, df.ip1d, df.ip1s, color="tab:red", alpha=0.5)
     axL.set_ylim(30, 150)
@@ -320,23 +324,33 @@ def cardiovasc(data, param={}):
     axR.plot(df.hr, color="tab:grey", label="heart rate", linewidth=2)
     # call
     color_axis(axR, "right", "tab:grey")
-    axR.yaxis.label.set_color("black")
-    for spine in ["top", "left"]:
-        axR.spines[spine].set_visible(False)
+    # axR.yaxis.label.set_color("black")
+    # for spine in ["top", "left"]:
+    #     axR.spines[spine].set_visible(False)
 
-    for ax in fig.get_axes():
+    if dtime:
+        myFmt = mdates.DateFormatter("%H:%M")
+        axL.xaxis.set_major_formatter(myFmt)
+    else:
+        axL.set_xlabel("etime (min)")
+
+    for i, ax in enumerate(fig.get_axes()):
         # call
         color_axis(ax, "bottom", "tab:grey")
+        # color_axis(ax, "right", "tab:grey")
+        for spine in ["top"]:
+            ax.spines[spine].set_visible(False)
+        if i == 0:
+            ax.spines["right"].set_visible(False)
+        else:
+            axR.spines["left"].set_visible(False)
+
         # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
     fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
     if xmin and xmax:
         axR.set_xlim(xmin, xmax)
-
-    if dtime:
-        myFmt = mdates.DateFormatter("%H:%M")
-        axR.xaxis.set_major_formatter(myFmt)
 
     if param["save"]:
         path = param["path"]
@@ -366,11 +380,9 @@ def co2iso(data, param={}):
         return
     dtime = param.get("dtime", False)
     if dtime:
-        df = data[["datetime", "co2insp", "co2exp", "aaInsp", "aaExp"]].set_index(
-            "datetime"
-        )
+        df = data.set_index("datetime")[["co2insp", "co2exp", "aaInsp", "aaExp"]]
     else:
-        df = data[["co2insp", "co2exp", "aaInsp", "aaExp"]]
+        df = data.set_index("eTimeMin")[["co2insp", "co2exp", "aaInsp", "aaExp"]]
     # x = data.index
     # etCO2 = data.co2exp
     # inspCO2 = data.co2insp
@@ -411,6 +423,8 @@ def co2iso(data, param={}):
     if dtime:
         myFmt = mdates.DateFormatter("%H:%M")
         axR.xaxis.set_major_formatter(myFmt)
+    else:
+        axL.set_xlabel("etime (min)")
 
     for ax in [axL, axR]:
         color_axis(ax, "bottom", "tab:grey")
@@ -469,11 +483,9 @@ def co2o2(data, param):
     unit = param.get("unit", "")
     dtime = param.get("dtime", False)
     if dtime:
-        df = data[["datetime", "co2insp", "co2exp", "o2insp", "o2exp"]].set_index(
-            "datetime"
-        )
+        df = data.set_index("datetime")[["co2insp", "co2exp", "o2insp", "o2exp"]]
     else:
-        df = data[["co2insp", "co2exp", "o2insp", "o2exp"]]
+        df = data.set_index("eTimeMin")[["co2insp", "co2exp", "o2insp", "o2exp"]]
 
     fig = plt.figure()
     # fig.suptitle('$CO_2$ & $O_2$ (insp & $End_{tidal}$)')
@@ -498,6 +510,8 @@ def co2o2(data, param):
     if dtime:
         myFmt = mdates.DateFormatter("%H:%M")
         axR.xaxis.set_major_formatter(myFmt)
+    else:
+        axL.set_xlabel("etime (min)")
 
     axes = [axL, axR]
     for ax in axes:
@@ -539,7 +553,7 @@ def ventil(data, param):
     if dtime:
         df = data.set_index("datetime")
     else:
-        df = data
+        df = data.set_index("eTimeMin")
     #    if 'tvInsp' not in data.columns:
     #        print('no spirometry data in the recording')
     #        return
@@ -589,6 +603,8 @@ def ventil(data, param):
         if dtime:
             myFmt = mdates.DateFormatter("%H:%M")
             ax.xaxis.set_major_formatter(myFmt)
+        else:
+            ax.set_xlabel("etime (min)")
         color_axis(ax, "bottom", "tab:grey")
         ax.spines["top"].set_visible(False)
         ax.get_xaxis().tick_bottom()
@@ -627,7 +643,7 @@ def recrut(data, param):
     if dtime:
         df = data.set_index("datetime").copy()
     else:
-        df = data.copy()
+        df = data.set_index("eTimeMin").copy()
 
     fig = plt.figure()
     # fig.suptitle('recrutement')
@@ -657,6 +673,8 @@ def recrut(data, param):
     if dtime:
         myFmt = mdates.DateFormatter("%H:%M")
         ax1.xaxis.set_major_formatter(myFmt)
+    else:
+        axL.set_xlabel("etime (min)")
 
     axes = [ax1, ax2]
     for ax in axes:
@@ -693,7 +711,7 @@ def ventil_cardio(data, param):
     if dtime:
         df = data.set_index("datetime").copy()
     else:
-        df = data.copy()
+        df = data.set_index("eTimeMin").copy()
 
     if "tvInsp" not in data.columns:
         print("no spirometry data in the recording")
@@ -741,6 +759,8 @@ def ventil_cardio(data, param):
     if dtime:
         myFmt = mdates.DateFormatter("%H:%M")
         ax1.xaxis.set_major_formatter(myFmt)
+    else:
+        ax1.set_xlabel("etime (min)")
 
     axes = [ax1, ax1R, ax2]
     for ax in axes:

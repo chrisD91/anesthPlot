@@ -277,7 +277,8 @@ def plot_trenddata(file, df, header, param_dico):
         tplot.hist_cardio,
     )
     for func in plot_func_list:
-        afig_list.append(func(df.set_index("eTimeMin"), param_dico))
+        # afig_list.append(func(df.set_index("eTimeMin"), param_dico))
+        afig_list.append(func(df, param_dico))
     afig_list.append(tplot.plot_header(header, param_dico))
     # for fig in afig_list:
     #     if fig:                 # test if figure is present
