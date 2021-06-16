@@ -48,7 +48,7 @@ to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure,
 beat_df = tohr.update_beat_df(beat_df, to_change_df)
 
     #save the peak and load
-tohr.save_beats(beatdf, savename='', savepath=None)
+tohr.save_beats(beat_df, to_change_df, savename='', savepath=None)
 
 beat_df = pd.read_hdf('')
 
@@ -249,7 +249,7 @@ def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
 # TODO append the missing R in case of BAV2
 
 
-def save_beats(beatdf, savename="", savepath=None):
+def save_beats(beatdf, tochangedf, savename="", savepath=None):
     """
      save the beats locations as csv and hd5 file
      input:
@@ -264,6 +264,12 @@ def save_beats(beatdf, savename="", savepath=None):
     name = os.path.join(savepath, filename)
     beatdf.to_csv(name + ".csv")
     beatdf.to_hdf(name + ".hdf", mode="w", key="beatDf")
+    tochangedf.to_hdf(name + ".hdf", mode="a", key="tochangeDf")
+    filename = savename + "_" + "tochangedf"
+    if filename.startswith("_"):
+        filename = filename[1:]
+    name = os.path.join(savepath, filename)
+    tochangedf.to_csv(name + ".csv")
 
 
 #%% apply changes to the beatdf
@@ -419,13 +425,14 @@ def append_rr_and_ihr_to_wave(wave, ahrdf):
     return df
 
 
-def plot_agreement(trend, ekgdf):
-    """ plot ip1HR & hr to check agreement """
+def plot_agreement(trenddf):
+    """ plot ip1HR & ihr to check agreement """
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(trend.hr)
-    axt = ax.twiny()
-    axt.plot(1 / ekgdf.rrInterpol * 60 * 1000, "r-")
+    ax.plot(trenddf.hr)
+    ax.plot(trenddf.hr, label='ip1pr')
+    ax.plot(trenddf.ihr, label='ihr')
+    ax.legend()
     return fig
 
 
@@ -463,6 +470,24 @@ def save_trends_data(trenddf, savename="", savepath=None):
     name = os.path.join(savepath, filename)
     trenddf.to_csv(name + ".csv")
     trenddf.to_hdf(name + ".hdf", mode="w", key="trends_data")
+
+def save_waves_data(wavedf, savename="", savepath=None):
+    """
+     save the trends data to a csv and hd5 file, including an ihr column
+     input:
+         trenddf : pd.dataframes
+         savename : str
+         savepath : path to save in (default= current working directory)
+    """
+    if savepath is None:
+        savepath = os.getcwd()
+    filename = savename + "_" + "trendData"
+    if filename.startswith("_"):
+        filename = filename[1:]
+    name = os.path.join(savepath, filename)
+    wavedf.to_csv(name + ".csv")
+    wavedf.to_hdf(name + ".hdf", mode="w", key="trends_data")
+
 
 
 # ekg_df = append_rr_and_ihr_to_wave(ekg_df, ahr_df)
