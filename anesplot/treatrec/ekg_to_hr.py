@@ -4,62 +4,72 @@
 Created on Wed Feb 12 16:52:00 2020
 
 function used to treat an EKG signal and extract the heart rate
-typically
-(
-after
+typically (copy, paste and execute line by line)
+
+    # after
 import anesthPlot.record_main as rec
 from treatrec import ekg_to_hr as tohr
-)
 
-0- load the data in a pandas dataframe
-    (through classes rec.MonitorTrend & rec.MonitorWave)
-    trends = rec.MonitorTrend(trendname)
-    waves = rec.MonitorWave(wavename)
+    # 0- load the data in a pandas dataframe
+    # (through classes rec.MonitorTrend & rec.MonitorWave)
+trendname = ''  # fullname or
+# trendname = rec.choosefile_gui()
+wavename = rec.trendname_to_wavename(trendname)
 
-1- treat the ekg wave :
-    params = waves.param
+trends = rec.MonitorTrend(trendname)
+waves = rec.MonitorWave(wavename)
+
+name = trends.header['Patient Name'].title().replace(' ', '')
+name = name[0].lower() + name[1:]
+
+    # 1- treat the ekg wave :
+params = waves.param
     # build a dataframe to work with (waves)
-    ekg_df = pd.DataFrame(waves.data.wekg)
+ekg_df = pd.DataFrame(waves.data.wekg)
     #low pass filtering
-    ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
+ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
                                                 waves.param['fs'])
     # build the beat locations (beat based dataFrame)
-    beat_df = tohr.detect_beats(ekg_df.wekg_lowpass)
+beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, mult=1)
 
-2- perform the manual adjustments required:
+    # 2- perform the manual adjustments required:
     # based on a graphical display of beat locations, an rr values
-    figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
-    build a container for the manual corrections:
-    to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
+figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
+    # build a container for the manual corrections:
+to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
 
     # remove or add peaks : zoom on the figure to observe only one peak, then
-    to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
-    to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure)
+to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
 
-    #save the peak and to_change to csv
-    see save_temp()
+to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure,
+                                yscale=1)
 
-    # load and combine to update the beat_df
-    beat_df = update_beat_df()
+    # combine to update the beat_df with the manual changes
+beat_df = tohr.update_beat_df(beat_df, to_change_df)
 
-4- go from points values to continuous time
-    beat_df = tohr.compute_rr(beat_df)
-    ahr_df = tohr.interpolate_rr(beat_df)
-    tohr.plot_rr(ahr_df, params)
+    #save the peak and load
+tohr.save_beats(beatdf, savename='', savepath=None)
 
-5- append intantaneous heart rate to the initial data:
-    ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
-    waves.data = tohr.append_rr_and_ihr_to_wave(waves.data, ahr_df)
-    trends.data = tohr.append_ihr_to_trend(trends.data, waves.data, ekg_df)
+beat_df = pd.read_hdf('')
 
+    # 4- go from points values to continuous time
+beat_df = tohr.compute_rr(beat_df)
+ahr_df = tohr.interpolate_rr(beat_df)
+tohr.plot_rr(ahr_df, params)
 
+    # 5- append intantaneous heart rate to the initial data:
+ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
+waves.data = tohr.append_rr_and_ihr_to_wave(waves.data, ahr_df)
+trends.data = tohr.append_ihr_to_trend(trends.data, waves.data, ekg_df)
 
-    figure = plot_beats(ekg_df.wekg_lowpass, beat_df)
+save_trends_data(trends.data, savename='', savepath=None)
+
+figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
 
     #fs=300
-    beat_df = compute_rr(beat_df, monitorWave.param)
-    hr_df = interpolate_rr(beat_df)
-    figure = plot_rr(hr_df, params, HR=True)
+beat_df = compute_rr(beat_df, monitorWave.param)
+hr_df = interpolate_rr(beat_df)
+figure = plot_rr(hr_df, params, HR=True)
 
 
 @author: cdesbois
@@ -239,45 +249,55 @@ def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
 # TODO append the missing R in case of BAV2
 
 
-def save_temp():
-    name = os.path.join(paths["save"], "beatDf.csv")
-    beat_df.to_csv(name)
-    name = os.path.join(paths["save"], "toChange.csv")
-    to_change_df.to_csv(name)
+def save_beats(beatdf, savename="", savepath=None):
+    """
+     save the beats locations as csv and hd5 file
+     input:
+         beatde : pd.dataframes
+         savepath : path to save in
+    """
+    if savepath is None:
+        savepath = os.getcwd()
+    filename = savename + "_" + "beatDf"
+    if filename.startswith("_"):
+        filename = filename[1:]
+    name = os.path.join(savepath, filename)
+    beatdf.to_csv(name + ".csv")
+    beatdf.to_hdf(name + ".hdf", mode="w", key="beatDf")
 
 
 #%% apply changes to the beatdf
 
 
-def update_beat_df(beat_df, to_change_df, path_to_file="", from_file=False):
+def update_beat_df(beatdf, tochangedf, path_to_file="", from_file=False):
     """ implement in the beat location the manual corrections
         fromFile = True force the disk loading of the dataframes
     """
     if from_file:
         name = os.path.join(path_to_file, "beatDf.csv")
-        beat_df = pd.read_csv(name, index_col=0)
+        beatdf = pd.read_csv(name, index_col=0)
         name = os.path.join(path_to_file, "toChange.csv")
-        to_change_df = pd.read_csv(name, index_col=0)
+        tochangedf = pd.read_csv(name, index_col=0)
     for col in ["pLoc", "left_bases", "right_bases"]:
-        to_change_df[col] = to_change_df[col].astype(int)
+        tochangedf[col] = tochangedf[col].astype(int)
     # remove
-    to_remove = to_change_df.loc[to_change_df["action"] == "remove", ["pLoc"]]
+    to_remove = tochangedf.loc[tochangedf["action"] == "remove", ["pLoc"]]
     to_remove = to_remove.values.flatten().tolist()
-    beat_df = beat_df.set_index("pLoc").drop(to_remove, errors="ignore")
-    beat_df.reset_index(inplace=True)
+    beatdf = beatdf.set_index("pLoc").drop(to_remove, errors="ignore")
+    beatdf.reset_index(inplace=True)
     # append
-    temp_df = to_change_df.loc[to_change_df["action"] == "append"].set_index("action")
-    beat_df = beat_df.append(temp_df, ignore_index=True)
+    temp_df = tochangedf.loc[tochangedf["action"] == "append"].set_index("action")
+    beatdf = beatdf.append(temp_df, ignore_index=True)
     # rebuild
-    beat_df.drop_duplicates(keep=False, inplace=True)
-    beat_df = beat_df.sort_values(by="pLoc").reset_index(drop=True)
-    return beat_df
+    beatdf.drop_duplicates(keep=False, inplace=True)
+    beatdf = beatdf.sort_values(by="pLoc").reset_index(drop=True)
+    return beatdf
 
 
 # beat_df = update_beat_df(beat_df, to_change_df)
 
 #%% =========================================
-def compute_rr(abeat_df, fs=None):
+def compute_rr(beatdf, fs=None):
     """
     compute rr intervals (from pt to time)
     intput : pd.DataFrame with 'pLoc', and fs=sampling frequency
@@ -290,20 +310,21 @@ def compute_rr(abeat_df, fs=None):
         fs = 300
     # compute rr intervals
     #    beat_df['rr'] = np.diff(beat_df.pLoc)
-    abeat_df["rr"] = abeat_df.pLoc.shift(-1) - abeat_df.pLoc  # pt duration
-    abeat_df.rr = abeat_df.rr / fs * 1_000  # time duration
+    beatdf["rr"] = beatdf.pLoc.shift(-1) - beatdf.pLoc  # pt duration
+    beatdf.rr = beatdf.rr / fs * 1_000  # time duration
     # remove outliers (HR < 20)
-    abeat_df = abeat_df.replace(abeat_df.loc[abeat_df.rr > 20_000], np.nan)
-    abeat_df = abeat_df.interpolate()
-    abeat_df = abeat_df.dropna(how="all")
-    abeat_df = abeat_df.dropna(axis=1, how="all")
+    if len(beatdf.loc[beatdf.rr > 20_000]) > 0:
+        beatdf = beatdf.replace(beatdf.loc[beatdf.rr > 20_000], np.nan)
+    beatdf = beatdf.interpolate()
+    beatdf = beatdf.dropna(how="all")
+    beatdf = beatdf.dropna(axis=1, how="all")
     # compute variation
-    abeat_df["rrDiff"] = abs(abeat_df.rr.shift(-1) - abeat_df.rr)
-    abeat_df["rrSqDiff"] = (abeat_df.rr.shift(-1) - abeat_df.rr) ** 2
-    return abeat_df
+    beatdf["rrDiff"] = abs(beatdf.rr.shift(-1) - beatdf.rr)
+    beatdf["rrSqDiff"] = (beatdf.rr.shift(-1) - beatdf.rr) ** 2
+    return beatdf
 
 
-def interpolate_rr(abeat_df, kind=None):
+def interpolate_rr(beatdf, kind=None):
     """
     interpolate the beat_df (pt -> time values)
     input : beat Df, kind='linear' or 'cubic'(default)
@@ -315,26 +336,26 @@ def interpolate_rr(abeat_df, kind=None):
         kind = "cubic"
     ahr_df = pd.DataFrame()
     # prepare = sorting and removing possible duplicates
-    abeat_df = abeat_df.sort_values(by="pLoc")
-    abeat_df = abeat_df.drop_duplicates("pLoc")
+    beatdf = beatdf.sort_values(by="pLoc")
+    beatdf = beatdf.drop_duplicates("pLoc")
 
-    first_beat_pt = int(abeat_df.iloc[0].pLoc)
-    last_beat_pt = int(abeat_df.iloc[-2].pLoc)  # last interval
+    first_beat_pt = int(beatdf.iloc[0].pLoc)
+    last_beat_pt = int(beatdf.iloc[-2].pLoc)  # last interval
     newx = np.arange(first_beat_pt, last_beat_pt)
     # interpolate rr
-    rrx = abeat_df.pLoc[:-1].values  # rr locations
-    rry = abeat_df.rr[:-1].values  # rr values
+    rrx = beatdf.pLoc[:-1].values  # rr locations
+    rry = beatdf.rr[:-1].values  # rr values
     f = interp1d(rrx, rry, kind=kind)
     newy = f(newx)
     ahr_df["espts"] = newx
     ahr_df["rrInterpol"] = newy
     # interpolate rrDiff
-    rry = abeat_df.rrDiff[:-1].values
+    rry = beatdf.rrDiff[:-1].values
     f = interp1d(rrx, rry, kind=kind)
     newy = f(newx)
     ahr_df["rrInterpolDiff"] = newy
     # interpolate rrSqrDiff
-    rry = abeat_df.rrSqDiff[:-1].values
+    rry = beatdf.rrSqDiff[:-1].values
     f = interp1d(rrx, rry, kind=kind)
     newy = f(newx)
     ahr_df["rrInterpolSqDiff"] = newy
@@ -394,6 +415,7 @@ def append_rr_and_ihr_to_wave(wave, ahrdf):
     """ append rr and ihr to the waves based on pt value (ie index) """
     df = pd.concat([wave, ahrdf.set_index("espts")], axis=1)
     df["ihr"] = 1 / df.rrInterpol * 60 * 1000
+    print("added instantaneous heart rate to a Wave dataframe")
     return df
 
 
@@ -407,20 +429,40 @@ def plot_agreement(trend, ekgdf):
     return fig
 
 
-def append_ihr_to_trend(trend, wave, ekgdf):
+def append_ihr_to_trend(trenddf, wavedf, ekgdf):
     """ append 'ihr' (instataneous heart rate) to the trends """
     # build a new index
-    ratio = len(wave) / len(trend)
-    ser = (wave.index.to_series() / ratio).astype(int)
+    ratio = len(wavedf) / len(trenddf)
+    ser = (wavedf.index.to_series() / ratio).astype(int)
     # fill the data
     df = pd.DataFrame()
     df["ihr"] = 1 / ekgdf.rrInterpol * 60 * 1000
     # downsample
     df = df["ihr"].groupby(ser).median()
     # concatenate
-    trend = pd.concat([trend, df], axis=1)
-    #%%
-    return trend
+    if "ihr" in trenddf.columns:
+        trenddf.drop("ihr", axis=1)
+    trenddf = pd.concat([trenddf, df], axis=1)
+    print("added instantaneous heart rate to a TREND dataframe")
+    return trenddf
+
+
+def save_trends_data(trenddf, savename="", savepath=None):
+    """
+     save the trends data to a csv and hd5 file, including an ihr column
+     input:
+         trenddf : pd.dataframes
+         savename : str
+         savepath : path to save in (default= current working directory)
+    """
+    if savepath is None:
+        savepath = os.getcwd()
+    filename = savename + "_" + "trendData"
+    if filename.startswith("_"):
+        filename = filename[1:]
+    name = os.path.join(savepath, filename)
+    trenddf.to_csv(name + ".csv")
+    trenddf.to_hdf(name + ".hdf", mode="w", key="trends_data")
 
 
 # ekg_df = append_rr_and_ihr_to_wave(ekg_df, ahr_df)
