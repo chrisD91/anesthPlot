@@ -51,7 +51,8 @@ beat_df = tohr.update_beat_df(beat_df, to_change_df,
     #save the peak and load
 tohr.save_beats(beat_df, to_change_df, savename='', savepath=None)
 
-beat_df = pd.read_hdf('')
+#beat_df = pd.read_hdf('')
+
 
     # 4- go from points values to continuous time
 beat_df = tohr.compute_rr(beat_df)
@@ -63,14 +64,9 @@ ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
 waves.data = tohr.append_rr_and_ihr_to_wave(waves.data, ahr_df)
 trends.data = tohr.append_ihr_to_trend(trends.data, waves.data, ekg_df)
 
-save_trends_data(trends.data, savename='', savepath=None)
-
-figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
-
-    #fs=300
-beat_df = compute_rr(beat_df, monitorWave.param)
-hr_df = interpolate_rr(beat_df)
-figure = plot_rr(hr_df, params, HR=True)
+    # 6- save
+tohr.save_trends_data(trends.data, savename=name, savepath='data')    
+tohr.save_waves_data(waves.data, savename=name, savepath='data')  
 
 
 @author: cdesbois
@@ -490,7 +486,7 @@ def save_waves_data(wavedf, savename="", savepath=None):
         filename = filename[1:]
     name = os.path.join(savepath, filename)
     wavedf.to_csv(name + ".csv")
-    wavedf.to_hdf(name + ".hdf", mode="w", key="trends_data")
+    wavedf.to_hdf(name + ".hdf", mode="w", key="waves_data")
 
 
 
