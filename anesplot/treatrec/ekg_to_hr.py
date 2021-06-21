@@ -45,7 +45,8 @@ to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure,
                                 yscale=1)
 
     # combine to update the beat_df with the manual changes
-beat_df = tohr.update_beat_df(beat_df, to_change_df)
+beat_df = tohr.update_beat_df(beat_df, to_change_df,
+                              path_to_file="", from_file=False)
 
     #save the peak and load
 tohr.save_beats(beat_df, to_change_df, savename='', savepath=None)
@@ -281,7 +282,10 @@ def update_beat_df(beatdf, tochangedf, path_to_file="", from_file=False):
     """
     if from_file:
         name = os.path.join(path_to_file, "beatDf.csv")
-        beatdf = pd.read_csv(name, index_col=0)
+        try:
+            beatdf = pd.read_csv(name, index_col=0)
+        except FileNotFoundError:
+            print('file is not present ({})'.format(name))
         name = os.path.join(path_to_file, "toChange.csv")
         tochangedf = pd.read_csv(name, index_col=0)
     for col in ["pLoc", "left_bases", "right_bases"]:
@@ -481,7 +485,7 @@ def save_waves_data(wavedf, savename="", savepath=None):
     """
     if savepath is None:
         savepath = os.getcwd()
-    filename = savename + "_" + "trendData"
+    filename = savename + "_" + "waveData"
     if filename.startswith("_"):
         filename = filename[1:]
     name = os.path.join(savepath, filename)
