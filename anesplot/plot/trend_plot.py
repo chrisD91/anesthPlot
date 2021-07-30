@@ -143,8 +143,7 @@ def hist_cardio(data, param={}):
     ax.set_title("arterial pressure", color="tab:red")
     ax.set_xlabel("mmHg", alpha=0.5)
     ax.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
-    ax.hist(data.ip1m.dropna(), bins=50, 
-            color="tab:red", edgecolor="red", alpha=0.7)
+    ax.hist(data.ip1m.dropna(), bins=50, color="tab:red", edgecolor="red", alpha=0.7)
     ax.axvline(70, color="tab:grey", alpha=1)
     ax.axvline(80, color="tab:grey", alpha=1)
 
@@ -253,8 +252,8 @@ def hist_co2_iso(data, param={}):
                 axes[i].axvline(
                     q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8
                 )
-            #                axes[i].axvline(q25, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
-            #               axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
+            # axes[i].axvline(q25, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
+            # axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
             except:
                 print(item, "not used")
 
@@ -294,16 +293,21 @@ def cardiovasc(data, param={}):
     if "hr" not in data.columns:
         print("no pulseRate in the recording")
         return
+    if "ip1m" not in data.columns:
+        print("no arterial pressure in the recording")
+        return
     # global timeUnit
     dtime = param.get("dtime", False)
     if dtime:
         df = data.set_index("datetime")[["ip1m", "ip1d", "ip1s", "hr"]]
     else:
         df = data.set_index("eTimeMin")[["ip1m", "ip1d", "ip1s", "hr"]]
+
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
     unit = param.get("unit", "")
     save = param.get("save", False)
+    file = param.get("file", "")
 
     fig = plt.figure()
     axL = fig.add_subplot(111)
@@ -347,12 +351,121 @@ def cardiovasc(data, param={}):
 
         # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    fig.text(0.01, 0.01, file, ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
     if xmin and xmax:
         axR.set_xlim(xmin, xmax)
 
-    if param["save"]:
+    if save:
+        path = param["path"]
+        fig_name = "cardiovasc" + str(param["item"])
+        name = os.path.join(path, fig_name)
+        utils.saveGraph(name, ext="png", close=False, verbose=True)
+        #        saveGraph(name, ext='png', close=False, verbose=True)
+        if param["memo"]:
+            fig_memo(path, fig_name)
+
+    return fig
+
+
+# ---------------------------------------------------------------------------------------------------
+def cardiovasc_p1p2(data, param={}):
+    """
+    cardiovascular plot with central venous pressure (p2)
+    input =
+        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr',
+                                             'ip2s', 'ip2m', 'ip2d']
+        param : dict(save: boolean, path['save'], xmin, xmax, unit,
+                     dtime = boolean for time display in HH:MM format)
+    output =
+        pyplot figure
+    """
+    if "hr" not in data.columns:
+        print("no pulseRate in the recording")
+        return
+    if "ip1m" not in data.columns:
+        print("no arterial pressure in the recording")
+        return
+    if "ip2m" not in data.columns:
+        print("no venous pressure in the recording")
+        return
+    # global timeUnit
+    dtime = param.get("dtime", False)
+    if dtime:
+        df = data.set_index("datetime")[
+            ["ip1m", "ip1d", "ip1s", "hr", "ip2s", "ip2d", "ip2m"]
+        ]
+    else:
+        df = data.set_index("eTimeMin")[
+            ["ip1m", "ip1d", "ip1s", "hr", "ip2s", "ip2d", "ip2m"]
+        ]
+    xmin = param.get("xmin", None)
+    xmax = param.get("xmax", None)
+    unit = param.get("unit", "")
+    save = param.get("save", False)
+    file = param.get("file", "")
+
+    fig, axes = plt.subplots(figsize=(12, 6), ncols=1, nrows=2, sharex=True)
+    axes = axes.flatten()
+
+    axL = axes[0]
+    # axL.set_xlabel('time (' + unit +')')
+    axL.set_ylabel("arterial Pressure", color="tab:red")
+    # call
+    color_axis(axL, "left", "tab:red")
+    # for spine in ["top", "right"]:
+    #     axL.spines[spine].set_visible(False)
+    axL.plot(df.ip1m, "-", color="red", label="arterial pressure", linewidth=2)
+    axL.fill_between(df.index, df.ip1d, df.ip1s, color="tab:red", alpha=0.5)
+    axL.set_ylim(30, 150)
+    axL.axhline(70, linewidth=1, linestyle="dashed", color="tab:red")
+
+    axR = axL.twinx()
+    axR.set_ylabel("heart Rate")
+    axR.set_ylim(20, 100)
+    axR.plot(df.hr, color="tab:grey", label="heart rate", linewidth=2)
+    # call
+    color_axis(axR, "right", "tab:grey")
+    # axR.yaxis.label.set_color("black")
+    # for spine in ["top", "left"]:
+    #     axR.spines[spine].set_visible(False)
+
+    ax = axes[1]
+    ax.set_ylabel("venous Pressure", color="tab:blue")
+    # call
+    color_axis(ax, "left", "tab:blue")
+    # for spine in ["top", "right"]:
+    #     axL.spines[spine].set_visible(False)
+    ax.plot(df.ip2m, "-", color="blue", label="venous pressure", linewidth=2)
+    ax.fill_between(df.index, df.ip2d, df.ip2s, color="tab:blue", alpha=0.5)
+    ax.set_ylim(-5, 15)
+    ax.axhline(0, linewidth=1, linestyle="-", color="tab:gray")
+
+    if dtime:
+        myFmt = mdates.DateFormatter("%H:%M")
+        axL.xaxis.set_major_formatter(myFmt)
+    else:
+        axL.set_xlabel("etime (min)")
+
+    for i, ax in enumerate(fig.get_axes()):
+        # call
+        color_axis(ax, "bottom", "tab:grey")
+        # color_axis(ax, "right", "tab:grey")
+        for spine in ["top"]:
+            ax.spines[spine].set_visible(False)
+        if i == 0:
+            ax.spines["right"].set_visible(False)
+        else:
+            axR.spines["left"].set_visible(False)
+
+        # annotations
+    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
+    fig.text(0.01, 0.01, file, ha="left", va="bottom", alpha=0.4)
+    fig.tight_layout()
+    if xmin and xmax:
+        axR.set_xlim(xmin, xmax)
+
+    if save:
         path = param["path"]
         fig_name = "cardiovasc" + str(param["item"])
         name = os.path.join(path, fig_name)
