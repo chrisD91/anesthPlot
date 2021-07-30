@@ -7,7 +7,7 @@ function used to treat an EKG signal and extract the heart rate
 typically (copy, paste and execute line by line)
 
     # after
-import anesthPlot.record_main as rec
+import anesplot.record_main as rec
 from treatrec import ekg_to_hr as tohr
 
     # 0- load the data in a pandas dataframe
@@ -51,8 +51,7 @@ beat_df = tohr.update_beat_df(beat_df, to_change_df,
     #save the peak and load
 tohr.save_beats(beat_df, to_change_df, savename='', savepath=None)
 
-#beat_df = pd.read_hdf('')
-
+# beat_df = pd.read_hdf('beatDf.hdf', key='beatDf')
 
     # 4- go from points values to continuous time
 beat_df = tohr.compute_rr(beat_df)
@@ -281,7 +280,7 @@ def update_beat_df(beatdf, tochangedf, path_to_file="", from_file=False):
         try:
             beatdf = pd.read_csv(name, index_col=0)
         except FileNotFoundError:
-            print('file is not present ({})'.format(name))
+            print("file is not present ({})".format(name))
         name = os.path.join(path_to_file, "toChange.csv")
         tochangedf = pd.read_csv(name, index_col=0)
     for col in ["pLoc", "left_bases", "right_bases"]:
@@ -320,7 +319,7 @@ def compute_rr(beatdf, fs=None):
     beatdf.rr = beatdf.rr / fs * 1_000  # time duration
     # remove outliers (HR < 20)
     if len(beatdf.loc[beatdf.rr > 20_000]) > 0:
-        beatdf = beatdf.replace(beatdf.loc[beatdf.rr > 20_000], np.nan)
+        beatdf.loc[beatdf.rr > 20_000, ["rr"]] = np.nan
     beatdf = beatdf.interpolate()
     beatdf = beatdf.dropna(how="all")
     beatdf = beatdf.dropna(axis=1, how="all")
@@ -430,8 +429,8 @@ def plot_agreement(trenddf):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(trenddf.hr)
-    ax.plot(trenddf.hr, label='ip1pr')
-    ax.plot(trenddf.ihr, label='ihr')
+    ax.plot(trenddf.hr, label="ip1pr")
+    ax.plot(trenddf.ihr, label="ihr")
     ax.legend()
     return fig
 
@@ -471,6 +470,7 @@ def save_trends_data(trenddf, savename="", savepath=None):
     trenddf.to_csv(name + ".csv")
     trenddf.to_hdf(name + ".hdf", mode="w", key="trends_data")
 
+
 def save_waves_data(wavedf, savename="", savepath=None):
     """
      save the trends data to a csv and hd5 file, including an ihr column
@@ -487,7 +487,6 @@ def save_waves_data(wavedf, savename="", savepath=None):
     name = os.path.join(savepath, filename)
     wavedf.to_csv(name + ".csv")
     wavedf.to_hdf(name + ".hdf", mode="w", key="waves_data")
-
 
 
 # ekg_df = append_rr_and_ihr_to_wave(ekg_df, ahr_df)
