@@ -27,7 +27,7 @@ params = waves.param
     # build a dataframe to work with (waves)
 ekg_df = pd.DataFrame(waves.data.wekg)
     #low pass filtering
-ekg_df['wekg_lowpass'] = wf.fix_baseline_wander(ekg_df.wekg,
+ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg,
                                                 waves.param['fs'])
     # build the beat locations (beat based dataFrame)
 beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, mult=1)
