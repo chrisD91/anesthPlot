@@ -272,20 +272,21 @@ def plot_all_dir_hypo(dirname=None, scatter=False):
 plt.close("all")
 # folder or file
 folder = True  # folder or file ?
-# analyse all the recordings present in a folder
-if folder:
-    dir_name = (
-        "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/2019"
-    )
-    filename = plot_all_dir_hypo(dir_name, scatter=False)
-# analyse just a file
-else:
-    filename = None
-    trends = MonitorTrend(filename)
-    if not trends.data is None:
-        dur_df = extract_hypotension(trends, pamin=70)
-        fig = plot_hypotension(trends, dur_df)
-        # fig = scatter_length_meanhypo(trends, dur_df)
-
+if __name__ == '__main__':
+    # analyse all the recordings present in a folder
+    if folder:
+        dir_name = (
+            "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/2019"
+            )
+        filename = plot_all_dir_hypo(dir_name, scatter=False)
+        # analyse just a file
     else:
-        print("no data")
+        filename = None
+        trends = MonitorTrend(filename)
+        if not trends.data is None:
+            dur_df = extract_hypotension(trends, pamin=70)
+            fig = plot_hypotension(trends, dur_df)
+            # fig = scatter_length_meanhypo(trends, dur_df)
+
+        else:
+            print("no data")

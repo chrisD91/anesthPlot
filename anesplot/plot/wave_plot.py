@@ -41,11 +41,15 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 def color_axis(ax, spine="bottom", color="r"):
     """
     change the color of the label + tick + spine
-    input:
-        ax = matplotlib axis
-        spine = in ['left', 'right', 'bottom']
-        color = matplotlib color
+    
+    parameters
+    ----------
+    ax:  matplotlib axis
+    spine: str
+        in ['left', 'right', 'bottom']
+    color: matplotlib color
     """
+    
     ax.spines[spine].set_color(color)
     if spine == "bottom":
         ax.xaxis.label.set_color(color)
@@ -60,13 +64,21 @@ def color_axis(ax, spine="bottom", color="r"):
 def plot_wave(data, keys=[], param={}):
     """
     plot the waves recorded (from as5)
-    input:  df= dataFrame
-            keys= list of one or two of
-                'wekg','ECG','wco2','wawp','wflow','wap'
-            mini, maxi : limits in point value (index)
-    output: plt.figure, line2D
-    (Nb plot data/index, but the xscale is indicated as sec)
+    
+    parameters
+    ----------
+    df= pandas.DataFrame
+    keys= list:
+        one or two in ['wekg','ECG','wco2','wawp','wflow','wap']
+    mini, maxi : int
+        limits in point value (index)
+    
+    returns
+    -------
+    plt.figure & line2D
+        (Nb plot data/index, but the xscale is indicated as sec)
     """
+    
     for key in keys:
         try:
             key in data.columns

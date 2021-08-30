@@ -19,6 +19,7 @@ def fix_baseline_wander(data, fs=500):
     compute the baseline.  The returned result is the original data minus this
     computed baseline.
     """
+ 
     # source : https://pypi.python.org/pypi/BaselineWanderRemoval/2017.10.25
     print("source = Python port of BaselineWanderRemovalMedian.m from ECG-kit")
     print("Alex Page, alex.page@rochester.edu")
@@ -41,11 +42,18 @@ def fix_baseline_wander(data, fs=500):
 
 def rol_mean(ser, win_lengh=1, fs=500):
     """
-    return a rolling mean of a RR serie
-    input:  ser= pd.Serie, win_lengh= window lenght for averaging (in sec),
-            fs= sampling frequency
-
+    returns a rolling mean of a RR serie
+    
+    parameters
+    ----------
+    ser= pd.Serie
+    win_lengh: integer
+        window lenght for averaging (in sec),
+    fs: int
+        sampling frequency
+        
     """
+    
     # moving average
     mov_avg = ser.rolling(window=int(win_lengh * fs), center=False).mean()
     # replace the initial values by the mean
@@ -173,9 +181,17 @@ def rol_mean(ser, win_lengh=1, fs=500):
 def return_points(df, fig):
     """
     return a tupple containing the point values of ROI
-    input :anesthesia record dataframe
-    output: ROI dict
+
+    parameters
+    ----------
+    df: anesthesia record dataframe
+    fig: pyplot.figure
+    
+    returns
+    -------
+    ROI: dict
     """
+    
     ax = fig.get_axes()[0]
     # point Value
     lims = ax.get_xlim()
@@ -200,9 +216,20 @@ def return_points(df, fig):
 def restrict_time_area(df1, mini=None, maxi=None):
     """
     return a new dataframe with reindexation
-    input : dataFrame, miniPointValue, maxiPointValue
-    output: dataFrame
+
+    parameters
+    ----------
+    df1: pandas.DataFrame
+    mini: integer
+        miniPointValue
+    maxi: integer    
+        maxiPointValue
+        
+    returns
+    -------    
+    pandas.DataFrame
     """
+    
     try:
         "sec" in df1.columns
     except:

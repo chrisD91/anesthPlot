@@ -36,11 +36,15 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 def color_axis(ax, spine="bottom", color="r"):
     """
     change the color of the label + tick + spine
-    input:
-        ax = matplotlib axis
-        spine = in ['left', 'right', 'bottom']
-        color = matplotlib color
+    
+    parameters
+    ----------
+    ax : matplotlib axis
+    spine : str
+        in ['left', 'right', 'bottom']
+    color : matplotlib color
     """
+    
     ax.spines[spine].set_color(color)
     if spine == "bottom":
         ax.xaxis.label.set_color(color)
@@ -53,16 +57,20 @@ def color_axis(ax, spine="bottom", color="r"):
 def append_loc_to_fig(ax, dt_list, label="g"):
     """
     append vertical lines to indicate a location 'eg: arterial blood gas'
-    Parameters
+    
+    parameters
     ----------
     ax : matplotlib figure.axis
-    dt_list = datetime list
-    label = a key to add to the label (default is 'g')
-    Returns
+    dt_list : datetime list
+    label : str
+        a key to add to the label (default is 'g')
+    
+    returns
     -------
     dictionary containing the locations
 
     """
+
     num_times = mdates.date2num(dt_list)
     res = {}
     for i, num_time in enumerate(num_times):
@@ -75,8 +83,7 @@ def append_loc_to_fig(ax, dt_list, label="g"):
 
 #%%
 def plot_header(descr, param={"save": False}):
-    """
-    plot the header of the file
+    """plot the header of the file
     """
     hcell = 2
     wcell = 2
@@ -121,11 +128,17 @@ def plot_header(descr, param={"save": False}):
 def hist_cardio(data, param={}):
     """
     PaM histogramme using matplotlib
-    input :
-        data pandasDataFrame (keys used : 'ip1m' and 'hr),
-        param: dictionary (save=bolean, 'path': path to directory)
-    output:
-        pyplot figure
+    
+    parameters
+    ----------
+    data: pandasDataFrame 
+        (keys used : 'ip1m' and 'hr),
+    param: dictionary 
+        (save=bolean, 'path': path to directory)
+    
+    returns
+    -------
+    fig: pyplot figure
     """
 
     if "ip1m" not in data.columns:
@@ -195,9 +208,9 @@ def hist_cardio(data, param={}):
 
 # ---------------------------------------------------------------------------------------------------
 def plot_one_over_time(x, y, colour):
+    """ plot y over x using colour
     """
-    plot y over x using colour
-    """
+    
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(x, y, color=colour)
@@ -212,7 +225,8 @@ def plot_one_over_time(x, y, colour):
 
 # ----------------------------------------------------------------------------------------
 def hist_co2_iso(data, param={}):
-    """CO2 and iso histogramme (NB CO2 should have been converted from % to mmHg)"""
+    """ CO2 and iso histogramme (NB CO2 should have been converted from % to mmHg)
+    """
 
     if "co2exp" not in data.columns:
         print("no co2exp in the data")
@@ -283,13 +297,19 @@ def hist_co2_iso(data, param={}):
 def cardiovasc(data, param={}):
     """
     cardiovascular plot
-    input =
-        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-        param : dict(save: boolean, path['save'], xmin, xmax, unit,
+    
+    parameters
+    -----------
+    data : pandas.DataFrame
+        keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+    param : dict(save: boolean, path['save'], xmin, xmax, unit,
                      dtime = boolean for time display in HH:MM format)
-    output =
-        pyplot figure
+    
+    returns
+    -------
+    fig: pyplot figure
     """
+    
     if "hr" not in data.columns:
         print("no pulseRate in the recording")
         return
@@ -372,14 +392,21 @@ def cardiovasc(data, param={}):
 def cardiovasc_p1p2(data, param={}):
     """
     cardiovascular plot with central venous pressure (p2)
-    input =
-        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr',
-                                             'ip2s', 'ip2m', 'ip2d']
-        param : dict(save: boolean, path['save'], xmin, xmax, unit,
+    
+    parameters
+    ----------
+    data:  pandas.DataFrame
+        keys used :['ip1s', 'ip1m', 'ip1d', 'hr',
+                                         'ip2s', 'ip2m', 'ip2d']
+    param: dict(save: boolean, path['save'], xmin, xmax, unit,
                      dtime = boolean for time display in HH:MM format)
-    output =
-        pyplot figure
+    
+    returns
+    -------
+    fig: pyplot.figure
+ 
     """
+    
     if "hr" not in data.columns:
         print("no pulseRate in the recording")
         return
@@ -481,13 +508,20 @@ def cardiovasc_p1p2(data, param={}):
 def co2iso(data, param={}):
     """
     anesth plot (CO2/iso)
-    input =
-        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-        param : dict(save: boolean, path['save'], xmin, xmax, unit,
-                     dtime = boolean for time display in HH:MM format)
-    output =
-        pyplot figure
+    
+    parameters
+    -----------
+    data: pandas.DataFrame
+        keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+    param : dict(save: boolean, path['save'], xmin, xmax, unit,
+                 dtime = boolean for time display in HH:MM format)
+   
+    returns
+    ------
+    fig: pyplot.figure
+   
     """
+    
     if "co2exp" not in data.columns:
         print("no co2exp in the recording")
         return
@@ -572,13 +606,20 @@ def func(ax, x, y1, y2, color="tab:blue", x0=38):
 def co2o2(data, param):
     """
     respiratory plot (CO2 and Iso)
-    input =
-        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-        param : dict(save: boolean, path['save'], xmin, xmax, unit,
-                     dtime = boolean for time display in HH:MM format)
-    output =
-        pyplot figure
+    
+    parameters
+    -----------
+    data: pandas.DataFrame
+        keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+    param: dict(save: boolean, path['save'], xmin, xmax, unit,
+                    dtime = boolean for time display in HH:MM format)
+    
+    returns
+    ------
+    fig: pyplot.figure
+    
     """
+    
     try:
         etCO2 = data.co2exp
     except:
@@ -651,13 +692,20 @@ def co2o2(data, param):
 def ventil(data, param):
     """
     ventilation plot (.tvInsp, .pPeak, .pPlat, .peep, .minVexp, .co2RR, .co2exp )
-    input =
-        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-        param : dict(save: boolean, path['save'], xmin, xmax, unit,
-                     dtime = boolean for time display in HH:MM format)
-    output =
-        pyplot figure
+    
+    parameters
+    -----------
+    data: pandas.DataFrame
+        keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+    param: dict(save: boolean, path['save'], xmin, xmax, unit,
+                dtime = boolean for time display in HH:MM format)
+    
+    return:
+    ------
+    fig: pyplot.figure
+  
     """
+    
     path = param.get("path", "")
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -740,12 +788,18 @@ def ventil(data, param):
 def recrut(data, param):
     """
     to show a recrut manoeuver (.pPeak, .pPlat, .peep, .tvInsp)
-    input =
-        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-        param : dict(save: boolean, path['save'], xmin, xmax, unit,
-                     dtime = boolean for time display in HH:MM format)
-    output =
-        pyplot figure
+    
+    parameters
+    ----------
+    data: pandas.DataFrame
+        keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+    param: dict(save: boolean, path['save'], xmin, xmax, unit,
+                    dtime = boolean for time display in HH:MM format)
+    
+    returns
+    -------
+    pyplot.figure
+
     """
 
     path = param.get("path", "")
@@ -809,13 +863,19 @@ def recrut(data, param):
 
 def ventil_cardio(data, param):
     """
-        input =
-        data = pandas.DataFrame, keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-        param : dict(save: boolean, path['save'], xmin, xmax, unit,
-                     dtime = boolean for time display in HH:MM format)
-    output =
-        pyplot figure
+    parameters
+    ----------
+    data: pandas.DataFrame
+        keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
+    param: dict(save: boolean, path['save'], xmin, xmax, unit,
+                    dtime = boolean for time display in HH:MM format)
+    
+    returns
+    -------
+    fig: pyplot.figure
+    
     """
+    
     path = param.get("path", "")
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -891,7 +951,10 @@ def ventil_cardio(data, param):
 
 # ------------------------------------------------------------------------
 def save_distri(data, path):
-    """save as '0_..' the 4 distributions graphs for cardiovasc annd respi"""
+    """
+    save as '0_..' the 4 distributions graphs for cardiovasc annd respi
+    """
+    
     bpgas(data).savefig((path["sFig"] + "0_bpgas.png"), bbox_inches="tight")
     hist_co2_iso(data).savefig(
         (path["sFig"] + "0_hist_co2_iso.png"), bbox_inches="tight"
