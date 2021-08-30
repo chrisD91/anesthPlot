@@ -10,7 +10,12 @@ Welcome to anesthPlot's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   #intro
+   anesplot.record_main
+   anesplot.config
+   anesplot.loadrec
+   anesplot.plot
+   anesplot.treatrec
 
 Indices and tables
 ==================
