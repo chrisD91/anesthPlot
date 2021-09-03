@@ -4,8 +4,9 @@
 """
 build a 'recordRc.yaml' configuration file to adapt to a specific computer
 location at the root of anesplot
-    input <-> 'data' : to load the records
-    output <-> 'save' : to save the plots
+    - input <-> 'data' : to load the records
+    - output <-> 'save' : to save the plots
+----
 """
 
 import os
@@ -20,7 +21,7 @@ from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 def filedialog(
     kind="", directory=os.path.dirname(__file__), for_open=True, fmt="", is_folder=False
 ):
-    """ general dialog function  """
+    """general dialog function."""
     label = "select the folder for " + kind
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
@@ -59,7 +60,7 @@ def filedialog(
 
 
 def read_config():
-    """ locate & load the yaml file """
+    """locate & load the yaml file."""
     # locate
     try:
         # for external call
@@ -86,7 +87,7 @@ def read_config():
 
 
 def write_configfile(path):
-    """ record the yaml file """
+    """record the yaml file."""
     config_loc = os.path.join(path["recordMain"], "config")
     os.chdir(path[config_loc])
     with open("recordRc.yaml", "w") as ymlfile:
@@ -94,7 +95,7 @@ def write_configfile(path):
 
 
 def main():
-    """ main function to script execution """
+    """main function for script execution."""
     try:
         app
     except:

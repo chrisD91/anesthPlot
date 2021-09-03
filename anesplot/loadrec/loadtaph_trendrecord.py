@@ -2,8 +2,13 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jul 24 15:30:07 2019
-
 @author: cdesbois
+
+load a taphonius data recording:
+    - choose a file
+    - load the patient datafile to a dictionary
+    - load the physiological date into a pandas dataframe
+____
 """
 
 import os
@@ -17,11 +22,12 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 #%%
 def choosefile_gui(dir_path=None):
-    """
-    Select a file using a dialog and return the filename.
+    """select a file using a dialog.
 
-    input : dir_path = location ('generally paths['data']) else home
-    output : filename (full path)
+    :param str dir_path: optional location of the data (paths['data'])
+    
+    :returns: filename (full path)
+    :rtype: str
     """
     if dir_path is None:
         dir_path = os.path.expanduser("~")
@@ -39,7 +45,14 @@ def choosefile_gui(dir_path=None):
 
 
 def loadtaph_trenddata(filename):
-    """ load the taphoniusData, return a pandasDataframe """
+    """ load the taphoniusData trends data.
+
+    :param str filename: fullname
+    
+    :returns: df = trends data
+    :rtype: pandas.Dataframe
+    """
+
     df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
     corr_title = {
         "Date": "Date",
@@ -112,7 +125,14 @@ def loadtaph_trenddata(filename):
 
 
 def loadtaph_patientfile(headername):
-    """ extract the patient.csv file, return a dictionary"""
+    """ load the taphonius patient.csv file
+    
+    :param str headername: fullname
+    
+    :returns: descr = patient_data
+    :rtype: dict
+    """
+
     df = pd.read_csv(headername, header=None, usecols=[0, 1], encoding="iso8859_15")
     # NB encoding needed for accentuated letters
     df[0] = df[0].str.replace(":", "")

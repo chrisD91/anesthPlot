@@ -2,9 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jul 31 16:22:06 2019
-
 @author: cdesbois
+
+load televet exported (csv) data:
+to be developped
+
+____
 """
+
 import os
 import sys
 
@@ -14,11 +19,12 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 #%%
 def choosefile_gui(dir_path=None):
-    """
-    Select a file using a dialog and return the filename.
+    """select a file using a dialog.
 
-    input : dir_path = location ('generally paths['data']) else home
-    output : filename (full path)
+    :param str dir_path: optional location of the data (paths['data'])
+    
+    :returns: filename (full path)
+    :rtype: str
     """
     if dir_path is None:
         dir_path = os.path.expanduser("~")
@@ -36,7 +42,15 @@ def choosefile_gui(dir_path=None):
 
 
 def loadtelevet(file=None, all_traces=False):
-    """ load the televetCsvExportedFile, return a pandasDataframe """
+    """ load the televetCsvExportedFile.
+
+    :param str file: name of the file
+    :param bool all_traces: load all the derivations
+    
+    :returns: df = recorded traces
+    :rtype: pandas.Dataframe
+    """
+
     filepath = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTelVetRecorded"
     if file is None:
         file = "STEF_0031_00114_20171205_121305.csv"

@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-""" load an already generated recordRc.yaml file"""
-
+"""load an already generated 'recordRc.yaml' configuration file 
+    - input <-> 'data' : to load the records
+    - output <-> 'save' : to save the plots
+----
+"""
 import os
 import sys
 
@@ -10,9 +13,7 @@ import yaml
 
 # TODO see https://www.oreilly.com/library/view/python-cookbook/0596001673/ch17s02.html
 def build_paths():
-    """
-    read the yaml configuration file
-    """
+    """read the yaml configuration file."""
     # locate
     try:
         #        local_mod_path = os.path.dirname(__file__)
@@ -36,9 +37,7 @@ def build_paths():
 
 
 def adapt_with_syspath(path_dico):
-    """
-    add the folder location to the system path
-    """
+    """add the folder location to the system path."""
     if path_dico["recordMain"] not in sys.path:
         sys.path.append(path_dico["recordMain"])
         print("added", path_dico["recordMain"], " to the path")

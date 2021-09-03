@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jul 24 13:43:26 2019
+----
 
+Created on Wed Jul 24 13:43:26 2019
 @author: cdesbois
+
+load a monitor trend recording:
+    - choose a file
+    - load the header to a dictionary
+    - load the date into a pandas dataframe
+____
 """
 
 import os
@@ -17,11 +24,12 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 #%%
 def choosefile_gui(dir_path=None):
-    """
-    Select a file using a dialog and return the filename.
+    """select a file using a dialog.
 
-    input : dir_path = location ('generally paths['data']) else home
-    output : filename (full path)
+    :param str dir_path: optional location of the data (paths['data'])
+    
+    :returns: filename (full path)
+    :rtype: str
     """
     if dir_path is None:
         dir_path = os.path.expanduser("~")
@@ -40,7 +48,13 @@ def choosefile_gui(dir_path=None):
 
 #%% Monitor trend
 def loadmonitor_trendheader(filename):
-    """ read filename (fullname) and return a dictionary """
+    """load the file header.
+    
+    :param str filename: full name of the file
+    
+    :returns: header
+    :rtype: dict
+    """
     print("loading header", os.path.basename(filename))
     try:
         df = pd.read_csv(
@@ -67,13 +81,13 @@ def loadmonitor_trendheader(filename):
 
 
 def loadmonitor_trenddata(filename, header):
-    """
-    load the monitor trend data, return a pandasDataframe
-    input :
-        filename <-> fullname
-        header <-> dictionary
-    output :
-        pandas dataframe
+    """load the monitor trend data
+    
+    :param str filename: fullname
+    :param dict header: fileheader
+    
+    :returns: df = trends data
+    :rtype: pandas.Dataframe
     """
     print("loading data", os.path.basename(filename))
     try:

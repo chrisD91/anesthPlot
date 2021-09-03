@@ -2,8 +2,13 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jul 24 14:56:58 2019
-
 @author: cdesbois
+
+load a monitor wave recording:
+    - choose a file
+    - load the header to a pandas dataframe
+    - load the date into a pandas dataframe
+____
 """
 
 import os
@@ -18,11 +23,12 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 #%%
 def choosefile_gui(dir_path=None):
-    """
-    Select a file using a dialog and return the filename.
+    """select a file using a dialog.
 
-    input : dir_path = location ('generally paths['data']) else home
-    output : filename (full path)
+    :param str dir_path: optional location of the data (paths['data'])
+    
+    :returns: filename (full path)
+    :rtype: str
     """
     if dir_path is None:
         dir_path = os.path.expanduser("~")
@@ -41,7 +47,13 @@ def choosefile_gui(dir_path=None):
 
 #%%
 def loadmonitor_waveheader(filename):
-    """ load a monitor wave header, return a pandasDataframe """
+    """load the wave file header.
+    
+    :param str filename: full name of the file
+    
+    :returns: header
+    :rtype: pandas.Dataframe
+    """
     df = pd.read_csv(
         filename, sep=",", header=None, index_col=None, nrows=12, encoding="iso-8859-1"
     )
@@ -49,7 +61,13 @@ def loadmonitor_waveheader(filename):
 
 
 def loadmonitor_wavedata(filename):
-    """ load a monitor csvDataFile, return a pandasDataframe """
+    """load the monitor wave csvDataFile.
+    
+    :param str filename: full name of the file
+    
+    :returns: df = trends data
+    :rtype: pandas.Dataframe
+    """
     print("loading data", os.path.basename(filename))
     fs = 300  # sampling rate
     # header :
