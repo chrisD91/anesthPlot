@@ -3,12 +3,13 @@
 
 """
 Created on Tue Apr 19 09:08:56 2016
-
-functions to plot the trend data
-
 @author: cdesbois
 
+collection of functions to plot the trend data
+
+____
 """
+
 import os
 
 import matplotlib.dates as mdates
@@ -34,17 +35,12 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 # ////////////////////////////////////////////////////////////////
 def color_axis(ax, spine="bottom", color="r"):
-    """
-    change the color of the label + tick + spine
-    
-    parameters
-    ----------
-    ax : matplotlib axis
-    spine : str
-        in ['left', 'right', 'bottom']
-    color : matplotlib color
-    """
-    
+    """change the color of the label & tick & spine.
+        
+    :param matplotlib.pyplot.axis ax: the axis
+    :param str spine: optional location in ['bottom', 'left', 'top', 'right']
+    :param str colors: optional color
+    """    
     ax.spines[spine].set_color(color)
     if spine == "bottom":
         ax.xaxis.label.set_color(color)
@@ -55,22 +51,15 @@ def color_axis(ax, spine="bottom", color="r"):
 
 
 def append_loc_to_fig(ax, dt_list, label="g"):
-    """
-    append vertical lines to indicate a location 'eg: arterial blood gas'
+    """append vertical lines to indicate a location 'eg: arterial blood gas'
     
-    parameters
-    ----------
-    ax : matplotlib figure.axis
-    dt_list : datetime list
-    label : str
-        a key to add to the label (default is 'g')
+    :param matplotlib.pyplot.axis ax: the axis
+    :param [datetime] dt_list: list of datetime values
+    :param str label: a key to add to the label (default is 'g')
     
-    returns
-    -------
-    dictionary containing the locations
-
+    :returns res: a dictionary containing the locations
+    :rtype: dict
     """
-
     num_times = mdates.date2num(dt_list)
     res = {}
     for i, num_time in enumerate(num_times):
@@ -83,7 +72,14 @@ def append_loc_to_fig(ax, dt_list, label="g"):
 
 #%%
 def plot_header(descr, param={"save": False}):
-    """plot the header of the file
+    """plot the header of the file.
+    
+    :param dict descr: header of the recording
+    :param dict 
+    
+    :returns fig: plot of the header
+    :rtype: pyplot.figure
+    
     """
     hcell = 2
     wcell = 2
@@ -126,19 +122,14 @@ def plot_header(descr, param={"save": False}):
 
 
 def hist_cardio(data, param={}):
-    """
-    PaM histogramme using matplotlib
+    """mean arterial pressure histogramme using matplotlib.
     
-    parameters
-    ----------
-    data: pandasDataFrame 
+    :param pandas.DataFrame data: the recorded trends data
         (keys used : 'ip1m' and 'hr),
-    param: dictionary 
+    :param dict param: parameters
         (save=bolean, 'path': path to directory)
     
-    returns
-    -------
-    fig: pyplot figure
+    :returns fig: matplotlib.pyplot.figure
     """
 
     if "ip1m" not in data.columns:
@@ -208,8 +199,7 @@ def hist_cardio(data, param={}):
 
 # ---------------------------------------------------------------------------------------------------
 def plot_one_over_time(x, y, colour):
-    """ plot y over x using colour
-    """
+    """ plot y over x using colour"""
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -225,9 +215,14 @@ def plot_one_over_time(x, y, colour):
 
 # ----------------------------------------------------------------------------------------
 def hist_co2_iso(data, param={}):
-    """ CO2 and iso histogramme (NB CO2 should have been converted from % to mmHg)
+    """ CO2 and iso histogramme 
+    (NB CO2 should have been converted from % to mmHg)
+    
+    :param pandas.Dataframe data: the trends recorded data
+    :param dict param: dictionary of parameters
+    
+    :returns: fig pyplot.figure
     """
-
     if "co2exp" not in data.columns:
         print("no co2exp in the data")
         return
@@ -295,21 +290,15 @@ def hist_co2_iso(data, param={}):
 
 # ---------------------------------------------------------------------------------------------------
 def cardiovasc(data, param={}):
-    """
-    cardiovascular plot
+    """ cardiovascular plot
     
-    parameters
-    -----------
-    data : pandas.DataFrame
+    :param pandas.Dataframe data: the recorded trends data
         keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-    param : dict(save: boolean, path['save'], xmin, xmax, unit,
+    :param dict param: dict(save: boolean, path['save'], xmin, xmax, unit,
                      dtime = boolean for time display in HH:MM format)
     
-    returns
-    -------
-    fig: pyplot figure
+    :returns: fig= pyplot.figure
     """
-    
     if "hr" not in data.columns:
         print("no pulseRate in the recording")
         return
@@ -390,23 +379,15 @@ def cardiovasc(data, param={}):
 
 # ---------------------------------------------------------------------------------------------------
 def cardiovasc_p1p2(data, param={}):
+    """ cardiovascular plot with central venous pressure (p2)
+    
+    :param pandas.Dataframe data: the trends recorded data
+        keys used :['ip1s', 'ip1m', 'ip1d', 'hr', 'ip2s', 'ip2m', 'ip2d']
+    :param dict param: dict(save: boolean, path['save'], xmin, xmax, unit,
+        dtime = boolean for time display in HH:MM format)
+    
+    :returns: fig= pyplot.figure
     """
-    cardiovascular plot with central venous pressure (p2)
-    
-    parameters
-    ----------
-    data:  pandas.DataFrame
-        keys used :['ip1s', 'ip1m', 'ip1d', 'hr',
-                                         'ip2s', 'ip2m', 'ip2d']
-    param: dict(save: boolean, path['save'], xmin, xmax, unit,
-                     dtime = boolean for time display in HH:MM format)
-    
-    returns
-    -------
-    fig: pyplot.figure
- 
-    """
-    
     if "hr" not in data.columns:
         print("no pulseRate in the recording")
         return
@@ -506,20 +487,15 @@ def cardiovasc_p1p2(data, param={}):
 
 # ---------------------------------------------------------------------------------------------------
 def co2iso(data, param={}):
-    """
-    anesth plot (CO2/iso)
+    """anesth plot (CO2/iso)
     
-    parameters
-    -----------
-    data: pandas.DataFrame
+    :param pandas.Dataframe data: the recorded data
         keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-    param : dict(save: boolean, path['save'], xmin, xmax, unit,
-                 dtime = boolean for time display in HH:MM format)
+  
+    :param dictionary param: dict(save: boolean, path['save'], xmin, xmax, unit,
+                                   dtime = boolean for time display in HH:MM format)
    
-    returns
-    ------
-    fig: pyplot.figure
-   
+    :returns fig= pyplot.figure
     """
     
     if "co2exp" not in data.columns:
@@ -604,20 +580,14 @@ def func(ax, x, y1, y2, color="tab:blue", x0=38):
 
 # ---------------------------------------------------------------------------
 def co2o2(data, param):
-    """
-    respiratory plot (CO2 and Iso)
+    """respiratory plot (CO2 and Iso)
     
-    parameters
-    -----------
-    data: pandas.DataFrame
+    :param pandas.DataFrame data: recorded trends data
         keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-    param: dict(save: boolean, path['save'], xmin, xmax, unit,
+    :param dict param: dict(save: boolean, path['save'], xmin, xmax, unit,
                     dtime = boolean for time display in HH:MM format)
     
-    returns
-    ------
-    fig: pyplot.figure
-    
+    :returns: fig= pyplot.figure
     """
     
     try:
@@ -690,22 +660,16 @@ def co2o2(data, param):
 
 # ---------------------------------------------------------------------------------------
 def ventil(data, param):
-    """
-    ventilation plot (.tvInsp, .pPeak, .pPlat, .peep, .minVexp, .co2RR, .co2exp )
+    """plot ventilation parameters 
+    (.tvInsp, .pPeak, .pPlat, .peep, .minVexp, .co2RR, .co2exp )
     
-    parameters
-    -----------
-    data: pandas.DataFrame
+    :param pandas.DataFrame data: recorded data, 
         keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-    param: dict(save: boolean, path['save'], xmin, xmax, unit,
+    :param dict param: dict(save: boolean, path['save'], xmin, xmax, unit,
                 dtime = boolean for time display in HH:MM format)
     
-    return:
-    ------
-    fig: pyplot.figure
-  
+    :return: fig= pyplot.figure
     """
-    
     path = param.get("path", "")
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -786,22 +750,15 @@ def ventil(data, param):
 
 # ------------------------------------------------------------------------
 def recrut(data, param):
-    """
-    to show a recrut manoeuver (.pPeak, .pPlat, .peep, .tvInsp)
+    """display a recrut manoeuver (.pPeak, .pPlat, .peep, .tvInsp)
     
-    parameters
-    ----------
-    data: pandas.DataFrame
+    :param pandas.DataFrame data: recorded data 
         keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-    param: dict(save: boolean, path['save'], xmin, xmax, unit,
+    :param dict param: dict(save: boolean, path['save'], xmin, xmax, unit,
                     dtime = boolean for time display in HH:MM format)
     
-    returns
-    -------
-    pyplot.figure
-
+    :returns fig= pyplot.figure
     """
-
     path = param.get("path", "")
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -862,20 +819,15 @@ def recrut(data, param):
 
 
 def ventil_cardio(data, param):
-    """
-    parameters
-    ----------
-    data: pandas.DataFrame
+    """build ventilation and cardiovascular plot
+    
+    :param pandas.DataFrame data: teh recorded trends data 
         keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
-    param: dict(save: boolean, path['save'], xmin, xmax, unit,
+    :param dict param: dict(save: boolean, path['save'], xmin, xmax, unit,
                     dtime = boolean for time display in HH:MM format)
     
-    returns
-    -------
-    fig: pyplot.figure
-    
+    :returns: fig= pyplot.figure 
     """
-    
     path = param.get("path", "")
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -951,8 +903,7 @@ def ventil_cardio(data, param):
 
 # ------------------------------------------------------------------------
 def save_distri(data, path):
-    """
-    save as '0_..' the 4 distributions graphs for cardiovasc annd respi
+    """save as '0_..' the 4 distributions graphs for cardiovasc annd respi
     """
     
     bpgas(data).savefig((path["sFig"] + "0_bpgas.png"), bbox_inches="tight")
