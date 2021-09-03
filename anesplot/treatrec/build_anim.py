@@ -7,10 +7,17 @@ plot the waves of a waveRecording
 """
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
+import pandas as pd
 
 import anesplot.treatrec.wave_func as wf
 import anesplot.plot.wave_plot as wp
 
+if not 'wdata' in dir():
+    wdata = pd.DataFrame()
+if not 'params' in dir():
+    params= {}
+if not 'paths' in dir():
+    paths = {}
 #%% choose an area of interest
 
 plt.close("all")
@@ -20,9 +27,10 @@ waves = ["wawp", "wflow"]
 # waves = ['wco2']
 # ['wekg', 'wap', 'wco2', 'wawp', 'wflow']
 # fig, lines = wf.plot_wave(wdata.set_index('sec'), waves)
-fig, lines = wp.plot_wave(wdata, waves)
-fig.text(0.99, 0.01, "cDesbois", ha="right", va="bottom", alpha=0.4)
-fig.text(0.01, 0.01, params["file"], ha="left", va="bottom", alpha=0.4)
+if len(wdata) > 0:
+    fig, lines = wp.plot_wave(wdata, waves)
+    fig.text(0.99, 0.01, "cDesbois", ha="right", va="bottom", alpha=0.4)
+    fig.text(0.01, 0.01, params.get("file"), ha="left", va="bottom", alpha=0.4)
 # fig, lines = plotWave(wdata, waves)
 
 # chooseTimeArea(wave)
@@ -30,7 +38,10 @@ print("expand the graph to find the interesting part")
 print("then run returnPoints")
 
 #%% extract the limits
-roi = wf.returnPoints(wdata, fig)
+if len(wdata) > 0:
+    roi = wf.returnPoints(wdata, fig)
+else:
+    roi = None
 
 #%% plot waves
 plt.close("all")

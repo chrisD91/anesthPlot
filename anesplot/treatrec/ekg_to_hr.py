@@ -2,95 +2,81 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Feb 12 16:52:00 2020
+@author: cdesbois
 
 function used to treat an EKG signal and extract the heart rate
 typically (copy, paste and execute line by line)
 
-    # after
+. after
 
-import anesplot.record_main as rec
-from treatrec import ekg_to_hr as tohr
+>>> import anesplot.record_main as rec
+>>> from treatrec import ekg_to_hr as tohr
 
-    # 0- load the data in a pandas dataframe
+1. load the data in a pandas dataframe:
+(through classes rec.MonitorTrend & rec.MonitorWave)
+>>> trendname = ''  # fullname
+    or
+>>> trendname = rec.choosefile_gui()
+-
+>>> wavename = rec.trendname_to_wavename(trendname)
+-
+>>> trends = rec.MonitorTrend(trendname)
+>>> waves = rec.MonitorWave(wavename)
+-
+>>> name = trends.header['Patient Name'].title().replace(' ', '')
+>>> name = name[0].lower() + name[1:]
 
-    # (through classes rec.MonitorTrend & rec.MonitorWave)
+2. treat the ekg wave:
+    - get parameters
+    - build a dataframe to work with (waves)
+    - low pass filtering
+    - build the beat locations (beat based dataFrame)
 
-trendname = ''  # fullname or
-
-    # trendname = rec.choosefile_gui()
-
-wavename = rec.trendname_to_wavename(trendname)
-
-trends = rec.MonitorTrend(trendname)
-waves = rec.MonitorWave(wavename)
-
-name = trends.header['Patient Name'].title().replace(' ', '')
-name = name[0].lower() + name[1:]
-
-    # 1- treat the ekg wave :
-
-params = waves.param
-
-    # build a dataframe to work with (waves)
-
-ekg_df = pd.DataFrame(waves.data.wekg)
-    
-    #low pass filtering
-
-ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg,
+>>> params = waves.param
+>>> ekg_df = pd.DataFrame(waves.data.wekg)
+>>> ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg,
                                                 waves.param['fs'])
+>>> beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, mult=1)
 
-    # build the beat locations (beat based dataFrame)
+3. perform the manual adjustments required:
+    - based on a graphical display of beat locations, an rr values
+    - build a container for the manual corrections:
+>>> figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
+>>> to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
 
-beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, mult=1)
-
-    # 2- perform the manual adjustments required:
-
-    # based on a graphical display of beat locations, an rr values
-
-figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
-
-    # build a container for the manual corrections:
-
-to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
-
-    # remove or add peaks : zoom on the figure to observe only one peak, then
-
-to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
-
-to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure,
+    - remove or add peaks : zoom on the figure to observe only one peak, then
+>>> to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
+or
+>>> to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure,
                                 yscale=1)
 
-    # combine to update the beat_df with the manual changes
+    - combine to update the beat_df with the manual changes
+>>> beat_df = tohr.update_beat_df(beat_df, to_change_df,
+                                  path_to_file="", from_file=False)
+  
+   - save the peak and load
+>>> tohr.save_beats(beat_df, to_change_df, savename='', savepath=None)
 
-beat_df = tohr.update_beat_df(beat_df, to_change_df,
-                              path_to_file="", from_file=False)
+>>> ( beat_df = pd.read_hdf('beatDf.hdf', key='beatDf') )
 
-    #save the peak and load
+4. go from points values to continuous time:
 
-tohr.save_beats(beat_df, to_change_df, savename='', savepath=None)
+>>> beat_df = tohr.compute_rr(beat_df)
+>>> ahr_df = tohr.interpolate_rr(beat_df)
+>>> tohr.plot_rr(ahr_df, params)
 
-    # beat_df = pd.read_hdf('beatDf.hdf', key='beatDf')
+5. append intantaneous heart rate to the initial data:
 
-    # 4- go from points values to continuous time
+>>> ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
+>>> waves.data = tohr.append_rr_and_ihr_to_wave(waves.data, ahr_df)
+>>> trends.data = tohr.append_ihr_to_trend(trends.data, waves.data, ekg_df)
 
-beat_df = tohr.compute_rr(beat_df)
-ahr_df = tohr.interpolate_rr(beat_df)
-tohr.plot_rr(ahr_df, params)
+6. save:
+    
+>>> tohr.save_trends_data(trends.data, savename=name, savepath='data')    
+>>> tohr.save_waves_data(waves.data, savename=name, savepath='data')  
 
-    # 5- append intantaneous heart rate to the initial data:
-
-ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
-waves.data = tohr.append_rr_and_ihr_to_wave(waves.data, ahr_df)
-trends.data = tohr.append_ihr_to_trend(trends.data, waves.data, ekg_df)
-
-    # 6- save
-
-tohr.save_trends_data(trends.data, savename=name, savepath='data')    
-tohr.save_waves_data(waves.data, savename=name, savepath='data')  
-
-
-@author: cdesbois
+____
 """
 
 import os
@@ -106,22 +92,13 @@ from scipy.interpolate import interp1d
 
 #%%
 def detect_beats(ser, fs=300, species="horse", mult=1):
-    """
-    detect the peak locations
+    """detect the peak locations
     
-    parameters
-    ----------
-    ser: pandas series,
-    fs: integer
-        sampling frequency
-    species : string
-        in [horse]
-    mult: float 
-        correction / 1 for qRs amplitude
-    
-    returns
-    -------
-        pandas dataframe
+    :param pandas.series ser: the data
+    :param integer fs: sampling frequency
+    :param string species: in [horse]
+    :param float mult: correction / 1 for qRs amplitude
+    :returns: df=pandas.Dataframe
     """
 
     df = pd.DataFrame()
