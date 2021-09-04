@@ -41,14 +41,15 @@ print("then run returnPoints")
 if len(wdata) > 0:
     roi = wf.returnPoints(wdata, fig)
 else:
-    roi = None
+    roi = {'pt': (0,1)}
 
 #%% plot waves
 plt.close("all")
 figList = []
 for key in ["wekg", "wap", "wco2", "wawp", "wflow"]:
     #    wf.plot_wave(wdata, [key], miniS= limsec[0], maxiS= limsec[1])
-    fig = wp.plot_wave(wdata, [key], mini=roi["pt"][0], maxi=roi["pt"][1])
+    adico = dict(mini=roi["pt"][0], maxi=roi["pt"][1])
+    fig = wp.plot_wave(wdata, [key], adico)
     figList.append(fig)
     # plotWave(wdata.set_index('sec'), [key], mini= limpt[0], maxi= limpt[1])
 

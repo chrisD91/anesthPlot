@@ -4,6 +4,7 @@
 """
 main program to load and display an anesthesia record file
 
+----
 """
 # see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
 from pathlib import Path
@@ -308,12 +309,15 @@ def plot_monitorwave_data(headdf, wavedf):
 
 
 class Waves:
-    """
-    base class for the records
-
-    """
-
+    """the base object to store the records."""
     def __init__(self, filename=None):
+        """
+        :param filename: DESCRIPTION, defaults to None
+        :type filename: str, optional
+        :return: basic class for the records
+        :rtype: wave object
+
+        """
         if filename is None:
             filename = choosefile_gui(paths["data"])
         self.filename = filename
@@ -340,18 +344,17 @@ class Waves:
 
 # +++++++
 class SlowWave(Waves):
-    """
-    class for slowWaves = trends
+    """class for slowWaves = trends
 
     attributes:
-    ----
+    -----------
         file : str
             short name
         filename : str
             long name
 
     methods
-    ----
+    -------
         clean_trend : external
             clean the data
         show_graphs : external
@@ -384,7 +387,7 @@ class MonitorTrend(SlowWave):
         load = boolean to load data (default is True)
 
     attibutes:
-    ----
+    ----------
         file : str
             short name
         filename : str
@@ -399,7 +402,7 @@ class MonitorTrend(SlowWave):
             display parameters
 
     methods (inherited)
-    ----
+    -------------------
         clean_trend : external
             clean the data
         show_graphs : external
@@ -449,12 +452,12 @@ class TaphTrend(SlowWave):
         """ extract Taph events
 
         parameters
-        ----
+        ----------
         data : pandas dataframe
             record df form taphonius recording)
 
         return
-        ----
+        ------
         eventdf pandas dataframe
             events dataframe
         """
@@ -466,11 +469,7 @@ class TaphTrend(SlowWave):
 
 # ++++++++
 class FastWave(Waves):
-    """
-    class for Fastwaves = continuous recordings
-
-    """
-
+    """class for Fastwaves = continuous recordings."""
     def __init__(self, filename=None):
         super().__init__(filename)
 
@@ -506,9 +505,7 @@ class FastWave(Waves):
             return fig
 
     def define_a_roi(self):
-        """
-        define a ROI
-        """
+        """define a ROI."""
         df = self.data
         if self.fig:
             ax = self.fig.get_axes()[0]
@@ -523,9 +520,7 @@ class FastWave(Waves):
 
 
 class TelevetWave(FastWave):
-    """
-    class to organise teleVet recordings transformed to csv files
-    """
+    """class to organise teleVet recordings transformed to csv files."""
 
     def __init__(self, filename=None):
         super().__init__(filename)
@@ -535,8 +530,7 @@ class TelevetWave(FastWave):
 
 
 class MonitorWave(FastWave):
-    """
-    class to organise monitorWave recordings
+    """class to organise monitorWave recordings.
         input : filename = path to file
         load = boolean to load data (default is True)
 

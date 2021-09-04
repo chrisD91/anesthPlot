@@ -1,80 +1,102 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Feb 12 16:52:00 2020
+"""Created on Wed Feb 12 16:52:00 2020
 @author: cdesbois
 
 function used to treat an EKG signal and extract the heart rate
 typically (copy, paste and execute line by line)
 
-. after
+0. after
+-------
+::
 
->>> import anesplot.record_main as rec
->>> from treatrec import ekg_to_hr as tohr
+    import anesplot.record_main as rec
+    from treatrec import ekg_to_hr as tohr
 
 1. load the data in a pandas dataframe:
-(through classes rec.MonitorTrend & rec.MonitorWave)
->>> trendname = ''  # fullname
+---------------------------------------
+
+(through classes rec.MonitorTrend & rec.MonitorWave)::
+
+    trendname = ''  # fullname
     or
->>> trendname = rec.choosefile_gui()
--
->>> wavename = rec.trendname_to_wavename(trendname)
--
->>> trends = rec.MonitorTrend(trendname)
->>> waves = rec.MonitorWave(wavename)
--
->>> name = trends.header['Patient Name'].title().replace(' ', '')
->>> name = name[0].lower() + name[1:]
+    trendname = rec.choosefile_gui()
+    
+::
+    
+    wavename = rec.trendname_to_wavename(trendname)
+    -
+    # load the data
+    trends = rec.MonitorTrend(trendname)
+    waves = rec.MonitorWave(wavename)
+    -
+    # format the name
+    name = trends.header['Patient Name'].title().replace(' ', '')
+    name = name[0].lower() + name[1:]
 
 2. treat the ekg wave:
+----------------------
+
     - get parameters
     - build a dataframe to work with (waves)
     - low pass filtering
-    - build the beat locations (beat based dataFrame)
+    - build the beat locations (beat based dataFrame)::
 
->>> params = waves.param
->>> ekg_df = pd.DataFrame(waves.data.wekg)
->>> ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg,
+        params = waves.param
+        ekg_df = pd.DataFrame(waves.data.wekg)
+        ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg,
                                                 waves.param['fs'])
->>> beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, mult=1)
+        beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, mult=1)
 
 3. perform the manual adjustments required:
+-------------------------------------------
+
     - based on a graphical display of beat locations, an rr values
-    - build a container for the manual corrections:
->>> figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
->>> to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
+    - build a container for the manual corrections::
 
-    - remove or add peaks : zoom on the figure to observe only one peak, then
->>> to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
-or
->>> to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure,
-                                yscale=1)
+        figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
+        to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
 
-    - combine to update the beat_df with the manual changes
->>> beat_df = tohr.update_beat_df(beat_df, to_change_df,
-                                  path_to_file="", from_file=False)
+    - remove or add peaks : zoom on the figure to observe only one peak, then::
+        
+        to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
+        or
+        to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure,
+                                        yscale=1)
+
+    - combine to update the beat_df with the manual changes::
+        
+        beat_df = tohr.update_beat_df(beat_df, to_change_df,
+                                      path_to_file="", from_file=False)
   
-   - save the peak and load
->>> tohr.save_beats(beat_df, to_change_df, savename='', savepath=None)
-
->>> ( beat_df = pd.read_hdf('beatDf.hdf', key='beatDf') )
+    - save the peaks locations::
+       
+        tohr.save_beats(beat_df, to_change_df, savename='', savepath=None)
+        (# or reload
+        beat_df = pd.read_hdf('beatDf.hdf', key='beatDf') )
 
 4. go from points values to continuous time:
-
->>> beat_df = tohr.compute_rr(beat_df)
->>> ahr_df = tohr.interpolate_rr(beat_df)
->>> tohr.plot_rr(ahr_df, params)
+--------------------------------------------
+::
+    
+    beat_df = tohr.compute_rr(beat_df)
+    ahr_df = tohr.interpolate_rr(beat_df)
+    tohr.plot_rr(ahr_df, params)
 
 5. append intantaneous heart rate to the initial data:
-
->>> ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
->>> waves.data = tohr.append_rr_and_ihr_to_wave(waves.data, ahr_df)
->>> trends.data = tohr.append_ihr_to_trend(trends.data, waves.data, ekg_df)
+------------------------------------------------------
+::
+    
+    ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
+    waves.data = tohr.append_rr_and_ihr_to_wave(waves.data, ahr_df)
+    trends.data = tohr.append_ihr_to_trend(trends.data, waves.data, ekg_df)
 
 6. save:
+--------
+::
     
->>> tohr.save_trends_data(trends.data, savename=name, savepath='data')    
->>> tohr.save_waves_data(waves.data, savename=name, savepath='data')  
+    tohr.save_trends_data(trends.data, savename=name, savepath='data')    
+    tohr.save_waves_data(waves.data, savename=name, savepath='data')  
 
 ____
 """
@@ -161,42 +183,37 @@ def plot_beats(ecg, beats):
 
 
 def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None, yscale=1):
-    """
-    locate the beat in the figure, append to a dataframe['toAppend']
+    """locate the beat in the figure, append to a dataframe['toAppend']
     
-    parameters
-    ----------
-    beatdf: pandas.dataframe 
-        (pLocs), 
-    ekgdf = pandas dataframe 
-        (wekg_lowpass),
-    fig: pypplot.figure
-        figure to fing limits
-    lim: integer 
-        to give it manually
-    tochange_df: pandas.Dataframa
-        (toAppend, to Remove)
-    mult = float
-        amplitude mutliplication factor for detection (default=1)
+    :param pandas.Dataframe beatdf: contains the point based location (pLocs)
+    :param pandas dataframe ekgdf: contains the wave recording ((wekg_lowpass)
+    :param pandas.Dataframa tochange_df: to store the beats toAppend or toRemove
+    :param pyplot.Figure fig: figure to find time limits
+    :param integer lim: ptBasedLim optional to give it manually
+    :param float  yscale: amplitude mutliplication factor for detection (default=1)
     
-    returns
-    -------
-    pandas.Dataframe    
-        incremented changedf (pt location)
+    :returns: tochange_df: incremented changedf (pt location)
+    :rtype: pandasDataframe
+    
+    methods : 
+        
+        locate the beat in the figure, append to a dataframe['toAppend']
+        0.: if not present : build a dataframe:
+            >>> to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
+       
+        1.: locate the extra beat in the figure (cf plot_beats())
+            and zoom to observe only a negative peak
+     
+        2.: call the function:
+            >>> to_change_df = remove_beat(beatdf, ekgdf, tochange_df, fig)
+            -> the beat parameters will be added the dataFrame
+    
+        .in the end of the manual check, update the beat_df
+              - first : save beat_df and to_change_df
+              - second : run:
+                  >>> beat_df = update_beat_df())
     """
     
-    """ locate the beat in the figure, append to a dataframe['toAppend']
-       0: if not present : build a dataframe :
-           to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
-       1: locate the extra beat in the figure (cf plot_beats())
-       and zoom to observe only a negative peak
-       2- call the function:
-           to_change_df = remove_beat(beatdf, ekgdf, tochange_df, fig)
-    -> the beat parameters will be added the dataFrame
-    (in the end of the manual check, update the beat_df
-    first : save beat_df and to_change_df
-    second : run beat_df = update_beat_df())
-    """
     
     # find the limits of the figure
     if lim is None:
@@ -229,19 +246,23 @@ def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None, yscale=1):
 
 def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
     """ locate the beat in the figure, append to a dataframe['toRemove']
-        0: if not present build a dataframe :
-           to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
+    
+    0.: if not present build a dataframe:
+        >>> to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
        
-        1: locate the extra beat in the figure (cf plot_beats())
+    1.: locate the extra beat in the figure (cf plot_beats())
         and zoom to observe only a negative peak
        
-        2- call the function:
-            to_change_df = remove_beat(beatdf, ekgdf, tochange_df, fig)
-
-    -> the beat parameters will be added the dataFrame
-    (in the end of the manual check, update the beat_df
-    first : save beat_df and to_change_df
-    second : run beat_df = update_beat_df())
+    2.: call the function:::
+        >>> to_change_df = remove_beat(beatdf, ekgdf, tochange_df, fig)
+        -> the beat parameters will be added the dataFrame
+    
+    .(in the end of the manual check, update the beat_df
+    
+        - first : save beat_df and to_change_df
+    
+        - second : run
+            >>> beat_df = update_beat_df())
     """
     
     # find the limits of the figure

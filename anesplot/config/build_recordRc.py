@@ -4,8 +4,10 @@
 """
 build a 'recordRc.yaml' configuration file to adapt to a specific computer
 location at the root of anesplot
-    - input <-> 'data' : to load the records
-    - output <-> 'save' : to save the plots
+
+- input <-> 'data' : to load the records
+- output <-> 'save' : to save the plots
+
 ----
 """
 

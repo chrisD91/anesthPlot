@@ -64,9 +64,9 @@ def plot_wave(data, keys=[], param={}):
     :param int mini: limits in point value (index)    
     :param int maxi: limits in point value (index)
 
-    :returns: 
-        - fig = plt.figure & line2D
-        - lines = line2D object    
+    :returns fig: plt.figure  the plot
+    :returns lines: plt.line2D the line to animate
+    
     (Nb plot data/index, but the xscale is indicated as sec)
     """
     for key in keys:

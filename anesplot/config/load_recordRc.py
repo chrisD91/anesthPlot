@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """load an already generated 'recordRc.yaml' configuration file 
-    - input <-> 'data' : to load the records
-    - output <-> 'save' : to save the plots
+
+- input <-> 'data' : to load the records
+- output <-> 'save' : to save the plots
+
 ----
 """
 import os
