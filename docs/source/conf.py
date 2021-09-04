@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon'
     ]
+# the function reading order
 autodoc_member_order = 'bysource' 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -55,7 +56,7 @@ source_suffix = {
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
-html_theme = 'agogo'
+html_theme = 'agogo' 
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
