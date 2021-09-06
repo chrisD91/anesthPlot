@@ -7,7 +7,7 @@ function used to treat an EKG signal and extract the heart rate
 typically (copy, paste and execute line by line)
 
 0. after
--------
+--------
 ::
 
     import anesplot.record_main as rec
@@ -16,7 +16,9 @@ typically (copy, paste and execute line by line)
 1. load the data in a pandas dataframe:
 ---------------------------------------
 
-(through classes rec.MonitorTrend & rec.MonitorWave)::
+(through classes rec.MonitorTrend & rec.MonitorWave)
+    
+::
 
     trendname = ''  # fullname
     or

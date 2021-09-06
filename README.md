@@ -20,11 +20,8 @@ This generated tends (~1pt/5sec) and waves (~300pt/sec) recordings
 
 	```bash
 	pip install pyyaml
+	conda install -c conda-forge pyperclip,
 	```
-
- 	conda install -c conda-forge pyperclip,
- 	```
-
 2. download the repository
 
 3. build a configuration .yaml file trough the buildRecordRC.py
@@ -44,6 +41,7 @@ to be able to manipulate the data (trends & waves)
 $ ipython
 
 import anesplot.record_main as rec
+
 trends = rec.MonitorTrend()
 trends.show_graphs()
 ...
@@ -53,7 +51,9 @@ waves.plot_wave()
 ...
 ```
 
+- the MonitorTrend and MonitorWave methods allow to visualize most of the data recorded
 
+- other visualizations and analysis can be performed by relating the objects data and the methods located in the anesplot.treatrec package
 
 ## using the code from terminal
 
@@ -79,10 +79,10 @@ to obtain a rapid view of the data for visualisation or to save the plots
    1. for trend data
     a. description of the case
            (text entered during the setup of the recording)
-    b. general analysis of the procedure
+        b. general analysis of the procedure
             (histogram of heart rate & arterial pressure)
             (histogram of etco2 & isoflurane used)
-    c. display of the trends parameters
+        c. display of the trends parameters
             (scale can be adjusted and pictures can be saved)
      2. for the wave data
         a. you will be prompted to choose a wave to be displayed

@@ -32,8 +32,9 @@ release = '0.beta.1'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon'
-    ]
+    'sphinx.ext.napoleon',
+    'sphinx.ext.todo',
+    'myst_parser']
 # the function reading order
 autodoc_member_order = 'bysource' 
 
@@ -48,6 +49,7 @@ exclude_patterns = []
 source_suffix = {
     '.rst': 'restructuredtext',
     '.txt': 'restructuredtext',
+    '.md': 'markdown',
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -56,7 +58,8 @@ source_suffix = {
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
-html_theme = 'agogo' 
+html_theme = 'agogo'
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

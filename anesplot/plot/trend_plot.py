@@ -75,7 +75,7 @@ def plot_header(descr, param={"save": False}):
     """plot the header of the file.
     
     :param dict descr: header of the recording
-    :param dict 
+    :param dict param: dictionary of parameters
     
     :returns fig: plot of the header
     :rtype: pyplot.figure

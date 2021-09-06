@@ -6,19 +6,34 @@
 Welcome to anesthPlot's documentation!
 ======================================
 
+Readme File
+===========
+
+.. mdinclude:: ../README.md
+
+
+general information
+-------------------
+
+.. toctree::
+   :maxdepth: 1
+   :caption: main:
+
+   anesplot.record_main
+   record_main
+
+package content
+---------------
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   anesplot
-   
-..
-   intro
    anesplot.config
    anesplot.loadrec
    anesplot.plot
    anesplot.treatrec
-   nesplot.build_anim
+   anesplot.build_anim
 
 Indices and tables
 ==================
