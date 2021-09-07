@@ -473,7 +473,7 @@ class FastWave(Waves):
     def __init__(self, filename=None):
         super().__init__(filename)
 
-    def show_wave(self, tracesList=None):
+    def plot_wave(self, tracesList=None):
         """
         simple choose and plot for a wave
         input = none -> GUI, or list of waves to plot (max=2)
