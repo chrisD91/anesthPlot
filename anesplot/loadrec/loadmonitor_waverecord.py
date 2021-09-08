@@ -8,6 +8,7 @@ load a monitor wave recording:
     - choose a file
     - load the header to a pandas dataframe
     - load the date into a pandas dataframe
+    
 ____
 """
 

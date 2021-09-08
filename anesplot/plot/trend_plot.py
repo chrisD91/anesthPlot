@@ -903,15 +903,14 @@ def ventil_cardio(data, param):
 
 # ------------------------------------------------------------------------
 def save_distri(data, path):
-    """save as '0_..' the 4 distributions graphs for cardiovasc annd respi
-    """
+    """save as 'O_..' the 4 distributions graphs for cardiovasc annd respi"""
     
-    bpgas(data).savefig((path["sFig"] + "0_bpgas.png"), bbox_inches="tight")
+#    bpgas(data).savefig((path["sFig"] + "O_bpgas.png"), bbox_inches="tight")
     hist_co2_iso(data).savefig(
-        (path["sFig"] + "0_hist_co2_iso.png"), bbox_inches="tight"
+        (path["sFig"] + "O_hist_co2_iso.png"), bbox_inches="tight"
     )
-    bppa(data).savefig((path["sFig"] + "0_bppa.png"), bbox_inches="tight")
-    hist_cardio(data).savefig((path["sFig"] + "0_hist_cardio.png"), bbox_inches="tight")
+ #   bppa(data).savefig((path["sFig"] + "O_bppa.png"), bbox_inches="tight")
+    hist_cardio(data).savefig((path["sFig"] + "O_hist_cardio.png"), bbox_inches="tight")
 
 
 def fig_memo(path, fig_name):

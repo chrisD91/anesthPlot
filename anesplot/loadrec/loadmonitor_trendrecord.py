@@ -10,6 +10,7 @@ load a monitor trend recording:
     - choose a file
     - load the header to a dictionary
     - load the date into a pandas dataframe
+    
 ____
 """
 

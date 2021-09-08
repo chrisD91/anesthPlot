@@ -2,8 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-main program to load and display an anesthesia record file
+main script/module to load and display an anesthesia record 
 
+can be runned as a script::
+    python record_main.py
+
+or imported as a package::
+    import anestplot.record_main as rec
+    
 ----
 """
 # see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
@@ -632,8 +638,9 @@ def main():
         app
     except NameError:
         app.exec_()
+    return file_name
 
 
 #%%
 if __name__ == "__main__":
-    main()
+    filename = main()
