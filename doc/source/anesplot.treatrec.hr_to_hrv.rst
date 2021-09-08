@@ -1,7 +1,7 @@
-treatrec.ekg\_to\_hr module
+anesplot.treatrec.hr\_to\_hrv module
 ====================================
 
-.. automodule:: treatrec.ekg_to_hr
+.. automodule:: anesplot.treatrec.hr_to_hrv
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,8 +1,10 @@
-.. anesthPlot documentation master file, created by
-   sphinx-quickstart on Wed Sep  8 10:39:25 2021.
+.. anesplot documentation master file, created by
+   sphinx-quickstart on Wed Sep  8 17:19:08 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+Welcome to anesplot's documentation!
+====================================
 Welcome to anesthPlot's documentation!
 ======================================
 
@@ -18,7 +20,7 @@ recorded from the Monitor Software to be used mostly in a teaching environment.
       - in our environment the data recorded came from an as3 or as5 anesthesia machine
 
 Features
---------
+---------
 
 - **load** recordings from a trend or a wave recordings
 - build a **standard debriefing** (trends) **plot series** (script usage)
@@ -41,46 +43,26 @@ Features
          wavename = rec.trendname_to_wavename(trendname)
          waves = rec.MonitorWave(trends)
          trends.show_graphs()
-        
+
 main script
------------
+==================
 
 .. toctree::
    :maxdepth: 1
    :caption: main_script:
 
-   ref/record_main
-
+   anesplot.record_main
 
 modules
--------
-
+==================
 .. toctree::
-   :maxdepth: 2
-   :caption: modules:
+   :maxdepth: 4
+   :caption: Contents:
 
-   ref/loadrec
-   ref/plot
-   ref/treatrec
+   anesplot
 
 
-configuration
--------------
-
-.. note::
-
-   no installation tool is currently available
-
-   the code is written for python 3
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: config:
-
-
-
-indices and tables
+Indices and tables
 ==================
 
 * :ref:`genindex`
