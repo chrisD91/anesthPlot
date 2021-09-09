@@ -1,0 +1,7 @@
+matplotlib
+pyperclip
+numpy
+pandas
+scipy
+PyQt5
+PyYAML
