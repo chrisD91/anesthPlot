@@ -19,13 +19,9 @@ def build_hrv_limits(spec="horse"):
     return dico
 
 
-hrv_dico = build_hrv_limits("horse")
-
 #%%
-try:
-    ekg_df
-except:
-    print("RR series are not extracted")
-    print("run wave_to_hr to build one")
-
-#%%
+if __name__ == "__main__":
+    hrv_dico = build_hrv_limits("horse")
+    if "ekg_df" not in dir():
+        print("RR series are not extracted")
+        print("run wave_to_hr to build one")

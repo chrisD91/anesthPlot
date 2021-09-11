@@ -22,10 +22,11 @@ def choosefile_gui(dir_path=None):
     """select a file using a dialog.
 
     :param str dir_path: optional location of the data (paths['data'])
-    
+
     :returns: filename (full path)
     :rtype: str
     """
+
     if dir_path is None:
         dir_path = os.path.expanduser("~")
     options = QFileDialog.Options()
@@ -46,7 +47,7 @@ def loadtelevet(file=None, all_traces=False):
 
     :param str file: name of the file
     :param bool all_traces: load all the derivations
-    
+
     :returns: df = recorded traces
     :rtype: pandas.Dataframe
     """
@@ -74,9 +75,7 @@ def loadtelevet(file=None, all_traces=False):
     return df
 
 
-try:
-    paths
-except:
+if not "paths" in dir():
     paths = {}
 
 if __name__ == "__main__":

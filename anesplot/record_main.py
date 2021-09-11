@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-main script/module to load and display an anesthesia record 
+main script/module to load and display an anesthesia record
 
 can be runned as a script::
     python record_main.py
 
 or imported as a package::
     import anestplot.record_main as rec
-    
+
 ----
 """
 # see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
@@ -40,11 +40,9 @@ import matplotlib
 matplotlib.use("Qt5Agg")  # NB use automatic for updating
 import matplotlib.pyplot as plt
 
-# from socket import gethostname
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
 # to have the display beginning from 0
-# from pylab import rcParams
 from matplotlib import rcParams
 
 rcParams["axes.xmargin"] = 0
@@ -190,69 +188,10 @@ def build_param_dico(file=None, asource=None, pathdico=paths):
     return dico
 
 
-#%
-def check():
-    """ print the loaded recordings """
-    # TODO : doesn't work ?? to be adjusted
-    imported = {}
-    for item in gc.get_objects():
-        if isinstance(item, MonitorTrend):
-            alist = [k for k, v in locals().items() if v is item]
-            imported[alist[0]] = item.file
-            print(alist)
-        elif isinstance(item, MonitorWave):
-            alist = [k for k, v in locals().items() if v is item]
-            imported[alist[0]] = item.file
-            print(alist)
-    for key, val in imported.items():
-        print(key, "<->", val)
-
-
-# def list_loaded():
-#     """
-#     list the loaded files
-#     return a dictionary recordObj : file
-#     """
-#     recorded = {}
-#     try:
-#         taphTrend
-#     except NameError:
-#         pass
-#     else:
-#         recorded['taphTrend'] = taphTrend
-#     try:
-#         monitorTrend
-#     except NameError:
-#         pass
-#     else:
-#         recorded['monitorTrend'] = monitorTrend
-#     try:
-#         monitorWave
-#     except NameError:
-#         pass
-#     else:
-#         recorded['monitorWave'] = monitorWave
-#     try:
-#         telvet
-#     except NameError:
-#         pass
-#     else:
-#         recorded['telvet'] = telvet
-#     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-#     print('records loaded:')
-#     for key in records:
-#         print(key, records[key].file.split('.')[0])
-#     print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-#     return recorded
-
-
-def plot_trenddata(file, df, header, param_dico):
+def plot_trenddata(df, header, param_dico):
     """clinical main plots of a trend recordings
 
     parameters
-    ----
-    file : str
-        the filename
     df : pdDataframe
         recorded data (MonitorTrend.data)
     header : dict
@@ -299,23 +238,9 @@ def plot_trenddata(file, df, header, param_dico):
     return fig_dico
 
 
-def plot_monitorwave_data(headdf, wavedf):
-    """
-    not implemented for the moment
-    """
-    # TODO : build a GUI to choose a trace to plot ? or implement that in the class ?
-    for item in ["Date", "Patient Name", "Patient ID"]:
-        print(item, " : ", headdf[item])
-
-
-##### NB use fig = plot... to obtain a reference to the plot
-# and then axList = fig.axes
-# use axes in this list to change the scales
-#
-
-
 class Waves:
     """the base object to store the records."""
+
     def __init__(self, filename=None):
         """
         :param filename: DESCRIPTION, defaults to None
@@ -382,7 +307,7 @@ class SlowWave(Waves):
 
     def show_graphs(self):
         """ basic clinical plots """
-        fig_dico = plot_trenddata(self.file, self.data, self.header, self.param)
+        fig_dico = plot_trenddata(self.data, self.header, self.param)
         return fig_dico
 
 
@@ -476,6 +401,7 @@ class TaphTrend(SlowWave):
 # ++++++++
 class FastWave(Waves):
     """class for Fastwaves = continuous recordings."""
+
     def __init__(self, filename=None):
         super().__init__(filename)
 
@@ -560,7 +486,7 @@ class MonitorWave(FastWave):
 
 
 def main():
-    # check for terminal filename passed as the first argument
+    # look for terminal filename passed as the first argument
     provided_filename = None
     if len(sys.argv) > 1:
         if os.path.isfile(sys.argv[1]):

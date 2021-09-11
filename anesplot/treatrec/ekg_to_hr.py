@@ -17,15 +17,15 @@ typically (copy, paste and execute line by line)
 ---------------------------------------
 
 (through classes rec.MonitorTrend & rec.MonitorWave)
-    
+
 ::
 
     trendname = ''  # fullname
     or
     trendname = rec.choosefile_gui()
-    
+
 ::
-    
+
     wavename = rec.trendname_to_wavename(trendname)
     -
     # load the data
@@ -60,19 +60,19 @@ typically (copy, paste and execute line by line)
         to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
 
     - remove or add peaks : zoom on the figure to observe only one peak, then::
-        
+
         to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
         or
         to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure,
                                         yscale=1)
 
     - combine to update the beat_df with the manual changes::
-        
+
         beat_df = tohr.update_beat_df(beat_df, to_change_df,
                                       path_to_file="", from_file=False)
-  
+
     - save the peaks locations::
-       
+
         tohr.save_beats(beat_df, to_change_df, savename='', savepath=None)
         (# or reload
         beat_df = pd.read_hdf('beatDf.hdf', key='beatDf') )
@@ -80,7 +80,7 @@ typically (copy, paste and execute line by line)
 4. go from points values to continuous time:
 --------------------------------------------
 ::
-    
+
     beat_df = tohr.compute_rr(beat_df)
     ahr_df = tohr.interpolate_rr(beat_df)
     tohr.plot_rr(ahr_df, params)
@@ -88,7 +88,7 @@ typically (copy, paste and execute line by line)
 5. append intantaneous heart rate to the initial data:
 ------------------------------------------------------
 ::
-    
+
     ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
     waves.data = tohr.append_rr_and_ihr_to_wave(waves.data, ahr_df)
     trends.data = tohr.append_ihr_to_trend(trends.data, waves.data, ekg_df)
@@ -96,9 +96,9 @@ typically (copy, paste and execute line by line)
 6. save:
 --------
 ::
-    
-    tohr.save_trends_data(trends.data, savename=name, savepath='data')    
-    tohr.save_waves_data(waves.data, savename=name, savepath='data')  
+
+    tohr.save_trends_data(trends.data, savename=name, savepath='data')
+    tohr.save_waves_data(waves.data, savename=name, savepath='data')
 
 ____
 """
@@ -117,7 +117,7 @@ from scipy.interpolate import interp1d
 #%%
 def detect_beats(ser, fs=300, species="horse", mult=1):
     """detect the peak locations
-    
+
     :param pandas.series ser: the data
     :param integer fs: sampling frequency
     :param string species: in [horse]
@@ -155,7 +155,7 @@ def detect_beats(ser, fs=300, species="horse", mult=1):
 
 def plot_beats(ecg, beats):
     """ plot ecg waveform + beat location """
-    
+
     fig = plt.figure(figsize=(13, 5))
     fig.suptitle("verify the accuracy of the beat detection")
     ax0 = fig.add_subplot(211)
@@ -186,37 +186,36 @@ def plot_beats(ecg, beats):
 
 def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None, yscale=1):
     """locate the beat in the figure, append to a dataframe['toAppend']
-    
+
     :param pandas.Dataframe beatdf: contains the point based location (pLocs)
     :param pandas dataframe ekgdf: contains the wave recording ((wekg_lowpass)
     :param pandas.Dataframa tochange_df: to store the beats toAppend or toRemove
     :param pyplot.Figure fig: figure to find time limits
     :param integer lim: ptBasedLim optional to give it manually
     :param float  yscale: amplitude mutliplication factor for detection (default=1)
-    
+
     :returns: tochange_df: incremented changedf (pt location)
     :rtype: pandasDataframe
-    
-    methods : 
-        
+
+    methods :
+
         locate the beat in the figure, append to a dataframe['toAppend']
         0.: if not present : build a dataframe:
             >>> to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
-       
+
         1.: locate the extra beat in the figure (cf plot_beats())
             and zoom to observe only a negative peak
-     
+
         2.: call the function:
             >>> to_change_df = remove_beat(beatdf, ekgdf, tochange_df, fig)
             -> the beat parameters will be added the dataFrame
-    
+
         .in the end of the manual check, update the beat_df
               - first : save beat_df and to_change_df
               - second : run:
                   >>> beat_df = update_beat_df())
     """
-    
-    
+
     # find the limits of the figure
     if lim is None:
         lims = fig.get_axes()[0].get_xlim()
@@ -248,25 +247,25 @@ def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None, yscale=1):
 
 def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
     """ locate the beat in the figure, append to a dataframe['toRemove']
-    
+
     0.: if not present build a dataframe:
         >>> to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
-       
+
     1.: locate the extra beat in the figure (cf plot_beats())
         and zoom to observe only a negative peak
-       
+
     2.: call the function:::
         >>> to_change_df = remove_beat(beatdf, ekgdf, tochange_df, fig)
         -> the beat parameters will be added the dataFrame
-    
+
     .(in the end of the manual check, update the beat_df
-    
+
         - first : save beat_df and to_change_df
-    
+
         - second : run
             >>> beat_df = update_beat_df())
     """
-    
+
     # find the limits of the figure
     if lim is None:
         lims = fig.get_axes()[0].get_xlim()
@@ -298,13 +297,13 @@ def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
 def save_beats(beatdf, tochangedf, savename="", savepath=None):
     """
     save the beats locations as csv and hd5 file
-    
+
     parameters
     ----------
     beatde : pd.dataframes
     savepath : path to save in
     """
-    
+
     if savepath is None:
         savepath = os.getcwd()
     filename = savename + "_" + "beatDf"
@@ -358,23 +357,23 @@ def update_beat_df(beatdf, tochangedf, path_to_file="", from_file=False):
 def compute_rr(beatdf, fs=None):
     """
     compute rr intervals (from pt to time)
-    
+
     parameters
     ----------
-    beatdf : pd.DataFrame 
+    beatdf : pd.DataFrame
         with 'pLoc'
     fs : integer
         sampling frequency
-    
+
     returns
     -------
-    pd.DataFrame 
+    pd.DataFrame
         with:
         'rr' =  rr duration
         'rrDiff' = rrVariation
         'rrSqDiff' = rrVariation^2
     """
-    
+
     if fs is None:
         fs = 300
     # compute rr intervals
@@ -396,20 +395,20 @@ def compute_rr(beatdf, fs=None):
 def interpolate_rr(beatdf, kind=None):
     """
     interpolate the beat_df (pt -> time values)
-    
+
     parameters
     ----------
     beatDf: pd.Dataframe
-    kind : str 
+    kind : str
         'linear' or 'cubic'(default)
-    
+
     returns
     -------
     pdDatatrame with evenly spaced data
         'espts' = evenly spaced points
         'rrInterpol' = interpolated rr
     """
-    
+
     if kind is None:
         kind = "cubic"
     ahr_df = pd.DataFrame()
@@ -443,13 +442,13 @@ def interpolate_rr(beatdf, kind=None):
 def plot_rr(ahr_df, param, HR=False):
     """
     plot RR vs pt values + rrSqDiff
-    
+
     parameters:
         hr_df = pdDataFrame
-        params : dict 
+        params : dict
             containing 'fs' as key
     """
-    
+
     fs = param["fs"]
 
     fig = plt.figure(figsize=(8, 4))
@@ -494,7 +493,7 @@ def plot_rr(ahr_df, param, HR=False):
 
 def append_rr_and_ihr_to_wave(wave, ahrdf):
     """ append rr and ihr to the waves based on pt value (ie index) """
-   
+
     df = pd.concat([wave, ahrdf.set_index("espts")], axis=1)
     df["ihr"] = 1 / df.rrInterpol * 60 * 1000
     print("added instantaneous heart rate to a Wave dataframe")
@@ -503,7 +502,7 @@ def append_rr_and_ihr_to_wave(wave, ahrdf):
 
 def plot_agreement(trenddf):
     """ plot ip1HR & ihr to check agreement """
-    
+
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(trenddf.hr)
@@ -515,7 +514,7 @@ def plot_agreement(trenddf):
 
 def append_ihr_to_trend(trenddf, wavedf, ekgdf):
     """ append 'ihr' (instataneous heart rate) to the trends """
-    
+
     # build a new index
     ratio = len(wavedf) / len(trenddf)
     ser = (wavedf.index.to_series() / ratio).astype(int)
