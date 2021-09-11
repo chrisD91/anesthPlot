@@ -61,8 +61,7 @@ def plot_wave(data, keys=[], param={}):
 
     :param pandas.DataFrame data: the recorded trends data
     :param list keys: one or two in ['wekg','ECG','wco2','wawp','wflow','wap']
-    :param int mini: limits in point value (index)
-    :param int maxi: limits in point value (index)
+    :param dict {mini: limits in point value (index), maxi: limits in point value (index)}
 
     :returns fig: plt.figure  the plot
     :returns lines: plt.line2D the line to animate

@@ -2,9 +2,12 @@
 #%reset -f
 
 """
-plot the waves of a waveRecording
+in progress to build animation from the waveRecordings
 
 """
+import os
+from datetime import datetime, timedelta
+
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -12,26 +15,26 @@ import pandas as pd
 import anesplot.treatrec.wave_func as wf
 import anesplot.plot.wave_plot as wp
 
-if not 'wdata' in dir():
+if not "wdata" in dir():
     wdata = pd.DataFrame()
-if not 'params' in dir():
-    params= {}
-if not 'paths' in dir():
+if not "params" in dir():
+    params = {}
+if not "paths" in dir():
     paths = {}
 #%% choose an area of interest
 
 plt.close("all")
 
 
-waves = ["wawp", "wflow"]
-# waves = ['wco2']
+wave_names = ["wawp", "wflow"]
+# wave_names = ['wco2']
 # ['wekg', 'wap', 'wco2', 'wawp', 'wflow']
-# fig, lines = wf.plot_wave(wdata.set_index('sec'), waves)
+# fig, lines = wf.plot_wave(wdata.set_index('sec'), wave_names)
 if len(wdata) > 0:
-    fig, lines = wp.plot_wave(wdata, waves)
+    fig, lines = wp.plot_wave(wdata, wave_names)
     fig.text(0.99, 0.01, "cDesbois", ha="right", va="bottom", alpha=0.4)
     fig.text(0.01, 0.01, params.get("file"), ha="left", va="bottom", alpha=0.4)
-# fig, lines = plotWave(wdata, waves)
+# fig, lines = plotWave(wdata, wave_names)
 
 # chooseTimeArea(wave)
 print("expand the graph to find the interesting part")
@@ -39,17 +42,17 @@ print("then run returnPoints")
 
 #%% extract the limits
 if len(wdata) > 0:
-    roi = wf.returnPoints(wdata, fig)
+    roi = wf.return_points(wdata, fig)
 else:
-    roi = {'pt': (0,1)}
+    roi = {"pt": (0, 1)}
 
 #%% plot waves
 plt.close("all")
 figList = []
 for key in ["wekg", "wap", "wco2", "wawp", "wflow"]:
     #    wf.plot_wave(wdata, [key], miniS= limsec[0], maxiS= limsec[1])
-    adico = dict(mini=roi["pt"][0], maxi=roi["pt"][1])
-    fig = wp.plot_wave(wdata, [key], adico)
+    limits = dict(mini=roi["pt"][0], maxi=roi["pt"][1])
+    fig = wp.plot_wave(wdata, [key], limits)
     figList.append(fig)
     # plotWave(wdata.set_index('sec'), [key], mini= limpt[0], maxi= limpt[1])
 
@@ -58,7 +61,8 @@ for key in ["wekg", "wap", "wco2", "wawp", "wflow"]:
 # figList[2] = co2
 # figList[3] = paw
 # figList[4] = airFlow
-fig = wp.plot_wave(wdata, ["wekg", "wap"], mini=roi["pt"][0], maxi=roi["pt"][1])
+limits = dict(mini=roi["pt"][0], maxi=roi["pt"][1])
+fig = wp.plot_wave(wdata, ["wekg", "wap"], limits)
 
 #%% //////////////////////////////////////////////////////////////////////////
 # +++++++++  build animations +++++++++++++++++++++
@@ -125,8 +129,8 @@ paths["save"] = "/Users/cdesbois/toPlay"
 # paths['saveAnim'] = '/Users/cdesbois/enva/clinique/recordings/casClin/taphColic/mov'
 # paths['saveAnim'] = '/Users/cdesbois/enva/enseignement/cours/techniques/techniques/capnie/fig'
 fileName = os.path.join(paths["save"], saveName)
-
-fig, lines = wp.plot_wave(df, keys=keys, mini=None, maxi=None)
+limits = dict(mini=None, maxi=None)
+fig, lines = wp.plot_wave(df, keys=keys, param=limits)
 fig.text(0.01, 0.01, file, ha="left", va="bottom", alpha=0.4)
 fig.text(0.99, 0.01, "cDesbois", ha="right", va="bottom", alpha=0.4)
 
@@ -166,7 +170,8 @@ plt.show()
 
 #%% ventilatory loop
 plt.close("all")
-fig, lines = wp.plot_wave(wdata, keys=["wflow", "wawp"], mini=None, maxi=None)
+limits = dict(mini=None, maxi=None)
+fig, lines = wp.plot_wave(wdata, keys=["wflow", "wawp"], param=limits)
 lims = fig.get_axes()[0].get_xlim()
 mini = int(lims[0])  # pt
 maxi = int(lims[1])  # pt
@@ -220,8 +225,10 @@ flowPressureLoop(wdata, mini, maxi)
 
 #%% volumetric CO2
 plt.close("all")
-fig, lines = wp.plot_wave(wdata, keys=["wco2", "wflow"], mini=mini, maxi=maxi)
-fig, lines = wp.plot_wave(wdata, keys=["wflow", "wawp"], mini=mini, maxi=maxi)
+limits = dict(mini=mini, maxi=mini)
+
+fig, lines = wp.plot_wave(wdata, keys=["wco2", "wflow"], param=limits)
+fig, lines = wp.plot_wave(wdata, keys=["wflow", "wawp"], param=limits)
 fig.set_figwidth(12)
 fig.set_figheight(6)
 
@@ -298,7 +305,7 @@ df["deltaPoint"] = df.point - df.point.shift(1)
 
 # total duration :
 totTime = df.time.iloc[-1] - df.time.iloc[0]
-totTime = datetime.timedelta.total_seconds(totTime)
+totTime = timedelta.total_seconds(totTime)
 totPoint = df.point.iloc[-1] - df.point.iloc[0]
 
 ptPerSec = totPoint / totTime
