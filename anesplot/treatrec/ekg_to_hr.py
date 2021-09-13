@@ -9,9 +9,10 @@ typically (copy, paste and execute line by line)
 0. after
 --------
 ::
+    import pandas as pd
 
     import anesplot.record_main as rec
-    from treatrec import ekg_to_hr as tohr
+    from anesplot.treatrec import ekg_to_hr as tohr
 
 1. load the data in a pandas dataframe:
 ---------------------------------------
@@ -525,7 +526,7 @@ def append_ihr_to_trend(trenddf, wavedf, ekgdf):
     df = df["ihr"].groupby(ser).median()
     # concatenate
     if "ihr" in trenddf.columns:
-        trenddf.drop("ihr", axis=1)
+        trenddf.drop("ihr", axis=1, inplace=True)
     trenddf = pd.concat([trenddf, df], axis=1)
     print("added instantaneous heart rate to a TREND dataframe")
     return trenddf
@@ -545,12 +546,15 @@ def save_trends_data(trenddf, savename="", savepath=None):
 
     if savepath is None:
         savepath = os.getcwd()
+    if not os.path.isdir(savepath):
+        print("folder {} does not exist, please build it".format(savepath))
+        return
     filename = savename + "_" + "trendData"
     if filename.startswith("_"):
         filename = filename[1:]
-    name = os.path.join(savepath, filename)
-    trenddf.to_csv(name + ".csv")
-    trenddf.to_hdf(name + ".hdf", mode="w", key="trends_data")
+    fullname = os.path.join(savepath, filename)
+    trenddf.to_csv(fullname + ".csv")
+    trenddf.to_hdf(fullname + ".hdf", mode="w", key="trends_data")
 
 
 def save_waves_data(wavedf, savename="", savepath=None):
@@ -566,12 +570,15 @@ def save_waves_data(wavedf, savename="", savepath=None):
 
     if savepath is None:
         savepath = os.getcwd()
+    if not os.path.isdir(savepath):
+        print("folder {} does not exist, please build it".format(savepath))
+        return
     filename = savename + "_" + "waveData"
     if filename.startswith("_"):
         filename = filename[1:]
-    name = os.path.join(savepath, filename)
-    wavedf.to_csv(name + ".csv")
-    wavedf.to_hdf(name + ".hdf", mode="w", key="waves_data")
+    fullname = os.path.join(savepath, filename)
+    wavedf.to_csv(fullname + ".csv")
+    wavedf.to_hdf(fullname + ".hdf", mode="w", key="waves_data")
 
 
 # ekg_df = append_rr_and_ihr_to_wave(ekg_df, ahr_df)
