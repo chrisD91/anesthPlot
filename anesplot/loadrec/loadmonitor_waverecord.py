@@ -8,7 +8,7 @@ load a monitor wave recording:
     - choose a file
     - load the header to a pandas dataframe
     - load the date into a pandas dataframe
-    
+
 ____
 """
 
@@ -27,7 +27,7 @@ def choosefile_gui(dir_path=None):
     """select a file using a dialog.
 
     :param str dir_path: optional location of the data (paths['data'])
-    
+
     :returns: filename (full path)
     :rtype: str
     """
@@ -49,9 +49,9 @@ def choosefile_gui(dir_path=None):
 #%%
 def loadmonitor_waveheader(filename):
     """load the wave file header.
-    
+
     :param str filename: full name of the file
-    
+
     :returns: header
     :rtype: pandas.Dataframe
     """
@@ -63,9 +63,9 @@ def loadmonitor_waveheader(filename):
 
 def loadmonitor_wavedata(filename):
     """load the monitor wave csvDataFile.
-    
+
     :param str filename: full name of the file
-    
+
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
@@ -85,6 +85,7 @@ def loadmonitor_wavedata(filename):
         index_col=False,
         encoding="iso-8859-1",
         usecols=[0, 2, 3, 4, 5, 6],
+        dtype={"Unnamed: 0": str},
     )  # , nrows=200000) #NB for development
     # columns names correction
     colnames = {
