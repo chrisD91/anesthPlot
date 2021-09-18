@@ -71,12 +71,13 @@ def plot_wave(data, keys=[], param={}):
     for key in keys:
         try:
             key in data.columns
-        except:
+        except KeyError:
             print("the trace {} is not in the data".format(key))
             return
     if len(keys) not in [1, 2]:
         print("only one or two keys are allowed ", keys, "were used")
         return
+    # default plotting
     names = dict(
         wekg=["ECG", "tab:blue", "mVolt"],
         wco2=["expired CO2", "tab:blue", "mmHg"],
@@ -84,7 +85,11 @@ def plot_wave(data, keys=[], param={}):
         wflow=["expiratory flow", "tab:green", "flow"],
         wap=["arterial pressure", "tab:red", "mmHg"],
         wvp=["venous pressure", "tab:blue", "mmHg"],
+        ihr=["instanous heart rate", "tab:blue", "bpm"],
     )
+    for key in keys:
+        if not key in names:
+            names[key] = [key, "tab:blue", ""]
     # time scaling (index value)
     mini = param.get("mini", data.index[0])
     maxi = param.get("maxi", data.index[-1])
@@ -110,10 +115,12 @@ def plot_wave(data, keys=[], param={}):
     if len(keys) == 1:
         for key in keys:
             fig = plt.figure(figsize=(12, 4))
-            fig.suptitle(names[key][0], color="tab:grey")
+            title = names[key][0]
+            fig.suptitle(title, color="tab:grey")
             ax = fig.add_subplot(111)
             ax.margins(0)
-            (line,) = ax.plot(df[key], color=names[key][1], alpha=0.6)
+            color = names[key][1]
+            (line,) = ax.plot(df[key], color=color, alpha=0.6)
             lines.append(line)
             ax.axhline(0, alpha=0.3)
             ax.set_ylabel(names[key][2])
@@ -150,7 +157,8 @@ def plot_wave(data, keys=[], param={}):
             ax = ax_list[i]
             # ax.set_title(names[key][0])
             ax.set_ylabel(names[key][0], size="small")
-            (line,) = ax.plot(df[key], color=names[key][1], alpha=0.6)
+            color = names[key][1]
+            (line,) = ax.plot(df[key], color=color, alpha=0.6)
             lines.append(line)
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.3)

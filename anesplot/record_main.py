@@ -415,7 +415,7 @@ class FastWave(Waves):
             fig = None
             print("there is no data to plot")
         else:
-            cols = [w for w in self.data.columns if w[0] == "w"]
+            cols = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
             if tracesList is None:
                 tracesList = []
                 # trace = select_type(question='choose wave', items=cols)
