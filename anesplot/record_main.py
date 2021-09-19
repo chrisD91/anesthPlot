@@ -425,7 +425,9 @@ class FastWave(Waves):
                         tracesList.append(trace)
             if tracesList:
                 # fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
-                fig, _ = wplot.plot_wave(self.data, keys=tracesList, param=self.param)
+                fig, lines = wplot.plot_wave(
+                    self.data, keys=tracesList, param=self.param
+                )
                 fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
                 fig.text(0.01, 0.01, self.file, ha="left", va="bottom", alpha=0.4)
                 self.trace = tracesList
@@ -433,21 +435,59 @@ class FastWave(Waves):
             else:
                 self.trace = None
                 fig = None
+                lines = None
             self.fig = fig
-            return fig
+            return fig, lines
 
     def define_a_roi(self):
         """define a ROI."""
         df = self.data
         if self.fig:
             ax = self.fig.get_axes()[0]
-            # point Value
-            lims = ax.get_xlim()  # pt values
-            limpt = (int(lims[0]), int(lims[1]))
-            # sec value
-            limsec = (df.sec.loc[limpt[0]], df.sec.loc[limpt[1]])
-            limdatetime = (df.datetime.loc[limpt[0]], df.datetime.loc[limpt[1]])
-            roidict = {"sec": limsec, "pt": limpt, "dt": limdatetime}
+            # TODO chekc points of date of xaxis
+            if self.param["dtime"]:
+                # TODO get the iloccation from the dtime
+                # df.iloc[df.index.get_loc(dt, method='nearest')]
+                # bug if values are duplicated (eg in the end of a wave recording)
+
+                startT, endT = ax.get_xlim()
+                start_dtime = pd.to_datetime(matplotlib.dates.num2date(startT))
+                end_dtime = pd.to_datetime(matplotlib.dates.num2date(endT))
+                # remove timezone
+                start_dtime = start_dtime.tz_localize(None)
+                end_dtime = end_dtime.tz_localize(None)
+                start_dt, start_pt, start_sec = (
+                    df.loc[df.datetime == start_dtime, ["datetime", "point", "sec"]]
+                    .head(1)
+                    .squeeze()
+                )
+
+                end_dt, end_pt, end_sec = (
+                    df.loc[df.datetime == end_dtime, ["datetime", "point", "sec"]]
+                    .tail(1)
+                    .squeeze()
+                )
+
+            else:
+                # point Value
+                lims = ax.get_xlim()  # pt values
+
+                start_dt, start_pt, start_sec = (
+                    df.loc[df.point == int(lims[0]), ["datetime", "point", "sec"]]
+                    .head(1)
+                    .squeeze()
+                )
+                end_dt, end_pt, end_sec = (
+                    df.loc[df.point == int(lims[1]), ["datetime", "point", "sec"]]
+                    .tail(1)
+                    .squeeze()
+                )
+
+            roidict = {
+                "sec": (start_sec, end_sec),
+                "pt": (start_pt, end_pt),
+                "dt": (start_dt, end_dt),
+            }
             self.roi = roidict
 
 

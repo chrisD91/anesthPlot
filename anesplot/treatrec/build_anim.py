@@ -23,6 +23,13 @@ if not "paths" in dir():
     paths = {}
 #%% choose an area of interest
 
+if not "waves" in dir():
+    print("please build waves = rec.MonitorWave object")
+
+fig, lines = waves.plot_wave(["wawp", "wflow"])
+waves.define_a_roi()
+
+
 plt.close("all")
 
 

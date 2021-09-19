@@ -90,6 +90,8 @@ def plot_wave(data, keys=[], param={}):
     for key in keys:
         if not key in names:
             names[key] = [key, "tab:blue", ""]
+            if key.startswith("rr"):
+                names[key] = [key, "tab:green", ""]
     # time scaling (index value)
     mini = param.get("mini", data.index[0])
     maxi = param.get("maxi", data.index[-1])
