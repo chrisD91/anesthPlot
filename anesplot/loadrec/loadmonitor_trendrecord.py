@@ -10,7 +10,7 @@ load a monitor trend recording:
     - choose a file
     - load the header to a dictionary
     - load the date into a pandas dataframe
-    
+
 ____
 """
 
@@ -28,7 +28,7 @@ def choosefile_gui(dir_path=None):
     """select a file using a dialog.
 
     :param str dir_path: optional location of the data (paths['data'])
-    
+
     :returns: filename (full path)
     :rtype: str
     """
@@ -50,9 +50,9 @@ def choosefile_gui(dir_path=None):
 #%% Monitor trend
 def loadmonitor_trendheader(filename):
     """load the file header.
-    
+
     :param str filename: full name of the file
-    
+
     :returns: header
     :rtype: dict
     """
@@ -83,10 +83,10 @@ def loadmonitor_trendheader(filename):
 
 def loadmonitor_trenddata(filename, header):
     """load the monitor trend data
-    
+
     :param str filename: fullname
     :param dict header: fileheader
-    
+
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
@@ -103,7 +103,7 @@ def loadmonitor_trenddata(filename, header):
     # remove waves time indicators(column name beginning with a '~')
     for col in df.columns:
         if col[0] == "~":
-            del df[col]
+            df.pop(col)
     to_fix = []
     for col in df.columns:
         if df[col].dtype != "float64":

@@ -43,7 +43,7 @@ def fix_baseline_wander(data, fs=500):
 def rol_mean(ser, win_lengh=1, fs=500):
     """
     returns a rolling mean of a RR serie
-    
+
     parameters
     ----------
     ser= pd.Serie
@@ -51,7 +51,7 @@ def rol_mean(ser, win_lengh=1, fs=500):
         window lenght for averaging (in sec),
     fs: int
         sampling frequency
-        
+
     """
 
     # moving average
@@ -186,7 +186,7 @@ def return_points(df, fig):
     ----------
     df: anesthesia record dataframe
     fig: pyplot.figure
-    
+
     returns
     -------
     ROI: dict
@@ -222,17 +222,17 @@ def restrict_time_area(df1, mini=None, maxi=None):
     df1: pandas.DataFrame
     mini: integer
         miniPointValue
-    maxi: integer    
+    maxi: integer
         maxiPointValue
-        
+
     returns
-    -------    
+    -------
     pandas.DataFrame
     """
 
     try:
         "sec" in df1.columns
-    except:
+    except KeyError:
         print("'sec' should be in the dataframe columns")
         return
     df2 = df1.iloc[np.arange(mini, maxi)].reset_index()
