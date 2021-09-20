@@ -272,12 +272,10 @@ def plot_all_dir_hypo(dirname=None, scatter=False):
 plt.close("all")
 # folder or file
 folder = True  # folder or file ?
-if __name__ == '__main__':
+if __name__ == "__main__":
     # analyse all the recordings present in a folder
     if folder:
-        dir_name = (
-            "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/2019"
-            )
+        dir_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/2019"
         filename = plot_all_dir_hypo(dir_name, scatter=False)
         # analyse just a file
     else:

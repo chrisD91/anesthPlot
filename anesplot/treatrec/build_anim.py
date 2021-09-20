@@ -12,6 +12,7 @@ import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import pandas as pd
 
+
 import anesplot.treatrec.wave_func as wf
 import anesplot.plot.wave_plot as wp
 
@@ -21,15 +22,113 @@ if not "params" in dir():
     params = {}
 if not "paths" in dir():
     paths = {}
-#%% choose an area of interest
 
+#%% choose a plot
+plt.close("all")
 if not "waves" in dir():
+    waves = None
     print("please build waves = rec.MonitorWave object")
 
-fig, lines = waves.plot_wave(["wawp", "wflow"])
-waves.define_a_roi()
+waves.param["dtime"] = False
+keys = ["wawp", "wflow"]
+fig, lines = waves.plot_wave(keys)
+
+#%% choose an area of interest (roi)
+roi = waves.define_a_roi()
+
+#%% select subdata
+df = waves.data[roi["sec"][0] < waves.data.sec]
+df = df[df.sec < roi["sec"][1]]
+df = df.set_index("sec")
+df = df[keys].copy()
+
+#%% build animation
 
 
+def animate(i):
+    """
+    animate frame[i], add 10 points to the lines
+    return the two lines2D objects
+    """
+    #    print(i, len(df)/10)
+    #    bol = (i > (len(df)/10 -40))
+    #    print(bol)
+    #    if bol:
+    #        line0.set_data([],[])
+    #        return line0,
+    if len(keys) == 1:
+        trace_name = keys[0]
+        line0.set_data(
+            df.iloc[0 : 10 * i].index, df.iloc[0 : 10 * i][trace_name].values
+        )
+        return (line0,)
+    else:
+        trace_name = keys[0]
+        line0.set_data(
+            df.iloc[0 : 10 * i].index, df.iloc[0 : 10 * i][trace_name].values
+        )
+        trace_name = keys[1]
+        line1.set_data(
+            df.iloc[0 : 10 * i].index, df.iloc[0 : 10 * i][trace_name].values
+        )
+        return (
+            line0,
+            line1,
+        )
+
+
+# NB lag for co2 ie around -480 points
+
+anim = True
+save = False
+speed = 10  # speed of the animation
+
+saveName = "example"
+paths["save"] = "/Users/cdesbois/toPlay"
+# paths['saveAnim'] = '/Users/cdesbois/enva/clinique/recordings/principle/fig'
+# paths['saveAnim'] = '/Users/cdesbois/enva/clinique/recordings/casClin/taphColic/mov'
+# paths['saveAnim'] = '/Users/cdesbois/enva/enseignement/cours/techniques/techniques/capnie/fig'
+fileName = os.path.join(paths["save"], saveName)
+# limits = dict(mini=None, maxi=None)
+# fig, lines = wp.plot_wave(df, keys=keys, param=limits)
+# fig.text(0.01, 0.01, file, ha="left", va="bottom", alpha=0.4)
+# fig.text(0.99, 0.01, "cDesbois", ha="right", va="bottom", alpha=0.4)
+
+# adjust the limits
+# fig.get_axes()[0].set_ylim(0,45)
+
+# adjust scale
+# fig.get_axes()[0].set_ylim(40,100)
+# fig.get_axes()[1].set_ylim(50, 130)
+
+
+if anim:
+    for line in lines:
+        line.set_data([], [])
+    line0 = lines[0]
+    try:
+        line1 = lines[1]
+    except:
+        line1 = None
+    #
+    ani = animation.FuncAnimation(
+        fig,
+        animate,
+        frames=int(len(df) / 10),
+        interval=30 / speed,
+        repeat=False,
+        blit=True,
+        save_count=int(len(df) / 10),
+    )
+    for ax in fig.get_axes():
+        ax.spines["top"].set_visible(False)
+    if save:
+        ani.save(fileName + ".mp4")
+        fig.savefig(fileName + ".png")
+plt.show()
+
+
+#%%
 plt.close("all")
 
 

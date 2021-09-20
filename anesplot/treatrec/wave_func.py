@@ -19,7 +19,7 @@ def fix_baseline_wander(data, fs=500):
     compute the baseline.  The returned result is the original data minus this
     computed baseline.
     """
- 
+
     # source : https://pypi.python.org/pypi/BaselineWanderRemoval/2017.10.25
     print("source = Python port of BaselineWanderRemovalMedian.m from ECG-kit")
     print("Alex Page, alex.page@rochester.edu")
@@ -53,7 +53,7 @@ def rol_mean(ser, win_lengh=1, fs=500):
         sampling frequency
         
     """
-    
+
     # moving average
     mov_avg = ser.rolling(window=int(win_lengh * fs), center=False).mean()
     # replace the initial values by the mean
@@ -191,7 +191,7 @@ def return_points(df, fig):
     -------
     ROI: dict
     """
-    
+
     ax = fig.get_axes()[0]
     # point Value
     lims = ax.get_xlim()
@@ -229,7 +229,7 @@ def restrict_time_area(df1, mini=None, maxi=None):
     -------    
     pandas.DataFrame
     """
-    
+
     try:
         "sec" in df1.columns
     except:

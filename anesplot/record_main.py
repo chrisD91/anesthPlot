@@ -39,7 +39,6 @@ import matplotlib
 
 matplotlib.use("Qt5Agg")  # NB use automatic for updating
 import matplotlib.pyplot as plt
-
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
 # to have the display beginning from 0
@@ -456,39 +455,38 @@ class FastWave(Waves):
                 # remove timezone
                 start_dtime = start_dtime.tz_localize(None)
                 end_dtime = end_dtime.tz_localize(None)
-                start_dt, start_pt, start_sec = (
-                    df.loc[df.datetime == start_dtime, ["datetime", "point", "sec"]]
-                    .head(1)
-                    .squeeze()
-                )
 
-                end_dt, end_pt, end_sec = (
-                    df.loc[df.datetime == end_dtime, ["datetime", "point", "sec"]]
-                    .tail(1)
-                    .squeeze()
+                i_start = df.set_index("datetime").index.get_loc(
+                    start_dtime, method="nearest"
+                )
+                i_end = df.set_index("datetime").index.get_loc(
+                    end_dtime, method="nearest"
                 )
 
             else:
-                # point Value
-                lims = ax.get_xlim()  # pt values
+                # index = sec
+                lims = ax.get_xlim()  # sec values
 
-                start_dt, start_pt, start_sec = (
-                    df.loc[df.point == int(lims[0]), ["datetime", "point", "sec"]]
-                    .head(1)
-                    .squeeze()
-                )
-                end_dt, end_pt, end_sec = (
-                    df.loc[df.point == int(lims[1]), ["datetime", "point", "sec"]]
-                    .tail(1)
-                    .squeeze()
-                )
+                i_start = df.set_index("sec").index.get_loc(lims[0], method="nearest")
+                i_end = df.set_index("sec").index.get_loc(lims[1], method="nearest")
+
+            start_dt, start_pt, start_sec = df.iloc[i_start][
+                ["datetime", "point", "sec"]
+            ].values
+
+            end_dt, end_pt, end_sec = df.iloc[i_end][
+                ["datetime", "point", "sec"]
+            ].values
 
             roidict = {
                 "sec": (start_sec, end_sec),
                 "pt": (start_pt, end_pt),
                 "dt": (start_dt, end_dt),
             }
+            print("-" * 10)
+            print("defined a roi")
             self.roi = roidict
+            return self.roi
 
 
 class TelevetWave(FastWave):

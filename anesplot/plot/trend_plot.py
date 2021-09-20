@@ -40,7 +40,7 @@ def color_axis(ax, spine="bottom", color="r"):
     :param matplotlib.pyplot.axis ax: the axis
     :param str spine: optional location in ['bottom', 'left', 'top', 'right']
     :param str colors: optional color
-    """    
+    """
     ax.spines[spine].set_color(color)
     if spine == "bottom":
         ax.xaxis.label.set_color(color)
@@ -200,7 +200,7 @@ def hist_cardio(data, param={}):
 # ---------------------------------------------------------------------------------------------------
 def plot_one_over_time(x, y, colour):
     """ plot y over x using colour"""
-    
+
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(x, y, color=colour)
@@ -497,7 +497,7 @@ def co2iso(data, param={}):
    
     :returns fig= pyplot.figure
     """
-    
+
     if "co2exp" not in data.columns:
         print("no co2exp in the recording")
         return
@@ -589,7 +589,7 @@ def co2o2(data, param):
     
     :returns: fig= pyplot.figure
     """
-    
+
     try:
         etCO2 = data.co2exp
     except:
@@ -904,12 +904,12 @@ def ventil_cardio(data, param):
 # ------------------------------------------------------------------------
 def save_distri(data, path):
     """save as 'O_..' the 4 distributions graphs for cardiovasc annd respi"""
-    
-#    bpgas(data).savefig((path["sFig"] + "O_bpgas.png"), bbox_inches="tight")
+
+    #    bpgas(data).savefig((path["sFig"] + "O_bpgas.png"), bbox_inches="tight")
     hist_co2_iso(data).savefig(
         (path["sFig"] + "O_hist_co2_iso.png"), bbox_inches="tight"
     )
- #   bppa(data).savefig((path["sFig"] + "O_bppa.png"), bbox_inches="tight")
+    #   bppa(data).savefig((path["sFig"] + "O_bppa.png"), bbox_inches="tight")
     hist_cardio(data).savefig((path["sFig"] + "O_hist_cardio.png"), bbox_inches="tight")
 
 

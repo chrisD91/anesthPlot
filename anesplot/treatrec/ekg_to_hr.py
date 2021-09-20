@@ -295,29 +295,33 @@ def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
 # TODO append the missing R in case of BAV2
 
 
-def save_beats(beatdf, tochangedf, savename="", savepath=None):
-    """
-    save the beats locations as csv and hd5 file
+def save_beats(beatdf, tochangedf, savename="", dirpath=None):
+    """save the beats locations as csv and hd5 file
 
     parameters
     ----------
     beatde : pd.dataframes
-    savepath : path to save in
-    """
+    tochangedf : pandas.dataframe
+    savename : filename
+    dirpath : path to save in
 
-    if savepath is None:
-        savepath = os.getcwd()
+    output
+    ------
+    hdf file, key='beatDf'
+    """
+    if dirpath is None:
+        dirpath = os.getcwd()
     filename = savename + "_" + "beatDf"
     if filename.startswith("_"):
         filename = filename[1:]
-    name = os.path.join(savepath, filename)
+    name = os.path.join(dirpath, filename)
     beatdf.to_csv(name + ".csv")
     beatdf.to_hdf(name + ".hdf", mode="w", key="beatDf")
     tochangedf.to_hdf(name + ".hdf", mode="a", key="tochangeDf")
     filename = savename + "_" + "tochangedf"
     if filename.startswith("_"):
         filename = filename[1:]
-    name = os.path.join(savepath, filename)
+    name = os.path.join(dirpath, filename)
     tochangedf.to_csv(name + ".csv")
 
 
@@ -532,7 +536,7 @@ def append_ihr_to_trend(trenddf, wavedf, ekgdf):
     return trenddf
 
 
-def save_trends_data(trenddf, savename="", savepath=None):
+def save_trends_data(trenddf, savename="", dirpath="data"):
     """
      save the trends data to a csv and hd5 file, including an ihr column
 
@@ -540,44 +544,52 @@ def save_trends_data(trenddf, savename="", savepath=None):
      ----------
      trenddf : pd.dataframes
      savename : str
-     savepath : str
+     dirpath : str
          path to save in (default= current working directory)
+
+    output
+    ------
+    hdf file, key='trends_data'
     """
 
-    if savepath is None:
-        savepath = os.getcwd()
-    if not os.path.isdir(savepath):
-        print("folder {} does not exist, please build it".format(savepath))
+    if dirpath is None:
+        dirpath = os.getcwd()
+    if not os.path.isdir(dirpath):
+        print("folder {} does not exist, please build it".format(dirpath))
         return
     filename = savename + "_" + "trendData"
     if filename.startswith("_"):
         filename = filename[1:]
-    fullname = os.path.join(savepath, filename)
-    trenddf.to_csv(fullname + ".csv")
+    fullname = os.path.join(dirpath, filename)
+    # trenddf.to_csv(fullname + ".csv")
     trenddf.to_hdf(fullname + ".hdf", mode="w", key="trends_data")
 
 
-def save_waves_data(wavedf, savename="", savepath=None):
+def save_waves_data(wavedf, savename="", dirpath="data"):
     """
-    save the trends data to a csv and hd5 file, including an ihr column
+    save the trends data to a hd5 file, including an ihr column
 
     parameters
     ----------
     trenddf : pd.dataframes
     savename : str
-        savepath : path to save in (default= current working directory)
+        dirpath : path to save in (default='data')
+
+    output
+    ------
+    hdf_file, key='waves_data'
     """
 
-    if savepath is None:
-        savepath = os.getcwd()
-    if not os.path.isdir(savepath):
-        print("folder {} does not exist, please build it".format(savepath))
+    if dirpath is None:
+        dirpath = os.getcwd()
+    if not os.path.isdir(dirpath):
+        print("folder {} does not exist, please build it".format(dirpath))
         return
     filename = savename + "_" + "waveData"
     if filename.startswith("_"):
         filename = filename[1:]
-    fullname = os.path.join(savepath, filename)
-    wavedf.to_csv(fullname + ".csv")
+    fullname = os.path.join(dirpath, filename)
+    # wavedf.to_csv(fullname + ".csv")
     wavedf.to_hdf(fullname + ".hdf", mode="w", key="waves_data")
 
 
