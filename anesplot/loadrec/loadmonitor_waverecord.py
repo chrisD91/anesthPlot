@@ -14,8 +14,6 @@ ____
 
 import os
 import sys
-import time
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -109,16 +107,14 @@ def loadmonitor_wavedata(filename):
     df.time = df.time.apply(
         lambda x: pd.to_datetime(date + "-" + x) if not pd.isna(x) else x
     )
-    # interpolate time values
-    ser = pd.Series(df.time.values.astype("int64"))
-    ser[ser < 0] = np.nan
-    # remove intermediate datetime before interpolation (lack of precision)
-    first_next = ser.loc[ser > 0].index[0] + 1
-    last_previous = ser.loc[ser > 0].index[-1] - 1
-    ser.iloc[first_next:last_previous] = np.nan
-    df["datetime"] = pd.to_datetime(ser.interpolate(), unit="ns")
+    # interpolate time values (fill the gaps)
+    dt_df = df.time[df.time.notnull()]
+    time_delta = (dt_df.iloc[-1] - dt_df.iloc[0]) / (
+        dt_df.index[-1] - dt_df.index[0] - 1
+    )
+    start_time = df.time.iloc[0]
+    df["datetime"] = [start_time + i * time_delta for i in range(len(df))]
     df["point"] = df.index  # point location
-
     # add a 'sec'
     df["sec"] = df.index / fs
 
