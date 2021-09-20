@@ -6,7 +6,8 @@ Created on Wed Jul 31 16:05:29 2019
 @author: cdesbois
 """
 import numpy as np
-import pandas as pd
+
+# import pandas as pd
 
 
 def clean_trenddata(df):
@@ -72,10 +73,10 @@ def clean_trenddata(df):
         "peepi": (None, None),
     }
     # irrelevant
-    for item in range_dict:
+    for item, lims in range_dict.items():
         if item in df.columns:
-            df.loc[df[item] < range_dict[item][0], item] = np.NaN
-            df.loc[df[item] > range_dict[item][1], item] = np.NaN
+            df.loc[df[item] < lims[0], item] = np.NaN
+            df.loc[df[item] > lims[1], item] = np.NaN
     # outliers
     for item in param_list:
         if item in df.columns:
