@@ -35,13 +35,13 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 plt.close("all")
 
 
-def extract_hypotension(trends, pamin=70):
+def extract_hypotension(atrend, pamin=70):
     """
     return a dataframe with the beginning and ending phses of hypotension
 
     Parameters
     ----------
-    trends : MonitorTrend object
+    atrend : MonitorTrend object
     pamin : float= threshold de define hypotension on mean arterial pressure
     (default is 70)
     Returns
@@ -50,10 +50,10 @@ def extract_hypotension(trends, pamin=70):
         transitionts (up and down, in  seconds from beginning)
         and duration in the hypotension state (in seconds)
     """
-    df = trends.data.copy()
+    df = atrend.data.copy()
     if "ip1m" not in df.columns:
         print("no ip1m recording in the data")
-        return trends.param["file"]
+        return atrend.param["file"]
     df = pd.DataFrame(df.set_index(df.eTime.astype(int))["ip1m"])
     df["low"] = df.ip1m < pamin
     df["trans"] = df.low - df.low.shift(-1)
@@ -64,28 +64,29 @@ def extract_hypotension(trends, pamin=70):
         durdf["down"] = df.loc[df.trans == -1].index.to_list()
         up = df.loc[df.trans == 1].index.to_list()
         durdf = durdf.join(pd.Series(name="up", data=up))
-        a, b = durdf.iloc[0]
-        if a > b:
-            durdf.up = durdf.up.shift(-1)
-        durdf["hypo_duration"] = durdf.up - durdf.down
-        # mean value
-        hypos = []
-        for i in durdf.index:
-            a, b = durdf.loc[i, ["down", "up"]]
-            hypo = df.loc[a:b, ["ip1m"]].mean()[0]
-            hypos.append(hypo)
-        durdf["hypo_value"] = hypos
+        if len(durdf) > 0:
+            a, b = durdf.iloc[0]
+            if a > b:
+                durdf.up = durdf.up.shift(-1)
+            durdf["hypo_duration"] = durdf.up - durdf.down
+            # mean value
+            hypos = []
+            for i in durdf.index:
+                a, b = durdf.loc[i, ["down", "up"]]
+                hypo = df.loc[a:b, ["ip1m"]].mean()[0]
+                hypos.append(hypo)
+            durdf["hypo_value"] = hypos
         durdf = durdf.dropna()
     return durdf
 
 
-def plot_hypotension(trends, durdf, durmin=15, pamin=70):
+def plot_hypotension(atrend, durdf, durmin=15, pamin=70):
     """
     plot the hupotentions phases
 
     Parameters
     ----------
-    trends : TYPE
+    atrend : TYPE
         DESCRIPTION.
     durdf : TYPE
         DESCRIPTION.
@@ -98,8 +99,8 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
         DESCRIPTION.
 
     """
-    param = trends.param
-    df = trends.data.copy()
+    param = atrend.param
+    df = atrend.data.copy()
     if len(df) < 1:
         print("empty data for {}".format(param["file"]))
         return param["file"]
@@ -112,8 +113,8 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
     ax.axhline(y=70, color="tab:grey", alpha=0.5)
     if len(durdf) > 0:
         for a, b, t, *_ in durdf.loc[durdf.hypo_duration > 60].values:
-            #            ax.vlines(a, ymin=50, ymax=70, color='tab:red', alpha = 0.5)
-            #            ax.vlines(b, ymin=50, ymax=70, color='tab:green', alpha = 0.5)
+            # ax.vlines(a, ymin=50, ymax=70, color='tab:red', alpha = 0.5)
+            # ax.vlines(b, ymin=50, ymax=70, color='tab:green', alpha = 0.5)
             ax.add_patch(
                 Rectangle(
                     xy=(a, 70),
@@ -126,7 +127,7 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
                     fill=False,
                 )
             )
-            #                                   min=a, xmax=b, ymin=0.4, ymax=0.6, color='tab:red', alpha=0.3)
+            # min=a, xmax=b, ymin=0.4, ymax=0.6, color='tab:red', alpha=0.3)
 
             if t > 15 * 60:
                 ax.axvspan(xmin=a, xmax=b, color="tab:red", alpha=0.3)
@@ -179,18 +180,18 @@ def plot_hypotension(trends, durdf, durmin=15, pamin=70):
     return fig
 
 
-def scatter_length_meanhypo(trends, durdf):
+def scatter_length_meanhypo(atrend, durdf):
     """
     draw a scatter plot (hypotensive arterial value vs duration of hypotension)
     Parameters
     ----------
-    trends : MonitorTrend 
+    trends : MonitorTrend
     durdf : pandas dataframe containing the value and duration
     Returns
     -------
     fig : matplotlib.pyplot figure
     """
-    param = trends.param
+    param = atrend.param
     if "hypo_duration" not in durdf:
         return
     fig = plt.figure(figsize=(8, 6))
@@ -251,17 +252,17 @@ def plot_all_dir_hypo(dirname=None, scatter=False):
     files = [_ for _ in files if not _.startswith(".")]
     for file in files:
         filename = os.path.join(dirname, file)
-        trends = MonitorTrend(filename)
+        atrend = MonitorTrend(filename)
         # if not trends.data is None:
-        if trends.data is None:
+        if atrend.data is None:
             continue
-        if not "ip1m" in trends.data.columns:
+        if not "ip1m" in atrend.data.columns:
             continue
-        dur_df = extract_hypotension(trends, pamin=70)
+        dur_df = extract_hypotension(atrend, pamin=70)
         if scatter:
-            scatter_length_meanhypo(trends, dur_df)
+            scatter_length_meanhypo(atrend, dur_df)
         else:
-            plot_hypotension(trends, dur_df)
+            plot_hypotension(atrend, dur_df)
     # in case of pb
     return filename
 
@@ -275,15 +276,17 @@ folder = True  # folder or file ?
 if __name__ == "__main__":
     # analyse all the recordings present in a folder
     if folder:
-        dir_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/2019"
-        filename = plot_all_dir_hypo(dir_name, scatter=False)
+        dir_name = (
+            "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
+        )
+        file_name = plot_all_dir_hypo(dir_name, scatter=False)
         # analyse just a file
     else:
-        filename = None
-        trends = MonitorTrend(filename)
+        file_name = None
+        trends = MonitorTrend(file_name)
         if not trends.data is None:
-            dur_df = extract_hypotension(trends, pamin=70)
-            fig = plot_hypotension(trends, dur_df)
+            duration_df = extract_hypotension(trends, pamin=70)
+            figure = plot_hypotension(trends, duration_df)
             # fig = scatter_length_meanhypo(trends, dur_df)
 
         else:
