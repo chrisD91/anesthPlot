@@ -436,19 +436,15 @@ class FastWave(Waves):
                 fig = None
                 lines = None
             self.fig = fig
-            return fig, lines
+            return fig, lines, tracesList
 
     def define_a_roi(self):
         """define a ROI."""
         df = self.data
         if self.fig:
             ax = self.fig.get_axes()[0]
-            # TODO chekc points of date of xaxis
+            # TODO check points of date of xaxis
             if self.param["dtime"]:
-                # TODO get the iloccation from the dtime
-                # df.iloc[df.index.get_loc(dt, method='nearest')]
-                # bug if values are duplicated (eg in the end of a wave recording)
-
                 startT, endT = ax.get_xlim()
                 start_dtime = pd.to_datetime(matplotlib.dates.num2date(startT))
                 end_dtime = pd.to_datetime(matplotlib.dates.num2date(endT))

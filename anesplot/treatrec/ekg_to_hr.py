@@ -115,6 +115,8 @@ from scipy.interpolate import interp1d
 # import anesthPlot.treatrec.wave_func as wf
 # TODO import the paths construction
 
+# TODO shift the ihr of one beat (ie ihr should be on the end of the interval)
+
 #%%
 def detect_beats(ser, fs=300, species="horse", mult=1):
     """detect the peak locations
