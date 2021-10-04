@@ -26,7 +26,7 @@ print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resol
 # print('-'*10)
 
 
-import gc
+# import gc
 import os
 import sys
 from importlib import reload
@@ -403,6 +403,9 @@ class FastWave(Waves):
 
     def __init__(self, filename=None):
         super().__init__(filename)
+        self.trace_list = None
+        self.fig = None
+        self.roi = None
 
     def plot_wave(self, tracesList=None):
         """
@@ -429,10 +432,10 @@ class FastWave(Waves):
                 )
                 fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
                 fig.text(0.01, 0.01, self.file, ha="left", va="bottom", alpha=0.4)
-                self.trace = tracesList
+                self.trace_list = tracesList
                 plt.show()
             else:
-                self.trace = None
+                self.trace_list = None
                 fig = None
                 lines = None
             self.fig = fig
@@ -442,6 +445,10 @@ class FastWave(Waves):
         """define a ROI."""
         df = self.data
         if self.fig:
+            # ylims
+            ylims = []
+            for ax in self.fig.get_axes():
+                ylims.append(ax.get_ylim())
             ax = self.fig.get_axes()[0]
             # TODO check points of date of xaxis
             if self.param["dtime"]:
@@ -481,7 +488,10 @@ class FastWave(Waves):
             }
             print("-" * 10)
             print("defined a roi")
+            # append ylims and traces
+            roidict.update({"ylims": ylims, "traces": self.trace_list, "fig": self.fig})
             self.roi = roidict
+
             return self.roi
 
 
@@ -507,16 +517,21 @@ class MonitorWave(FastWave):
     """
 
     def __init__(self, filename=None, load=True):
+        print("*" * 20, "started wave init process")
+        # define filename -> self.filenamewa
         super().__init__(filename)
-        header = lmw.loadmonitor_waveheader(filename)
+        # load header
+        header = lmw.loadmonitor_waveheader(self.filename)
         self.header = dict(zip(header[0], header[1]))
+        # load data
         self.load = load
         if self.load:
-            data = lmw.loadmonitor_wavedata(filename)
+            data = lmw.loadmonitor_wavedata(filename=self.filename)
             self.data = data
         self.source = "monitorWave"
         self.fs = 300
         self.param["fs"] = 300
+        print("*" * 20, "ended wave init process")
 
 
 def main():

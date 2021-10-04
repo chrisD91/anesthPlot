@@ -32,19 +32,33 @@ def choosefile_gui(dir_path=None):
     :returns: filename (full path)
     :rtype: str
     """
+
     if dir_path is None:
         dir_path = os.path.expanduser("~")
-    caption = "choose a recording"
-    options = QFileDialog.Options()
-    # to be able to see the caption, but impose to work with the mouse
-    # options |= QFileDialog.DontUseNativeDialog
+
+    app = QApplication([dir_path])
     fname = QFileDialog.getOpenFileName(
-        caption=caption, directory=dir_path, filter="*.csv", options=options
+        None, "Select a file...", dir_path, filter="csv (*.csv)"
     )
-    #    fname = QFileDialog.getOpenfilename(caption=caption,
-    #                                        directory=direct, filter='*.csv')
-    # TODO : be sure to be able to see the caption
-    return fname[0]
+
+    if isinstance(fname, tuple):
+        return fname[0]
+    else:
+        return str(fname)
+
+    # if dir_path is None:
+    #     dir_path = os.path.expanduser("~")
+    # caption = "choose a recording"
+    # options = QFileDialog.Options()
+    # # to be able to see the caption, but impose to work with the mouse
+    # #    options |= QFileDialog.DontUseNativeDialog
+    # fname = QFileDialog.getOpenFileName(
+    #     caption=caption, directory=dir_path, filter="*.csv", options=options
+    # )
+    # #    fname = QFileDialog.getOpenfilename(caption=caption,
+    # #                                        directory=direct, filter='*.csv')
+    # # TODO : be sure to be able to see the caption
+    # return fname[0]
 
 
 #%% Monitor trend

@@ -29,23 +29,41 @@ def choosefile_gui(dir_path=None):
     :returns: filename (full path)
     :rtype: str
     """
+    print("-" * 20)
+    print("loadmonitor_waverecords/choosefile_gui")
+    print(f"dir_path= {dir_path}")
     if dir_path is None:
         dir_path = os.path.expanduser("~")
-    caption = "choose a recording"
-    options = QFileDialog.Options()
-    # to be able to see the caption, but impose to work with the mouse
-    # options |= QFileDialog.DontUseNativeDialog
+
+    app = QApplication([dir_path])
     fname = QFileDialog.getOpenFileName(
-        caption=caption, directory=dir_path, filter="*.csv", options=options
+        None, "Select a file...", dir_path, filter="csv (*.csv)"
     )
-    # fname = QFileDialog.getOpenfilename(caption=caption,
-    # directory=direct, filter='*.csv')
-    # TODO : be sure to be able to see the caption
-    return fname[0]
+
+    if isinstance(fname, tuple):
+        print(f"returned= {fname[0]}")
+        print("-" * 20)
+        return fname[0]
+    else:
+        print(f"returned= {fname}")
+        print("-" * 20)
+        return str(fname)
+
+    # caption = "choose a recording"
+    # options = QFileDialog.Options()
+    # # to be able to see the caption, but impose to work with the mouse
+    # # options |= QFileDialog.DontUseNativeDialog
+    # fname = QFileDialog.getOpenFileName(
+    #     caption=caption, directory=dir_path, filter="*.csv", options=options
+    # )
+    # # fname = QFileDialog.getOpenfilename(caption=caption,
+    # # directory=direct, filter='*.csv')
+    # # TODO : be sure to be able to see the caption
+    # return fname[0]
 
 
 #%%
-def loadmonitor_waveheader(filename):
+def loadmonitor_waveheader(filename=None):
     """load the wave file header.
 
     :param str filename: full name of the file
@@ -53,13 +71,22 @@ def loadmonitor_waveheader(filename):
     :returns: header
     :rtype: pandas.Dataframe
     """
+    print("=" * 20)
+    print("loadmonitor_waverecords/loadmonitor_waveheader")
+    print(f"filename= {filename}")
+    if filename is None:
+        filename = choosefile_gui()
+        print(f"called returned= {filename}")
+    print(f"now filename is : {filename}")
+    print("=" * 20)
+
     df = pd.read_csv(
         filename, sep=",", header=None, index_col=None, nrows=12, encoding="iso-8859-1"
     )
     return df
 
 
-def loadmonitor_wavedata(filename):
+def loadmonitor_wavedata(filename=None):
     """load the monitor wave csvDataFile.
 
     :param str filename: full name of the file
@@ -67,14 +94,17 @@ def loadmonitor_wavedata(filename):
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
-    print("loading data", os.path.basename(filename))
+    print("lmw: loadmonitor_wavedata")
+    print("filename= {}".format(filename))
     fs = 300  # sampling rate
     # header :
-    header_df = pd.read_csv(
-        filename, sep=",", header=None, index_col=None, nrows=12, encoding="iso-8859-1"
-    )
-    date = header_df.iloc[0][1]
+    # header_df = pd.read_csv(
+    #     filename, sep=",", header=None, index_col=None, nrows=12, encoding="iso-8859-1"
+    # )
+    # date = header_df.iloc[0][1]
+    date = pd.read_csv(filename, nrows=1, header=None).iloc[0][1]
 
+    print("lmw: loading wave_data of {}".format(os.path.basename(filename)))
     df = pd.read_csv(
         filename,
         sep=",",

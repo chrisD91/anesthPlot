@@ -31,7 +31,7 @@ if not "waves" in dir():
 
 waves.param["dtime"] = False
 keys = ["wawp", "wflow"]
-fig, lines = waves.plot_wave(keys)
+fig, lines, _ = waves.plot_wave(keys)
 
 #%% choose an area of interest (roi)
 roi = waves.define_a_roi()
