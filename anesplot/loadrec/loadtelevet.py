@@ -18,6 +18,30 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 #%%
+# def choosefile_gui(dir_path=None):
+#     """select a file using a dialog.
+
+#     :param str dir_path: optional location of the data (paths['data'])
+
+#     :returns: filename (full path)
+#     :rtype: str
+#     """
+
+#     if dir_path is None:
+#         dir_path = os.path.expanduser("~")
+#     options = QFileDialog.Options()
+#     caption = "choose a recording"
+#     # to be able to see the caption, but impose to work with the mouse
+#     #    options |= QFileDialog.DontUseNativeDialog
+#     fname = QFileDialog.getOpenFileName(
+#         caption=caption, directory=dir_path, filter="*.csv", options=options
+#     )
+#     #    fname = QFileDialog.getOpenfilename(caption=caption,
+#     #                                        directory=direct, filter='*.csv')
+#     # TODO : be sure to be able to see the caption
+#     return fname[0]
+
+
 def choosefile_gui(dir_path=None):
     """select a file using a dialog.
 
@@ -29,20 +53,20 @@ def choosefile_gui(dir_path=None):
 
     if dir_path is None:
         dir_path = os.path.expanduser("~")
-    options = QFileDialog.Options()
-    caption = "choose a recording"
-    # to be able to see the caption, but impose to work with the mouse
-    #    options |= QFileDialog.DontUseNativeDialog
+
+    apps = QApplication([dir_path])
     fname = QFileDialog.getOpenFileName(
-        caption=caption, directory=dir_path, filter="*.csv", options=options
+        None, "Select a file...", dir_path, filter="csv (*.csv)"
     )
-    #    fname = QFileDialog.getOpenfilename(caption=caption,
-    #                                        directory=direct, filter='*.csv')
-    # TODO : be sure to be able to see the caption
-    return fname[0]
+
+    if isinstance(fname, tuple):
+        filename = fname[0]
+    else:
+        filename = str(fname)
+    return filename
 
 
-def loadtelevet(file=None, all_traces=False):
+def loadtelevet(fname=None, all_traces=False):
     """ load the televetCsvExportedFile.
 
     :param str file: name of the file
@@ -53,9 +77,9 @@ def loadtelevet(file=None, all_traces=False):
     """
 
     filepath = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTelVetRecorded"
-    if file is None:
-        file = "STEF_0031_00114_20171205_121305.csv"
-    filename = os.path.join(filepath, file)
+    if fname is None:
+        fname = "STEF_0031_00114_20171205_121305.csv"
+    filename = os.path.join(filepath, fname)
     if not os.path.isfile(filename):
         print("no file for ", filename)
         return
@@ -76,11 +100,11 @@ def loadtelevet(file=None, all_traces=False):
 
 
 if not "paths" in dir():
-    paths = {}
+    paths: dict = {"data": "~"}
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    file_name = choosefile_gui(paths)
+    file_name = choosefile_gui(paths.get("data"))
     file = os.path.basename(file_name)
     ekg_data = loadtelevet(file_name, all_traces=False)

@@ -8,7 +8,7 @@ load a taphonius data recording:
     - choose a file
     - load the patient datafile to a dictionary
     - load the physiological date into a pandas dataframe
-    
+
 ____
 """
 
@@ -26,7 +26,7 @@ def choosefile_gui(dir_path=None):
     """select a file using a dialog.
 
     :param str dir_path: optional location of the data (paths['data'])
-    
+
     :returns: filename (full path)
     :rtype: str
     """
@@ -49,7 +49,7 @@ def loadtaph_trenddata(filename):
     """ load the taphoniusData trends data.
 
     :param str filename: fullname
-    
+
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
@@ -119,7 +119,7 @@ def loadtaph_trenddata(filename):
     # CO2: from % to mmHg
     try:
         df[["co2exp", "co2insp"]] *= 760 / 100
-    except:
+    except KeyError:
         print("no capnographic recording")
 
     return df
@@ -127,9 +127,9 @@ def loadtaph_trenddata(filename):
 
 def loadtaph_patientfile(headername):
     """ load the taphonius patient.csv file
-    
+
     :param str headername: fullname
-    
+
     :returns: descr = patient_data
     :rtype: dict
     """

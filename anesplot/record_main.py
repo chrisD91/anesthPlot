@@ -12,6 +12,11 @@ or imported as a package::
 
 ----
 """
+
+import os
+import sys
+from importlib import reload
+
 # see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
 from pathlib import Path
 
@@ -25,11 +30,6 @@ print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resol
 #     __file__,__name__,str(__package__)))
 # print('-'*10)
 
-
-# import gc
-import os
-import sys
-from importlib import reload
 
 import numpy as np
 import pandas as pd

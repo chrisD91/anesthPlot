@@ -71,7 +71,7 @@ def read_config():
         # and sys.argv[0] is supposed to
         # "always give the path of the script that initiated the process"
         local_mod_path = os.path.dirname(__file__)
-    except:
+    except NameError:
         # for inside spyder
         local_mod_path = "/Users/cdesbois/pg/chrisPg/anesthPlot/anesplot/config"
     filename = os.path.join(local_mod_path, "recordRc.yaml")
@@ -82,10 +82,9 @@ def read_config():
             cfg = yaml.safe_load(ymlfile)
         ymlfile.close()
         return cfg
-    else:
-        print("no config file founded")
-        print("please build one -> cf buildConfig.py")
-        return {}
+    print("no config file founded")
+    print("please build one -> cf buildConfig.py")
+    return {}
 
 
 def write_configfile(path):
@@ -100,12 +99,12 @@ def main():
     """main function for script execution."""
     try:
         app
-    except:
+    except NameError:
         app = QApplication(sys.argv)
     # test if paths exists (ie config present)
     try:
         paths
-    except:
+    except NameError:
         # print('no paths dico defined')
         # package location
         key = "record_main.py"
@@ -140,7 +139,7 @@ def main():
     write_configfile(paths)
     try:
         app
-    except:
+    except NameError:
         app.exec_()
 
     #%%

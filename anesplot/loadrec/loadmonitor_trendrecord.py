@@ -32,19 +32,18 @@ def choosefile_gui(dir_path=None):
     :returns: filename (full path)
     :rtype: str
     """
-
+    print("loadmonitor_trendrecord.choosefile_gui")
     if dir_path is None:
         dir_path = os.path.expanduser("~")
 
-    app = QApplication([dir_path])
+    apps = QApplication([dir_path])
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dir_path, filter="csv (*.csv)"
     )
 
     if isinstance(fname, tuple):
         return fname[0]
-    else:
-        return str(fname)
+    return str(fname)
 
     # if dir_path is None:
     #     dir_path = os.path.expanduser("~")
@@ -70,6 +69,7 @@ def loadmonitor_trendheader(filename):
     :returns: header
     :rtype: dict
     """
+    print("loadmonitor_trendrecord.loadmonitor_trendheader")
     print("loading header", os.path.basename(filename))
     try:
         df = pd.read_csv(
@@ -78,11 +78,11 @@ def loadmonitor_trendheader(filename):
             header=None,
             index_col=None,
             nrows=11,
-            encoding="iso8859_15",
+            encoding="iso8859_1",
         )
-    except Exception as e:
+    except UnicodeDecodeError as e:
         print(e)
-        return
+        return {}
     # NB encoding needed for accentuated letters
     df = df.set_index(0).T
     if "Sampling Rate" not in df.columns:
@@ -104,15 +104,16 @@ def loadmonitor_trenddata(filename, header):
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
+    print("loadmonitor_trendrecord.loadmonitor_trenddata")
     print("loading data", os.path.basename(filename))
     try:
         df = pd.read_csv(filename, sep=",", skiprows=[13], header=12)
-    except:
+    except UnicodeDecodeError:
         df = pd.read_csv(
             filename, sep=",", skiprows=[13], header=12, encoding="ISO-8859-1"
         )
     if len(df) == 0:
-        print("no recorded values in this file", filename.split("/")[-1])
+        print("no recorded values in this file", os.path.basename(filename))
         return df
     # remove waves time indicators(column name beginning with a '~')
     for col in df.columns:
@@ -193,7 +194,7 @@ def loadmonitor_trenddata(filename, header):
     # CO2: from % to mmHg
     try:
         df[["co2exp", "co2insp"]] *= 760 / 100
-    except:
+    except KeyError:
         print("no capnographic recording")
 
     # convert time to dateTime
