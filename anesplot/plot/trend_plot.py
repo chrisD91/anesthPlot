@@ -206,7 +206,7 @@ def hist_cardio(data, param=None):
     if quart:
         for i, item in enumerate(["ip1m", "hr"]):
             try:
-                q50 = np.percentile(data[item].dropna(), [25, 50, 75])
+                q25, q50, q75 = np.percentile(data[item].dropna(), [25, 50, 75])
                 axes[i].axvline(
                     q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8
                 )
