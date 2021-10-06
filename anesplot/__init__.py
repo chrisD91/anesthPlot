@@ -88,37 +88,16 @@ import sys
 # see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
 from pathlib import Path
 
+# to be able to use imports in spyder
+from PyQt5.QtWidgets import QApplication
+
+
 print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resolve())
-
-
 if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
     sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
-
-# print('-'*10)
-# print('"anesthPloT.anesthplot.__init__ file"')
-# # print('this is {} {} file and __name__ is {}'.format(
-# #     '__init__', 'anesplot', __name__))
-# # print('this is {} {} file and __package__ is {}'.format(
-# #     '__init__', 'anesplot', __package__))
-# # for _ in dir():
-# #     print(_)
-# print('-'*10)
-
-# import anesplot.config
-# import anesplotloadrec
-# import anesplot.treatrec
-# import  anesPlot.record_main
-
-# from . import record_main as rec
-# from . import treatrec
-# from . import config
-# from . import loadrec
-# from . import plot
-# import anesplot
-
-# from anesplot import record_main as rec
-# from anesplot import treatrec
-
-# import record_main as rec
-# import treatrec
+# buil a QApplication to be able to use a Qt GUi to choose files or waves
+try:
+    app
+except NameError:
+    app = QApplication(sys.argv)

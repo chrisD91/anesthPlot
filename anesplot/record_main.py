@@ -17,20 +17,6 @@ import os
 import sys
 from importlib import reload
 
-# see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
-from pathlib import Path
-
-print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resolve())
-# print('-'*10)
-# print('this is {} file and __name__ is {}'.format('record_main', __name__))
-# print('this is {} file and __package__ is {}'.format('record_main', __package__))
-# print('-'*10)
-
-# print('__file__={0:<35} \n __name__={1:<20} \n __package__={2:<20}'.format(
-#     __file__,__name__,str(__package__)))
-# print('-'*10)
-
-
 import numpy as np
 import pandas as pd
 import pyperclip
@@ -96,9 +82,6 @@ def choosefile_gui(dir_path=None):
     fname = QFileDialog.getOpenFileName(
         caption=caption, directory=dir_path, filter="*.csv", options=options
     )
-    #    fname = QFileDialog.getOpenfilename(caption=caption,
-    #                                        directory=direct, filter='*.csv')
-    # TODO : be sure to be able to see the caption
     return fname[0]
 
 
@@ -270,6 +253,15 @@ class Waves:
             fs=None,
             dtime=True,
         )
+        # try:
+        #     app
+        #     mes = "founded app"
+        # except NameError:
+        #     mes = "no app"
+        #     print("sys.argv = {}".format(sys.argv))
+        #     # app = QApplication([""])
+        #     # app.setQuitOnLastWindowClosed(True)
+        # print(mes)
 
 
 # +++++++
@@ -407,7 +399,7 @@ class FastWave(Waves):
         self.fig = None
         self.roi = None
 
-    def plot_wave(self, tracesList=None):
+    def plot_wave(self, traces_list=None):
         """
         simple choose and plot for a wave
         input = none -> GUI, or list of waves to plot (max=2)
@@ -417,32 +409,39 @@ class FastWave(Waves):
             fig = None
             print("there are no data to plot")
         else:
+            print("*" * 20, "started FastWave plot_wave")
             cols = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
-            if tracesList is None:
-                tracesList = []
+            if traces_list is None:
+                traces_list = []
                 # trace = select_type(question='choose wave', items=cols)
                 for num in [1, 2]:
                     trace = select_wave(waves=cols, num=num)
                     if trace is not None:
-                        tracesList.append(trace)
-            if tracesList:
+                        traces_list.append(trace)
+            if traces_list:
                 # fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
                 fig, lines = wplot.plot_wave(
-                    self.data, keys=tracesList, param=self.param
+                    self.data, keys=traces_list, param=self.param
                 )
                 fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
                 fig.text(0.01, 0.01, self.file, ha="left", va="bottom", alpha=0.4)
-                self.trace_list = tracesList
+                self.trace_list = traces_list
                 plt.show()
             else:
                 self.trace_list = None
                 fig = None
                 lines = None
             self.fig = fig
-            return fig, lines, tracesList
+            print("*" * 20, "ended FastWave plot_wave")
+            return fig, lines, traces_list
 
     def define_a_roi(self):
-        """define a ROI."""
+        """define a Region Of Interest.
+
+        takes the figure attribute
+        return a dictionary containing:
+
+        """
         df = self.data
         if self.fig:
             # ylims
@@ -490,9 +489,11 @@ class FastWave(Waves):
             print("defined a roi")
             # append ylims and traces
             roidict.update({"ylims": ylims, "traces": self.trace_list, "fig": self.fig})
-            self.roi = roidict
-
-            return self.roi
+        else:
+            print("no fig attribute, please use plot_wave() method to build one")
+            roidict = {}
+        self.roi = roidict
+        return self.roi
 
 
 class TelevetWave(FastWave):
@@ -517,7 +518,7 @@ class MonitorWave(FastWave):
     """
 
     def __init__(self, filename=None, load=True):
-        print("*" * 20, "started wave init process")
+        print("*" * 20, "started MonitorWave init process")
         # define filename -> self.filenamewa
         super().__init__(filename)
         # load header
@@ -531,7 +532,7 @@ class MonitorWave(FastWave):
         self.source = "monitorWave"
         self.fs = 300
         self.param["fs"] = 300
-        print("*" * 20, "ended wave init process")
+        print("*" * 20, "ended MonitorWave init process")
 
 
 def main():
