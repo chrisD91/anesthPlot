@@ -415,7 +415,7 @@ class FastWave(Waves):
         """
         if self.data.empty:
             fig = None
-            print("there is no data to plot")
+            print("there are no data to plot")
         else:
             cols = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
             if tracesList is None:
@@ -535,6 +535,12 @@ class MonitorWave(FastWave):
 
 
 def main():
+    """main script called from command line
+    call : "python anesthPlot/anesplot/__main__.py"
+    args : optional filename (fullname)
+
+    return: set of plots for either monitorTrend, monitorWave oe televet recording
+    """
     # look for terminal filename passed as the first argument
     provided_filename = None
     if len(sys.argv) > 1:
@@ -583,28 +589,28 @@ def main():
         telvet.param = params
         telvet.plot_wave()
     elif source == "monitorTrend":
-        monitorTrend = MonitorTrend(file_name)
-        if monitorTrend.data is None:
+        monitor_trend = MonitorTrend(file_name)
+        if monitor_trend.data.empty:
             print("empty recording")
             return
-        if monitorTrend.header is None:
+        if monitor_trend.header is None:
             print("empty header")
             return
-        params["t_fs"] = monitorTrend.header.get("Sampling Rate") / 60
-        monitorTrend.param = params
-        if monitorTrend.data is not None:
-            fig_list = monitorTrend.show_graphs()
+        params["t_fs"] = monitor_trend.header.get("Sampling Rate") / 60
+        monitor_trend.param = params
+        if monitor_trend.data is not None:
+            fig_list = monitor_trend.show_graphs()
     elif source == "monitorWave":
-        monitorWave = MonitorWave(file_name)
-        params["fs"] = float(monitorWave.header["Data Rate (ms)"]) * 60 / 1000
+        monitor_wave = MonitorWave(file_name)
+        params["fs"] = float(monitor_wave.header["Data Rate (ms)"]) * 60 / 1000
         params["kind"] = "as3"
-        monitorWave.param = params
-        monitorWave.plot_wave()
+        monitor_wave.param = params
+        monitor_wave.plot_wave()
     elif source == "taphTrend":
-        taphTrend = TaphTrend(file_name)
-        taphTrend.param = params
+        taph_trend = TaphTrend(file_name)
+        taph_trend.param = params
         # tdata= clean.clean_trendData(tdata)
-        fig_list = taphTrend.show_graphs()
+        fig_list = taph_trend.show_graphs()
     else:
         print("this is not recognized recording")
     # records = list_loaded()

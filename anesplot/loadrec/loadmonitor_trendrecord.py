@@ -23,7 +23,6 @@ import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
-#%%
 def choosefile_gui(dir_path=None):
     """select a file using a dialog.
 
@@ -36,9 +35,9 @@ def choosefile_gui(dir_path=None):
     if dir_path is None:
         dir_path = os.path.expanduser("~")
 
-    apps = QApplication([dir_path])
+    #    apps = QApplication([dir_path])
     fname = QFileDialog.getOpenFileName(
-        None, "Select a file...", dir_path, filter="csv (*.csv)"
+        None, "Select a file...", directory=dir_path, filter="csv (*.csv)"
     )
 
     if isinstance(fname, tuple):
@@ -60,7 +59,7 @@ def choosefile_gui(dir_path=None):
     # return fname[0]
 
 
-#%% Monitor trend
+# Monitor trend
 def loadmonitor_trendheader(filename):
     """load the file header.
 
@@ -95,11 +94,11 @@ def loadmonitor_trendheader(filename):
     return descr
 
 
-def loadmonitor_trenddata(filename, header):
+def loadmonitor_trenddata(filename, headerdico):
     """load the monitor trend data
 
     :param str filename: fullname
-    :param dict header: fileheader
+    :param dict headerdico: fileheader
 
     :returns: df = trends data
     :rtype: pandas.Dataframe
@@ -112,13 +111,19 @@ def loadmonitor_trenddata(filename, header):
         df = pd.read_csv(
             filename, sep=",", skiprows=[13], header=12, encoding="ISO-8859-1"
         )
-    if len(df) == 0:
-        print("no recorded values in this file", os.path.basename(filename))
-        return df
     # remove waves time indicators(column name beginning with a '~')
     for col in df.columns:
         if col[0] == "~":
             df.pop(col)
+    # check the recorded parameters
+    if df.set_index("Time").dropna(how="all").empty:
+        df = pd.DataFrame(columns=df.columns)
+        print(
+            "{} there are no data in this file : {} !".format(
+                ">" * 20, os.path.basename(filename)
+            )
+        )
+        return df
     to_fix = []
     for col in df.columns:
         if df[col].dtype != "float64":
@@ -128,9 +133,8 @@ def loadmonitor_trenddata(filename, header):
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
     # elapsed time(in seconds)
-    df["eTime"] = df.index * header["Sampling Rate"]
-    df["eTimeMin"] = df.eTime / 60
-
+    df["eTime"] = df.index * headerdico["Sampling Rate"]
+    df["eTimeMin"] = df["eTime"] / 60
     # correct the titles
     corr_title = {
         "AA  LB": "aaLabel",
@@ -198,7 +202,7 @@ def loadmonitor_trenddata(filename, header):
         print("no capnographic recording")
 
     # convert time to dateTime
-    df.datetime = df.datetime.apply(lambda x: header["Date"] + "-" + x)
+    df.datetime = df.datetime.apply(lambda x: headerdico["Date"] + "-" + x)
     df.datetime = pd.to_datetime(df.datetime, format="%d-%m-%Y-%H:%M:%S")
 
     # remove irrelevant measures
@@ -208,6 +212,7 @@ def loadmonitor_trenddata(filename, header):
     return df
 
 
+#%%
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
@@ -216,7 +221,7 @@ if __name__ == "__main__":
     if file[0] == "M":
         if "Wave" not in file:
             header_dict = loadmonitor_trendheader(file_name)
-            if header_dict is not None:
+            if header_dict:
                 mdata_df = loadmonitor_trenddata(file_name, header_dict)
                 # mdata= cleanMonitorTrendData(mdata)
             else:

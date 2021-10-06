@@ -98,6 +98,13 @@ def loadmonitor_wavedata(filename=None):
         usecols=[0, 2, 3, 4, 5, 6],
         dtype={"Unnamed: 0": str},
     )  # , nrows=200000) #NB for development
+    if df.empty:
+        print(
+            "{} there are no data in this file : {} !".format(
+                ">" * 20, os.path.basename(filename)
+            )
+        )
+        return df
     # columns names correction
     colnames = {
         "~ECG1": "wekg",
