@@ -7,6 +7,7 @@ Created on Mon Sep 20 15:03:44 2021
 """
 
 import os
+from math import floor, ceil
 
 from matplotlib import animation
 import matplotlib.pyplot as plt
@@ -14,28 +15,12 @@ import pandas as pd
 
 import anesplot.record_main as rec
 
-#%% choose a plot
-plt.close("all")
-if not "waves" in dir():
-    waves = rec.MonitorWave()
-if not "paths" in dir():
-    paths = rec.build_paths()
-
-waves.param["dtime"] = False
-fig, lines, keys = waves.plot_wave()
-
-# lims = [2005, 2035]
-# fig.get_axes()[0].set_xlim(lims)
-# fig.get_axes()[1].set_ylim([0, 100])
-
-#%% choose an area of interest (roi)
-roi = waves.define_a_roi()
 
 #%% select subdata
 
 
-def create_video(waves, keys, speed=1, save=False, savedir="~"):
-    def select_sub_dataframe(wave=waves):
+def create_video(waves, speed=1, save=False, savedir="~"):
+    def select_sub_dataframe(datadf, keys, xlims):
         """extract subdataframe corresponding to the roi
 
         :param waves: wave recording
@@ -44,20 +29,21 @@ def create_video(waves, keys, speed=1, save=False, savedir="~"):
         :rtype: pandas.dataframe
 
         """
-        limits = wave.roi
-        sub_df = wave.data[limits["sec"][0] < wave.data.sec]
-        sub_df = sub_df[sub_df.sec < limits["sec"][1]]
+        sub_df = datadf[xlims[0] < datadf.sec]
+        sub_df = sub_df[sub_df.sec < xlims[1]]
         sub_df = sub_df.set_index("sec")
         sub_df = sub_df[keys].copy()
         return sub_df
 
-    def init(waves=waves, keys=keys):
+    def init(waves, keys, xlims, ylims):
         plt.close("all")
+        dtime = waves.param["dtime"]
+        waves.param["dtime"] = False
         fig, lines, _ = waves.plot_wave(keys)
-        # lims = [2005, 2035]
-        lims = [int(_) for _ in waves.roi["sec"]]
-        fig.get_axes()[0].set_xlim(lims)
-        fig.get_axes()[1].set_ylim([0, 100])
+        for ax, ylim in zip(fig.get_axes(), ylims):
+            ax.set_ylim(ylim)
+            ax.set_xlim(xlims)
+        waves.param["dtime"] = dtime
         return fig, lines
 
     def animate(i, df, keys, nbpoint):
@@ -82,16 +68,16 @@ def create_video(waves, keys, speed=1, save=False, savedir="~"):
         )
         return (line0, line1)
 
+    traces = waves.roi["traces"]
+    x_lims = tuple([int(_) for _ in waves.roi["sec"]])
+    y_lims = [(floor(a), ceil(b)) for a, b in waves.roi["ylims"]]
     fs = waves.fs
     interval = 100
-    speed = 2  # speed of the animation
+    # speed = 2  # speed of the animation
     nb_of_points = speed * round(fs / interval) * 10
 
-    anim = True
-    save = False
-
-    df = select_sub_dataframe(waves)
-    fig, lines = init()
+    df = select_sub_dataframe(waves.data, traces, x_lims)
+    fig, lines = init(waves, traces, x_lims, y_lims)
 
     for line in lines:
         line.set_data([], [])
@@ -105,7 +91,7 @@ def create_video(waves, keys, speed=1, save=False, savedir="~"):
         # init_func = init_wave,
         # frames=int(len(df) / 10),
         interval=interval,
-        fargs=[df, keys, nb_of_points],
+        fargs=[df, traces, nb_of_points],
         repeat=False,
         blit=True,
         #        save_count=int(len(df) / 10),
@@ -122,4 +108,19 @@ def create_video(waves, keys, speed=1, save=False, savedir="~"):
     plt.show()
 
 
-create_video(waves, keys, speed=1, save=False, savedir="~")
+#%%
+if __name__ == "__main__":
+    # choose a plot
+    plt.close("all")
+    if not "waves" in dir():
+        waves = rec.MonitorWave()
+    if not "paths" in dir():
+        paths = rec.build_paths()
+
+    waves.param["dtime"] = False
+    fig, lines, keys = waves.plot_wave()
+
+    # choose an area of interest (roi)
+    roi = waves.define_a_roi()
+
+    create_video(waves, speed=1, save=False, savedir="~")

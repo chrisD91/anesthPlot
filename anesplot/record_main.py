@@ -51,6 +51,7 @@ import anesplot.loadrec.loadtaph_trendrecord as ltt
 import anesplot.loadrec.loadtelevet as ltv
 import anesplot.plot.trend_plot as tplot
 import anesplot.plot.wave_plot as wplot
+from anesplot.plot import animplot
 import anesplot.treatrec.clean_data as clean
 import anesplot.treatrec.wave_func as wf
 import anesplot.treatrec as treat
@@ -399,7 +400,7 @@ class FastWave(Waves):
         self.fig = None
         self.roi = None
 
-    def plot_wave(self, traces_list=None):
+    def plot_wave(self, traces_list=None, dtime=None):
         """
         simple choose and plot for a wave
         input = none -> GUI, or list of waves to plot (max=2)
@@ -435,15 +436,18 @@ class FastWave(Waves):
             print("*" * 20, "ended FastWave plot_wave")
             return fig, lines, traces_list
 
-    def define_a_roi(self):
+    def define_a_roi(self, erase=False):
         """define a Region Of Interest.
 
+        input : erase (boolean) default=False
         takes the figure attribute
         return a dictionary containing:
 
         """
         df = self.data
-        if self.fig:
+        if erase:
+            roidict = {}
+        elif self.fig:
             # ylims
             ylims = []
             for ax in self.fig.get_axes():
@@ -492,8 +496,12 @@ class FastWave(Waves):
         else:
             print("no fig attribute, please use plot_wave() method to build one")
             roidict = {}
+
         self.roi = roidict
         return self.roi
+
+    def animate_fig(self, speed=1, save=False, savedir="~"):
+        animplot.create_video(self, speed=1, save=False, savedir="~")
 
 
 class TelevetWave(FastWave):
