@@ -8,20 +8,18 @@ Created on Tue Apr 19 09:08:56 2016
 import os
 from math import floor, ceil
 
-from matplotlib import animation
 import matplotlib.pyplot as plt
-
-# import pandas as pd
-
-# import anesplot.record_main as rec
 import matplotlib.dates as mdates
+from matplotlib import animation
+import numpy as np
+import pandas as pd
 
 # import numpy as np
 # import pandas as pd
 # import matplotlib.pyplot as plt
 
 font_size = "medium"  # large, medium
-params = {
+fig_params = {
     "font.sans-serif": ["Arial"],
     "font.size": 12,
     "legend.fontsize": font_size,
@@ -32,7 +30,7 @@ params = {
     "ytick.labelsize": font_size,
     "axes.xmargin": 0,
 }
-plt.rcParams.update(params)
+plt.rcParams.update(fig_params)
 plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 # bright = {
@@ -78,6 +76,7 @@ def plot_wave(data, keys, param):
 
     (Nb plot data/index, but the xscale is indicated as sec)
     """
+    # test wave in dataframe
     for key in keys:
         try:
             key in data.columns
@@ -97,6 +96,7 @@ def plot_wave(data, keys, param):
         wvp=["venous pressure", "tab:blue", "mmHg"],
         ihr=["instanous heart rate", "tab:blue", "bpm"],
     )
+    # colors for missing keys
     for key in keys:
         if not key in names:
             names[key] = [key, "tab:blue", ""]
@@ -222,6 +222,55 @@ def plot_wave(data, keys, param):
     return fig, lines
 
 
+#%%
+
+
+def get_a_roi(waves):
+    """ use the drawn figure to extract the relevant data in order to build an animation
+
+    :param waves: a wave recording
+    :type waves: MonitorWave object
+    :return: a dictionary containing ylims, xlims(point, dtime and sec),
+    traces used to build the plot, the fig object
+    :rtype: dictionary
+
+    """
+
+    fig = waves.fig
+    df = waves.data
+    params = waves.param
+    # ylims
+    ylims = [_.get_ylim() for _ in fig.get_axes()]
+    # xlims
+    ax = fig.get_axes()[0]
+    if params["dtime"]:
+        dtime_lims = [pd.to_datetime(mdates.num2date(_)) for _ in ax.get_xlim()]
+        # remove timezone
+        dtime_lims = [_.tz_localize(None) for _ in dtime_lims]
+
+        i_lims = [
+            df.set_index("datetime").index.get_loc(_, method="nearest")
+            for _ in dtime_lims
+        ]
+    else:
+        # index = sec
+        i_lims = [
+            df.set_index("sec").index.get_loc(_, method="nearest")
+            for _ in ax.get_xlim()
+        ]
+
+    dt_pt_sec = [df.iloc[_][["datetime", "point", "sec"]].values for _ in i_lims]
+
+    roidict = {
+        k: tuple(v) for k, v in zip(["dt", "pt", "sec"], np.transpose(dt_pt_sec))
+    }
+    print("-" * 10)
+    print("defined a roi")
+    # append ylims and traces
+    roidict.update({"ylims": ylims})
+    return roidict
+
+
 #%% select subdata
 
 
@@ -292,7 +341,7 @@ def create_video(waves, speed=1, save=False, savedir="~"):
     line0 = lines[0]
     line1 = lines[1] if len(lines) > 1 else None
 
-    # global ani
+    global ani
     ani = animation.FuncAnimation(
         fig,
         animate,
@@ -314,3 +363,6 @@ def create_video(waves, speed=1, save=False, savedir="~"):
         ani.save(filename + ".mp4")
         fig.savefig(filename + ".png")
     plt.show()
+
+
+ani = "global_to_maintain animation"

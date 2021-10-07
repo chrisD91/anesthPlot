@@ -44,7 +44,7 @@ paths = build_paths()
 # from .loadrec import explore
 
 # requires to have '.../anesthPlot' in the path
-import anesplot.loadrec.explore
+# import anesplot.loadrec.explore
 import anesplot.loadrec.loadmonitor_trendrecord as lmt
 import anesplot.loadrec.loadmonitor_waverecord as lmw
 import anesplot.loadrec.loadtaph_trendrecord as ltt
@@ -253,15 +253,6 @@ class Waves:
             fs=None,
             dtime=True,
         )
-        # try:
-        #     app
-        #     mes = "founded app"
-        # except NameError:
-        #     mes = "no app"
-        #     print("sys.argv = {}".format(sys.argv))
-        #     # app = QApplication([""])
-        #     # app.setQuitOnLastWindowClosed(True)
-        # print(mes)
 
 
 # +++++++
@@ -419,12 +410,11 @@ class FastWave(Waves):
                     if trace is not None:
                         traces_list.append(trace)
             if traces_list:
-                # fig, _ = wf.plot_wave(self.data, keys=[trace], mini=None, maxi=None)
                 fig, lines = wplot.plot_wave(
                     self.data, keys=traces_list, param=self.param
                 )
-                fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
-                fig.text(0.01, 0.01, self.file, ha="left", va="bottom", alpha=0.4)
+                # fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
+                # fig.text(0.01, 0.01, self.file, ha="left", va="bottom", alpha=0.4)
                 self.trace_list = traces_list
                 plt.show()
             else:
@@ -441,63 +431,26 @@ class FastWave(Waves):
         input : erase (boolean) default=False
         takes the figure attribute
         return a dictionary containing:
+            dt : xscale datetime location
+            pt: xscale point location
+            sec: xscale seconde location
+            ylims: ylimits
+            traces: waves used to draw the figure
+            fig : the related figure
 
         """
         df = self.data
         if erase:
             roidict = {}
         elif self.fig:
-            # ylims
-            ylims = []
-            for ax in self.fig.get_axes():
-                ylims.append(ax.get_ylim())
-            ax = self.fig.get_axes()[0]
-            # TODO check points of date of xaxis
-            if self.param["dtime"]:
-                startT, endT = ax.get_xlim()
-                start_dtime = pd.to_datetime(matplotlib.dates.num2date(startT))
-                end_dtime = pd.to_datetime(matplotlib.dates.num2date(endT))
-                # remove timezone
-                start_dtime = start_dtime.tz_localize(None)
-                end_dtime = end_dtime.tz_localize(None)
-
-                i_start = df.set_index("datetime").index.get_loc(
-                    start_dtime, method="nearest"
-                )
-                i_end = df.set_index("datetime").index.get_loc(
-                    end_dtime, method="nearest"
-                )
-
-            else:
-                # index = sec
-                lims = ax.get_xlim()  # sec values
-
-                i_start = df.set_index("sec").index.get_loc(lims[0], method="nearest")
-                i_end = df.set_index("sec").index.get_loc(lims[1], method="nearest")
-
-            start_dt, start_pt, start_sec = df.iloc[i_start][
-                ["datetime", "point", "sec"]
-            ].values
-
-            end_dt, end_pt, end_sec = df.iloc[i_end][
-                ["datetime", "point", "sec"]
-            ].values
-
-            roidict = {
-                "sec": (start_sec, end_sec),
-                "pt": (start_pt, end_pt),
-                "dt": (start_dt, end_dt),
-            }
-            print("-" * 10)
-            print("defined a roi")
-            # append ylims and traces
-            roidict.update({"ylims": ylims, "traces": self.trace_list, "fig": self.fig})
+            roidict = wplot.get_a_roi(self)
+            roidict.update({"traces": self.trace_list, "fig": self.fig})
         else:
             print("no fig attribute, please use plot_wave() method to build one")
             roidict = {}
 
         self.roi = roidict
-        return self.roi
+        return roidict
 
     def animate_fig(self, speed=1, save=False, savedir="~"):
         """ build a video the previous builded figure
