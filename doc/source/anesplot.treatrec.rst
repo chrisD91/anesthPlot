@@ -7,7 +7,6 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   anesplot.treatrec.build_anim
    anesplot.treatrec.clean_data
    anesplot.treatrec.ekg_to_hr
    anesplot.treatrec.extract_hypotension

@@ -15,24 +15,33 @@ recorded from the Monitor Software to be used mostly in a teaching environment.
 
    This project is:
    
-      - a work in process
+      - a work in progres
       - the processes are mainly focused on horses anesthesia
-      - in our environment the data recorded came from an as3 or as5 anesthesia machine
+      - in our environment the data recorded came from an as3 or as5 anesthesia machine monitoring ekg, invasive pressure, etCO2, halogenate, spirometry.
 
 Features
 ---------
 
 - **load** recordings from a trend or a wave recordings
-- build a **standard debriefing** (trends) **plot series** (script usage)
 
-   - global histograms (cardiovascular and anesthesia summary)
-   - cardiovascular trends time based plots
-   - respiratory trends time based plots
-   - anesthesia trends time based plots
+   - from command line:
+      .. code-block:: bash
 
-- build a **plot for wave** recording (one or two waves (script usage)
+         python anesthPlot/anesplot/__main__.py
 
-- can be used as a **python package**
+
+      - build a **standard debriefing** (trends) **plot series** (script usage)
+         
+         - global histograms (cardiovascular and anesthesia summary)
+         - cardiovascular trends time based plots
+         - respiratory trends time based plots
+         - anesthesia trends time based plots
+
+      - build a **plot for wave** recording 
+  
+         - one or two waves on the same plot (script usage)
+
+- can also be used as a **python package**
 
    - usage :
       .. code-block::  python
@@ -42,7 +51,23 @@ Features
          trends = rec.MonitorTrend(trendname)
          wavename = rec.trendname_to_wavename(trendname)
          waves = rec.MonitorWave(trends)
-         trends.show_graphs()
+         
+         trends.show_graphs() # -> set of plots for debriefing purposes
+
+         waves.plot_waves() # -> one or two traces
+
+         waves.define_a_roi() # -> to register the plotting scales
+         waves.animate_fig() #-> to build an animation using these parameters
+
+   - additional functions are available to extract instaneous heart rate
+
+      - see anesplot/treatrec/ekg_to_hr.py
+
+
+
+
+
+
 
 main script
 ==================
