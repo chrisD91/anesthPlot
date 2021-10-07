@@ -51,7 +51,6 @@ import anesplot.loadrec.loadtaph_trendrecord as ltt
 import anesplot.loadrec.loadtelevet as ltv
 import anesplot.plot.trend_plot as tplot
 import anesplot.plot.wave_plot as wplot
-from anesplot.plot import animplot
 import anesplot.treatrec.clean_data as clean
 import anesplot.treatrec.wave_func as wf
 import anesplot.treatrec as treat
@@ -437,7 +436,7 @@ class FastWave(Waves):
             return fig, lines, traces_list
 
     def define_a_roi(self, erase=False):
-        """define a Region Of Interest.
+        """define a Region Of Interest (roi).
 
         input : erase (boolean) default=False
         takes the figure attribute
@@ -501,7 +500,22 @@ class FastWave(Waves):
         return self.roi
 
     def animate_fig(self, speed=1, save=False, savedir="~"):
-        animplot.create_video(self, speed=1, save=False, savedir="~")
+        """ build a video the previous builded figure
+
+        use .fig attribute (builded through .plot_wave())
+        and .roi attribute (builded thourhg .define_a_roi())
+
+        :param speed: speed of the video, defaults to 1
+        :type speed: int, optional
+        :param save: save or just display, defaults to False
+        :type save: boolean, optional
+        :param savedir: directory to save the animation, defaults to "~"
+        :type savedir: str, optional
+        :return: video file
+        :rtype: mp4
+
+        """
+        wplot.create_video(self, speed=1, save=False, savedir="~")
 
 
 class TelevetWave(FastWave):
