@@ -735,26 +735,31 @@ def ventil(data, param):
     ax1.set_ylabel("tidal volume")
     color_axis(ax1, "left", "tab:olive")
     ax1.yaxis.label.set_color("k")
-    try:
+    if "tvInsp" in df.columns:
         ax1.plot(df.tvInsp, color="tab:olive", linewidth=2)
-    except KeyError:
+    else:
         print("no spirometry data in the recording")
     ax1_r = ax1.twinx()
     ax1_r.set_ylabel("pression")
     color_axis(ax1_r, "right", "tab:red")
-    try:
+    items = {"pPlat", "pPlat", "peep"}
+    if items < set(df.columns):
+        # if ("pPlat" in df.columns) and ("pPlat" in df.columns) and ("peep" in df.columns):
         ax1_r.plot(df.pPeak, color="tab:red", linewidth=1, linestyle="-")
         ax1_r.plot(df.pPlat, color="tab:red", linewidth=1, linestyle=":")
         ax1_r.plot(df.peep, color="tab:red", linewidth=1, linestyle="-")
         ax1_r.fill_between(df.index, df.peep, df.pPeak, color="tab:red", alpha=0.1)
-    except KeyError:
+    else:
         print("no spirometry data in the recording")
     ax2 = fig.add_subplot(212, sharex=ax1)
     ax2.set_ylabel("MinVol & RR")
-    try:
+
+    items = {"minVexp", "co2RR"}
+    if items < set(df.columns):
+        # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
         ax2.plot(df.minVexp, color="tab:olive", linewidth=2)
         ax2.plot(df.co2RR, color="black", linewidth=1, linestyle="--")
-    except KeyError:
+    else:
         print("no spirometry data recorded")
     # ax2.set_xlabel('time (' + unit +')')
 
