@@ -202,6 +202,14 @@ def loadmonitor_trenddata(filename, headerdico):
         print("no capnographic recording")
 
     # convert time to dateTime
+    # TODO = adapt function do deal with recordings in the middle of the night
+    # ie include two DATE
+    min_time_iloc = df.loc[df["datetime"] == df["datetime"].min()].index.values[0]
+    if min_time_iloc > 0:
+        print("%" * 20)
+        print("beware, overlap between two dates")
+        print("to be fixed")
+        print("%" * 20)
     df.datetime = df.datetime.apply(lambda x: headerdico["Date"] + "-" + x)
     df.datetime = pd.to_datetime(df.datetime, format="%d-%m-%Y-%H:%M:%S")
 
