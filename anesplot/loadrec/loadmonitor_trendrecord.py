@@ -209,7 +209,7 @@ def loadmonitor_trenddata(filename, headerdico):
     ].index.values[0]
     datadf.datetime = datadf.datetime.apply(lambda x: headerdico["Date"] + "-" + x)
     datadf.datetime = pd.to_datetime(datadf.datetime, format="%d-%m-%Y-%H:%M:%S")
-    # if overlap between two dates (ie over midnight)
+    # if overlap between two dates (ie over midnight): add one day
     if min_time_iloc > 0:
         secondday_df = datadf.iloc[min_time_iloc:].copy()
         secondday_df.datetime += timedelta(days=1)

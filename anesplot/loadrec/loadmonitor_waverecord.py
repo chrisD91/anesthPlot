@@ -14,13 +14,13 @@ ____
 
 import os
 import sys
+from datetime import timedelta
 
 import numpy as np
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
-#%%
 def choosefile_gui(dir_path=None):
     """select a file using a dialog.
 
@@ -33,7 +33,7 @@ def choosefile_gui(dir_path=None):
     if dir_path is None:
         dir_path = os.path.expanduser("~")
 
-    apps = QApplication([dir_path])
+    app = QApplication([dir_path])
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dir_path, filter="csv (*.csv)"
     )
@@ -56,7 +56,6 @@ def choosefile_gui(dir_path=None):
     # return fname[0]
 
 
-#%%
 def loadmonitor_waveheader(filename=None):
     """load the wave file header.
 
@@ -70,10 +69,10 @@ def loadmonitor_waveheader(filename=None):
     if filename is None:
         filename = choosefile_gui()
         print(f"called returned= {filename}")
-    df = pd.read_csv(
+    headerdf = pd.read_csv(
         filename, sep=",", header=None, index_col=None, nrows=12, encoding="iso-8859-1"
     )
-    return df
+    return headerdf
 
 
 def loadmonitor_wavedata(filename=None):
@@ -88,7 +87,7 @@ def loadmonitor_wavedata(filename=None):
     fs = 300  # sampling rate
     date = pd.read_csv(filename, nrows=1, header=None).iloc[0][1]
     print("loading wave_data of {}".format(os.path.basename(filename)))
-    df = pd.read_csv(
+    datadf = pd.read_csv(
         filename,
         sep=",",
         skiprows=[14],
@@ -98,13 +97,14 @@ def loadmonitor_wavedata(filename=None):
         usecols=[0, 2, 3, 4, 5, 6],
         dtype={"Unnamed: 0": str},
     )  # , nrows=200000) #NB for development
-    if df.empty:
+    datadf = pd.DataFrame(datadf)
+    if datadf.empty:
         print(
             "{} there are no data in this file : {} !".format(
                 ">" * 20, os.path.basename(filename)
             )
         )
-        return df
+        return datadf
     # columns names correction
     colnames = {
         "~ECG1": "wekg",
@@ -116,37 +116,47 @@ def loadmonitor_wavedata(filename=None):
         "~AirV": "wVol",
         "Unnamed: 0": "time",
     }
-    df = df.rename(columns=colnames)
+    datadf = datadf.rename(columns=colnames)
 
     # scaling correction
-    if "wco2" in df.columns:
-        df.wco2 = df.wco2.shift(-480)  # time lag correction
-        df["wco2"] *= 7.6  # CO2 % -> mmHg
-    df["wekg"] /= 100  # tranform EKG in mVolts
-    df["wawp"] *= 10  # mmH2O -> cmH2O
-    df.time = df.time.apply(
+    if "wco2" in datadf.columns:
+        datadf.wco2 = datadf.wco2.shift(-480)  # time lag correction
+        datadf["wco2"] *= 7.6  # CO2 % -> mmHg
+    datadf["wekg"] /= 100  # tranform EKG in mVolts
+    datadf["wawp"] *= 10  # mmH2O -> cmH2O
+
+    datadf.time = datadf.time.apply(
         lambda x: pd.to_datetime(date + "-" + x) if not pd.isna(x) else x
     )
+    # correct date time if over midnight
+    min_time_iloc = datadf.loc[datadf.time == datadf.time.min()].index.values[0]
+    if min_time_iloc > 0:
+        print("recording was performed during two days")
+        secondday_df = datadf.iloc[min_time_iloc:].copy()
+        secondday_df.time = secondday_df.time.apply(
+            lambda x: x + timedelta(days=1) if not pd.isna(x) else x
+        )
+        datadf.iloc[min_time_iloc:] = secondday_df
     # interpolate time values (fill the gaps)
-    dt_df = df.time[df.time.notnull()]
+    dt_df = datadf.time[datadf.time.notnull()]
     time_delta = (dt_df.iloc[-1] - dt_df.iloc[0]) / (
         dt_df.index[-1] - dt_df.index[0] - 1
     )
-    start_time = df.time.iloc[0]
-    df["datetime"] = [start_time + i * time_delta for i in range(len(df))]
-    df["point"] = df.index  # point location
+    start_time = datadf.time.iloc[0]
+    datadf["datetime"] = [start_time + i * time_delta for i in range(len(datadf))]
+    datadf["point"] = datadf.index  # point location
     # add a 'sec'
-    df["sec"] = df.index / fs
+    datadf["sec"] = datadf.index / fs
 
     # clean data
     # params = ['wekg', 'wap', 'wco2', 'wawp', 'wflow']
 
     # wData.wap.value_counts().sort_index()
-    df.loc[df.wap < -100, "wap"] = np.nan
-    df.loc[df.wap > 200, "wap"] = np.nan
-    if "wco2" in df.columns:
-        df.loc[df.wco2 < 0, "wco2"] = 0
-    return df
+    datadf.loc[datadf.wap < -100, "wap"] = np.nan
+    datadf.loc[datadf.wap > 200, "wap"] = np.nan
+    if "wco2" in datadf.columns:
+        datadf.loc[datadf.wco2 < 0, "wco2"] = 0
+    return datadf
 
 
 #%%
