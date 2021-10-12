@@ -16,6 +16,7 @@ ____
 
 import os
 import sys
+from datetime import timedelta
 
 import pandas as pd
 
@@ -71,7 +72,7 @@ def loadmonitor_trendheader(filename):
     print("loadmonitor_trendrecord.loadmonitor_trendheader")
     print("loading header", os.path.basename(filename))
     try:
-        df = pd.read_csv(
+        headerdf = pd.read_csv(
             filename,
             sep=",",
             header=None,
@@ -79,18 +80,18 @@ def loadmonitor_trendheader(filename):
             nrows=11,
             encoding="iso8859_1",
         )
-    except UnicodeDecodeError as e:
-        print(e)
+    except UnicodeDecodeError as error:
+        print(error)
         return {}
     # NB encoding needed for accentuated letters
-    df = df.set_index(0).T
-    if "Sampling Rate" not in df.columns:
+    headerdf = headerdf.set_index(0).T
+    if "Sampling Rate" not in headerdf.columns:
         print(">>> this is not a trend record")
         return
     for col in ["Weight", "Height", "Sampling Rate"]:
-        df[col] = df[col].astype(float)
+        headerdf[col] = headerdf[col].astype(float)
     # convert to a dictionary
-    descr = df.loc[1].to_dict()
+    descr = headerdf.loc[1].to_dict()
     return descr
 
 
@@ -106,35 +107,36 @@ def loadmonitor_trenddata(filename, headerdico):
     print("loadmonitor_trendrecord.loadmonitor_trenddata")
     print("loading data", os.path.basename(filename))
     try:
-        df = pd.read_csv(filename, sep=",", skiprows=[13], header=12)
+        datadf = pd.read_csv(filename, sep=",", skiprows=[13], header=12)
     except UnicodeDecodeError:
-        df = pd.read_csv(
+        datadf = pd.read_csv(
             filename, sep=",", skiprows=[13], header=12, encoding="ISO-8859-1"
         )
+    datadf = pd.DataFrame(datadf)
     # remove waves time indicators(column name beginning with a '~')
-    for col in df.columns:
+    for col in datadf.columns:
         if col[0] == "~":
-            df.pop(col)
+            datadf.pop(col)
     # check the recorded parameters
-    if df.set_index("Time").dropna(how="all").empty:
-        df = pd.DataFrame(columns=df.columns)
+    if datadf.set_index("Time").dropna(how="all").empty:
+        datadf = pd.DataFrame(columns=datadf.columns)
         print(
             "{} there are no data in this file : {} !".format(
                 ">" * 20, os.path.basename(filename)
             )
         )
-        return df
+        return datadf
     to_fix = []
-    for col in df.columns:
-        if df[col].dtype != "float64":
+    for col in datadf.columns:
+        if datadf[col].dtype != "float64":
             if col != "Time":
                 to_fix.append(col)
     for col in to_fix:
-        df[col] = pd.to_numeric(df[col], errors="coerce")
+        datadf[col] = pd.to_numeric(datadf[col], errors="coerce")
 
     # elapsed time(in seconds)
-    df["eTime"] = df.index * headerdico["Sampling Rate"]
-    df["eTimeMin"] = df["eTime"] / 60
+    datadf["eTime"] = datadf.index * headerdico["Sampling Rate"]
+    datadf["eTimeMin"] = datadf["eTime"] / 60
     # correct the titles
     corr_title = {
         "AA  LB": "aaLabel",
@@ -177,47 +179,47 @@ def loadmonitor_trenddata(filename, headerdico):
         "S_comp": "sCompl",
         "Spplat": "sPplat",
     }
-    df.rename(columns=corr_title, inplace=True)
+    datadf.rename(columns=corr_title, inplace=True)
     # TODO fix the code for 1 and 2
-    if "aaLabel" in df.columns:
+    if "aaLabel" in datadf.columns:
         anesth_code = {0: "none", 1: "", 2: "", 4: "iso", 6: "sevo"}
-        df.aaLabel = df.aaLabel.fillna(0)
-        df.aaLabel.apply(lambda x: anesth_code.get(int(x), ""))
+        datadf.aaLabel = datadf.aaLabel.fillna(0)
+        datadf.aaLabel.apply(lambda x: anesth_code.get(int(x), ""))
 
     # remove empty rows and columns
-    df.dropna(axis=0, how="all", inplace=True)
-    df.dropna(axis=1, how="all", inplace=True)
+    datadf.dropna(axis=0, how="all", inplace=True)
+    datadf.dropna(axis=1, how="all", inplace=True)
 
     # should be interesting to export the comment
     # for index, row in df.iterrows():
     #     if len(row) < 6:
     #         print(index, row)
     # remove comments present in colon 1(ie suppres if less than 5 item rows)
-    df = df.dropna(thresh=6)
+    datadf = datadf.dropna(thresh=6)
 
     # CO2: from % to mmHg
     try:
-        df[["co2exp", "co2insp"]] *= 760 / 100
+        datadf[["co2exp", "co2insp"]] *= 760 / 100
     except KeyError:
         print("no capnographic recording")
 
     # convert time to dateTime
-    # TODO = adapt function do deal with recordings in the middle of the night
-    # ie include two DATE
-    min_time_iloc = df.loc[df["datetime"] == df["datetime"].min()].index.values[0]
+    min_time_iloc = datadf.loc[
+        datadf["datetime"] == datadf["datetime"].min()
+    ].index.values[0]
+    datadf.datetime = datadf.datetime.apply(lambda x: headerdico["Date"] + "-" + x)
+    datadf.datetime = pd.to_datetime(datadf.datetime, format="%d-%m-%Y-%H:%M:%S")
+    # if overlap between two dates (ie over midnight)
     if min_time_iloc > 0:
-        print("%" * 20)
-        print("beware, overlap between two dates")
-        print("to be fixed")
-        print("%" * 20)
-    df.datetime = df.datetime.apply(lambda x: headerdico["Date"] + "-" + x)
-    df.datetime = pd.to_datetime(df.datetime, format="%d-%m-%Y-%H:%M:%S")
+        secondday_df = datadf.iloc[min_time_iloc:].copy()
+        secondday_df.datetime += timedelta(days=1)
+        datadf.iloc[min_time_iloc:] = secondday_df
 
     # remove irrelevant measures
     # df.co2exp.loc[data.co2exp < 30] = np.nan
     # TODO : find a way to proceed without the error pandas displays
 
-    return df
+    return datadf
 
 
 #%%
