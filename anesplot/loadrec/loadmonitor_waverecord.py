@@ -43,18 +43,6 @@ def choosefile_gui(dir_path=None):
         filename = str(fname)
     return filename
 
-    # caption = "choose a recording"
-    # options = QFileDialog.Options()
-    # # to be able to see the caption, but impose to work with the mouse
-    # # options |= QFileDialog.DontUseNativeDialog
-    # fname = QFileDialog.getOpenFileName(
-    #     caption=caption, directory=dir_path, filter="*.csv", options=options
-    # )
-    # # fname = QFileDialog.getOpenfilename(caption=caption,
-    # # directory=direct, filter='*.csv')
-    # # TODO : be sure to be able to see the caption
-    # return fname[0]
-
 
 def loadmonitor_waveheader(filename=None):
     """load the wave file header.
@@ -132,11 +120,11 @@ def loadmonitor_wavedata(filename=None):
     min_time_iloc = datadf.loc[datadf.time == datadf.time.min()].index.values[0]
     if min_time_iloc > datadf.index.min():
         print("recording was performed during two days")
-        secondday_df = datadf.iloc[min_time_iloc:].copy()
-        secondday_df.time = secondday_df.time.apply(
-            lambda x: x + timedelta(days=1) if not pd.isna(x) else x
-        )
-        datadf.iloc[min_time_iloc:] = secondday_df
+        datetime_series = datadf.time.copy()
+        datetime_series.iloc[min_time_iloc:] = datetime_series.iloc[
+            min_time_iloc:
+        ].apply(lambda x: x + timedelta(days=1) if not pd.isna(x) else x)
+        datadf.time = datetime_series
     # interpolate time values (fill the gaps)
     dt_df = datadf.time[datadf.time.notnull()]
     time_delta = (dt_df.iloc[-1] - dt_df.iloc[0]) / (

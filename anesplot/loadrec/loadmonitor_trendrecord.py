@@ -45,20 +45,6 @@ def choosefile_gui(dir_path=None):
         return fname[0]
     return str(fname)
 
-    # if dir_path is None:
-    #     dir_path = os.path.expanduser("~")
-    # caption = "choose a recording"
-    # options = QFileDialog.Options()
-    # # to be able to see the caption, but impose to work with the mouse
-    # #    options |= QFileDialog.DontUseNativeDialog
-    # fname = QFileDialog.getOpenFileName(
-    #     caption=caption, directory=dir_path, filter="*.csv", options=options
-    # )
-    # #    fname = QFileDialog.getOpenfilename(caption=caption,
-    # #                                        directory=direct, filter='*.csv')
-    # # TODO : be sure to be able to see the caption
-    # return fname[0]
-
 
 # Monitor trend
 def loadmonitor_trendheader(filename):
@@ -213,9 +199,10 @@ def loadmonitor_trenddata(filename, headerdico):
     datadf.datetime = pd.to_datetime(datadf.datetime, format="%d-%m-%Y-%H:%M:%S")
     # if overlap between two dates (ie over midnight): add one day
     if min_time_iloc > datadf.index.min():
-        secondday_df = datadf.iloc[min_time_iloc:].copy()
-        secondday_df.datetime += timedelta(days=1)
-        datadf.iloc[min_time_iloc:] = secondday_df
+        print("recording was performed during two days")
+        datetime_series = datadf.datetime.copy()
+        datetime_series.iloc[min_time_iloc:] += timedelta(days=1)
+        datadf.datetime = datetime_series
     # remove irrelevant measures
     # df.co2exp.loc[data.co2exp < 30] = np.nan
     # TODO : find a way to proceed without the error pandas displays
