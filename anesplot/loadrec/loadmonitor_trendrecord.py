@@ -136,9 +136,6 @@ def loadmonitor_trenddata(filename, headerdico):
         for col in to_fix:
             datadf[col] = pd.to_numeric(datadf[col], errors="coerce")
 
-    # elapsed time(in seconds)
-    datadf["eTime"] = datadf.index * headerdico["Sampling Rate"]
-    datadf["eTimeMin"] = datadf["eTime"] / 60
     # correct the titles
     corr_title = {
         "AA  LB": "aaLabel",
@@ -186,7 +183,7 @@ def loadmonitor_trenddata(filename, headerdico):
     if "aaLabel" in datadf.columns:
         anesth_code = {0: "none", 1: "", 2: "", 4: "iso", 6: "sevo"}
         datadf.aaLabel = datadf.aaLabel.fillna(0)
-        datadf.aaLabel.apply(lambda x: anesth_code.get(int(x), ""))
+        datadf.aaLabel = datadf.aaLabel.apply(lambda x: anesth_code.get(int(x), ""))
 
     # remove empty rows and columns
     datadf.dropna(axis=0, how="all", inplace=True)
@@ -205,6 +202,9 @@ def loadmonitor_trenddata(filename, headerdico):
     except KeyError:
         print("no capnographic recording")
 
+    # elapsed time(in seconds)
+    datadf["eTime"] = datadf.index * headerdico["Sampling Rate"]
+    datadf["eTimeMin"] = datadf["eTime"] / 60
     # convert time to dateTime
     min_time_iloc = datadf.loc[
         datadf["datetime"] == datadf["datetime"].min()
@@ -216,7 +216,6 @@ def loadmonitor_trenddata(filename, headerdico):
         secondday_df = datadf.iloc[min_time_iloc:].copy()
         secondday_df.datetime += timedelta(days=1)
         datadf.iloc[min_time_iloc:] = secondday_df
-
     # remove irrelevant measures
     # df.co2exp.loc[data.co2exp < 30] = np.nan
     # TODO : find a way to proceed without the error pandas displays
