@@ -96,10 +96,9 @@ print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resol
 if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
     sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
-# buil a QApplication to be able to use a Qt GUi to choose files or waves
+# build a QApplication to be able to use a Qt GUi to choose files or waves
 # try:
 #     isintance(app, QApplication)
 # except NameError:
-
-
-app = QApplication(sys.argv)
+#     app = QApplication(sys.argv)
+#     app.setQuitOnLastWindowClosed(True)

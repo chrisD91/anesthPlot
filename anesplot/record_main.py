@@ -59,6 +59,9 @@ import anesplot.treatrec as treat
 
 # from . import loadrec.explore
 
+# app = QApplication(sys.argv)
+# app.setQuitOnLastWindowClosed(True)
+
 
 def choosefile_gui(dir_path=None):
     """Select a file via a dialog and return the (full) filename.
@@ -220,7 +223,7 @@ def plot_trenddata(df, header, param_dico):
     return fig_dico
 
 
-class Waves:
+class _Waves:
     """the base object to store the records."""
 
     def __init__(self, filename=None):
@@ -256,7 +259,7 @@ class Waves:
 
 
 # +++++++
-class SlowWave(Waves):
+class _SlowWave(_Waves):
     """class for slowWaves = trends
 
     attributes:
@@ -293,7 +296,7 @@ class SlowWave(Waves):
         return fig_dico
 
 
-class MonitorTrend(SlowWave):
+class MonitorTrend(_SlowWave):
     """ monitor trends recordings:
 
         input = filename : path to file
@@ -336,7 +339,7 @@ class MonitorTrend(SlowWave):
             # self.param'file' : os.path.basename(filename)}
 
 
-class TaphTrend(SlowWave):
+class TaphTrend(_SlowWave):
     """ taphonius trends recordings
 
     input  ... FILLME
@@ -381,7 +384,7 @@ class TaphTrend(SlowWave):
 
 
 # ++++++++
-class FastWave(Waves):
+class _FastWave(_Waves):
     """class for Fastwaves = continuous recordings."""
 
     def __init__(self, filename=None):
@@ -471,7 +474,7 @@ class FastWave(Waves):
         wplot.create_video(self, speed=1, save=False, savedir="~")
 
 
-class TelevetWave(FastWave):
+class TelevetWave(_FastWave):
     """class to organise teleVet recordings transformed to csv files."""
 
     def __init__(self, filename=None):
@@ -481,7 +484,7 @@ class TelevetWave(FastWave):
         self.fs = self.data.index.max() / self.data.timeS.iloc[-1]
 
 
-class MonitorWave(FastWave):
+class MonitorWave(_FastWave):
     """class to organise monitorWave recordings.
         input : filename = path to file
         load = boolean to load data (default is True)
@@ -528,12 +531,15 @@ def main():
     os.chdir(paths["recordMain"])
     print("backEnd= ", plt.get_backend())  # required ?
     print("start QtApp")
-    try:
-        app
-    except NameError:
-        app = QApplication(sys.argv)
-        app.setQuitOnLastWindowClosed(True)
+    # try:
+    #     app
+    # except NameError:
+    #     app = QApplication(sys.argv)
+    #     app.setQuitOnLastWindowClosed(True)
     # list of loaded records
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(True)
+
     try:
         records
     except NameError:
@@ -591,10 +597,10 @@ def main():
         print("this is not recognized recording")
     # records = list_loaded()
     plt.show()
-    try:
-        app
-    except NameError:
-        app.exec_()
+    # try:
+    #     app
+    # except NameError:
+    #     app.exec_()
     return file_name
 
 

@@ -214,9 +214,15 @@ def loadmonitor_trenddata(filename, headerdico):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    file_name = choosefile_gui()
+    if len(sys.argv > 1):
+        # if dirname provide from command line
+        file_name = choosefile_gui(sys.argv[1])
+    else:
+        file_name = choosefile_gui()
     file = os.path.basename(file_name)
-    if file[0] == "M":
+    if not file:
+        print("no file selected")
+    elif file[0] == "M":
         if "Wave" not in file:
             header_dict = loadmonitor_trendheader(file_name)
             if header_dict:
@@ -224,3 +230,7 @@ if __name__ == "__main__":
                 # mdata= cleanMonitorTrendData(mdata)
             else:
                 mdata_df = None
+        else:
+            print("{} is not a MonitorTrend recording".format(file))
+    else:
+        print("{} is not a MonitorTrend recording".format(file))
