@@ -35,8 +35,8 @@ def choosefile_gui(dir_path=None):
     print("loadmonitor_trendrecord.choosefile_gui")
     if dir_path is None:
         dir_path = os.path.expanduser("~")
-
-    #    apps = QApplication([dir_path])
+    # app = QApplication(sys.argv)
+    # app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", directory=dir_path, filter="csv (*.csv)"
     )
@@ -117,22 +117,24 @@ def loadmonitor_trenddata(filename, headerdico):
     for col in datadf.columns:
         if col[0] == "~":
             datadf.pop(col)
-    # check the recorded parameters
+    # is empty?
     if datadf.set_index("Time").dropna(how="all").empty:
-        datadf = pd.DataFrame(columns=datadf.columns)
         print(
             "{} there are no data in this file : {} !".format(
                 ">" * 20, os.path.basename(filename)
             )
         )
-        return datadf
+        emptydf = pd.DataFrame(columns=datadf.columns)
+        return emptydf
+    # to float values
     to_fix = []
     for col in datadf.columns:
         if datadf[col].dtype != "float64":
             if col != "Time":
                 to_fix.append(col)
-    for col in to_fix:
-        datadf[col] = pd.to_numeric(datadf[col], errors="coerce")
+    if to_fix:
+        for col in to_fix:
+            datadf[col] = pd.to_numeric(datadf[col], errors="coerce")
 
     # elapsed time(in seconds)
     datadf["eTime"] = datadf.index * headerdico["Sampling Rate"]
@@ -210,7 +212,7 @@ def loadmonitor_trenddata(filename, headerdico):
     datadf.datetime = datadf.datetime.apply(lambda x: headerdico["Date"] + "-" + x)
     datadf.datetime = pd.to_datetime(datadf.datetime, format="%d-%m-%Y-%H:%M:%S")
     # if overlap between two dates (ie over midnight): add one day
-    if min_time_iloc > 0:
+    if min_time_iloc > datadf.index.min():
         secondday_df = datadf.iloc[min_time_iloc:].copy()
         secondday_df.datetime += timedelta(days=1)
         datadf.iloc[min_time_iloc:] = secondday_df

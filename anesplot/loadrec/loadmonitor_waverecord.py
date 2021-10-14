@@ -32,8 +32,8 @@ def choosefile_gui(dir_path=None):
     print("loadmonitor_waverecord.choosefile_gui")
     if dir_path is None:
         dir_path = os.path.expanduser("~")
-
-    app = QApplication([dir_path])
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dir_path, filter="csv (*.csv)"
     )
@@ -130,7 +130,7 @@ def loadmonitor_wavedata(filename=None):
     )
     # correct date time if over midnight
     min_time_iloc = datadf.loc[datadf.time == datadf.time.min()].index.values[0]
-    if min_time_iloc > 0:
+    if min_time_iloc > datadf.index.min():
         print("recording was performed during two days")
         secondday_df = datadf.iloc[min_time_iloc:].copy()
         secondday_df.time = secondday_df.time.apply(
