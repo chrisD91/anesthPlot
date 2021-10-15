@@ -103,4 +103,5 @@ if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
 #    app = QApplication(sys.argv)
 #    app.setQuitOnLastWindowClosed(True)
 
-# app = QApplication(sys.argv)
+# required when importing record_main from an external ipython terminal
+app = QApplication(sys.argv)
