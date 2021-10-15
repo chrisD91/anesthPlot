@@ -38,13 +38,7 @@ from anesplot.config.load_recordRc import build_paths
 paths = build_paths()
 # paths = load_recordRc.paths
 
-# works from outside, but not within spyder (relative import)
-# see https://dev.to/codemouse92/dead-simple-python-project-structure-and-imports-38c6
-# error in spyder : relative import with no known parent package
-# from .loadrec import explore
-
 # requires to have '.../anesthPlot' in the path
-# import anesplot.loadrec.explore
 import anesplot.loadrec.loadmonitor_trendrecord as lmt
 import anesplot.loadrec.loadmonitor_waverecord as lmw
 import anesplot.loadrec.loadtaph_trendrecord as ltt
@@ -55,15 +49,20 @@ import anesplot.treatrec.clean_data as clean
 import anesplot.treatrec.wave_func as wf
 import anesplot.treatrec as treat
 
-# import loadrec.explore
 
-# from . import loadrec.explore
+def try_app():
+    """ test if app QApplication is define, and build one if not
+    """
+    try:
+        app
+    except NameError:
+        print("didn't find an app, builded a new one")
+        app = QApplication(sys.argv)
+        app.setQuitOnLastWindowClosed(True)
+    return app
 
-# app = QApplication(sys.argv)
-# app.setQuitOnLastWindowClosed(True)
 
-
-def choosefile_gui(dir_path=None):
+def choosefile_gui(dirname=None):
     """Select a file via a dialog and return the (full) filename.
 
     parameters
@@ -76,16 +75,23 @@ def choosefile_gui(dir_path=None):
     fname[0] : str
         filename
     """
-    if dir_path is None:
-        dir_path = os.path.expanduser("~")
-    caption = "choose a recording"
-    options = QFileDialog.Options()
-    # to be able to see the caption, but impose to work with the mouse
-    #    options |= QFileDialog.DontUseNativeDialog
+    # nb these imports seems to be required to allow processing after importation
+    # import sys
+    # from PyQt5.QtWidgets import QApplication, QFileDialog
+
+    if dirname is None:
+        dirname = (
+            "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
+        )
+    app = QApplication(sys.argv)
+
     fname = QFileDialog.getOpenFileName(
-        caption=caption, directory=dir_path, filter="*.csv", options=options
+        None, "Select a file...", dirname, filter="All files (*)"
     )
-    return fname[0]
+
+    if isinstance(fname, tuple):
+        return fname[0]
+    return str(fname)
 
 
 def trendname_to_wavename(name):
@@ -173,7 +179,7 @@ def build_param_dico(file=None, asource=None, pathdico=paths):
     return dico
 
 
-def plot_trenddata(df, header, param_dico):
+def plot_trenddata(datadf, header, param_dico):
     """clinical main plots of a trend recordings
 
     parameters
@@ -190,10 +196,10 @@ def plot_trenddata(df, header, param_dico):
     """
     # clean the data for taph monitoring
     if param_dico["source"] == "taphTrend":
-        if "co2exp" in df.columns.values:
-            df.loc[df["co2exp"] < 20, "co2exp"] = np.NaN
-        if ("ip1m" in df.columns.values) and not df.ip1m.isnull().all():
-            df.loc[df["ip1m"] < 20, "ip1m"] = np.NaN
+        if "co2exp" in datadf.columns.values:
+            datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
+        if ("ip1m" in datadf.columns.values) and not datadf.ip1m.isnull().all():
+            datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
         else:
             print("no pressure tdata recorded")
     afig_list = []
@@ -209,7 +215,7 @@ def plot_trenddata(df, header, param_dico):
     )
     for func in plot_func_list:
         # afig_list.append(func(df.set_index("eTimeMin"), param_dico))
-        afig_list.append(func(df, param_dico))
+        afig_list.append(func(datadf, param_dico))
     afig_list.append(tplot.plot_header(header, param_dico))
     # for fig in afig_list:
     #     if fig:                 # test if figure is present
@@ -357,7 +363,7 @@ class TaphTrend(_SlowWave):
 
     def load_header(self):
         """ load the header -> pandas.dataframe """
-        headername = choosefile_gui(dir_path=os.path.dirname(self.filename))
+        headername = choosefile_gui(dirname=os.path.dirname(self.filename))
         if headername:
             header = ltt.loadtaph_patientfile(headername)
         else:
@@ -442,7 +448,6 @@ class _FastWave(_Waves):
             fig : the related figure
 
         """
-        df = self.data
         if erase:
             roidict = {}
         elif self.fig:
@@ -471,7 +476,7 @@ class _FastWave(_Waves):
         :rtype: mp4
 
         """
-        wplot.create_video(self, speed=1, save=False, savedir="~")
+        wplot.create_video(self, speed=speed, save=save, savedir="~")
 
 
 class TelevetWave(_FastWave):
@@ -606,4 +611,4 @@ def main():
 
 #%%
 if __name__ == "__main__":
-    filename = main()
+    file_name = main()

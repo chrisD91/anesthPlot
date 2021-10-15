@@ -214,7 +214,7 @@ def loadmonitor_trenddata(filename, headerdico):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    if len(sys.argv > 1):
+    if len(sys.argv) > 1:
         # if dirname provide from command line
         file_name = choosefile_gui(sys.argv[1])
     else:

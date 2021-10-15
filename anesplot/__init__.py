@@ -89,7 +89,7 @@ import sys
 from pathlib import Path
 
 # to be able to use imports in spyder
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resolve())
@@ -98,7 +98,9 @@ if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
 
 # build a QApplication to be able to use a Qt GUi to choose files or waves
 # try:
-#     isintance(app, QApplication)
+#     isinstance(app, QApplication)
 # except NameError:
-#     app = QApplication(sys.argv)
-#     app.setQuitOnLastWindowClosed(True)
+#    app = QApplication(sys.argv)
+#    app.setQuitOnLastWindowClosed(True)
+
+# app = QApplication(sys.argv)
