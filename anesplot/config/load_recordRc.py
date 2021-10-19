@@ -13,12 +13,12 @@ import sys
 
 import yaml
 
-# TODO see https://www.oreilly.com/library/view/python-cookbook/0596001673/ch17s02.html
+
 def build_paths():
     """read the yaml configuration file."""
     # locate
     try:
-        #        local_mod_path = os.path.dirname(__file__)
+        # local_mod_path = os.path.dirname(__file__)
         local_mod_path = main_loc
         print("__file__", __file__)
         print("argv", sys.argv)

@@ -8,7 +8,7 @@ can be runned as a script::
     python record_main.py
 
 or imported as a package::
-    import anestplot.record_main as rec
+    import anesplot.record_main as rec
 
 ----
 """
@@ -20,6 +20,7 @@ from importlib import reload
 import numpy as np
 import pandas as pd
 import pyperclip
+import faulthandler
 
 import matplotlib
 
@@ -36,7 +37,6 @@ rcParams["axes.ymargin"] = 0
 from anesplot.config.load_recordRc import build_paths
 
 paths = build_paths()
-# paths = load_recordRc.paths
 
 # requires to have '.../anesthPlot' in the path
 import anesplot.loadrec.loadmonitor_trendrecord as lmt
@@ -48,6 +48,8 @@ import anesplot.plot.wave_plot as wplot
 import anesplot.treatrec.clean_data as clean
 import anesplot.treatrec.wave_func as wf
 import anesplot.treatrec as treat
+
+faulthandler.enable()
 
 
 def try_app():
@@ -76,15 +78,14 @@ def choosefile_gui(dirname=None):
         filename
     """
     # nb these imports seems to be required to allow processing after importation
-    # import sys
-    # from PyQt5.QtWidgets import QApplication, QFileDialog
+    import sys
+    from PyQt5.QtWidgets import QApplication, QFileDialog
 
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
     app = QApplication(sys.argv)
-
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
@@ -114,6 +115,7 @@ def select_type(question=None, items=None, num=0):
         items = ("monitorTrend", "monitorWave", "taphTrend", "telVet")
     if question is None:
         question = "choose kind of file"
+    app = QApplication(sys.argv)
     qw = QWidget()
     kind, ok_pressed = QInputDialog.getItem(qw, "select", question, items, num, False)
     if ok_pressed and kind:
@@ -138,6 +140,7 @@ def select_wave(waves, num=1):
         question = "choose first wave"
     if num == 2:
         question = "do you want a second one ?"
+    app = QApplication(sys.argv)
     qw = QWidget()
     wave, ok_pressed = QInputDialog.getItem(qw, "select", question, waves, 0, False)
     if ok_pressed and wave:
@@ -407,6 +410,8 @@ class _FastWave(_Waves):
         """
         if self.data.empty:
             fig = None
+            lines = None
+            traces_list = None
             print("there are no data to plot")
         else:
             print("*" * 20, "started FastWave plot_wave")
@@ -432,9 +437,9 @@ class _FastWave(_Waves):
                 lines = None
             self.fig = fig
             print("*" * 20, "ended FastWave plot_wave")
-            return fig, lines, traces_list
+        return fig, lines, traces_list
 
-    def define_a_roi(self, erase=False):
+    def memorize_as_roi(self, erase=False):
         """define a Region Of Interest (roi).
 
         input : erase (boolean) default=False
@@ -476,7 +481,10 @@ class _FastWave(_Waves):
         :rtype: mp4
 
         """
-        wplot.create_video(self, speed=speed, save=save, savedir="~")
+        if self.roi:
+            wplot.create_video(self, speed=speed, save=save, savedir="~")
+        else:
+            print("no roi attribute, please use memorize_as_roi() to build one")
 
 
 class TelevetWave(_FastWave):
@@ -518,43 +526,24 @@ class MonitorWave(_FastWave):
         print("*" * 20, "ended MonitorWave init process")
 
 
-def main():
+def main(file_name=None):
     """main script called from command line
     call : "python anesthPlot/anesplot/__main__.py"
     args : optional filename (fullname)
 
     return: set of plots for either monitorTrend, monitorWave oe televet recording
     """
-    # look for terminal filename passed as the first argument
-    provided_filename = None
-    if len(sys.argv) > 1:
-        if os.path.isfile(sys.argv[1]):
-            provided_filename = sys.argv[1]
-        else:
-            print("{} is not a valid filename".format(sys.argv[1]))
-
     os.chdir(paths["recordMain"])
     print("backEnd= ", plt.get_backend())  # required ?
     print("start QtApp")
-    # try:
-    #     app
-    # except NameError:
-    #     app = QApplication(sys.argv)
-    #     app.setQuitOnLastWindowClosed(True)
-    # list of loaded records
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
 
-    try:
-        records
-    except NameError:
-        records = {}
     # choose file and indicate the source
     print("select the file containing the data")
-    if provided_filename is None:
+    print(file_name)
+    if file_name is None:
         file_name = choosefile_gui(paths["data"])
-    else:
-        file_name = provided_filename
     pyperclip.copy(file_name)
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     # select base index in the scoll down
@@ -611,4 +600,11 @@ def main():
 
 #%%
 if __name__ == "__main__":
-    file_name = main()
+    if len(sys.argv) > 1:
+        provided_name = sys.argv[1]
+        if os.path.isfile(provided_name):
+            main(provided_name)
+        else:
+            print("the provided filename is not valid")
+    else:
+        main()

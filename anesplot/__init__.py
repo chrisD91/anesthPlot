@@ -89,7 +89,7 @@ import sys
 from pathlib import Path
 
 # to be able to use imports in spyder
-from PyQt5.QtWidgets import QApplication, QFileDialog
+# from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resolve())
@@ -104,4 +104,4 @@ if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
 #    app.setQuitOnLastWindowClosed(True)
 
 # required when importing record_main from an external ipython terminal
-app = QApplication(sys.argv)
+# app = QApplication(sys.argv)
