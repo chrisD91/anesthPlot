@@ -65,19 +65,26 @@ def loadmonitor_trendheader(filename):
             index_col=None,
             nrows=11,
             encoding="iso8859_1",
+            on_bad_lines="skip",
         )
-    except UnicodeDecodeError as error:
-        print(error)
-        return {}
+    # except UnicodeDecodeError as error:
+    except pd.errors.EmptyDataError:
+        print("{} as an empty header".format(os.path.basename(filename)))
+        descr = {"empty": filename}
+        # print(error)
     # NB encoding needed for accentuated letters
-    headerdf = headerdf.set_index(0).T
-    if "Sampling Rate" not in headerdf.columns:
-        print(">>> this is not a trend record")
-        return
-    for col in ["Weight", "Height", "Sampling Rate"]:
-        headerdf[col] = headerdf[col].astype(float)
-    # convert to a dictionary
-    descr = headerdf.loc[1].to_dict()
+    else:
+        headerdf = headerdf.set_index(0).T
+        if "Sampling Rate" not in headerdf.columns:
+            print(
+                ">" * 10
+                + " {} is not a trend record".format(os.path.basename(filename))
+            )
+            return {}
+        for col in ["Weight", "Height", "Sampling Rate"]:
+            headerdf[col] = headerdf[col].astype(float)
+        # convert to a dictionary
+        descr = headerdf.loc[1].to_dict()
     return descr
 
 
@@ -98,18 +105,19 @@ def loadmonitor_trenddata(filename, headerdico):
         datadf = pd.read_csv(
             filename, sep=",", skiprows=[13], header=12, encoding="ISO-8859-1"
         )
+    except pd.errors.EmptyDataError:
+        print(">" * 10 + " {} contains no data".format(os.path.basename(filename)))
+        emptydf = pd.DataFrame()
+        return emptydf
+
     datadf = pd.DataFrame(datadf)
-    # remove waves time indicators(column name beginning with a '~')
+    # drop waves time indicators(column name beginning with a '~')
     for col in datadf.columns:
         if col[0] == "~":
             datadf.pop(col)
-    # is empty?
+    # is empty (ie only a few lines of waves data)
     if datadf.set_index("Time").dropna(how="all").empty:
-        print(
-            "{} there are no data in this file : {} !".format(
-                ">" * 20, os.path.basename(filename)
-            )
-        )
+        print(">" * 10 + " {} contains no data".format(os.path.basename(filename)))
         emptydf = pd.DataFrame(columns=datadf.columns)
         return emptydf
     # to float values
@@ -205,8 +213,6 @@ def loadmonitor_trenddata(filename, headerdico):
         datadf.datetime = datetime_series
     # remove irrelevant measures
     # df.co2exp.loc[data.co2exp < 30] = np.nan
-    # TODO : find a way to proceed without the error pandas displays
-
     return datadf
 
 
