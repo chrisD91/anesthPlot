@@ -57,9 +57,18 @@ def loadmonitor_waveheader(filename=None):
     if filename is None:
         filename = choosefile_gui()
         print(f"called returned= {filename}")
-    headerdf = pd.read_csv(
-        filename, sep=",", header=None, index_col=None, nrows=12, encoding="iso-8859-1"
-    )
+    try:
+        headerdf = pd.read_csv(
+            filename,
+            sep=",",
+            header=None,
+            index_col=None,
+            nrows=12,
+            encoding="iso-8859-1",
+        )
+    except FileNotFoundError:
+        print("canceled by the user")
+        headerdf = pd.DataFrame()
     return headerdf
 
 

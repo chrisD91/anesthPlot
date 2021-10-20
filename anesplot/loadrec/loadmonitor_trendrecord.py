@@ -71,6 +71,9 @@ def loadmonitor_trendheader(filename):
     except pd.errors.EmptyDataError:
         print("{} as an empty header".format(os.path.basename(filename)))
         descr = {"empty": filename}
+    except FileNotFoundError:
+        print("cancelled")
+        descr = {}
         # print(error)
     # NB encoding needed for accentuated letters
     else:

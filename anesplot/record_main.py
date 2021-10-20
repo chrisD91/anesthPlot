@@ -339,7 +339,7 @@ class MonitorTrend(_SlowWave):
         self.header = lmt.loadmonitor_trendheader(self.filename)
         self.load = load
         # load if header is present & not data
-        if self.header:
+        if self.header and self.load:
             if self.load:
                 self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
             self.source = "monitor"
@@ -513,11 +513,13 @@ class MonitorWave(_FastWave):
         # define filename -> self.filenamewa
         super().__init__(filename)
         # load header
-        header = lmw.loadmonitor_waveheader(self.filename)
-        self.header = dict(zip(header[0], header[1]))
+        header_df = lmw.loadmonitor_waveheader(self.filename)
+        header_df = pd.DataFrame(header_df)
+        if not header_df.empty:
+            self.header = dict(header_df.values)
         # load data
         self.load = load
-        if self.load:
+        if load and not header_df.empty:
             data = lmw.loadmonitor_wavedata(filename=self.filename)
             self.data = data
         self.source = "monitorWave"
