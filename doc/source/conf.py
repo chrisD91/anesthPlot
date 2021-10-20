@@ -12,17 +12,18 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../anesplot'))
+
+sys.path.insert(0, os.path.abspath("../anesplot"))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'anesthPlot'
-copyright = '2021, Christophe Desbois'
-author = 'Christophe Desbois'
+project = "anesthPlot"
+copyright = "2021, Christophe Desbois"
+author = "Christophe Desbois"
 
 # The full version, including alpha/beta/rc tags
-release = 'beta'
+release = "beta"
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,17 +32,17 @@ release = 'beta'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.todo',
-    'myst_parser'
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.todo",
+    "myst_parser",
 ]
 
 # the function reading order
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -49,9 +50,9 @@ templates_path = ['_templates']
 exclude_patterns = []
 
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.txt': 'restructuredtext',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".txt": "restructuredtext",
+    ".md": "markdown",
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -59,12 +60,12 @@ source_suffix = {
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
-html_theme = 'agogo'
-html_theme = 'sphinx_rtd_theme'
+html_theme = "alabaster"
+html_theme = "agogo"
+html_theme = "sphinx_rtd_theme"
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
