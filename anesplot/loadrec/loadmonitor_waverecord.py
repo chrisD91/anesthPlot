@@ -73,7 +73,12 @@ def loadmonitor_wavedata(filename=None):
     """
     print("loadmonitor_waverecord.loadmonitor_wavedata")
     fs = 300  # sampling rate
-    date = pd.read_csv(filename, nrows=1, header=None).iloc[0][1]
+    try:
+        date = pd.read_csv(filename, nrows=1, header=None).iloc[0][1]
+    except UnicodeDecodeError:
+        date = pd.read_csv(filename, nrows=1, header=None, encoding="iso-8859-1").iloc[
+            0
+        ][1]
     print("loading wave_data of {}".format(os.path.basename(filename)))
     datadf = pd.read_csv(
         filename,
