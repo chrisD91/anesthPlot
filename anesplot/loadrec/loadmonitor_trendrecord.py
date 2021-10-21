@@ -24,21 +24,30 @@ import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
-def choosefile_gui(dir_path=None):
-    """select a file using a dialog.
+def choosefile_gui(dirname=None):
+    """Select a file via a dialog and return the (full) filename.
 
-    :param str dir_path: optional location of the data (paths['data'])
+    parameters
+    ----
+    dir_path : str
+        location to place the gui ('generally paths['data']) else home
 
-    :returns: filename (full path)
-    :rtype: str
+    return
+    ----
+    fname[0] : str
+        filename
     """
-    print("loadmonitor_trendrecord.choosefile_gui")
-    if dir_path is None:
-        dir_path = os.path.expanduser("~")
-    # app = QApplication(sys.argv)
-    # app.setQuitOnLastWindowClosed(True)
+    # nb these imports seems to be required to allow processing after importation
+    import sys
+    from PyQt5.QtWidgets import QApplication, QFileDialog
+
+    if dirname is None:
+        dirname = (
+            "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
+        )
+    app = QApplication(sys.argv)
     fname = QFileDialog.getOpenFileName(
-        None, "Select a file...", directory=dir_path, filter="csv (*.csv)"
+        None, "Select a file...", dirname, filter="All files (*)"
     )
 
     if isinstance(fname, tuple):
@@ -223,23 +232,30 @@ def loadmonitor_trenddata(filename, headerdico):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    if len(sys.argv) > 1:
-        # if dirname provide from command line
-        file_name = choosefile_gui(sys.argv[1])
-    else:
-        file_name = choosefile_gui()
+    dir_name = (
+        "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
+    )
+    file_name = choosefile_gui(dir_name)
     file = os.path.basename(file_name)
     if not file:
-        print("no file selected")
+        print("canceled by the user")
     elif file[0] == "M":
         if "Wave" not in file:
             header_dict = loadmonitor_trendheader(file_name)
             if header_dict:
                 mdata_df = loadmonitor_trenddata(file_name, header_dict)
+                print("{} loaded recording of {} in mdata_df".format(">" * 10, file))
                 # mdata= cleanMonitorTrendData(mdata)
             else:
                 mdata_df = None
+                print("{}  {} file is empty  {}".format("!" * 5, file, "!" * 5))
         else:
-            print("{} is not a MonitorTrend recording".format(file))
+            print(
+                "{} {} is not a MonitorTrend recording {}".format(
+                    "!" * 5, file, "!" * 5
+                )
+            )
     else:
-        print("{} is not a MonitorTrend recording".format(file))
+        print(
+            "{}  {} is not a MonitorTrend recording  {}".format("!" * 5, file, "!" * 5)
+        )

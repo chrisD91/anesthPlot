@@ -21,27 +21,33 @@ import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
-def choosefile_gui(dir_path=None):
-    """select a file using a dialog.
+def choosefile_gui(dirname=None):
+    """Select a file via a dialog and return the (full) filename.
 
-    :param str dir_path: optional location of the data (paths['data'])
+    parameters
+    ----
+    dir_path : str
+        location to place the gui ('generally paths['data']) else home
 
-    :returns: filename (full path)
-    :rtype: str
+    return
+    ----
+    fname[0] : str
+        filename
     """
-    print("loadmonitor_waverecord.choosefile_gui")
-    if dir_path is None:
-        dir_path = os.path.expanduser("~")
+    # nb these imports seems to be required to allow processing after importation
+    import sys
+    from PyQt5.QtWidgets import QApplication, QFileDialog
+
+    if dirname is None:
+        dirname = os.path.expanduser("~")
     app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(
-        None, "Select a file...", dir_path, filter="csv (*.csv)"
+        None, "Select a file...", dirname, filter="All files (*)"
     )
+
     if isinstance(fname, tuple):
-        filename = fname[0]
-    else:
-        filename = str(fname)
-    return filename
+        return fname[0]
+    return str(fname)
 
 
 def loadmonitor_waveheader(filename=None):
@@ -81,7 +87,7 @@ def loadmonitor_wavedata(filename=None):
     :rtype: pandas.Dataframe
     """
     print("loadmonitor_waverecord.loadmonitor_wavedata")
-    fs = 300  # sampling rate
+    sampling_fr = 300  # sampling rate
     try:
         date = pd.read_csv(filename, nrows=1, header=None).iloc[0][1]
     except UnicodeDecodeError:
@@ -148,7 +154,7 @@ def loadmonitor_wavedata(filename=None):
     datadf["datetime"] = [start_time + i * time_delta for i in range(len(datadf))]
     datadf["point"] = datadf.index  # point location
     # add a 'sec'
-    datadf["sec"] = datadf.index / fs
+    datadf["sec"] = datadf.index / sampling_fr
 
     # clean data
     # params = ['wekg', 'wap', 'wco2', 'wawp', 'wflow']
@@ -165,9 +171,24 @@ def loadmonitor_wavedata(filename=None):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    file_name = choosefile_gui(os.path.expanduser("~"))
+    dir_name = (
+        "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
+    )
+    file_name = choosefile_gui(dir_name)
     file = os.path.basename(file_name)
-    if file[0] == "M":
-        if "Wave" in file:
-            wheader_df = loadmonitor_waveheader(file_name)
-            wdata_df = loadmonitor_wavedata(file_name)
+    if not file:
+        print("canceled by the user")
+    else:
+        if file[0] == "M":
+            if "Wave" in file:
+                wheader_df = loadmonitor_waveheader(file_name)
+                wdata_df = loadmonitor_wavedata(file_name)
+                print("loaded {} in wheader_df & wdata_df".format(file))
+            else:
+                print(
+                    "{}  {} is not a MonitorWave recording   {}".format(
+                        "!" * 5, file, "!" * 5
+                    )
+                )
+        else:
+            print("{}  {} if not a Monitor record  {}".format("!" * 5, file, "!" * 5))
