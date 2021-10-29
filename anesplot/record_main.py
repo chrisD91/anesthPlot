@@ -9,18 +9,20 @@ can be runned as a script::
 
 or imported as a package::
     import anesplot.record_main as rec
-
+    %gui qt5 (required only to use the dialogs if using spyder)
+    trends = rec.MonitorTrend()
+    waves = rec.MonitorWave(rec.trendname_to_wavename(trends.filename))
 ----
 """
 
 import os
 import sys
 from importlib import reload
+import faulthandler
 
 import numpy as np
 import pandas as pd
 import pyperclip
-import faulthandler
 
 import matplotlib
 
@@ -34,7 +36,7 @@ from matplotlib import rcParams
 rcParams["axes.xmargin"] = 0
 rcParams["axes.ymargin"] = 0
 
-from anesplot.config.load_recordRc import build_paths
+from anesplot.config.load_recordrc import build_paths
 
 paths = build_paths()
 
@@ -46,22 +48,12 @@ import anesplot.loadrec.loadtelevet as ltv
 import anesplot.plot.trend_plot as tplot
 import anesplot.plot.wave_plot as wplot
 import anesplot.treatrec.clean_data as clean
-import anesplot.treatrec.wave_func as wf
-import anesplot.treatrec as treat
+
+# import anesplot.treatrec.wave_func as wf
+# import anesplot.treatrec as treat
 
 faulthandler.enable()
-
-
-def try_app():
-    """ test if app QApplication is define, and build one if not
-    """
-    try:
-        app
-    except NameError:
-        print("didn't find an app, builded a new one")
-        app = QApplication(sys.argv)
-        app.setQuitOnLastWindowClosed(True)
-    return app
+app = QApplication(sys.argv)
 
 
 def choosefile_gui(dirname=None):
@@ -77,19 +69,25 @@ def choosefile_gui(dirname=None):
     fname[0] : str
         filename
     """
-    # nb these imports seems to be required to allow processing after importation
-    import sys
-    from PyQt5.QtWidgets import QApplication, QFileDialog
+    global app
 
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
-    app = QApplication(sys.argv)
+    ##########
+    # print("define widget")
+    # wid = QWidget()
+    # print("show command")
+    # wid.show()
+    # print("define options")
+    # options = QFileDialog.Options()
+    # options |= QFileDialog.DontUseNativeDialog
+    print("define QFiledialog")
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
-
+    print("return")
     if isinstance(fname, tuple):
         return fname[0]
     return str(fname)
@@ -115,9 +113,10 @@ def select_type(question=None, items=None, num=0):
         items = ("monitorTrend", "monitorWave", "taphTrend", "telVet")
     if question is None:
         question = "choose kind of file"
-    app = QApplication(sys.argv)
-    qw = QWidget()
-    kind, ok_pressed = QInputDialog.getItem(qw, "select", question, items, num, False)
+    global app
+    #    app = QApplication(sys.argv)
+    widg = QWidget()
+    kind, ok_pressed = QInputDialog.getItem(widg, "select", question, items, num, False)
     if ok_pressed and kind:
         selection = kind
     else:
@@ -136,13 +135,14 @@ def select_wave(waves, num=1):
     kind : str
         kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
        """
+    global app
     if num == 1:
         question = "choose first wave"
     if num == 2:
         question = "do you want a second one ?"
-    app = QApplication(sys.argv)
-    qw = QWidget()
-    wave, ok_pressed = QInputDialog.getItem(qw, "select", question, waves, 0, False)
+    #    app = QApplication(sys.argv)
+    widg = QWidget()
+    wave, ok_pressed = QInputDialog.getItem(widg, "select", question, waves, 0, False)
     if ok_pressed and wave:
         selection = wave
     else:
@@ -296,8 +296,8 @@ class _SlowWave(_Waves):
         output = pandas dataFrame
         nb doesnt change the obj.data in place
         """
-        df = clean.clean_trenddata(self.data)
-        return df
+        datadf = clean.clean_trenddata(self.data)
+        return datadf
 
     def show_graphs(self):
         """ basic clinical plots """
@@ -427,9 +427,8 @@ class _FastWave(_Waves):
                 fig, lines = wplot.plot_wave(
                     self.data, keys=traces_list, param=self.param
                 )
-                # fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
-                # fig.text(0.01, 0.01, self.file, ha="left", va="bottom", alpha=0.4)
                 self.trace_list = traces_list
+                pyperclip.copy(str(traces_list))
                 plt.show()
             else:
                 self.trace_list = None
@@ -439,7 +438,7 @@ class _FastWave(_Waves):
             print("*" * 20, "ended FastWave plot_wave")
         return fig, lines, traces_list
 
-    def memorize_as_roi(self, erase=False):
+    def record_roi(self, erase=False):
         """define a Region Of Interest (roi).
 
         input : erase (boolean) default=False
@@ -456,7 +455,7 @@ class _FastWave(_Waves):
         if erase:
             roidict = {}
         elif self.fig:
-            roidict = wplot.get_a_roi(self)
+            roidict = wplot.get_roi(self)
             roidict.update({"traces": self.trace_list, "fig": self.fig})
         else:
             print("no fig attribute, please use plot_wave() method to build one")
@@ -484,7 +483,7 @@ class _FastWave(_Waves):
         if self.roi:
             wplot.create_video(self, speed=speed, save=save, savedir="~")
         else:
-            print("no roi attribute, please use memorize_as_roi() to build one")
+            print("no roi attribute, please use record_roi() to build one")
 
 
 class TelevetWave(_FastWave):
@@ -538,12 +537,14 @@ def main(file_name=None):
     os.chdir(paths["recordMain"])
     print("backEnd= ", plt.get_backend())  # required ?
     print("start QtApp")
-    app = QApplication(sys.argv)
+    global app
+    # app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
 
+    fig_list = []
     # choose file and indicate the source
     print("select the file containing the data")
-    print(file_name)
+    print("file_name is {}".format(file_name))
     if file_name is None:
         file_name = choosefile_gui(paths["data"])
     pyperclip.copy(file_name)
@@ -591,13 +592,8 @@ def main(file_name=None):
         fig_list = taph_trend.show_graphs()
     else:
         print("this is not recognized recording")
-    # records = list_loaded()
     plt.show()
-    # try:
-    #     app
-    # except NameError:
-    #     app.exec_()
-    return file_name
+    return fig_list
 
 
 #%%

@@ -38,14 +38,15 @@ def choosefile_gui(dirname=None):
         filename
     """
     # nb these imports seems to be required to allow processing after importation
-    import sys
-    from PyQt5.QtWidgets import QApplication, QFileDialog
+    # import sys
+    # from PyQt5.QtWidgets import QApplication, QFileDialog
 
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
-    app = QApplication(sys.argv)
+    global app
+    # app = QApplication(sys.argv)
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
@@ -118,7 +119,7 @@ def loadmonitor_trenddata(filename, headerdico):
             filename, sep=",", skiprows=[13], header=12, encoding="ISO-8859-1"
         )
     except pd.errors.EmptyDataError:
-        print(">" * 10 + " {} contains no data".format(os.path.basename(filename)))
+        print("! " * 10 + " {} contains no data !".format(os.path.basename(filename)))
         emptydf = pd.DataFrame()
         return emptydf
 
@@ -129,7 +130,7 @@ def loadmonitor_trenddata(filename, headerdico):
             datadf.pop(col)
     # is empty (ie only a few lines of waves data)
     if datadf.set_index("Time").dropna(how="all").empty:
-        print(">" * 10 + " {} contains no data".format(os.path.basename(filename)))
+        print("! " * 10 + " {} contains no data !".format(os.path.basename(filename)))
         emptydf = pd.DataFrame(columns=datadf.columns)
         return emptydf
     # to float values

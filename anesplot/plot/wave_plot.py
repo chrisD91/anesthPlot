@@ -225,7 +225,7 @@ def plot_wave(data, keys, param):
 #%%
 
 
-def get_a_roi(waves):
+def get_roi(waves):
     """ use the drawn figure to extract the relevant data in order to build an animation
 
     :param waves: a wave recording

@@ -35,12 +35,13 @@ def choosefile_gui(dirname=None):
         filename
     """
     # nb these imports seems to be required to allow processing after importation
-    import sys
-    from PyQt5.QtWidgets import QApplication, QFileDialog
+    # import sys
+    # from PyQt5.QtWidgets import QApplication, QFileDialog
 
     if dirname is None:
         dirname = os.path.expanduser("~")
-    app = QApplication(sys.argv)
+    global app
+    #    app = QApplication(sys.argv)
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
@@ -109,7 +110,7 @@ def loadmonitor_wavedata(filename=None):
     if datadf.empty:
         print(
             "{} there are no data in this file : {} !".format(
-                ">" * 20, os.path.basename(filename)
+                "! " * 10, os.path.basename(filename)
             )
         )
         return datadf
