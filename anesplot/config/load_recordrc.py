@@ -28,15 +28,13 @@ def build_paths():
     #         rcdico = yaml.safe_load(ymlfile)
 
     rc_filename = os.path.expanduser("~/.anesplotrc")
-    if os.path.isfile(os.path.join(os.path.dirname(__file__),".anesplotrc")):
+    if os.path.isfile(os.path.join(os.path.dirname(__file__), ".anesplotrc")):
         with open(rc_filename, "r") as ymlfile:
             rcdico = yaml.safe_load(ymlfile)
 
-
-    elif os.path.isfile(os.path.join(
-            os.path.dirname(__file__), "recordRc.yaml")):
+    elif os.path.isfile(os.path.join(os.path.dirname(__file__), "recordRc.yaml")):
         rc_filename = os.path.join(os.path.dirname(__file__), "recordRc.yaml")
-        print('configuration file will be moved the the home folder in future versions')
+        print("configuration file will be moved the the home folder in future versions")
         with open(rc_filename, "r") as ymlfile:
             rcdico = yaml.safe_load(ymlfile)
 
