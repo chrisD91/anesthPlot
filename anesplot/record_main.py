@@ -247,7 +247,7 @@ class _Waves:
             filename = choosefile_gui(paths["data"])
         self.filename = filename
         self.file = os.path.basename(filename)
-        self.fs = None
+        self.sampling_freq = None
         self.source = None
         self.data = None
         self.header = None
@@ -321,8 +321,8 @@ class MonitorTrend(_SlowWave):
             record parameters
         source : str
             recording apparatus (default = 'monitor')
-        fs : float
-            sampling rate
+        sampling_freq : float
+            sampling frequency
         param : dict
             display parameters
 
@@ -343,7 +343,7 @@ class MonitorTrend(_SlowWave):
             if self.load:
                 self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
             self.source = "monitor"
-            self.fs = self.header.get("Sampling Rate", None)
+            self.sampling_freq = self.header.get("Sampling Rate", None)
             self.param["source"] = "monitorTrend"
             # self.param'file' : os.path.basename(filename)}
 
@@ -493,7 +493,7 @@ class TelevetWave(_FastWave):
         super().__init__(filename)
         self.data = ltv.loadtelevet(filename)
         self.source = "teleVet"
-        self.fs = self.data.index.max() / self.data.timeS.iloc[-1]
+        self.sampling_freq = self.data.index.max() / self.data.timeS.iloc[-1]
 
 
 class MonitorWave(_FastWave):
@@ -522,7 +522,7 @@ class MonitorWave(_FastWave):
             data = lmw.loadmonitor_wavedata(filename=self.filename)
             self.data = data
         self.source = "monitorWave"
-        self.fs = 300
+        self.sampling_freq = 300
         self.param["fs"] = 300
         print("*" * 20, "ended MonitorWave init process")
 
@@ -560,7 +560,7 @@ def main(file_name=None):
     params = build_param_dico(file=os.path.basename(file_name), asource=source)
     if not os.path.isfile(file_name):
         print("this is not a file")
-        return
+        return fig_list
     if source == "telVet":
         telvet = TelevetWave(file_name)
         params["fs"] = 500
@@ -571,10 +571,10 @@ def main(file_name=None):
         monitor_trend = MonitorTrend(file_name)
         if monitor_trend.data.empty:
             print("empty recording")
-            return
+            return fig_list
         if monitor_trend.header is None:
             print("empty header")
-            return
+            return fig_list
         params["t_fs"] = monitor_trend.header.get("Sampling Rate") / 60
         monitor_trend.param = params
         if monitor_trend.data is not None:
@@ -598,11 +598,12 @@ def main(file_name=None):
 
 #%%
 if __name__ == "__main__":
+    in_name = None
+    # check if a filename was provided from terminal call
     if len(sys.argv) > 1:
         provided_name = sys.argv[1]
         if os.path.isfile(provided_name):
-            main(provided_name)
+            in_name = provided_name
         else:
             print("the provided filename is not valid")
-    else:
-        main()
+    main(in_name)
