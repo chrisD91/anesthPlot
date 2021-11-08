@@ -537,7 +537,7 @@ def main(file_name=None):
 
     return: set of plots for either monitorTrend, monitorWave oe televet recording
     """
-    os.chdir(paths["recordMain"])
+    # os.chdir(paths.get("recordMain", os.path.expanduser('~')))
     print("backEnd= ", plt.get_backend())  # required ?
     print("start QtApp")
     global app
@@ -603,6 +603,8 @@ def main(file_name=None):
 if __name__ == "__main__":
     in_name = None
     # check if a filename was provided from terminal call
+    print(sys.argv)
+
     if len(sys.argv) > 1:
         provided_name = sys.argv[1]
         if os.path.isfile(provided_name):
