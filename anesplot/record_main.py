@@ -36,18 +36,21 @@ from matplotlib import rcParams
 rcParams["axes.xmargin"] = 0
 rcParams["axes.ymargin"] = 0
 
-from anesplot.config.load_recordrc import build_paths
+# from anesplot.config.load_recordrc import build_paths
+from config.load_recordrc import build_paths
 
 paths = build_paths()
 
 # requires to have '.../anesthPlot' in the path
-import anesplot.loadrec.loadmonitor_trendrecord as lmt
-import anesplot.loadrec.loadmonitor_waverecord as lmw
-import anesplot.loadrec.loadtaph_trendrecord as ltt
-import anesplot.loadrec.loadtelevet as ltv
-import anesplot.plot.trend_plot as tplot
-import anesplot.plot.wave_plot as wplot
-import anesplot.treatrec.clean_data as clean
+# import anesplot.loadrec.loadmonitor_trendrecord as lmt
+
+import loadrec.loadmonitor_trendrecord as lmt
+import loadrec.loadmonitor_waverecord as lmw
+import loadrec.loadtaph_trendrecord as ltt
+import loadrec.loadtelevet as ltv
+import plot.trend_plot as tplot
+import plot.wave_plot as wplot
+import treatrec.clean_data as clean
 
 # import anesplot.treatrec.wave_func as wf
 # import anesplot.treatrec as treat
@@ -256,7 +259,7 @@ class _Waves:
             xmax=None,
             ymin=0,
             ymax=None,
-            path=paths["sFig"],
+            path=paths.get("sFig", "~"),
             unit="min",
             save=False,
             memo=False,
