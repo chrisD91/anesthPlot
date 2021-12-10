@@ -6,7 +6,7 @@ This is a temporary script file.
 """
 import os
 
-import numpy as np
+# import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
