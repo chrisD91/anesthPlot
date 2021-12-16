@@ -9,6 +9,11 @@ load a taphonius data recording:
     - load the patient datafile to a dictionary
     - load the physiological date into a pandas dataframe
 
+nb = 4 files per recording :
+    - .pdf -> anesthesia record 'manual style'
+    - .xml -> taphonius technical record -> to be extracted
+    - Patient.csv -> patient id and specifications
+    - SD...csv -> anesthesia record
 ____
 """
 
@@ -46,7 +51,7 @@ def choosefile_gui(dir_path=None):
 
 
 def loadtaph_trenddata(filename):
-    """ load the taphoniusData trends data.
+    """load the taphoniusData trends data.
 
     :param str filename: fullname
 
@@ -126,7 +131,7 @@ def loadtaph_trenddata(filename):
 
 
 def loadtaph_patientfile(headername):
-    """ load the taphonius patient.csv file
+    """load the taphonius patient.csv file
 
     :param str headername: fullname
 
@@ -149,7 +154,18 @@ def loadtaph_patientfile(headername):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    file_name = choosefile_gui(dir_path=os.path.expanduser("~"))
+    dirname = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/"
+    if not os.path.isdir(dirname):
+        dirname = "~"
+    file_name = choosefile_gui(dir_path=os.path.expanduser(dirname))
+    file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18"
     file = os.path.basename(file_name)
+    dirname = os.path.dirname(file_name)
     if file[:2] == "SD":
         tdata_df = loadtaph_trenddata(file_name)
+    else:
+        print("please choose the file that begins with 'SD'")
+        file_name = choosefile_gui(dir_path=dirname)
+        file = os.path.basename(file_name)
+        if file[:2] == "SD":
+            tdata_df = loadtaph_trenddata(file_name)
