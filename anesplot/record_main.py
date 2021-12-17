@@ -373,7 +373,7 @@ class TaphTrend(_SlowWave):
         output : pandas dataframe"""
         dirname = os.path.dirname(self.filename)
         files = os.listdir(dirname)
-        print("{} taphTrend load header".format("-" * 20))
+        print("{} > taphTrend load header".format("-" * 20))
         print("{} files are present".format(len(files)))
         for file in files:
             print(file)
@@ -382,7 +382,7 @@ class TaphTrend(_SlowWave):
         # headername = choosefile_gui(dirname=os.path.dirname(self.filename))
         if headername:
             header = ltt.loadtaph_patientfile(headername)
-            print("{} loaded header {}".format("-" * 5, "-" * 5))
+            print("{} < loaded header {}".format("-" * 20))
         else:
             header = None
         return header
@@ -401,8 +401,10 @@ class TaphTrend(_SlowWave):
             events dataframe
         """
         eventdf = self.data[["events", "datetime"]].dropna()
+        eventdf = eventdf.set_index("datetime")
         # remove time, keep event
-        eventdf.events = eventdf.events.apply(lambda st: st.split("-")[1])
+        #        eventdf.events = eventdf.events.apply(lambda st: st.split("-")[1])
+        # TODO extract all the event in a column
         return eventdf
 
 
@@ -612,9 +614,9 @@ def main(file_name=None):
 
 #%%
 if __name__ == "__main__":
-    in_name = None
     # to work
     in_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
+    in_name = None
     # check if a filename was provided from terminal call
     print(sys.argv)
 

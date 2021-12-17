@@ -58,7 +58,7 @@ def loadtaph_trenddata(filename):
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
-    print("{} loadtaph_trenddata".format("-" * 20))
+    print("{} > loadtaph_trenddata".format("-" * 20))
 
     df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
     corr_title = {
@@ -128,7 +128,7 @@ def loadtaph_trenddata(filename):
     except KeyError:
         print("no capnographic recording")
 
-    print("{} loaded taph_trenddata {}".format("-" * 5, "-" * 5))
+    print("{} < loaded taph_trenddata".format("-" * 20))
     return df
 
 
