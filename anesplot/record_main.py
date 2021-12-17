@@ -97,7 +97,7 @@ def choosefile_gui(dirname=None):
 
 
 def trendname_to_wavename(name):
-    """ just compute the supposed name """
+    """just compute the supposed name"""
     return name.split(".")[0] + "Wave.csv"
 
 
@@ -111,7 +111,7 @@ def select_type(question=None, items=None, num=0):
     ----
     kind : str
         kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
-       """
+    """
     if items is None:
         items = ("monitorTrend", "monitorWave", "taphTrend", "telVet")
     if question is None:
@@ -137,7 +137,7 @@ def select_wave(waves, num=1):
     ----
     kind : str
         kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
-       """
+    """
     global app
     if num == 1:
         question = "choose first wave"
@@ -303,13 +303,13 @@ class _SlowWave(_Waves):
         return datadf
 
     def show_graphs(self):
-        """ basic clinical plots """
+        """basic clinical plots"""
         fig_dico = plot_trenddata(self.data, self.header, self.param)
         return fig_dico
 
 
 class MonitorTrend(_SlowWave):
-    """ monitor trends recordings:
+    """monitor trends recordings:
 
         input = filename : path to file
         load = boolean to load data (default is True)
@@ -352,7 +352,7 @@ class MonitorTrend(_SlowWave):
 
 
 class TaphTrend(_SlowWave):
-    """ taphonius trends recordings
+    """taphonius trends recordings
 
     input  ... FILLME
 
@@ -368,16 +368,27 @@ class TaphTrend(_SlowWave):
         self.header = self.load_header()
 
     def load_header(self):
-        """ load the header -> pandas.dataframe """
-        headername = choosefile_gui(dirname=os.path.dirname(self.filename))
+        """load the header
+        input : use the filename to list the directory and load the Patient.csv file
+        output : pandas dataframe"""
+        dirname = os.path.dirname(self.filename)
+        files = os.listdir(dirname)
+        print("{} taphTrend load header".format("-" * 20))
+        print("{} files are present".format(len(files)))
+        for file in files:
+            print(file)
+        file = [_ for _ in files if "Patient" in _][0]
+        headername = os.path.join(dirname, file)
+        # headername = choosefile_gui(dirname=os.path.dirname(self.filename))
         if headername:
             header = ltt.loadtaph_patientfile(headername)
+            print("{} loaded header {}".format("-" * 5, "-" * 5))
         else:
             header = None
         return header
 
     def extract_taph_events(self):
-        """ extract Taph events
+        """extract Taph events
 
         parameters
         ----------
@@ -468,7 +479,7 @@ class _FastWave(_Waves):
         return roidict
 
     def animate_fig(self, speed=1, save=False, savedir="~"):
-        """ build a video the previous builded figure
+        """build a video the previous builded figure
 
         use .fig attribute (builded through .plot_wave())
         and .roi attribute (builded thourhg .define_a_roi())
@@ -602,6 +613,8 @@ def main(file_name=None):
 #%%
 if __name__ == "__main__":
     in_name = None
+    # to work
+    in_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
     # check if a filename was provided from terminal call
     print(sys.argv)
 

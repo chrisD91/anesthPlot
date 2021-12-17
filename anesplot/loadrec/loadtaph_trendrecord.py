@@ -58,6 +58,7 @@ def loadtaph_trenddata(filename):
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
+    print("{} loadtaph_trenddata".format("-" * 20))
 
     df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
     corr_title = {
@@ -127,6 +128,7 @@ def loadtaph_trenddata(filename):
     except KeyError:
         print("no capnographic recording")
 
+    print("{} loaded taph_trenddata {}".format("-" * 5, "-" * 5))
     return df
 
 
@@ -155,13 +157,16 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
     dirname = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/"
+    # >>>> only one example to developp
+    dirname = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18"
+    # <<<<
     if not os.path.isdir(dirname):
         dirname = "~"
     file_name = choosefile_gui(dir_path=os.path.expanduser(dirname))
-    file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18"
     file = os.path.basename(file_name)
     dirname = os.path.dirname(file_name)
-    if file[:2] == "SD":
+
+    if file.startswith("SD"):
         tdata_df = loadtaph_trenddata(file_name)
     else:
         print("please choose the file that begins with 'SD'")
