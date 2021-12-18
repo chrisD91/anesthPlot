@@ -53,6 +53,7 @@ import loadrec.loadtelevet as ltv
 import plot.trend_plot as tplot
 import plot.wave_plot as wplot
 import treatrec.clean_data as clean
+import treatrec as treat
 
 # import anesplot.treatrec.wave_func as wf
 # import anesplot.treatrec as treat
@@ -407,6 +408,7 @@ class TaphTrend(_SlowWave):
         # remove time, keep event
         #        eventdf.events = eventdf.events.apply(lambda st: st.split("-")[1])
         # TODO extract all the event in a column
+
         return eventdf
 
 
@@ -616,7 +618,7 @@ def main(file_name=None):
 
 #%%
 if __name__ == "__main__":
-    # to work
+    # to work (on taphonius class)
     # >>
     file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
     in_name = file_name
