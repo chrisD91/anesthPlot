@@ -13,6 +13,8 @@ or imported as a package::
     trends = rec.MonitorTrend()
     waves = rec.MonitorWave(rec.trendname_to_wavename(trends.filename))
 ----
+nb to work within spyder : move inside anestplot (>> cd anesplot)
+
 """
 
 import os
@@ -382,7 +384,7 @@ class TaphTrend(_SlowWave):
         # headername = choosefile_gui(dirname=os.path.dirname(self.filename))
         if headername:
             header = ltt.loadtaph_patientfile(headername)
-            print("{} < loaded header {}".format("-" * 20))
+            print("{} < loaded header".format("-" * 20))
         else:
             header = None
         return header
@@ -615,7 +617,10 @@ def main(file_name=None):
 #%%
 if __name__ == "__main__":
     # to work
-    in_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
+    # >>
+    file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
+    in_name = file_name
+    # <<
     in_name = None
     # check if a filename was provided from terminal call
     print(sys.argv)
