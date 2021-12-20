@@ -19,32 +19,40 @@ ttrend = rec.TaphTrend(file_name)
 self = ttrend
 eventdf = self.data[["events", "datetime"]].dropna()
 eventdf = eventdf.set_index("datetime")
-df = eventdf.copy()
-df.head()
-df.iloc[0]
-df.iloc[0, ["events"]]
-df.iloc[0].events
-cell = df.iloc[0].events
-cell.split("\r\n")
+eventdf.events = eventdf.events.apply(
+    lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
+)
+
+#%%
+def extract_taphmessages(df):
+    """extract the messages that contain the kw"""
+    content = set()
+    for cell in df.events:
+        for event in cell:
+            content.add(event.split("-")[-1])
+    content = {_.split(":")[0].strip() for _ in content}
+    content = {_.split("from")[0].strip() for _ in content}
+
+    actions = {_ for _ in content if "changed" in _ or "Ventilate" in _}
+    actions = {
+        _ for _ in actions if not _.startswith("Power") and not _.startswith("Primary")
+    }
+    errors = content - actions
+
+    return errors, actions
 
 
-# explore keys
-all_keys = {}
-content = []
-for i in range(len(df)):
-    cell_content = df.iloc[i].events.split("\r\n")
-    [content.append(_) for _ in cell_content]
-    if len(cell_content) > 1:
-        print("{}{}".format(i, "_" * 5))
-        print(cell_content)
-# messages
-# remove date
-messages = {_.split("-")[1].strip() for _ in content}
+error_messages, action_messages = extract_taphmessages(eventdf)
 
-messages = {_.split(":")[0].strip() for _ in messages}
-messages = {_.split("from")[0].strip() for _ in messages}
-to_remove = ["Delivered Breath", "Vacuum Pump", "Auxiliary Controller", "EDump"]
-for st in to_remove:
-    messages = {_ for _ in messages if st not in _}
+#%% initial values
+message = ""  # ?? presetq
+message = "Init Complete"  # i = 24
+message = "Ventilate"  # i=32
+
 
 # to be continued -> extract settings (respiratory rates, tidal volume, ..) and clinical alarms
+
+for ev in df.events:
+    if message in ev:
+        time = ev.strip("[").strip("]").split()[0]
+        print("{} {}".format(time, ev))
