@@ -64,25 +64,36 @@ def convert_day(st):
 # '2016OCT6'
 day = file.split("-")[0].strip("SD")
 day = convert_day(day)
-
+#%% test
 
 message = ""  # ?? presetq
 message = "Init Complete"  # i = 24
 message = "Ventilate"  # i=32
 
 
+marks = {}
 # to be continued -> extract settings (respiratory rates, tidal volume, ..) and clinical alarms
 # get times of events
-for cell in df.events:
-    for event in cell:
-        if mes in event:
-            print(event)
+df = eventdf.copy()
+messages = ["Init Complete", "Ventilate"]
+for message in messages:
+    # for message in action_messages:
+    matching = []
+    for i, cell in enumerate(df.events):
+        for event in cell:
+            if message in event:
+                matching.append((i, event))
+                print(event)
+    marks[message] = []
+    for match in matching:
+        i = match[0]
+        time_stp = eventdf.index[i]
+        marks[message].append(time_stp)
 
 event = "11:22:40 PM.375 - Ventilate"
 event.split(".")[0]
 
-os.path.basename(file_name)
-file = os.path.basename(file_name)
-file.split("-")
-file.split("-")[0].strip("SD")
-day = file.split("-")[0].strip("SD")
+#%% extract the values for clinical action
+# but extract timestamp + values (from to)
+
+# for action in action_messages:
