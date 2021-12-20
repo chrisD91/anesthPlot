@@ -8,11 +8,12 @@ Created on Sat Dec 18 10:30:54 2021
 to extract the events from the taphonius files
 
 """
+import os
 
 import anesplot.record_main as rec
 
 file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
-
+file = os.path.basename(file_name)
 
 # see the taphClass
 ttrend = rec.TaphTrend(file_name)
@@ -45,14 +46,43 @@ def extract_taphmessages(df):
 error_messages, action_messages = extract_taphmessages(eventdf)
 
 #%% initial values
+
+
+def convert_day(st):
+    """get a day YYYYmonthD an convert it to YYY-month-D"""
+    previous = st[0]
+    new = st[0]
+    for i, x in enumerate(st[1:]):
+        if x.isalpha() == previous.isalpha():
+            new += x
+        else:
+            new += "-" + x
+        previous = x
+    return new
+
+
+# '2016OCT6'
+day = file.split("-")[0].strip("SD")
+day = convert_day(day)
+
+
 message = ""  # ?? presetq
 message = "Init Complete"  # i = 24
 message = "Ventilate"  # i=32
 
 
 # to be continued -> extract settings (respiratory rates, tidal volume, ..) and clinical alarms
+# get times of events
+for cell in df.events:
+    for event in cell:
+        if mes in event:
+            print(event)
 
-for ev in df.events:
-    if message in ev:
-        time = ev.strip("[").strip("]").split()[0]
-        print("{} {}".format(time, ev))
+event = "11:22:40 PM.375 - Ventilate"
+event.split(".")[0]
+
+os.path.basename(file_name)
+file = os.path.basename(file_name)
+file.split("-")
+file.split("-")[0].strip("SD")
+day = file.split("-")[0].strip("SD")
