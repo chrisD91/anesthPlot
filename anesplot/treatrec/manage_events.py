@@ -25,29 +25,6 @@ eventdf.events = eventdf.events.apply(
 )
 
 #%%
-def extract_taphmessages(df):
-    """extract the messages that contain the kw"""
-    content = set()
-    for cell in df.events:
-        for event in cell:
-            content.add(event.split("-")[-1])
-    content = {_.split(":")[0].strip() for _ in content}
-    content = {_.split("from")[0].strip() for _ in content}
-
-    actions = {_ for _ in content if "changed" in _ or "Ventilate" in _}
-    actions = {
-        _ for _ in actions if not _.startswith("Power") and not _.startswith("Primary")
-    }
-    errors = content - actions
-
-    return errors, actions
-
-
-error_messages, action_messages = extract_taphmessages(eventdf)
-
-#%% initial values
-
-
 def convert_day(st):
     """get a day YYYYmonthD an convert it to YYY-month-D"""
     previous = st[0]
@@ -61,39 +38,84 @@ def convert_day(st):
     return new
 
 
-# '2016OCT6'
+def extract_taphmessages(df):
+    """extract the messages that contain the kw"""
+    content = set()
+    for cell in df.events:
+        for event in cell:
+            content.add(event.split("-")[-1])
+    content = {_.split(":")[0].strip() for _ in content}
+    content = {_.split("from")[0].strip() for _ in content}
+
+    actions = {_ for _ in content if "changed" in _}
+    actions = {
+        _ for _ in actions if not _.startswith("Power") and not _.startswith("Primary")
+    }
+    errors = content - actions
+
+    return errors, actions
+
+
 day = file.split("-")[0].strip("SD")
 day = convert_day(day)
-#%% test
+
+error_messages, action_messages = extract_taphmessages(eventdf)
+
+#%%
 
 message = ""  # ?? presetq
-message = "Init Complete"  # i = 24
-message = "Ventilate"  # i=32
 
 
-marks = {}
-# to be continued -> extract settings (respiratory rates, tidal volume, ..) and clinical alarms
-# get times of events
-df = eventdf.copy()
-messages = ["Init Complete", "Ventilate"]
-for message in messages:
-    # for message in action_messages:
-    matching = []
-    for i, cell in enumerate(df.events):
-        for event in cell:
-            if message in event:
-                matching.append((i, event))
-                print(event)
-    marks[message] = []
-    for match in matching:
-        i = match[0]
-        time_stp = eventdf.index[i]
-        marks[message].append(time_stp)
+def extract_event(df):
+    """extract timestamp of the messages
+    input:
+        df: pandasDataFrame containing the taphonius events
+    output:
+        marks: dictionary {message : [timestamp]}
+    """
+    marks = {}
+    messages = ["Init Complete", "Ventilate"]
+    for message in messages:
+        # for message in action_messages:
+        matching = []
+        for i, cell in enumerate(df.events):
+            for event in cell:
+                if message in event:
+                    matching.append((i, event))
+                    # print(event)
+        marks[message] = []
+        for match in matching:
+            i = match[0]
+            time_stp = eventdf.index[i]
+            marks[message].append(time_stp)
+    return marks
 
-event = "11:22:40 PM.375 - Ventilate"
-event.split(".")[0]
 
-#%% extract the values for clinical action
-# but extract timestamp + values (from to)
+def extract_actions(df, actions):
+    """extract actions dtime and changes from taph recording:
+    input:
+        df: pandasDataFrame of taph events
+        actions : action messages
+    output
+        marks: dictionary {action : [[timestamp, (valueBefore, valueAfter)], ...]}
+    """
+    marks = {}
+    for action in actions:
+        matching = []
+        for i, cell in enumerate(df.events):
+            for event in cell:
+                if action in event:
+                    matching.append((i, event))
+                    # print(event)
+        # action : [[dtime, before, after], ...]
+        marks[action] = []
+        for match in matching:
+            i = match[0]
+            values = tuple(match[1].split("from")[-1].strip().split(" to "))
+            time_stp = eventdf.index[i]
+            marks[action].append([time_stp, values])
+    return marks
 
-# for action in action_messages:
+
+events = extract_event(eventdf)
+actions = extract_actions(eventdf, action_messages)
