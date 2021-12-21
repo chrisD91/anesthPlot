@@ -114,11 +114,19 @@ def build_dataframe(acts):
         "CPAP value changed": "peep",
         "Tidal Volume changed": "vol",
         "RR changed": "rr",
+        "MWPL value changed": "mwpl",
     }
     dflist = []
     for act, event in acts.items():
-        df = pd.DataFrame(event, columns=["dt", names[act]]).set_index("dt")
+        colname = names.get(act, "notdefined")
+        df = pd.DataFrame(event, columns=["dt", colname]).set_index("dt")
         dflist.append(df)
+        if colname == "notdefined":
+            print(
+                "manage_events.build_dataframe : names should be updated for {}".format(
+                    act
+                )
+            )
     df = pd.concat(dflist).sort_index()
 
     return df
@@ -129,6 +137,8 @@ if __name__ == "__main__":
     import anesplot.record_main as rec
 
     file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
+    file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/Anonymous/Patients2021AUG10/Record13_36_34/SD2021AUG10-13_36_34.csv"
+
     file = os.path.basename(file_name)
 
     # see the taphClass
