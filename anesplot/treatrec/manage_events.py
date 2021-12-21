@@ -49,13 +49,13 @@ def extract_taphmessages(df):
     content = {_.split(":")[0].strip() for _ in content}
     content = {_.split("from")[0].strip() for _ in content}
 
-    actions = {_ for _ in content if "changed" in _}
-    actions = {
-        _ for _ in actions if not _.startswith("Power") and not _.startswith("Primary")
+    acts = {_ for _ in content if "changed" in _}
+    acts = {
+        _ for _ in acts if not _.startswith("Power") and not _.startswith("Primary")
     }
-    errors = content - actions
+    errors = content - acts
 
-    return errors, actions
+    return errors, acts
 
 
 day = file.split("-")[0].strip("SD")
@@ -77,19 +77,19 @@ def extract_event(df):
     """
     marks = {}
     messages = ["Init Complete", "Ventilate"]
-    for message in messages:
+    for mes in messages:
         # for message in action_messages:
         matching = []
         for i, cell in enumerate(df.events):
             for event in cell:
-                if message in event:
+                if mes in event:
                     matching.append((i, event))
                     # print(event)
-        marks[message] = []
+        marks[mes] = []
         for match in matching:
             i = match[0]
             time_stp = eventdf.index[i]
-            marks[message].append(time_stp)
+            marks[mes].append(time_stp)
     return marks
 
 
@@ -102,27 +102,31 @@ def extract_actions(df, messages):
         marks: dictionary {action : [[timestamp, (valueBefore, valueAfter)], ...]}
     """
     marks = {}
-    for message in messages:
+    for mes in messages:
         matching = []
         for i, cell in enumerate(df.events):
             for event in cell:
-                if message in event:
+                if mes in event:
                     matching.append((i, event))
                     # print(event)
         # action : [[dtime, before, after], ...]
-        marks[message] = []
+        marks[mes] = []
         for match in matching:
             i = match[0]
-            values = tuple(match[1].split("from")[-1].strip().split(" to "))
+            values = list(match[1].split("from")[-1].strip().split(" to "))
+            values = [_.replace("s", "") for _ in values]
+            values = [float(_) for _ in values]
             time_stp = eventdf.index[i]
-            marks[message].append([time_stp, values])
+            marks[mes].append([time_stp, values])
     return marks
 
 
 events = extract_event(eventdf)
 actions = extract_actions(eventdf, action_messages)
 #%%
-def build_dataframe(actions):
+
+
+def build_dataframe(acts):
     """build a dataframe containing all the actions, one per column"""
 
     names = {
@@ -132,8 +136,8 @@ def build_dataframe(actions):
         "RR changed": "rr",
     }
     dflist = []
-    for action, events in actions.items():
-        df = pd.DataFrame(events, columns=["dt", names[action]]).set_index("dt")
+    for act, event in acts.items():
+        df = pd.DataFrame(event, columns=["dt", names[act]]).set_index("dt")
         dflist.append(df)
     df = pd.concat(dflist).sort_index()
 
