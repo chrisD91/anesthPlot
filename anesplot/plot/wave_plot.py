@@ -226,7 +226,7 @@ def plot_wave(data, keys, param):
 
 
 def get_roi(waves):
-    """ use the drawn figure to extract the relevant data in order to build an animation
+    """use the drawn figure to extract the relevant data in order to build an animation
 
     :param waves: a wave recording
     :type waves: MonitorWave object
@@ -275,7 +275,7 @@ def get_roi(waves):
 
 
 def create_video(waves, speed=1, save=False, savedir="~"):
-    """ create a video from a figure"""
+    """create a video from a figure"""
 
     def select_sub_dataframe(datadf, keys, xlims):
         """extract subdataframe corresponding to the roi

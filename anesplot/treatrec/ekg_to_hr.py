@@ -157,7 +157,7 @@ def detect_beats(ser, fs=300, species="horse", mult=1):
 
 
 def plot_beats(ecg, beats):
-    """ plot ecg waveform + beat location """
+    """plot ecg waveform + beat location"""
 
     fig = plt.figure(figsize=(13, 5))
     fig.suptitle("verify the accuracy of the beat detection")
@@ -249,7 +249,7 @@ def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None, yscale=1):
 
 
 def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
-    """ locate the beat in the figure, append to a dataframe['toRemove']
+    """locate the beat in the figure, append to a dataframe['toRemove']
 
     0.: if not present build a dataframe:
         >>> to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
@@ -331,8 +331,8 @@ def save_beats(beatdf, tochangedf, savename="", dirpath=None):
 
 
 def update_beat_df(beatdf, tochangedf, path_to_file="", from_file=False):
-    """ implement in the beat location the manual corrections
-        fromFile = True force the disk loading of the dataframes
+    """implement in the beat location the manual corrections
+    fromFile = True force the disk loading of the dataframes
     """
     if from_file:
         name = os.path.join(path_to_file, "beatDf.csv")
@@ -499,7 +499,7 @@ def plot_rr(ahr_df, param, HR=False):
 
 
 def append_rr_and_ihr_to_wave(wave, ahrdf):
-    """ append rr and ihr to the waves based on pt value (ie index) """
+    """append rr and ihr to the waves based on pt value (ie index)"""
 
     df = pd.concat([wave, ahrdf.set_index("espts")], axis=1)
     df["ihr"] = 1 / df.rrInterpol * 60 * 1000
@@ -508,7 +508,7 @@ def append_rr_and_ihr_to_wave(wave, ahrdf):
 
 
 def plot_agreement(trenddf):
-    """ plot ip1HR & ihr to check agreement """
+    """plot ip1HR & ihr to check agreement"""
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -520,7 +520,7 @@ def plot_agreement(trenddf):
 
 
 def append_ihr_to_trend(trenddf, wavedf, ekgdf):
-    """ append 'ihr' (instataneous heart rate) to the trends """
+    """append 'ihr' (instataneous heart rate) to the trends"""
 
     # build a new index
     ratio = len(wavedf) / len(trenddf)

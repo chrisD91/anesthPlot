@@ -12,19 +12,6 @@ import os
 
 import pandas as pd
 
-import anesplot.record_main as rec
-
-file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
-file = os.path.basename(file_name)
-
-# see the taphClass
-ttrend = rec.TaphTrend(file_name)
-self = ttrend
-eventdf = self.data[["events", "datetime"]].dropna()
-eventdf = eventdf.set_index("datetime")
-eventdf.events = eventdf.events.apply(
-    lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
-)
 
 #%%
 def convert_day(st):
@@ -58,14 +45,9 @@ def extract_taphmessages(df):
     return errors, acts
 
 
-day = file.split("-")[0].strip("SD")
-day = convert_day(day)
-
-error_messages, action_messages = extract_taphmessages(eventdf)
-
 #%%
 # TODO find preset values
-message = ""  # ?? presetq
+# message = ""  # ?? presetq
 
 
 def extract_event(df):
@@ -88,7 +70,7 @@ def extract_event(df):
         marks[mes] = []
         for match in matching:
             i = match[0]
-            time_stp = eventdf.index[i]
+            time_stp = df.index[i]
             marks[mes].append(time_stp)
     return marks
 
@@ -116,13 +98,11 @@ def extract_actions(df, messages):
             values = list(match[1].split("from")[-1].strip().split(" to "))
             values = [_.replace("s", "") for _ in values]
             values = [float(_) for _ in values]
-            time_stp = eventdf.index[i]
+            time_stp = df.index[i]
             marks[mes].append([time_stp, values])
     return marks
 
 
-events = extract_event(eventdf)
-actions = extract_actions(eventdf, action_messages)
 #%%
 
 
@@ -144,4 +124,28 @@ def build_dataframe(acts):
     return df
 
 
-action_df = build_dataframe(actions)
+#%%
+if __name__ == "__main__":
+    import anesplot.record_main as rec
+
+    file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
+    file = os.path.basename(file_name)
+
+    # see the taphClass
+    ttrend = rec.TaphTrend(file_name)
+    self = ttrend
+    eventdf = self.data[["events", "datetime"]].dropna()
+    eventdf = eventdf.set_index("datetime")
+    eventdf.events = eventdf.events.apply(
+        lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
+    )
+
+    day = file.split("-")[0].strip("SD")
+    day = convert_day(day)
+
+    error_messages, action_messages = extract_taphmessages(eventdf)
+
+    events = extract_event(eventdf)
+    actions = extract_actions(eventdf, action_messages)
+
+    action_df = build_dataframe(actions)

@@ -127,8 +127,8 @@ def loadtaph_trenddata(filename):
         df[["co2exp", "co2insp"]] *= 760 / 100
     except KeyError:
         print("no capnographic recording")
-
-    print("{} < loaded taph_trenddata".format("-" * 20))
+    file = os.path.basename(filename)
+    print("{} < loaded taph_trenddata ({})".format("-" * 20, file))
     return df
 
 

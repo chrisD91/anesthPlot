@@ -67,7 +67,7 @@ def choosefile_gui(dir_path=None):
 
 
 def loadtelevet(fname=None, all_traces=False):
-    """ load the televetCsvExportedFile.
+    """load the televetCsvExportedFile.
 
     :param str file: name of the file
     :param bool all_traces: load all the derivations

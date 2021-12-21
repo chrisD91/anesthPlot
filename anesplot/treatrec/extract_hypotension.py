@@ -239,7 +239,7 @@ def scatter_length_meanhypo(atrend, durdf):
 
 
 def plot_all_dir_hypo(dirname=None, scatter=False):
-    """ walk throught the folder and plot the values """
+    """walk throught the folder and plot the values"""
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"

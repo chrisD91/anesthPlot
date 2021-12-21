@@ -237,7 +237,7 @@ def hist_cardio(data, param=None):
 
 # ---------------------------------------------------------------------------------------------------
 def plot_one_over_time(x, y, colour):
-    """ plot y over x using colour"""
+    """plot y over x using colour"""
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -253,7 +253,7 @@ def plot_one_over_time(x, y, colour):
 
 # ----------------------------------------------------------------------------------------
 def hist_co2_iso(data, param=None):
-    """ CO2 and iso histogramme
+    """CO2 and iso histogramme
     (NB CO2 should have been converted from % to mmHg)
 
     :param pandas.Dataframe data: the trends recorded data
@@ -330,7 +330,7 @@ def hist_co2_iso(data, param=None):
 
 # ---------------------------------------------------------------------------------------------------
 def cardiovasc(data, param=None):
-    """ cardiovascular plot
+    """cardiovascular plot
 
     :param pandas.Dataframe data: the recorded trends data
         keys used :['ip1s', 'ip1m', 'ip1d', 'hr']
@@ -421,7 +421,7 @@ def cardiovasc(data, param=None):
 
 # ---------------------------------------------------------------------------------------------------
 def cardiovasc_p1p2(data, param=None):
-    """ cardiovascular plot with central venous pressure (p2)
+    """cardiovascular plot with central venous pressure (p2)
 
     :param pandas.Dataframe data: the trends recorded data
         keys used :['ip1s', 'ip1m', 'ip1d', 'hr', 'ip2s', 'ip2m', 'ip2d']

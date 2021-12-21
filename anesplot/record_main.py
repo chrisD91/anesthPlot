@@ -368,13 +368,18 @@ class TaphTrend(_SlowWave):
         super().__init__(filename)
         self.data = ltt.loadtaph_trenddata(self.filename)
         self.source = "taphTrend"
-        self.header = self.load_header()
+        self.header = self.load_header(self.filename)
+        self.actions = self.extract_taph_actions(self.data)
 
-    def load_header(self):
+    def load_header(self, filename):
         """load the header
-        input : use the filename to list the directory and load the Patient.csv file
-        output : pandas dataframe"""
-        dirname = os.path.dirname(self.filename)
+        input :
+            use the filename to list the directory content
+            and load the Patient.csv file
+        output :
+            header : pandas dataframe
+        """
+        dirname = os.path.dirname(filename)
         files = os.listdir(dirname)
         print("{} > taphTrend load header".format("-" * 20))
         print("{} files are present".format(len(files)))
@@ -385,13 +390,13 @@ class TaphTrend(_SlowWave):
         # headername = choosefile_gui(dirname=os.path.dirname(self.filename))
         if headername:
             header = ltt.loadtaph_patientfile(headername)
-            print("{} < loaded header".format("-" * 20))
+            print("{} < loaded header ({})".format("-" * 20, file))
         else:
             header = None
         return header
 
-    def extract_taph_events(self):
-        """extract Taph events
+    def extract_taph_actions(self, data):
+        """extract Taph actions
 
         parameters
         ----------
@@ -400,16 +405,24 @@ class TaphTrend(_SlowWave):
 
         return
         ------
-        eventdf pandas dataframe
-            events dataframe
+        actiondf pandas dataframe
         """
-        eventdf = self.data[["events", "datetime"]].dropna()
+        eventdf = data[["events", "datetime"]].dropna()
         eventdf = eventdf.set_index("datetime")
+        eventdf.events = eventdf.events.apply(
+            lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
+        )
+        error_messages, action_messages = treat.manage_events.extract_taphmessages(
+            eventdf
+        )
+        events = treat.manage_events.extract_event(eventdf)
+        actions = treat.manage_events.extract_actions(eventdf, action_messages)
+        actiondf = treat.manage_events.build_dataframe(actions)
         # remove time, keep event
         #        eventdf.events = eventdf.events.apply(lambda st: st.split("-")[1])
         # TODO extract all the event in a column
 
-        return eventdf
+        return actiondf
 
 
 # ++++++++
