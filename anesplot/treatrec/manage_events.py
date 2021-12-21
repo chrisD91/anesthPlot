@@ -10,6 +10,8 @@ to extract the events from the taphonius files
 """
 import os
 
+import pandas as pd
+
 import anesplot.record_main as rec
 
 file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
@@ -29,7 +31,7 @@ def convert_day(st):
     """get a day YYYYmonthD an convert it to YYY-month-D"""
     previous = st[0]
     new = st[0]
-    for i, x in enumerate(st[1:]):
+    for x in st[1:]:
         if x.isalpha() == previous.isalpha():
             new += x
         else:
@@ -62,7 +64,7 @@ day = convert_day(day)
 error_messages, action_messages = extract_taphmessages(eventdf)
 
 #%%
-
+# TODO find preset values
 message = ""  # ?? presetq
 
 
@@ -91,7 +93,7 @@ def extract_event(df):
     return marks
 
 
-def extract_actions(df, actions):
+def extract_actions(df, messages):
     """extract actions dtime and changes from taph recording:
     input:
         df: pandasDataFrame of taph events
@@ -100,22 +102,42 @@ def extract_actions(df, actions):
         marks: dictionary {action : [[timestamp, (valueBefore, valueAfter)], ...]}
     """
     marks = {}
-    for action in actions:
+    for message in messages:
         matching = []
         for i, cell in enumerate(df.events):
             for event in cell:
-                if action in event:
+                if message in event:
                     matching.append((i, event))
                     # print(event)
         # action : [[dtime, before, after], ...]
-        marks[action] = []
+        marks[message] = []
         for match in matching:
             i = match[0]
             values = tuple(match[1].split("from")[-1].strip().split(" to "))
             time_stp = eventdf.index[i]
-            marks[action].append([time_stp, values])
+            marks[message].append([time_stp, values])
     return marks
 
 
 events = extract_event(eventdf)
 actions = extract_actions(eventdf, action_messages)
+#%%
+def build_dataframe(actions):
+    """build a dataframe containing all the actions, one per column"""
+
+    names = {
+        "Inspiratory pause value changed": "pause",
+        "CPAP value changed": "peep",
+        "Tidal Volume changed": "vol",
+        "RR changed": "rr",
+    }
+    dflist = []
+    for action, events in actions.items():
+        df = pd.DataFrame(events, columns=["dt", names[action]]).set_index("dt")
+        dflist.append(df)
+    df = pd.concat(dflist).sort_index()
+
+    return df
+
+
+action_df = build_dataframe(actions)
