@@ -52,7 +52,8 @@ import loadrec.loadtaph_trendrecord as ltt
 import loadrec.loadtelevet as ltv
 import plot.trend_plot as tplot
 import plot.wave_plot as wplot
-import treatrec.clean_data as clean
+
+# import treatrec.clean_data as clean
 import treatrec as treat
 
 # import anesplot.treatrec.wave_func as wf
@@ -385,8 +386,11 @@ class TaphTrend(_SlowWave):
         print("{} files are present".format(len(files)))
         for file in files:
             print(file)
-        file = [_ for _ in files if "Patient" in _][0]
-        headername = os.path.join(dirname, file)
+        try:
+            file = [_ for _ in files if "Patient" in _][0]
+            headername = os.path.join(dirname, file)
+        except IndexError:
+            headername = None
         # headername = choosefile_gui(dirname=os.path.dirname(self.filename))
         if headername:
             header = ltt.loadtaph_patientfile(headername)
@@ -634,6 +638,7 @@ if __name__ == "__main__":
     # to work (on taphonius class)
     # >>
     file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
+    file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/Anonymous/Patients2021AUG10/Record13_36_34/SD2021AUG10-13_36_34.csv"
     in_name = file_name
     # <<
     in_name = None
