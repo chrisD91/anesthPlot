@@ -214,6 +214,8 @@ def hist_cardio(data, param=None):
             # axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
             except KeyError:
                 print("no arterial pressure recorded")
+            except IndexError:
+                print("no arterial pressure recorded")
     for ax in axes:
         # call
         color_axis(ax, "bottom", "tab:grey")

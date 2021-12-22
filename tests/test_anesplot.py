@@ -48,7 +48,7 @@ def test_loadtaph():
             record = found[0]
             record_name = os.path.join(root, record)
             records.append(record_name)
-    for trend_name in choices(records, k=25):
+    for trend_name in choices(records, k=5):
         trends = rec.TaphTrend(trend_name)
 
         assert isinstance(trends.data, pd.DataFrame)
