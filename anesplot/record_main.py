@@ -226,7 +226,9 @@ def plot_trenddata(datadf, header, param_dico):
     for func in plot_func_list:
         # afig_list.append(func(df.set_index("eTimeMin"), param_dico))
         afig_list.append(func(datadf, param_dico))
-    afig_list.append(tplot.plot_header(header, param_dico))
+
+    if header:
+        afig_list.append(tplot.plot_header(header, param_dico))
     # for fig in afig_list:
     #     if fig:                 # test if figure is present
     #         fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
@@ -234,7 +236,8 @@ def plot_trenddata(datadf, header, param_dico):
     print("plt.show")
     plt.show()
     names = [st.__name__ for st in plot_func_list]
-    names.append("header")
+    if header:
+        names.append("header")
     fig_dico = dict(zip(names, afig_list))
     return fig_dico
 
