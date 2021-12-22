@@ -210,27 +210,49 @@ def hist_cardio(data, param=None):
     ax.set_title("arterial pressure", color="tab:red")
     ax.set_xlabel("mmHg", alpha=0.5)
     ser = remove_outliers(data, "ip1m")
-    ax.hist(ser.dropna(), bins=30, color="tab:red", edgecolor="red", alpha=0.7)
-    q25, q50, q75 = np.percentile(ser, [25, 50, 75])
-    ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
-    for lim in [70, 80]:
-        ax.axvline(lim, color="tab:grey", alpha=1)
-    ax.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
-    ax.set_xlabel("mmHg", alpha=0.5)
+    if len(ser) > 0:
+        ax.hist(ser.dropna(), bins=30, color="tab:red", edgecolor="red", alpha=0.7)
+        q25, q50, q75 = np.percentile(ser, [25, 50, 75])
+        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+        for lim in [70, 80]:
+            ax.axvline(lim, color="tab:grey", alpha=1)
+        ax.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
+        ax.set_xlabel("mmHg", alpha=0.5)
+    else:
+        ax.text(
+            0.5,
+            0.5,
+            "no data \n (arterial pressure)",
+            horizontalalignment="center",
+            fontsize="x-large",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
 
     ax = axes[1]
-    ser = remove_outliers(data, "hr")
-    ax.hist(
-        ser,
-        bins=30,
-        color="tab:grey",
-        edgecolor="tab:grey",
-        alpha=0.8,
-    )
     ax.set_title("heart rate", color="k")
-    ax.set_xlabel("bpm", alpha=0.5)
-    q25, q50, q75 = np.percentile(ser, [25, 50, 75])
-    ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+    ser = remove_outliers(data, "hr")
+    if len(ser) > 0:
+        ax.hist(
+            ser,
+            bins=30,
+            color="tab:grey",
+            edgecolor="tab:grey",
+            alpha=0.8,
+        )
+        ax.set_xlabel("bpm", alpha=0.5)
+        q25, q50, q75 = np.percentile(ser, [25, 50, 75])
+        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+    else:
+        ax.text(
+            0.5,
+            0.5,
+            "no data \n (heart rate)",
+            horizontalalignment="center",
+            fontsize="x-large",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
 
     for ax in axes:
         # call
@@ -304,7 +326,7 @@ def hist_co2_iso(data, param=None):
         ax1.text(
             0.5,
             0.5,
-            "no data",
+            "no data \n (co2exp)",
             horizontalalignment="center",
             fontsize="x-large",
             verticalalignment="center",
@@ -330,7 +352,7 @@ def hist_co2_iso(data, param=None):
         ax2.text(
             0.5,
             0.5,
-            "no data",
+            "no data \n (aaExp)",
             horizontalalignment="center",
             fontsize="x-large",
             verticalalignment="center",
