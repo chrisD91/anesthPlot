@@ -4,21 +4,25 @@
 import os
 from random import choices
 
-import pytest
+import matplotlib.pyplot as plt
 import pandas as pd
 import pyperclip
+import pytest
 
 import anesplot.record_main as rec
 
 paths = rec.paths
 
 
-def test_loadtrends():
-    """testing trends loading"""
+def test_loadtrends(num=15):
+    """testing trends loading
+    input:
+        num : (int) number of iterations
+    """
     records = [_ for _ in os.listdir(paths["data"]) if _.startswith("M")]
     files = [_ for _ in records if "Wave" not in _]
 
-    for file in choices(files, k=5):
+    for file in choices(files, k=num):
         trend_name = os.path.join(paths["data"], file)
         trends = rec.MonitorTrend(trend_name)
 
@@ -26,12 +30,15 @@ def test_loadtrends():
         assert isinstance(trends.data, pd.DataFrame)
 
 
-def test_loadwaves():
-    """testing waves loading"""
+def test_loadwaves(num=5):
+    """testing waves loading
+    input:
+        num : (int) number of iterations
+    """
     records = [_ for _ in os.listdir(paths["data"]) if _.startswith("M")]
     files = [_ for _ in records if "Wave" in _]
 
-    for file in choices(files, k=3):
+    for file in choices(files, k=num):
         wave_name = os.path.join(paths["data"], file)
         waves = rec.MonitorWave(wave_name)
 
@@ -39,8 +46,11 @@ def test_loadwaves():
         assert isinstance(waves.data, pd.DataFrame)
 
 
-def test_loadtaph():
-    """testing taph loading"""
+def test_loadtaph(num=15):
+    """testing taph loading
+    input:
+        num : (int) number of iterations
+    """
     apath = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
     records = []
     for root, dirs, files in os.walk(apath):
@@ -49,8 +59,9 @@ def test_loadtaph():
             record = found[0]
             record_name = os.path.join(root, record)
             records.append(record_name)
-    for trend_name in choices(records, k=5):
+    for trend_name in choices(records, k=num):
         pyperclip.copy(trend_name)
         trends = rec.TaphTrend(trend_name)
-
         assert isinstance(trends.data, pd.DataFrame)
+        trends.show_graphs()
+        plt.close("all")
