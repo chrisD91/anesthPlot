@@ -424,7 +424,10 @@ class TaphTrend(_SlowWave):
         )
         events = treat.manage_events.extract_event(eventdf)
         actions = treat.manage_events.extract_actions(eventdf, action_messages)
-        actiondf = treat.manage_events.build_dataframe(actions)
+        if actions:
+            actiondf = treat.manage_events.build_dataframe(actions)
+        else:
+            actiondf = None
         # remove time, keep event
         #        eventdf.events = eventdf.events.apply(lambda st: st.split("-")[1])
         # TODO extract all the event in a column
