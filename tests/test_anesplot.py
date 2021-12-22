@@ -36,3 +36,19 @@ def test_loadwaves():
 
         assert isinstance(waves.header, dict)
         assert isinstance(waves.data, pd.DataFrame)
+
+
+def test_loadtaph():
+    """testing taph loading"""
+    apath = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
+    records = []
+    for root, dirs, files in os.walk(apath):
+        found = [_ for _ in files if _.startswith("SD") and _.endswith(".csv")]
+        if found:
+            record = found[0]
+            record_name = os.path.join(root, record)
+            records.append(record_name)
+    for trend_name in choices(records, k=25):
+        trends = rec.TaphTrend(trend_name)
+
+        assert isinstance(trends.data, pd.DataFrame)
