@@ -115,6 +115,10 @@ def build_dataframe(acts):
         "Tidal Volume changed": "vol",
         "RR changed": "rr",
         "MWPL value changed": "mwpl",
+        "Buffer Vol changed": "bufferVol",
+        "O2 expired high alarm value changed": "highO2ExpAlarm",
+        "O2 inspired high alarm value changed": "highO2InspAlarm",
+        "O2 inspired low alarm value changed": "lowO2InspAlarm",
     }
     dflist = []
     for act, event in acts.items():
