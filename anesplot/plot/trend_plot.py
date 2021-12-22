@@ -290,30 +290,52 @@ def hist_co2_iso(data, param=None):
 
     ax1 = fig.add_subplot(121)
     ax1.set_title("$End_{tidal}$ $CO_2$", color="tab:blue")
-    ax1.axvspan(35, 45, color="tab:grey", alpha=0.5)
     # call
     ser = remove_outliers(data, "co2exp")
-    ax1.hist(ser, bins=20, color="tab:blue", edgecolor="tab:blue", alpha=0.8)
-    for limit in [35, 45]:
-        ax1.axvline(limit, color="tab:grey", alpha=1)
-    q25, q50, q75 = np.percentile(ser, [25, 50, 75])
-    ax1.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
-    ax1.set_xlabel("mmHg", alpha=0.5)
+    if len(ser) > 0:
+        ax1.axvspan(35, 45, color="tab:grey", alpha=0.5)
+        ax1.hist(ser, bins=20, color="tab:blue", edgecolor="tab:blue", alpha=0.8)
+        for limit in [35, 45]:
+            ax1.axvline(limit, color="tab:grey", alpha=1)
+        q25, q50, q75 = np.percentile(ser, [25, 50, 75])
+        ax1.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+        ax1.set_xlabel("mmHg", alpha=0.5)
+    else:
+        ax1.text(
+            0.5,
+            0.5,
+            "no data",
+            horizontalalignment="center",
+            fontsize="x-large",
+            verticalalignment="center",
+            transform=ax1.transAxes,
+        )
 
     ax2 = fig.add_subplot(122)
     ax2.set_title("$End_{tidal}$ isoflurane", color="tab:purple")
     ser = remove_outliers(data, "aaExp")
-    ax2.hist(
-        ser,
-        bins=20,
-        color="tab:purple",
-        range=(0.5, 2),
-        edgecolor="tab:purple",
-        alpha=0.8,
-    )
-    ax2.set_xlabel("%", alpha=0.5)
-    q25, q50, q75 = np.percentile(ser.dropna(), [25, 50, 75])
-    ax2.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+    if len(ser) > 1:
+        ax2.hist(
+            ser,
+            bins=20,
+            color="tab:purple",
+            range=(0.5, 2),
+            edgecolor="tab:purple",
+            alpha=0.8,
+        )
+        ax2.set_xlabel("%", alpha=0.5)
+        q25, q50, q75 = np.percentile(ser.dropna(), [25, 50, 75])
+        ax2.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+    else:
+        ax2.text(
+            0.5,
+            0.5,
+            "no data",
+            horizontalalignment="center",
+            fontsize="x-large",
+            verticalalignment="center",
+            transform=ax2.transAxes,
+        )
 
     for ax in [ax1, ax2]:
         # call
@@ -748,7 +770,10 @@ def ventil(data, param):
         ax1.plot(df.tvInsp, color="tab:olive", linewidth=2, label="tvInsp")
     elif "tv" in df.columns:  # taph
         ax1.plot(df.tv, color="tab:olive", linewidth=1, linestyle=":", label="tv")
-        ax1.plot(df.tvCc, color="tab:olive", linewidth=2, label="tvCc")
+        try:
+            ax1.plot(df.tvCc, color="tab:olive", linewidth=2, label="tvCc")
+        except AttributeError:
+            print("no ventilation started")
     else:
         print("no spirometry data in the recording")
     ax1_r = ax1.twinx()
