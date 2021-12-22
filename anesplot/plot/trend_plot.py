@@ -177,6 +177,8 @@ def hist_cardio(data, param=None):
         print("no hr in the data")
         return
     save = param.get("save", False)
+    paOutliers = (15, 160)
+    hrOutliers = (10, 130)
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     axes = axes.flatten()
@@ -185,13 +187,21 @@ def hist_cardio(data, param=None):
     ax.set_title("arterial pressure", color="tab:red")
     ax.set_xlabel("mmHg", alpha=0.5)
     ax.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
-    ax.hist(data.ip1m.dropna(), bins=50, color="tab:red", edgecolor="red", alpha=0.7)
+    ser = data.ip1m.copy()
+    ser[ser < paOutliers[0]] = np.nan
+    ser[ser > paOutliers[1]] = np.nan
+    ax.hist(ser.dropna(), bins=50, color="tab:red", edgecolor="red", alpha=0.7)
+    # ax.hist(data.ip1m.dropna(), bins=50, color="tab:red", edgecolor="red", alpha=0.7)
     ax.axvline(70, color="tab:grey", alpha=1)
     ax.axvline(80, color="tab:grey", alpha=1)
 
     ax = axes[1]
+    ser = data.hr.copy()
+    ser[ser < hrOutliers[0]] = np.nan
+    ser[ser > hrOutliers[1]] = np.nan
     ax.hist(
-        data.hr.dropna(),
+        ser.dropna(),
+        # data.hr.dropna(),
         bins=50,
         range=(25, 65),
         color="tab:grey",
@@ -748,16 +758,15 @@ def ventil(data, param):
     ax1_r.set_ylabel("pression")
     color_axis(ax1_r, "right", "tab:red")
 
-    items = {"pPlat", "pPlat", "peep"}
-    if items < set(df.columns):
+    monitor_items = {"pPlat", "pPlat", "peep"}
+    taph_items = {"pip", "peep1", "peep"}
+    if monitor_items < set(df.columns):
         # if ("pPlat" in df.columns) and ("pPlat" in df.columns) and ("peep" in df.columns):
         ax1_r.plot(df.pPeak, color="tab:red", linewidth=1, linestyle="-", label="pPeak")
         ax1_r.plot(df.pPlat, color="tab:red", linewidth=1, linestyle=":", label="pPlat")
         ax1_r.plot(df.peep, color="tab:red", linewidth=1, linestyle="-", label="peep")
         ax1_r.fill_between(df.index, df.peep, df.pPeak, color="tab:red", alpha=0.1)
-    # taph
-    items = {"pip", "peep1", "peep"}
-    if items < set(df.columns):
+    elif taph_items < set(df.columns):
         ax1_r.plot(df.pip, color="tab:red", linewidth=1, linestyle="-", label="pip")
         ax1_r.plot(df.peep, color="tab:red", linewidth=1, linestyle=":", label="peep")
         ax1_r.plot(df.peep1, color="tab:red", linewidth=1, linestyle="-", label="peep1")
@@ -767,15 +776,15 @@ def ventil(data, param):
     ax2 = fig.add_subplot(212, sharex=ax1)
     ax2.set_ylabel("MinVol & RR")
     # monitor
-    items = {"minVexp", "co2RR"}
-    if items < set(df.columns):
+    monitor_items = {"minVexp", "co2RR"}
+    taph_items = {"co2RR", "rr"}
+    if monitor_items < set(df.columns):
         # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
         ax2.plot(df.minVexp, color="tab:olive", linewidth=2, label="minVexp")
         ax2.plot(df.co2RR, color="tab:blue", linewidth=1, linestyle="--", label="co2RR")
     # TODO add taphonius minute volume
     # "minVol", "mv1", other scale
-    items = {"co2RR", "rr", "rr1"}
-    if items < set(df.columns):
+    elif taph_items < set(df.columns):
         # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
         # ax2.plot(df.minVexp, color="tab:olive", linewidth=2)
         ax2.plot(df.co2RR, color="tab:blue", linewidth=2, linestyle="--", label="co2RR")
