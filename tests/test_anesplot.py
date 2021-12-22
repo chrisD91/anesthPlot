@@ -6,6 +6,7 @@ from random import choices
 
 import pytest
 import pandas as pd
+import pyperclip
 
 import anesplot.record_main as rec
 
@@ -49,6 +50,7 @@ def test_loadtaph():
             record_name = os.path.join(root, record)
             records.append(record_name)
     for trend_name in choices(records, k=5):
+        pyperclip.copy(trend_name)
         trends = rec.TaphTrend(trend_name)
 
         assert isinstance(trends.data, pd.DataFrame)

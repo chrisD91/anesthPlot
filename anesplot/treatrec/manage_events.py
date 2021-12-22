@@ -96,8 +96,12 @@ def extract_actions(df, messages):
         for match in matching:
             i = match[0]
             values = list(match[1].split("from")[-1].strip().split(" to "))
+
             values = [_.replace("s", "") for _ in values]
-            values = [float(_) for _ in values]
+            try:
+                values = [float(_) for _ in values]
+            except:
+                values = values
             time_stp = df.index[i]
             marks[mes].append([time_stp, values])
     return marks
@@ -119,6 +123,8 @@ def build_dataframe(acts):
         "O2 expired high alarm value changed": "highO2ExpAlarm",
         "O2 inspired high alarm value changed": "highO2InspAlarm",
         "O2 inspired low alarm value changed": "lowO2InspAlarm",
+        "IP changed": "IP",
+        "IT changed": "IT",
     }
     dflist = []
     for act, event in acts.items():
