@@ -34,6 +34,31 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 
 # ////////////////////////////////////////////////////////////////
+def remove_outliers(df, key, limits=None):
+    """remove outliers
+    input:
+        df : pandas.Dataframe
+        key : a column label
+        limits : dictionary of key:(limLow, limHigh)
+    output:
+        pandas.series without the outliers
+    """
+    if limits is None:
+        limits = {
+            "co2exp": (20, 80),
+            "aaExp": (0.2, 3.5),
+            "ip1m": (15, 160),
+            "hr": (10, 100),
+        }
+    if key not in limits:
+        print("{} limits are not defined".format(key))
+    ser = df[key].copy()
+    ser[ser < limits[key][0]] = np.nan
+    ser[ser > limits[key][1]] = np.nan
+    ser = ser.dropna()
+    return ser
+
+
 def color_axis(ax, spine="bottom", color="r"):
     """change the color of the label & tick & spine.
 
@@ -177,8 +202,6 @@ def hist_cardio(data, param=None):
         print("no hr in the data")
         return
     save = param.get("save", False)
-    paOutliers = (15, 160)
-    hrOutliers = (10, 130)
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     axes = axes.flatten()
@@ -186,46 +209,29 @@ def hist_cardio(data, param=None):
     ax = axes[0]
     ax.set_title("arterial pressure", color="tab:red")
     ax.set_xlabel("mmHg", alpha=0.5)
+    ser = remove_outliers(data, "ip1m")
+    ax.hist(ser.dropna(), bins=30, color="tab:red", edgecolor="red", alpha=0.7)
+    q25, q50, q75 = np.percentile(ser, [25, 50, 75])
+    ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+    for lim in [70, 80]:
+        ax.axvline(lim, color="tab:grey", alpha=1)
     ax.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
-    ser = data.ip1m.copy()
-    ser[ser < paOutliers[0]] = np.nan
-    ser[ser > paOutliers[1]] = np.nan
-    ax.hist(ser.dropna(), bins=50, color="tab:red", edgecolor="red", alpha=0.7)
-    # ax.hist(data.ip1m.dropna(), bins=50, color="tab:red", edgecolor="red", alpha=0.7)
-    ax.axvline(70, color="tab:grey", alpha=1)
-    ax.axvline(80, color="tab:grey", alpha=1)
+    ax.set_xlabel("mmHg", alpha=0.5)
 
     ax = axes[1]
-    ser = data.hr.copy()
-    ser[ser < hrOutliers[0]] = np.nan
-    ser[ser > hrOutliers[1]] = np.nan
+    ser = remove_outliers(data, "hr")
     ax.hist(
-        ser.dropna(),
-        # data.hr.dropna(),
-        bins=50,
-        range=(25, 65),
+        ser,
+        bins=30,
         color="tab:grey",
         edgecolor="tab:grey",
         alpha=0.8,
     )
     ax.set_title("heart rate", color="k")
     ax.set_xlabel("bpm", alpha=0.5)
+    q25, q50, q75 = np.percentile(ser, [25, 50, 75])
+    ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
 
-    # axes = [ax1, ax2]
-    quart = True
-    if quart:
-        for i, item in enumerate(["ip1m", "hr"]):
-            try:
-                q25, q50, q75 = np.percentile(data[item].dropna(), [25, 50, 75])
-                axes[i].axvline(
-                    q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8
-                )
-            # axes[i].axvline(q25, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
-            # axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
-            except KeyError:
-                print("no arterial pressure recorded")
-            except IndexError:
-                print("no arterial pressure recorded")
     for ax in axes:
         # call
         color_axis(ax, "bottom", "tab:grey")
@@ -285,40 +291,31 @@ def hist_co2_iso(data, param=None):
     ax1 = fig.add_subplot(121)
     ax1.set_title("$End_{tidal}$ $CO_2$", color="tab:blue")
     ax1.axvspan(35, 45, color="tab:grey", alpha=0.5)
-    ax1.hist(
-        data.co2exp.dropna(), bins=50, color="tab:blue", edgecolor="tab:blue", alpha=0.8
-    )
-    ax1.axvline(35, color="tab:grey", alpha=1)
-    ax1.axvline(45, color="tab:grey", alpha=1)
+    # call
+    ser = remove_outliers(data, "co2exp")
+    ax1.hist(ser, bins=20, color="tab:blue", edgecolor="tab:blue", alpha=0.8)
+    for limit in [35, 45]:
+        ax1.axvline(limit, color="tab:grey", alpha=1)
+    q25, q50, q75 = np.percentile(ser, [25, 50, 75])
+    ax1.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
     ax1.set_xlabel("mmHg", alpha=0.5)
 
     ax2 = fig.add_subplot(122)
     ax2.set_title("$End_{tidal}$ isoflurane", color="tab:purple")
+    ser = remove_outliers(data, "aaExp")
     ax2.hist(
-        data.aaExp.dropna(),
-        bins=50,
+        ser,
+        bins=20,
         color="tab:purple",
         range=(0.5, 2),
         edgecolor="tab:purple",
         alpha=0.8,
     )
     ax2.set_xlabel("%", alpha=0.5)
+    q25, q50, q75 = np.percentile(ser.dropna(), [25, 50, 75])
+    ax2.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
 
-    axes = [ax1, ax2]
-    quart = True
-    if quart:
-        for i, item in enumerate(["co2exp", "aaExp"]):
-            try:
-                q25, q50, q75 = np.percentile(data[item].dropna(), [25, 50, 75])
-                axes[i].axvline(
-                    q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8
-                )
-            # axes[i].axvline(q25, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
-            # axes[i].axvline(q75, linestyle='dashed', linewidth=1, color='k', alpha=0.5)
-            except KeyError:
-                print(item, "not used")
-
-    for ax in axes:
+    for ax in [ax1, ax2]:
         # call
         color_axis(ax, "bottom", "tab:grey")
         ax.get_yaxis().set_visible(False)
