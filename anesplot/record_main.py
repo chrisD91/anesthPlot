@@ -208,7 +208,8 @@ def plot_trenddata(datadf, header, param_dico):
     if param_dico["source"] == "taphTrend":
         if "co2exp" in datadf.columns.values:
             datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
-        if ("ip1m" in datadf.columns.values) and not datadf.ip1m.isnull().all():
+        # test ip1m
+        if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
             datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
         else:
             print("no pressure tdata recorded")
@@ -400,6 +401,7 @@ class TaphTrend(_SlowWave):
             print("{} < loaded header ({})".format("-" * 20, file))
         else:
             header = None
+            print("{} < no header ({})".format("-" * 20, file))
         return header
 
     def extract_taph_actions(self, data):
@@ -428,6 +430,7 @@ class TaphTrend(_SlowWave):
             actiondf = treat.manage_events.build_dataframe(actions)
         else:
             actiondf = None
+            print("no actions detected")
         # remove time, keep event
         #        eventdf.events = eventdf.events.apply(lambda st: st.split("-")[1])
         # TODO extract all the event in a column

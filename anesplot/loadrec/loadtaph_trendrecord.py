@@ -60,6 +60,9 @@ def loadtaph_trenddata(filename):
     """
     print("{} > loadtaph_trenddata".format("-" * 20))
 
+    # check
+    # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
+
     df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
     corr_title = {
         "Date": "Date",
