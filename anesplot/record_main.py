@@ -448,11 +448,15 @@ class _FastWave(_Waves):
         self.fig = None
         self.roi = None
 
-    def plot_wave(self, traces_list=None, dtime=None):
-        """
-        simple choose and plot for a wave
-        input = none -> GUI, or list of waves to plot (max=2)
-
+    def plot_wave(self, traces_list=None):
+        """simple choose and plot for a wave
+        input:
+            traces_list : list of waves to plot (max=2)
+                if none -> open a dialog to choose column names
+        return:
+            fig : pyplot.figure
+            lines : [line2D object]
+            traces_list : [name of the traces]
         """
         if self.data.empty:
             fig = None
@@ -554,7 +558,7 @@ class MonitorWave(_FastWave):
     """
 
     def __init__(self, filename=None, load=True):
-        print("*" * 20, "started MonitorWave init process")
+        print("-" * 20, "started MonitorWave init process")
         # define filename -> self.filenamewa
         super().__init__(filename)
         # load header
@@ -570,7 +574,7 @@ class MonitorWave(_FastWave):
         self.source = "monitorWave"
         self.sampling_freq = 300
         self.param["fs"] = 300
-        print("*" * 20, "ended MonitorWave init process")
+        print("-" * 20, "ended MonitorWave init process")
 
 
 def main(file_name=None):

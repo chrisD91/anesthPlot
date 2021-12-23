@@ -82,7 +82,7 @@ def loadmonitor_trendheader(filename):
         print("{} as an empty header".format(os.path.basename(filename)))
         descr = {"empty": filename}
     except FileNotFoundError:
-        print("cancelled")
+        print("header not found")
         descr = {}
         # print(error)
     # NB encoding needed for accentuated letters
