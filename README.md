@@ -8,7 +8,7 @@ Generated plots include trends & wave, as pictures or videos
 
 ## input files
 Input files should be (.csv) recordings obtained during clinical by the use of
-- Monitor software connected to a DatexAS3 anesthesia machine
+- Monitor software connected to a DatexAS3/AS5 anesthesia machine
 (see http://www.cuhk.edu.hk/med/ans/softwares.htm)
 This generated tends (~1pt/5sec) and waves (~300pt/sec) recordings
 - Taphonius software (trends) (see https://vetronic.co.uk)
@@ -20,7 +20,7 @@ This generated tends (~1pt/5sec) and waves (~300pt/sec) recordings
 
 	```bash
 	pip install pyyaml
-	conda install -c conda-forge pyperclip,
+	conda install -c conda-forge pyperclip
 	```
 2. download the repository
 
@@ -52,7 +52,7 @@ waves.plot_wave()
 ```
 
 - the MonitorTrend and MonitorWave methods allow to visualize most of the data recorded
-
+- the TaphTrend object can be used the same way to manipulate the Taphonius trends data ('SD....csv' files)
 - other visualizations and analysis can be performed by relating the objects data and the methods located in the anesplot.treatrec package
 
 ## using the code from terminal
