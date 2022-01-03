@@ -53,7 +53,7 @@ import loadrec.loadtelevet as ltv
 import plot.trend_plot as tplot
 import plot.wave_plot as wplot
 
-# import treatrec.clean_data as clean
+import treatrec.clean_data as clean
 import treatrec as treat
 
 import anesplot.treatrec.wave_func as wf
@@ -451,19 +451,19 @@ class _FastWave(_Waves):
 
     def filter_ekg(self):
         """filter the ekg trace -> build 'ekgMovAvg' & 'ekgLowPass'"""
-        if "wekg" in self.data.columns:
+        df = self.data
+        fs = self.param["fs"]
+        if "wekg" in df.columns:
             item = "wekg"
-        elif "d2" in self.data.columns:
+        elif "d2" in df.columns:
             item = "d2"
         else:
             print("no ekg trace in the data")
             return
-        print("*" * 10, "filtering : builded 'ekgMovAvg' ")
-        self.data["ekgMovAvg"] = wf.rol_mean(self.data[item], self.param["fs"])
-        print("*" * 10, "filtering : builded 'ekgLowPass' ")
-        self.data["ekgLowPass"] = wf.fix_baseline_wander(
-            self.data[item], self.param["fs"]
-        )
+        # print("-" * 10, "filtering : builded 'ekgMovAvg' ")
+        # df["ekgMovAvg"] = wf.rol_mean(df[item], fs)
+        print("-" * 10, "filtering : builded 'ekgLowPass' ")
+        df["ekgLowPass"] = wf.fix_baseline_wander(df[item], fs)
 
     def plot_wave(self, traces_list=None):
         """simple choose and plot for a wave
@@ -481,7 +481,7 @@ class _FastWave(_Waves):
             traces_list = None
             print("there are no data to plot")
         else:
-            print("*" * 20, "started FastWave plot_wave")
+            print("-" * 20, "started FastWave plot_wave")
             cols = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
             if traces_list is None:
                 traces_list = []
@@ -502,7 +502,7 @@ class _FastWave(_Waves):
                 fig = None
                 lines = None
             self.fig = fig
-            print("*" * 20, "ended FastWave plot_wave")
+            print("-" * 20, "ended FastWave plot_wave")
         return fig, lines, traces_list
 
     def record_roi(self, erase=False):
@@ -531,7 +531,7 @@ class _FastWave(_Waves):
         self.roi = roidict
         return roidict
 
-    def animate_fig(self, speed=1, save=False, savedir="~"):
+    def animate_fig(self, speed=1, save=False, savename="video", savedir="~"):
         """build a video the previous builded figure
 
         use .fig attribute (builded through .plot_wave())
@@ -548,7 +548,9 @@ class _FastWave(_Waves):
 
         """
         if self.roi:
-            wplot.create_video(self, speed=speed, save=save, savedir="~")
+            wplot.create_video(
+                self, speed=speed, save=save, savename=savename, savedir="~"
+            )
         else:
             print("no roi attribute, please use record_roi() to build one")
 

@@ -258,14 +258,15 @@ def get_roi(waves):
             df.set_index("sec").index.get_loc(_, method="nearest")
             for _ in ax.get_xlim()
         ]
-    # TODO check 'point' and 'datetime' in dataframe
-    dt_pt_sec = [df.iloc[_][["datetime", "point", "sec"]].values for _ in i_lims]
-
-    roidict = {
-        k: tuple(v) for k, v in zip(["dt", "pt", "sec"], np.transpose(dt_pt_sec))
-    }
-    print("-" * 10)
-    print("defined a roi")
+    roidict = {}
+    for k, v in {"dt": "datetime", "pt": "point", "sec": "sec"}.items():
+        if v in df.columns:
+            lims = tuple([df.iloc[_][[v]].values[0] for _ in i_lims])
+        else:
+            # no dt values for televet
+            lims = (np.nan, np.nan)
+        roidict[k] = lims
+    print("{} {}".format("-" * 10, "defined a roi"))
     # append ylims and traces
     roidict.update({"ylims": ylims})
     return roidict
@@ -274,8 +275,18 @@ def get_roi(waves):
 #%% select subdata
 
 
-def create_video(waves, speed=1, save=False, savedir="~"):
-    """create a video from a figure"""
+def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
+    """create a video from a figure
+    input:
+        waves : waves object
+        speed : integer, speed of the display
+        save : boolean (default=False)
+        savename : str (default='example')
+        savedir : str (path, default='~'
+    return:
+        .mp4 file
+        .png file
+    """
 
     def select_sub_dataframe(datadf, keys, xlims):
         """extract subdataframe corresponding to the roi
@@ -328,7 +339,7 @@ def create_video(waves, speed=1, save=False, savedir="~"):
     traces = waves.roi["traces"]
     x_lims = tuple([int(_) for _ in waves.roi["sec"]])
     y_lims = [(floor(a), ceil(b)) for a, b in waves.roi["ylims"]]
-    fs = waves.fs
+    fs = waves.sampling_freq
     interval = 100
     # speed = 2  # speed of the animation
     nb_of_points = speed * round(fs / interval) * 10
@@ -355,7 +366,8 @@ def create_video(waves, speed=1, save=False, savedir="~"):
     )
 
     if save:
-        savename = "example"
+        # TODO : the saved video finish before the end of the display
+        savename = savename
         if savedir == "~":
             savedir = os.path.expanduser("~")
         filename = os.path.join(savedir, savename)
