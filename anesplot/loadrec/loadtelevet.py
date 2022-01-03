@@ -90,11 +90,13 @@ def loadtelevet(fname=None, all_traces=False):
         df = pd.read_csv(filename, sep=";", usecols=[2])  # only d2 loaded
 
     df.rename(
-        columns={"Channel1": "d1", "Channel2": "d2", "Channel3": "d3"}, inplace=True
+        columns={"Channel1": "d1", "Channel2": "wekg", "Channel3": "d3"}, inplace=True
     )
     df /= 100  # to mV
-    df["timeS"] = df.index / 500
-    df["timeM"] = df.timeS / 60
+    # implement time values
+    df["point"] = df.index
+    df["sec"] = df.index / 500
+    df["min"] = df.sec / 60
 
     return df
 

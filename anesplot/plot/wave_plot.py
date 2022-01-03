@@ -258,7 +258,7 @@ def get_roi(waves):
             df.set_index("sec").index.get_loc(_, method="nearest")
             for _ in ax.get_xlim()
         ]
-
+    # TODO check 'point' and 'datetime' in dataframe
     dt_pt_sec = [df.iloc[_][["datetime", "point", "sec"]].values for _ in i_lims]
 
     roidict = {

@@ -56,7 +56,8 @@ import plot.wave_plot as wplot
 # import treatrec.clean_data as clean
 import treatrec as treat
 
-# import anesplot.treatrec.wave_func as wf
+import anesplot.treatrec.wave_func as wf
+
 # import anesplot.treatrec as treat
 
 faulthandler.enable()
@@ -448,6 +449,22 @@ class _FastWave(_Waves):
         self.fig = None
         self.roi = None
 
+    def filter_ekg(self):
+        """filter the ekg trace -> build 'ekgMovAvg' & 'ekgLowPass'"""
+        if "wekg" in self.data.columns:
+            item = "wekg"
+        elif "d2" in self.data.columns:
+            item = "d2"
+        else:
+            print("no ekg trace in the data")
+            return
+        print("*" * 10, "filtering : builded 'ekgMovAvg' ")
+        self.data["ekgMovAvg"] = wf.rol_mean(self.data[item], self.param["fs"])
+        print("*" * 10, "filtering : builded 'ekgLowPass' ")
+        self.data["ekgLowPass"] = wf.fix_baseline_wander(
+            self.data[item], self.param["fs"]
+        )
+
     def plot_wave(self, traces_list=None):
         """simple choose and plot for a wave
         input:
@@ -537,13 +554,21 @@ class _FastWave(_Waves):
 
 
 class TelevetWave(_FastWave):
-    """class to organise teleVet recordings transformed to csv files."""
+    """class to organise teleVet recordings transformed to csv files.
+    input:
+        filename : str (fullpath, default:None)
+    """
 
     def __init__(self, filename=None):
+        print("-" * 20, "started TelevetWave init process")
         super().__init__(filename)
         self.data = ltv.loadtelevet(filename)
         self.source = "teleVet"
-        self.sampling_freq = self.data.index.max() / self.data.timeS.iloc[-1]
+        self.param["source"] = "televet"
+        self.sampling_freq = self.data.index.max() / self.data.sec.iloc[-1]
+        self.param["fs"] = self.sampling_freq
+        print("-" * 20, "ended TelevetWave init process")
+        print("-" * 10, "loaded {}".format(self.file))
 
 
 class MonitorWave(_FastWave):
