@@ -153,7 +153,7 @@ def loadtaph_patientfile(headername):
     :returns: descr = patient_data
     :rtype: dict
     """
-    print("{} > loadind taph_patientfile ({})".format("-" * 20, file))
+    print("{} > loadind taph_patientfile ({})".format("-" * 20, headername))
 
     df = pd.read_csv(headername, header=None, usecols=[0, 1], encoding="iso8859_15")
     # NB encoding needed for accentuated letters
@@ -164,7 +164,7 @@ def loadtaph_patientfile(headername):
     # convert to a dictionary
     descr = df.loc[1].to_dict()
 
-    print("{} < loaded taph_patientfile ({})".format("-" * 20, file))
+    print("{} < loaded taph_patientfile ({})".format("-" * 20, headername))
     return descr
 
 

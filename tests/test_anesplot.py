@@ -22,12 +22,18 @@ def test_loadtrends(num=15):
     records = [_ for _ in os.listdir(paths["data"]) if _.startswith("M")]
     files = [_ for _ in records if "Wave" not in _]
 
-    for file in choices(files, k=num):
-        trend_name = os.path.join(paths["data"], file)
-        trends = rec.MonitorTrend(trend_name)
+    if files:  # there are files in the folder
+        for file in choices(files, k=num):
+            trend_name = os.path.join(paths["data"], file)
+            trends = rec.MonitorTrend(trend_name)
 
-        assert isinstance(trends.header, dict)
-        assert isinstance(trends.data, pd.DataFrame)
+            assert isinstance(trends.header, dict)
+            assert isinstance(trends.data, pd.DataFrame)
+    else:
+        print("{} there are no trendfiles in paths['data']".format("!" * 10))
+        print(paths["data"])
+        print("{} there are no trendfiles in paths['data']".format("!" * 10))
+        print()
 
 
 def test_loadwaves(num=5):
@@ -38,12 +44,18 @@ def test_loadwaves(num=5):
     records = [_ for _ in os.listdir(paths["data"]) if _.startswith("M")]
     files = [_ for _ in records if "Wave" in _]
 
-    for file in choices(files, k=num):
-        wave_name = os.path.join(paths["data"], file)
-        waves = rec.MonitorWave(wave_name)
+    if files:  # there are files in the folder
+        for file in choices(files, k=num):
+            wave_name = os.path.join(paths["data"], file)
+            waves = rec.MonitorWave(wave_name)
 
-        assert isinstance(waves.header, dict)
-        assert isinstance(waves.data, pd.DataFrame)
+            assert isinstance(waves.header, dict)
+            assert isinstance(waves.data, pd.DataFrame)
+    else:
+        print("{} there are no wavefiles in paths['data']".format("!" * 10))
+        print(paths["data"])
+        print("{} there are no wavefiles in paths['data']".format("!" * 10))
+        print()
 
 
 def test_loadtaph(num=15):
@@ -59,9 +71,15 @@ def test_loadtaph(num=15):
             record = found[0]
             record_name = os.path.join(root, record)
             records.append(record_name)
-    for trend_name in choices(records, k=num):
-        pyperclip.copy(trend_name)
-        trends = rec.TaphTrend(trend_name)
-        assert isinstance(trends.data, pd.DataFrame)
-        trends.show_graphs()
-        plt.close("all")
+    if records:
+        for trend_name in choices(records, k=num):
+            pyperclip.copy(trend_name)
+            trends = rec.TaphTrend(trend_name)
+            assert isinstance(trends.data, pd.DataFrame)
+            # trends.show_graphs()
+            # plt.close("all")
+    else:
+        print("{} there are no taphfiles in the selected folder".format("!" * 10))
+        print(apath)
+        print("{} there are no wavefiles in the selected folder".format("!" * 10))
+        print()
