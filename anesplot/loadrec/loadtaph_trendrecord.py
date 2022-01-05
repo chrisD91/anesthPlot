@@ -19,12 +19,67 @@ ____
 
 import os
 import sys
+from collections import defaultdict
+from datetime import time
 
 import pandas as pd
 
 # import numpy as np
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
+
+if not "paths" in dir():
+    paths = dict()
+paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
+
+
+#%% list taph recordings
+
+
+def list_taph_recordings(pathdict=paths):
+    """list all the taph recordings and the paths to the record:
+    input:
+        paths: dictionary containing {'taph': pathToTheData}
+    output:
+        dictionary: {date : pathToDirectory}
+    """
+
+    months = {
+        "jan": "_01_",
+        "feb": "_02_",
+        "mar": "_03_",
+        "apr": "_04_",
+        "may": "_05_",
+        "jun": "_06_",
+        "jul": "_07_",
+        "aug": "_08_",
+        "sep": "_09_",
+        "oct": "_10_",
+        "nov": "_11_",
+        "dec": "_12_",
+    }
+    taphpath = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
+    apath = pathdict.get("taph", taphpath)
+
+    dct = defaultdict(list)
+    records = []
+    for root, dirs, files in os.walk(apath):
+        found = [_ for _ in files if _.startswith("SD") and _.endswith(".csv")]
+        if found:
+            record = found[0]
+            record_name = os.path.join(root, record)
+            records.append(record_name)
+
+            record = record.strip("SD").strip(".csv").lower()
+            for k, v in months.items():
+                record = record.replace(k, v)
+            d = time.strptime(record, "%Y_%m_%d-%H_%M_%S")
+            record = "SD" + time.strftime("%Y_%m_%d-%H:%M:%S", d)
+            dct[record].append(os.path.dirname(record_name))
+    return dct
+
+
+taphRecords = list_taph_recordings()
 
 #%%
 def choosefile_gui(dir_path=None):

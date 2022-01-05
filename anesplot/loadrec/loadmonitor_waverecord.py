@@ -106,7 +106,7 @@ def loadmonitor_wavedata(filename=None):
         print()
         return pd.DataFrame()
 
-    print("loadmonitor_waverecord.loadmonitor_wavedata")
+    print("{} loading wavedata {}".format("-" * 10, os.path.basename(filename)))
     sampling_fr = 300  # sampling rate
     try:
         date = pd.read_csv(filename, nrows=1, header=None).iloc[0][1]
@@ -114,7 +114,6 @@ def loadmonitor_wavedata(filename=None):
         date = pd.read_csv(filename, nrows=1, header=None, encoding="iso-8859-1").iloc[
             0
         ][1]
-    print("loading wave_data of {}".format(os.path.basename(filename)))
     datadf = pd.read_csv(
         filename,
         sep=",",
