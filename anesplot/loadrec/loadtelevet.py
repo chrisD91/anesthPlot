@@ -80,9 +80,15 @@ def loadtelevet(fname=None, all_traces=False):
     if fname is None:
         fname = "STEF_0031_00114_20171205_121305.csv"
     filename = os.path.join(filepath, fname)
+
+    print("{} > loadtelevet".format("-" * 20))
     if not os.path.isfile(filename):
-        print("no file for ", filename)
-        return
+        print("{} {}".format("!" * 10, "file not found"))
+        print("{}".format(filename))
+        print("{} {}".format("!" * 10, "file not found"))
+        print()
+        return pd.DataFrame()
+    print("{} loading televet {}".format("-" * 10, os.path.basename(filename)))
 
     if all_traces:
         df = pd.read_csv(filename, sep=";")
@@ -98,6 +104,7 @@ def loadtelevet(fname=None, all_traces=False):
     df["sec"] = df.index / 500
     df["min"] = df.sec / 60
 
+    print("{} < loaded televet".format("-" * 20))
     return df
 
 

@@ -585,7 +585,7 @@ class MonitorWave(_FastWave):
     """
 
     def __init__(self, filename=None, load=True):
-        print("-" * 20, "started MonitorWave init process")
+        # print("-" * 20, "started MonitorWave init process")
         # define filename -> self.filenamewa
         super().__init__(filename)
         # load header
@@ -601,7 +601,7 @@ class MonitorWave(_FastWave):
         self.source = "monitorWave"
         self.sampling_freq = 300
         self.param["fs"] = 300
-        print("-" * 20, "ended MonitorWave init process")
+        # print("-" * 20, "ended MonitorWave init process")
 
 
 def main(file_name=None):

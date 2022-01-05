@@ -59,8 +59,17 @@ def loadmonitor_waveheader(filename=None):
     :returns: header
     :rtype: pandas.Dataframe
     """
-    print("loadmonitor_waverecord.loadmonitor_waveheader")
-    print("filename= {}".format(os.path.basename(filename)))
+
+    print("{} > loadmonitor_waveheader".format("-" * 20))
+    if not os.path.isfile(filename):
+        print("{} {}".format("!" * 10, "file not found"))
+        print("{}".format(filename))
+        print("{} {}".format("!" * 10, "file not found"))
+        print()
+        return pd.DataFrame()
+
+    print("{} loading header {}".format("-" * 10, os.path.basename(filename)))
+
     if filename is None:
         filename = choosefile_gui()
         print(f"called returned= {filename}")
@@ -76,6 +85,7 @@ def loadmonitor_waveheader(filename=None):
     except FileNotFoundError:
         print("canceled by the user")
         headerdf = pd.DataFrame()
+    print("{} < loaded waveheader".format("-" * 20))
     return headerdf
 
 
@@ -87,6 +97,15 @@ def loadmonitor_wavedata(filename=None):
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
+
+    print("{} > loadmonitor_wavedata".format("-" * 20))
+    if not os.path.isfile(filename):
+        print("{} {}".format("!" * 10, "file not found"))
+        print("{}".format(filename))
+        print("{} {}".format("!" * 10, "file not found"))
+        print()
+        return pd.DataFrame()
+
     print("loadmonitor_waverecord.loadmonitor_wavedata")
     sampling_fr = 300  # sampling rate
     try:
@@ -165,6 +184,8 @@ def loadmonitor_wavedata(filename=None):
     datadf.loc[datadf.wap > 200, "wap"] = np.nan
     if "wco2" in datadf.columns:
         datadf.loc[datadf.wco2 < 0, "wco2"] = 0
+
+    print("{} < loaded wavedata".format("-" * 20))
     return datadf
 
 

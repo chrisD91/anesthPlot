@@ -58,7 +58,15 @@ def loadtaph_trenddata(filename):
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
-    print("{} > loadtaph_trenddata".format("-" * 20))
+
+    print("{} > loadtaph_trend_data".format("-" * 20))
+    if not os.path.isfile(filename):
+        print("{} {}".format("!" * 10, "file not found"))
+        print("{}".format(filename))
+        print("{} {}".format("!" * 10, "file not found"))
+        print()
+        return pd.DataFrame()
+    print("{} loading taphtrend {}".format("-" * 10, os.path.basename(filename)))
 
     # check
     # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
@@ -113,6 +121,7 @@ def loadtaph_trenddata(filename):
         "Exp N2O": "n2oExp",
     }
     df.rename(columns=corr_title, inplace=True)
+    df = pd.DataFrame(df)
     df = df.dropna(axis=0, how="all")
     df = df.dropna(axis=1, how="all")
     df["datetime"] = pd.to_datetime(df.Date + ";" + df.Time)
@@ -131,6 +140,7 @@ def loadtaph_trenddata(filename):
     except KeyError:
         print("no capnographic recording")
     file = os.path.basename(filename)
+
     print("{} < loaded taph_trenddata ({})".format("-" * 20, file))
     return df
 
@@ -143,6 +153,7 @@ def loadtaph_patientfile(headername):
     :returns: descr = patient_data
     :rtype: dict
     """
+    print("{} > loadind taph_patientfile ({})".format("-" * 20, file))
 
     df = pd.read_csv(headername, header=None, usecols=[0, 1], encoding="iso8859_15")
     # NB encoding needed for accentuated letters
@@ -152,6 +163,8 @@ def loadtaph_patientfile(headername):
     df["Body weight"] = df["Body weight"].astype(float)
     # convert to a dictionary
     descr = df.loc[1].to_dict()
+
+    print("{} < loaded taph_patientfile ({})".format("-" * 20, file))
     return descr
 
 
