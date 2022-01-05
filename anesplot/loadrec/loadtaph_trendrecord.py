@@ -20,30 +20,31 @@ ____
 import os
 import sys
 from collections import defaultdict
-from datetime import time
+import time
 
 import pandas as pd
 
 # import numpy as np
-from PyQt5.QtWidgets import QApplication, QFileDialog
+from PyQt5.QtWidgets import QApplication, QFileDialog, QWidget, QInputDialog
 
 
 if not "paths" in dir():
-    paths = dict()
+    paths = {}
 paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
 
 
 #%% list taph recordings
 
 
-def list_taph_recordings(pathdict=paths):
+def list_taph_recordings(pathdict=None):
     """list all the taph recordings and the paths to the record:
     input:
         paths: dictionary containing {'taph': pathToTheData}
     output:
-        dictionary: {date : pathToDirectory}
+        dictionary: {date : filename}
     """
-
+    if pathdict is None:
+        pathdict = paths
     months = {
         "jan": "_01_",
         "feb": "_02_",
@@ -62,25 +63,65 @@ def list_taph_recordings(pathdict=paths):
     apath = pathdict.get("taph", taphpath)
 
     dct = defaultdict(list)
-    records = []
-    for root, dirs, files in os.walk(apath):
+    # records = []
+    for root, _, files in os.walk(apath):
         found = [_ for _ in files if _.startswith("SD") and _.endswith(".csv")]
         if found:
             record = found[0]
             record_name = os.path.join(root, record)
-            records.append(record_name)
+            # records.append(record_name)
 
-            record = record.strip("SD").strip(".csv").lower()
+            recorddate = record.strip("SD").strip(".csv").lower()
             for k, v in months.items():
-                record = record.replace(k, v)
-            d = time.strptime(record, "%Y_%m_%d-%H_%M_%S")
-            record = "SD" + time.strftime("%Y_%m_%d-%H:%M:%S", d)
-            dct[record].append(os.path.dirname(record_name))
+                recorddate = recorddate.replace(k, v)
+            d = time.strptime(recorddate, "%Y_%m_%d-%H_%M_%S")
+            recorddate = "SD" + time.strftime("%Y_%m_%d-%H:%M:%S", d)
+            dct[recorddate].append(record_name)
     return dct
 
 
-taphRecords = list_taph_recordings()
+def choose_record(question=None, taphdico=None, year=2022):
+    """select the taph recording:
 
+    parameters
+    ----
+
+    return
+    ----
+    kind : str
+        kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
+    """
+    if taphdico is None:
+        taphdico = list_taph_recordings()
+        recorddates = sorted(taphdico.keys(), reverse=True)
+    if question is None:
+        question = "choose a taph recording"
+    global app
+    # index of the first record to be displayed based on year
+    i = 0
+    for i, v in enumerate(recorddates):
+        if str(year) in v:
+            print(i)
+            break
+        else:
+            i = 0
+    #    app = QApplication(sys.argv)
+    widg = QWidget()
+    recorddate, ok_pressed = QInputDialog.getItem(
+        widg, "select", question, recorddates, i, False
+    )
+    if ok_pressed and recorddate:
+        filename = taphdico[recorddate][
+            -1
+        ]  # if bug : two dirs, the last should contain the data
+        print("founded {}".format(os.path.basename(filename)))
+    else:
+        filename = None
+        print("cancelled")
+    return filename
+
+
+# file_name = choose_record()
 #%%
 def choosefile_gui(dir_path=None):
     """select a file using a dialog.
@@ -194,9 +235,9 @@ def loadtaph_trenddata(filename):
         df[["co2exp", "co2insp"]] *= 760 / 100
     except KeyError:
         print("no capnographic recording")
-    file = os.path.basename(filename)
-
-    print("{} < loaded taph_trenddata ({})".format("-" * 20, file))
+    print(
+        "{} < loaded taph_trenddata ({})".format("-" * 20, os.path.basename(filename))
+    )
     return df
 
 
@@ -208,7 +249,14 @@ def loadtaph_patientfile(headername):
     :returns: descr = patient_data
     :rtype: dict
     """
-    print("{} > loadind taph_patientfile ({})".format("-" * 20, headername))
+    print("{} > loading taph_patientfile ({})".format("-" * 20, headername))
+    if not os.path.isfile(headername):
+        print("{} {}".format("!" * 10, "file not found"))
+        print("{}".format(headername))
+        print("{} {}".format("!" * 10, "file not found"))
+        print()
+        return {}
+    print("{} loading taphtrend {}".format("-" * 10, os.path.basename(headername)))
 
     df = pd.read_csv(headername, header=None, usecols=[0, 1], encoding="iso8859_15")
     # NB encoding needed for accentuated letters
@@ -227,21 +275,9 @@ def loadtaph_patientfile(headername):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    dirname = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/"
-    # >>>> only one example to developp
-    dirname = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18"
-    # <<<<
-    if not os.path.isdir(dirname):
-        dirname = "~"
-    file_name = choosefile_gui(dir_path=os.path.expanduser(dirname))
-    file = os.path.basename(file_name)
-    dirname = os.path.dirname(file_name)
 
-    if file.startswith("SD"):
-        tdata_df = loadtaph_trenddata(file_name)
-    else:
-        print("please choose the file that begins with 'SD'")
-        file_name = choosefile_gui(dir_path=dirname)
-        file = os.path.basename(file_name)
-        if file[:2] == "SD":
-            tdata_df = loadtaph_trenddata(file_name)
+    file_name = choose_record()
+    tdata_df = loadtaph_trenddata(file_name)
+
+    header_name = os.path.join(os.path.dirname(file_name), "Patient.csv")
+    loadtaph_patientfile(header_name)
