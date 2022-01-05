@@ -371,11 +371,18 @@ class TaphTrend(_SlowWave):
     """
 
     def __init__(self, filename=None):
-        super().__init__(filename)
+        # super().__init__(filename)
+        if filename is None:
+            filename = ltt.choose_taph_record()
+        self.filename = filename
         self.data = ltt.loadtaph_trenddata(self.filename)
         self.source = "taphTrend"
-        self.header = self.load_header(self.filename)
+        self.header = ltt.loadtaph_patientfile(self.filename)
+        # self.header = self.load_header(self.filename)
         self.actions = self.extract_taph_actions(self.data)
+
+    # TODO : append the param dictionary to the obj
+    # pb: inherited from the wave class
 
     def load_header(self, filename):
         """load the header

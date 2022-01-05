@@ -237,14 +237,17 @@ def loadtaph_trenddata(filename):
     return df
 
 
-def loadtaph_patientfile(headername):
+def loadtaph_patientfile(filename):
     """load the taphonius patient.csv file
+    input:
+        filename : (str) the full filename
+            (the headername will be reconstructed inside the function)
 
-    :param str headername: fullname
-
-    :returns: descr = patient_data
-    :rtype: dict
+    output:
+        descr = dict of patient_data
     """
+    headername = os.path.join(os.path.dirname(filename), "Patient.csv")
+
     print("{} > loading taph_patientfile".format("-" * 20))
     if not os.path.isfile(headername):
         print("{} {}".format("!" * 10, "file not found"))
@@ -278,6 +281,4 @@ if __name__ == "__main__":
 
     file_name = choose_taph_record()
     tdata_df = loadtaph_trenddata(file_name)
-
-    header_name = os.path.join(os.path.dirname(file_name), "Patient.csv")
-    loadtaph_patientfile(header_name)
+    header_dico = loadtaph_patientfile(file_name)
