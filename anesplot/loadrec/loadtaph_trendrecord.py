@@ -36,7 +36,7 @@ paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRe
 #%% list taph recordings
 
 
-def list_taph_recordings(pathdict=None):
+def build_taph_recordings_dico(pathdict=None):
     """list all the taph recordings and the paths to the record:
     input:
         paths: dictionary containing {'taph': pathToTheData}
@@ -80,22 +80,20 @@ def list_taph_recordings(pathdict=None):
     return dct
 
 
-def choose_record(question=None, taphdico=None, year=2022):
+def choose_taph_record(taphdico=None, year=2022, date=None):
     """select the taph recording:
-
-    parameters
-    ----
-
-    return
-    ----
-    kind : str
-        kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
+    input:
+        taphdico :  {date:path} builded from build_taph_recordings_dico()'
+        year = integer to place the pointer in pull down menu
+        date = to be implemented (as year but to extract from monitor filename)
+    output:
+        filename (str) full path
     """
+    print("{} > choose taph_record".format("-" * 20))
     if taphdico is None:
-        taphdico = list_taph_recordings()
+        taphdico = build_taph_recordings_dico()
         recorddates = sorted(taphdico.keys(), reverse=True)
-    if question is None:
-        question = "choose a taph recording"
+    question = "select the recording date"
     global app
     # index of the first record to be displayed based on year
     i = 0
@@ -114,36 +112,34 @@ def choose_record(question=None, taphdico=None, year=2022):
         filename = taphdico[recorddate][
             -1
         ]  # if bug : two dirs, the last should contain the data
-        print("founded {}".format(os.path.basename(filename)))
+        print("{} founded {}".format("-" * 10, os.path.basename(filename)))
     else:
         filename = None
-        print("cancelled")
+        print("{} cancelled".format("-" * 10))
     return filename
 
 
-# file_name = choose_record()
-#%%
-def choosefile_gui(dir_path=None):
-    """select a file using a dialog.
+# def choosefile_gui(dir_path=None):
+#     """select a file using a dialog.
 
-    :param str dir_path: optional location of the data (paths['data'])
+#     :param str dir_path: optional location of the data (paths['data'])
 
-    :returns: filename (full path)
-    :rtype: str
-    """
-    if dir_path is None:
-        dir_path = os.path.expanduser("~")
-    caption = "choose a recording"
-    options = QFileDialog.Options()
-    # to be able to see the caption, but impose to work with the mouse
-    # options |= QFileDialog.DontUseNativeDialog
-    fname = QFileDialog.getOpenFileName(
-        caption=caption, directory=dir_path, filter="*.csv", options=options
-    )
-    # fname = QFileDialog.getOpenfilename(caption=caption,
-    # directory=direct, filter='*.csv')
-    # TODO : be sure to be able to see the caption
-    return fname[0]
+#     :returns: filename (full path)
+#     :rtype: str
+#     """
+#     if dir_path is None:
+#         dir_path = os.path.expanduser("~")
+#     caption = "choose a recording"
+#     options = QFileDialog.Options()
+#     # to be able to see the caption, but impose to work with the mouse
+#     # options |= QFileDialog.DontUseNativeDialog
+#     fname = QFileDialog.getOpenFileName(
+#         caption=caption, directory=dir_path, filter="*.csv", options=options
+#     )
+#     # fname = QFileDialog.getOpenfilename(caption=caption,
+#     # directory=direct, filter='*.csv')
+#     # TODO : be sure to be able to see the caption
+#     return fname[0]
 
 
 def loadtaph_trenddata(filename):
@@ -249,14 +245,14 @@ def loadtaph_patientfile(headername):
     :returns: descr = patient_data
     :rtype: dict
     """
-    print("{} > loading taph_patientfile ({})".format("-" * 20, headername))
+    print("{} > loading taph_patientfile".format("-" * 20))
     if not os.path.isfile(headername):
         print("{} {}".format("!" * 10, "file not found"))
         print("{}".format(headername))
         print("{} {}".format("!" * 10, "file not found"))
         print()
         return {}
-    print("{} loading taphtrend {}".format("-" * 10, os.path.basename(headername)))
+    print("{} loading  {}".format("-" * 10, os.path.basename(headername)))
 
     df = pd.read_csv(headername, header=None, usecols=[0, 1], encoding="iso8859_15")
     # NB encoding needed for accentuated letters
@@ -267,7 +263,11 @@ def loadtaph_patientfile(headername):
     # convert to a dictionary
     descr = df.loc[1].to_dict()
 
-    print("{} < loaded taph_patientfile ({})".format("-" * 20, headername))
+    print(
+        "{} < loaded taph_patientfile ({})".format(
+            "-" * 20, os.path.basename(headername)
+        )
+    )
     return descr
 
 
@@ -276,7 +276,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
 
-    file_name = choose_record()
+    file_name = choose_taph_record()
     tdata_df = loadtaph_trenddata(file_name)
 
     header_name = os.path.join(os.path.dirname(file_name), "Patient.csv")
