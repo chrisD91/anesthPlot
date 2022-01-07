@@ -36,7 +36,7 @@ paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRe
 #%% list taph recordings
 
 
-def build_taph_recordings_dico(pathdict=None):
+def build_taph_decodedate_dico(pathdict=None):
     """list all the taph recordings and the paths to the record:
     input:
         paths: dictionary containing {'taph': pathToTheData}
@@ -83,7 +83,7 @@ def build_taph_recordings_dico(pathdict=None):
 def choose_taph_record(taphdico=None, year=2022, date=None):
     """select the taph recording:
     input:
-        taphdico :  {date:path} builded from build_taph_recordings_dico()'
+        taphdico :  {date:path} builded from build_taph_decodedate_dico()'
         year = integer to place the pointer in pull down menu
         date = to be implemented (as year but to extract from monitor filename)
     output:
@@ -91,7 +91,7 @@ def choose_taph_record(taphdico=None, year=2022, date=None):
     """
     print("{} > choose taph_record".format("-" * 20))
     if taphdico is None:
-        taphdico = build_taph_recordings_dico()
+        taphdico = build_taph_decodedate_dico()
         recorddates = sorted(taphdico.keys(), reverse=True)
     question = "select the recording date"
     global app
