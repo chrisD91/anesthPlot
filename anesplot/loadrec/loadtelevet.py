@@ -45,7 +45,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 def choosefile_gui(dirpath=None):
     """select a file using a dialog.
 
-    :param str dir_path: optional location of the data (paths['data'])
+    :param str dir_path: optional location of the data (ex : paths['data'], default : 'home')
 
     :returns: filename (full path)
     :rtype: str
@@ -81,11 +81,11 @@ def loadtelevet(fname=None, all_traces=False):
         fname = "STEF_0031_00114_20171205_121305.csv"
     filename = os.path.join(filepath, fname)
 
-    print("{} > loadtelevet".format("-" * 20))
+    print("{} > loadtelevet datafile".format("-" * 20))
     if not os.path.isfile(filename):
-        print("{} {}".format("!" * 10, "file not found"))
+        print("{} {}".format("!" * 10, "televet datafile not found"))
         print("{}".format(filename))
-        print("{} {}".format("!" * 10, "file not found"))
+        print("{} {}".format("!" * 10, "televet datafile not found"))
         print()
         return pd.DataFrame()
     print("{} loading televet {}".format("-" * 10, os.path.basename(filename)))
@@ -104,16 +104,16 @@ def loadtelevet(fname=None, all_traces=False):
     df["sec"] = df.index / 500
     df["min"] = df.sec / 60
 
-    print("{} < loaded televet".format("-" * 20))
+    print("{} < loaded televet datafile".format("-" * 20))
     return df
 
 
-if not "paths" in dir():
-    paths: dict = {"data": "~"}
-
 if __name__ == "__main__":
+    import config.load_recordrc
+
+    paths = config.load_recordrc.build_paths()
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
-    file_name = choosefile_gui(paths.get("data"))
-    file = os.path.basename(file_name)
+
+    file_name = choosefile_gui(paths.get("telv_data"))
     ekg_data = loadtelevet(file_name, all_traces=False)
