@@ -158,36 +158,36 @@ def select_wave(waves, num=1):
     return selection
 
 
-def build_param_dico(file=None, asource=None, pathdico=paths):
-    """initialise a dict save parameters  ----> TODO see min vs sec
+# def build_param_dico(file=None, asource=None, pathdico=paths):
+#     """initialise a dict save parameters  ----> TODO see min vs sec
 
-    parameters
-    ----
-    file : str
-        the recording filename
-    source : str
-        the origin of the recording
-    return
-    ----
-    dico : dict
-        a dictionary describing the situation
-            [item, xmin, xmax, ymin, ymax, path, unit, save, memo, file, source]
-    """
-    dico = dict(
-        item=1,
-        xmin=None,
-        xmax=None,
-        ymin=0,
-        ymax=None,
-        path=pathdico.get("sFig", "~"),
-        unit="min",
-        save=False,
-        memo=False,
-        file=file,
-        source=asource,
-        dtime=True,
-    )
-    return dico
+#     parameters
+#     ----
+#     file : str
+#         the recording filename
+#     source : str
+#         the origin of the recording
+#     return
+#     ----
+#     dico : dict
+#         a dictionary describing the situation
+#             [item, xmin, xmax, ymin, ymax, path, unit, save, memo, file, source]
+#     """
+#     dico = dict(
+#         item=1,
+#         xmin=None,
+#         xmax=None,
+#         ymin=0,
+#         ymax=None,
+#         path=pathdico.get("sFig", "~"),
+#         unit="min",
+#         save=False,
+#         memo=False,
+#         file=file,
+#         source=asource,
+#         dtime=True,
+#     )
+#     return dico
 
 
 def plot_trenddata(datadf, header, param_dico):
@@ -260,8 +260,8 @@ class _Waves:
         #     filename = choosefile_gui(paths["data"])
         # self.filename = filename
         # self.file = os.path.basename(filename)
-        self.sampling_freq = None
-        self.source = None
+        # self.sampling_freq=None
+        # self.source = None
         self.data = None
         self.header = None
         self.param = dict(
@@ -276,7 +276,7 @@ class _Waves:
             # file=os.path.basename(filename),
             file=None,
             source=None,
-            fs=None,
+            sampling_freq=None,
             dtime=True,
         )
 
@@ -334,12 +334,8 @@ class MonitorTrend(_SlowWave):
             long name
         header : dict
             record parameters
-        source : str
-            recording apparatus (default = 'monitor')
-        sampling_freq : float
-            sampling frequency
         param : dict
-            display parameters
+            parameters
 
     methods (inherited)
     -------------------
@@ -354,18 +350,17 @@ class MonitorTrend(_SlowWave):
         if filename is None:
             filename = lmt.choosefile_gui(paths["mon_data"])
         self.filename = filename
-        self.file = os.path.basename(filename)
-        self.header = lmt.loadmonitor_trendheader(self.filename)
-        self.load = load
-        # load if header is present & not data
-        if self.header and self.load:
-            if self.load:
-                self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
+        self.param["file"] = os.path.basename(filename)
+
+        header = lmt.loadmonitor_trendheader(filename)
+        self.header = header
+        if header and load:
+            data = lmt.loadmonitor_trenddata(filename, header)
+            self.data = data
             # self.source = "monitor"
             # self.sampling_freq = self.header.get("Sampling Rate", None)
-            self.param["sampling_freq"] = self.header.get("Sampling Rate", None)
+            self.param["sampling_freq"] = header.get("Sampling Rate", None)
             self.param["source"] = "monitorTrend"
-            self.param["file"] = os.path.basename(self.filename)
 
 
 class TaphTrend(_SlowWave):
@@ -383,13 +378,14 @@ class TaphTrend(_SlowWave):
         if filename is None:
             filename = ltt.choose_taph_record()
         self.filename = filename
+        self.param["file"] = os.path.basename(filename)
+
         data = ltt.loadtaph_trenddata(filename)
         self.data = data
         header = ltt.loadtaph_patientfile(filename)
         self.header = header
         self.actions = self.extract_taph_actions(data)
 
-        self.param["file"] = os.path.basename(filename)
         self.param["source"] = "taphTrend"
         self.param["sampling_freq"] = None
 
@@ -672,15 +668,14 @@ def main(file_name=None):
         num = 2
     source = select_type(question="choose kind of file", items=kinds, num=num)
     # general parameters
-    params = build_param_dico(file=os.path.basename(file_name), asource=source)
+    #   params = build_param_dico(file=os.path.basename(file_name), asource=source)
     if not os.path.isfile(file_name):
         print("this is not a file")
         return fig_list
     if source == "telVet":
         telvet = TelevetWave(file_name)
-        params["fs"] = 500
-        params["kind"] = "telVet"
-        telvet.param = params
+        # params["kind"] = "telVet"
+        # telvet.param = params
         telvet.plot_wave()
     elif source == "monitorTrend":
         monitor_trend = MonitorTrend(file_name)
