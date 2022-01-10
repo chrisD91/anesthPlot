@@ -42,7 +42,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 #     return fname[0]
 
 
-def choosefile_gui(dir_path=None):
+def choosefile_gui(dirpath=None):
     """select a file using a dialog.
 
     :param str dir_path: optional location of the data (paths['data'])
@@ -51,12 +51,12 @@ def choosefile_gui(dir_path=None):
     :rtype: str
     """
 
-    if dir_path is None:
-        dir_path = os.path.expanduser("~")
+    if dirpath is None:
+        dirpath = os.path.expanduser("~")
 
-    apps = QApplication([dir_path])
+    apps = QApplication([dirpath])
     fname = QFileDialog.getOpenFileName(
-        None, "Select a file...", dir_path, filter="csv (*.csv)"
+        None, "Select a file...", dirpath, filter="csv (*.csv)"
     )
 
     if isinstance(fname, tuple):
