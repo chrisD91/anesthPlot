@@ -161,7 +161,12 @@ def loadtaph_trenddata(filename):
     # check
     # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
 
-    df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
+    try:
+        df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
+    except pd.errors.ParserError:
+        print("corrupted file ({})".format(os.path.basename(filename)))
+        return pd.DataFrame()
+
     corr_title = {
         "Date": "Date",
         "Time": "Time",
@@ -280,5 +285,5 @@ if __name__ == "__main__":
     app.setQuitOnLastWindowClosed(True)
 
     file_name = choose_taph_record()
-    tdata_df = loadtaph_trenddata(file_name)
+    tdata_df = loadtaph_trenddata(loadtaph_trenddata(filename))
     header_dico = loadtaph_patientfile(file_name)
