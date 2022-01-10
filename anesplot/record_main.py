@@ -38,7 +38,6 @@ from matplotlib import rcParams
 rcParams["axes.xmargin"] = 0
 rcParams["axes.ymargin"] = 0
 
-# from anesplot.config.load_recordrc import build_paths
 from config.load_recordrc import build_paths
 
 paths = build_paths()
@@ -158,38 +157,6 @@ def select_wave(waves, num=1):
     return selection
 
 
-# def build_param_dico(file=None, asource=None, pathdico=paths):
-#     """initialise a dict save parameters  ----> TODO see min vs sec
-
-#     parameters
-#     ----
-#     file : str
-#         the recording filename
-#     source : str
-#         the origin of the recording
-#     return
-#     ----
-#     dico : dict
-#         a dictionary describing the situation
-#             [item, xmin, xmax, ymin, ymax, path, unit, save, memo, file, source]
-#     """
-#     dico = dict(
-#         item=1,
-#         xmin=None,
-#         xmax=None,
-#         ymin=0,
-#         ymax=None,
-#         path=pathdico.get("sFig", "~"),
-#         unit="min",
-#         save=False,
-#         memo=False,
-#         file=file,
-#         source=asource,
-#         dtime=True,
-#     )
-#     return dico
-
-
 def plot_trenddata(datadf, header, param_dico):
     """clinical main plots of a trend recordings
 
@@ -226,15 +193,10 @@ def plot_trenddata(datadf, header, param_dico):
         tplot.hist_cardio,
     )
     for func in plot_func_list:
-        # afig_list.append(func(df.set_index("eTimeMin"), param_dico))
         afig_list.append(func(datadf, param_dico))
 
     if header:
         afig_list.append(tplot.plot_header(header, param_dico))
-    # for fig in afig_list:
-    #     if fig:                 # test if figure is present
-    #         fig.text(0.99, 0.01, 'anesthPlot', ha='right', va='bottom', alpha=0.4)
-    #         fig.text(0.01, 0.01, file, ha='left', va='bottom', alpha=0.4)
     print("plt.show")
     plt.show()
     names = [st.__name__ for st in plot_func_list]
@@ -247,7 +209,6 @@ def plot_trenddata(datadf, header, param_dico):
 class _Waves:
     """the base object to store the records."""
 
-    # def __init__(self, filename=None):
     def __init__(self):
         """
         :param filename: DESCRIPTION, defaults to None
@@ -256,12 +217,6 @@ class _Waves:
         :rtype: wave object
 
         """
-        # if filename is None:
-        #     filename = choosefile_gui(paths["data"])
-        # self.filename = filename
-        # self.file = os.path.basename(filename)
-        # self.sampling_freq=None
-        # self.source = None
         self.data = None
         self.header = None
         self.param = dict(
@@ -273,7 +228,6 @@ class _Waves:
             unit="min",
             save=False,
             memo=False,
-            # file=os.path.basename(filename),
             file=None,
             source=None,
             sampling_freq=None,
@@ -300,7 +254,6 @@ class _SlowWave(_Waves):
             plot clinical main plots
     """
 
-    # def __init__(self, filename=None):
     def __init__(self):
         super().__init__()
 
@@ -357,8 +310,6 @@ class MonitorTrend(_SlowWave):
         if header and load:
             data = lmt.loadmonitor_trenddata(filename, header)
             self.data = data
-            # self.source = "monitor"
-            # self.sampling_freq = self.header.get("Sampling Rate", None)
             self.param["sampling_freq"] = header.get("60/Sampling Rate", None)
             self.param["source"] = "monitorTrend"
 
@@ -388,39 +339,6 @@ class TaphTrend(_SlowWave):
 
         self.param["source"] = "taphTrend"
         self.param["sampling_freq"] = None
-
-        # self.source =
-
-    # TODO : append the param dictionary to the obj
-    # pb: inherited from the wave class
-
-    # def load_header(self, filename):
-    #     """load the header
-    #     input :
-    #         use the filename to list the directory content
-    #         and load the Patient.csv file
-    #     output :
-    #         header : pandas dataframe
-    #     """
-    #     dirname = os.path.dirname(filename)
-    #     files = os.listdir(dirname)
-    #     print("{} > taphTrend load header".format("-" * 20))
-    #     print("{} files are present".format(len(files)))
-    #     for file in files:
-    #         print(file)
-    #     try:
-    #         file = [_ for _ in files if "Patient" in _][0]
-    #         headername = os.path.join(dirname, file)
-    #     except IndexError:
-    #         headername = None
-    #     # headername = choosefile_gui(dirname=os.path.dirname(self.filename))
-    #     if headername:
-    #         header = ltt.loadtaph_patientfile(headername)
-    #         print("{} < loaded header ({})".format("-" * 20, file))
-    #     else:
-    #         header = None
-    #         print("{} < no header ({})".format("-" * 20, file))
-    #     return header
 
     def extract_taph_actions(self, data):
         """extract Taph actions
@@ -555,7 +473,7 @@ class _FastWave(_Waves):
         """build a video the previous builded figure
 
         use .fig attribute (builded through .plot_wave())
-        and .roi attribute (builded thourhg .define_a_roi())
+        and .roi attribute (builded through .define_a_roi())
 
         :param speed: speed of the video, defaults to 1
         :type speed: int, optional
@@ -618,15 +536,14 @@ class MonitorWave(_FastWave):
             filename = lmw.choosefile_gui(dir_path)
         self.filename = filename
         self.param["file"] = os.path.basename(filename)
-        # load header
         header = lmw.loadmonitor_waveheader(filename)
         self.header = header
-        # load data
-        if load and header:
+        if all(load and header):
             data = lmw.loadmonitor_wavedata(filename)
             self.data = data
         else:
             print("MonitorWave: didn't load the data (load={})".format(load))
+            self.data = pd.DataFrame()
         self.param["source"] = "monitorWave"
         fs = float(header.get("Data Rate (ms)", 0)) * 60 / 1000
         self.param["sampling_freq"] = fs  # 300
@@ -646,47 +563,39 @@ def main(file_name=None):
     # app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
 
-    fig_list = []
     # choose file and indicate the source
     print("select the file containing the data")
     print("file_name is {}".format(file_name))
     if file_name is None:
         file_name = choosefile_gui(paths["data"])
-    pyperclip.copy(file_name)
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
-    # select base index in the scoll down
+    # select base index in the scroll down
     num = 0
     if "Wave" in file_name:
         num = 1
     if not os.path.basename(file_name).startswith("M"):
         num = 2
     source = select_type(question="choose kind of file", items=kinds, num=num)
+
     if not os.path.isfile(file_name):
         print("this is not a file")
-        return fig_list
-    if source == "telVet":
+    elif source == "telVet":
         telvet = TelevetWave(file_name)
         telvet.plot_wave()
     elif source == "monitorTrend":
         monitor_trend = MonitorTrend(file_name)
-        if monitor_trend.data.empty:
-            print("empty recording")
-            return fig_list
-        if monitor_trend.header is None:
-            print("empty header")
-            return fig_list
-        if monitor_trend.data is not None:
-            fig_list = monitor_trend.show_graphs()
+        monitor_trend.show_graphs()
     elif source == "monitorWave":
         monitor_wave = MonitorWave(file_name)
-        monitor_wave.plot_wave()
+        fig, *_ = monitor_wave.plot_wave()
     elif source == "taphTrend":
         taph_trend = TaphTrend(file_name)
-        fig_list = taph_trend.show_graphs()
+        taph_trend.show_graphs()
     else:
         print("this is not a recognized recording")
+
+    pyperclip.copy(file_name)
     plt.show()
-    return fig_list
 
 
 #%%

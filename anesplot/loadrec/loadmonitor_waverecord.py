@@ -51,7 +51,7 @@ def choosefile_gui(dirname=None):
     return str(fname)
 
 
-def loadmonitor_waveheader(filename=None):
+def loadmonitor_waveheader(filename=None) -> dict:
     """load the wave file header.
 
     :param str filename: full name of the file
@@ -82,11 +82,12 @@ def loadmonitor_waveheader(filename=None):
             nrows=12,
             encoding="iso-8859-1",
         )
+        header = dict(headerdf.values)
     except FileNotFoundError:
         print("canceled by the user")
-        headerdf = pd.DataFrame()
+        header = {}
     print("{} < loaded waveheader".format("-" * 20))
-    return dict(headerdf.values)
+    return header
 
 
 def loadmonitor_wavedata(filename=None):
