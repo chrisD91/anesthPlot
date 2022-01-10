@@ -370,7 +370,7 @@ def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
 
     if save:
         # TODO : the saved video finish before the end of the display
-        savename = savename
+        # savename = savename
         if savedir == "~":
             savedir = os.path.expanduser("~")
         filename = os.path.join(savedir, savename)
