@@ -247,7 +247,8 @@ def plot_trenddata(datadf, header, param_dico):
 class _Waves:
     """the base object to store the records."""
 
-    def __init__(self, filename=None):
+    # def __init__(self, filename=None):
+    def __init__(self):
         """
         :param filename: DESCRIPTION, defaults to None
         :type filename: str, optional
@@ -255,10 +256,10 @@ class _Waves:
         :rtype: wave object
 
         """
-        if filename is None:
-            filename = choosefile_gui(paths["data"])
-        self.filename = filename
-        self.file = os.path.basename(filename)
+        # if filename is None:
+        #     filename = choosefile_gui(paths["data"])
+        # self.filename = filename
+        # self.file = os.path.basename(filename)
         self.sampling_freq = None
         self.source = None
         self.data = None
@@ -272,7 +273,8 @@ class _Waves:
             unit="min",
             save=False,
             memo=False,
-            file=os.path.basename(filename),
+            # file=os.path.basename(filename),
+            file=None,
             source=None,
             fs=None,
             dtime=True,
@@ -298,8 +300,9 @@ class _SlowWave(_Waves):
             plot clinical main plots
     """
 
-    def __init__(self, filename=None):
-        super().__init__(filename)
+    # def __init__(self, filename=None):
+    def __init__(self):
+        super().__init__()
 
     def clean_trend(self):
         """
@@ -347,17 +350,22 @@ class MonitorTrend(_SlowWave):
     """
 
     def __init__(self, filename=None, load=True):
-        super().__init__(filename)
+        super().__init__()
+        if filename is None:
+            filename = lmt.choosefile_gui(paths["mon_data"])
+        self.filename = filename
+        self.file = os.path.basename(filename)
         self.header = lmt.loadmonitor_trendheader(self.filename)
         self.load = load
         # load if header is present & not data
         if self.header and self.load:
             if self.load:
                 self.data = lmt.loadmonitor_trenddata(self.filename, self.header)
-            self.source = "monitor"
-            self.sampling_freq = self.header.get("Sampling Rate", None)
+            # self.source = "monitor"
+            # self.sampling_freq = self.header.get("Sampling Rate", None)
+            self.param["sampling_freq"] = self.header.get("Sampling Rate", None)
             self.param["source"] = "monitorTrend"
-            # self.param'file' : os.path.basename(filename)}
+            self.param["file"] = os.path.basename(self.filename)
 
 
 class TaphTrend(_SlowWave):
@@ -371,46 +379,52 @@ class TaphTrend(_SlowWave):
     """
 
     def __init__(self, filename=None):
-        # super().__init__(filename)
+        super().__init__()
         if filename is None:
             filename = ltt.choose_taph_record()
         self.filename = filename
-        self.data = ltt.loadtaph_trenddata(self.filename)
-        self.source = "taphTrend"
-        self.header = ltt.loadtaph_patientfile(self.filename)
-        # self.header = self.load_header(self.filename)
-        self.actions = self.extract_taph_actions(self.data)
+        data = ltt.loadtaph_trenddata(filename)
+        self.data = data
+        header = ltt.loadtaph_patientfile(filename)
+        self.header = header
+        self.actions = self.extract_taph_actions(data)
+
+        self.param["file"] = os.path.basename(filename)
+        self.param["source"] = "taphTrend"
+        self.param["sampling_freq"] = None
+
+        # self.source =
 
     # TODO : append the param dictionary to the obj
     # pb: inherited from the wave class
 
-    def load_header(self, filename):
-        """load the header
-        input :
-            use the filename to list the directory content
-            and load the Patient.csv file
-        output :
-            header : pandas dataframe
-        """
-        dirname = os.path.dirname(filename)
-        files = os.listdir(dirname)
-        print("{} > taphTrend load header".format("-" * 20))
-        print("{} files are present".format(len(files)))
-        for file in files:
-            print(file)
-        try:
-            file = [_ for _ in files if "Patient" in _][0]
-            headername = os.path.join(dirname, file)
-        except IndexError:
-            headername = None
-        # headername = choosefile_gui(dirname=os.path.dirname(self.filename))
-        if headername:
-            header = ltt.loadtaph_patientfile(headername)
-            print("{} < loaded header ({})".format("-" * 20, file))
-        else:
-            header = None
-            print("{} < no header ({})".format("-" * 20, file))
-        return header
+    # def load_header(self, filename):
+    #     """load the header
+    #     input :
+    #         use the filename to list the directory content
+    #         and load the Patient.csv file
+    #     output :
+    #         header : pandas dataframe
+    #     """
+    #     dirname = os.path.dirname(filename)
+    #     files = os.listdir(dirname)
+    #     print("{} > taphTrend load header".format("-" * 20))
+    #     print("{} files are present".format(len(files)))
+    #     for file in files:
+    #         print(file)
+    #     try:
+    #         file = [_ for _ in files if "Patient" in _][0]
+    #         headername = os.path.join(dirname, file)
+    #     except IndexError:
+    #         headername = None
+    #     # headername = choosefile_gui(dirname=os.path.dirname(self.filename))
+    #     if headername:
+    #         header = ltt.loadtaph_patientfile(headername)
+    #         print("{} < loaded header ({})".format("-" * 20, file))
+    #     else:
+    #         header = None
+    #         print("{} < no header ({})".format("-" * 20, file))
+    #     return header
 
     def extract_taph_actions(self, data):
         """extract Taph actions
@@ -450,8 +464,11 @@ class TaphTrend(_SlowWave):
 class _FastWave(_Waves):
     """class for Fastwaves = continuous recordings."""
 
-    def __init__(self, filename=None):
-        super().__init__(filename)
+    # def __init__(self, filename=None):
+    #     super().__init__(filename)
+    def __init__(self):
+        super().__init__()
+        self.filename = None
         self.trace_list = None
         self.fig = None
         self.roi = None
@@ -459,7 +476,7 @@ class _FastWave(_Waves):
     def filter_ekg(self):
         """filter the ekg trace -> build 'ekgMovAvg' & 'ekgLowPass'"""
         df = self.data
-        fs = self.param["fs"]
+        fs = self.param["sampling_freq"]
         if "wekg" in df.columns:
             item = "wekg"
         elif "d2" in df.columns:
@@ -568,16 +585,22 @@ class TelevetWave(_FastWave):
         filename : str (fullpath, default:None)
     """
 
+    # def __init__(self, filename=None):
     def __init__(self, filename=None):
-        print("-" * 20, "started TelevetWave init process")
-        super().__init__(filename)
-        self.data = ltv.loadtelevet(filename)
-        self.source = "teleVet"
+        super().__init__()
+        if filename is None:
+            dir_path = paths.get("telv_data")
+            filename = ltv.choosefile_gui(dir_path)
+        self.filename = filename
+        print("-" * 20, " > loading TelevetWave")
+        data = ltv.loadtelevet(filename)
+        self.data = data
+        # self.source = "teleVet"
         self.param["source"] = "televet"
-        self.sampling_freq = self.data.index.max() / self.data.sec.iloc[-1]
-        self.param["fs"] = self.sampling_freq
-        print("-" * 20, "ended TelevetWave init process")
-        print("-" * 10, "loaded {}".format(self.file))
+        sampling_freq = data.index.max() / data.sec.iloc[-1]
+        self.param["sampling_freq"] = sampling_freq
+        print("-" * 20, "< loaded TelevetWave")
+        print("-" * 10, "loaded {}".format(self.param["file"]))
 
 
 class MonitorWave(_FastWave):
@@ -594,20 +617,28 @@ class MonitorWave(_FastWave):
     def __init__(self, filename=None, load=True):
         # print("-" * 20, "started MonitorWave init process")
         # define filename -> self.filenamewa
-        super().__init__(filename)
+        super().__init__()
+        if filename is None:
+            dir_path = paths.get("mon_data")
+            filename = lmw.choosefile_gui(dir_path)
+        self.filename = filename
         # load header
-        header_df = lmw.loadmonitor_waveheader(self.filename)
+        header_df = lmw.loadmonitor_waveheader(filename)
         header_df = pd.DataFrame(header_df)
         if not header_df.empty:
             self.header = dict(header_df.values)
         # load data
         self.load = load
         if load and not header_df.empty:
-            data = lmw.loadmonitor_wavedata(filename=self.filename)
+            data = lmw.loadmonitor_wavedata(filename)
             self.data = data
-        self.source = "monitorWave"
-        self.sampling_freq = 300
-        self.param["fs"] = 300
+        # self.source = "monitorWave"
+        # self.sampling_freq = 300
+        # self.param["fs"] = 300
+
+        self.param["source"] = "monitorWave"
+        self.param["sampling_freq"] = 300
+
         # print("-" * 20, "ended MonitorWave init process")
 
 
