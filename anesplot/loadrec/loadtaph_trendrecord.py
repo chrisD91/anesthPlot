@@ -57,8 +57,8 @@ def build_taph_decodedate_dico(pathdict=None):
         "nov": "_11_",
         "dec": "_12_",
     }
-    taphpath = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
-    apath = pathdict.get("taph", taphpath)
+    taphdata = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
+    apath = pathdict.get("taph_data", taphdata)
 
     dct = defaultdict(list)
     # records = []
@@ -115,29 +115,6 @@ def choose_taph_record(taphdico=None, year=2022, date=None):
         filename = None
         print("{} cancelled".format("-" * 10))
     return filename
-
-
-# def choosefile_gui(dir_path=None):
-#     """select a file using a dialog.
-
-#     :param str dir_path: optional location of the data (paths['data'])
-
-#     :returns: filename (full path)
-#     :rtype: str
-#     """
-#     if dir_path is None:
-#         dir_path = os.path.expanduser("~")
-#     caption = "choose a recording"
-#     options = QFileDialog.Options()
-#     # to be able to see the caption, but impose to work with the mouse
-#     # options |= QFileDialog.DontUseNativeDialog
-#     fname = QFileDialog.getOpenFileName(
-#         caption=caption, directory=dir_path, filter="*.csv", options=options
-#     )
-#     # fname = QFileDialog.getOpenfilename(caption=caption,
-#     # directory=direct, filter='*.csv')
-#     # TODO : be sure to be able to see the caption
-#     return fname[0]
 
 
 def loadtaph_trenddata(filename):
@@ -281,6 +258,9 @@ def loadtaph_patientfile(filename):
 
 #%%
 if __name__ == "__main__":
+    from config.load_recordrc import build_paths
+
+    paths = build_paths()
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
 

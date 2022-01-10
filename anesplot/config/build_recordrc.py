@@ -133,6 +133,11 @@ def main():
             paths[key] = filedialog(kind=key, directory=paths[key], is_folder=True)
         else:
             paths[key] = filedialog(kind=key, directory=home, is_folder=True)
+    # TODO implement a dialog for monitor, taphonius and televet data
+    paths["mon_data"] = paths["data"]
+    paths["taph_data"] = paths["data"]
+    paths["telv_data"] = paths["data"]
+
     paths["sFig"] = paths["save"]
     paths["sBg"] = paths["save"]
     paths["utils"] = "~"
