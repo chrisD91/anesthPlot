@@ -18,6 +18,7 @@ import yaml
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 
+# TODO add to path: mon_data, taph_data, telv_data
 
 #%%
 def filedialog(
