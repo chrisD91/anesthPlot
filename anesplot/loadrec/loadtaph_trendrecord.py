@@ -285,5 +285,5 @@ if __name__ == "__main__":
     app.setQuitOnLastWindowClosed(True)
 
     file_name = choose_taph_record()
-    tdata_df = loadtaph_trenddata(loadtaph_trenddata(filename))
+    tdata_df = loadtaph_trenddata(loadtaph_trenddata(file_name))
     header_dico = loadtaph_patientfile(file_name)

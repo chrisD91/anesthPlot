@@ -113,6 +113,9 @@ def plot_wave(data, keys, param):
         maxi = data.index[-1]
     # datetime or elapsed time sec
     dtime = param.get("dtime", False)
+    if dtime and "datetime" not in data.columns:
+        print("no datetime values, changed dtime to False")
+        dtime = False
     cols = set(keys)
     if dtime:
         cols.add("datetime")
