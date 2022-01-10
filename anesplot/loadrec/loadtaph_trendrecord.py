@@ -33,9 +33,7 @@ if not "paths" in dir():
 paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
 
 
-#%% list taph recordings
-
-
+# list taph recordings
 def build_taph_decodedate_dico(pathdict=None):
     """list all the taph recordings and the paths to the record:
     input:
@@ -151,14 +149,14 @@ def loadtaph_trenddata(filename):
     :rtype: pandas.Dataframe
     """
 
-    print("{} > loadtaph_trend_data".format("-" * 20))
+    print("{} > loadtaph_datafile".format("-" * 20))
     if not os.path.isfile(filename):
-        print("{} {}".format("!" * 10, "file not found"))
+        print("{} {}".format("!" * 10, "datafile not found"))
         print("{}".format(filename))
-        print("{} {}".format("!" * 10, "file not found"))
+        print("{} {}".format("!" * 10, "datafile not found"))
         print()
         return pd.DataFrame()
-    print("{} loading taphtrend {}".format("-" * 10, os.path.basename(filename)))
+    print("{} loading taph_datafile {}".format("-" * 10, os.path.basename(filename)))
 
     # check
     # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
@@ -232,7 +230,9 @@ def loadtaph_trenddata(filename):
     except KeyError:
         print("no capnographic recording")
     print(
-        "{} < loaded taph_trenddata ({})".format("-" * 20, os.path.basename(filename))
+        "{} < loaded taph_datafile ({}) -> pd.DataFrame".format(
+            "-" * 20, os.path.basename(filename)
+        )
     )
     return df
 
@@ -250,9 +250,9 @@ def loadtaph_patientfile(filename):
 
     print("{} > loading taph_patientfile".format("-" * 20))
     if not os.path.isfile(headername):
-        print("{} {}".format("!" * 10, "file not found"))
+        print("{} {}".format("!" * 10, "patient_file not found"))
         print("{}".format(headername))
-        print("{} {}".format("!" * 10, "file not found"))
+        print("{} {}".format("!" * 10, "patient_file not found"))
         print()
         return {}
     print("{} loading  {}".format("-" * 10, os.path.basename(headername)))
@@ -267,7 +267,7 @@ def loadtaph_patientfile(filename):
     descr = df.loc[1].to_dict()
 
     print(
-        "{} < loaded taph_patientfile ({})".format(
+        "{} < loaded taph_patientfile ({}) -> dict".format(
             "-" * 20, os.path.basename(headername)
         )
     )
