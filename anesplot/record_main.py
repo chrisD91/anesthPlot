@@ -359,7 +359,7 @@ class MonitorTrend(_SlowWave):
             self.data = data
             # self.source = "monitor"
             # self.sampling_freq = self.header.get("Sampling Rate", None)
-            self.param["sampling_freq"] = header.get("Sampling Rate", None)
+            self.param["sampling_freq"] = header.get("60/Sampling Rate", None)
             self.param["source"] = "monitorTrend"
 
 
@@ -593,6 +593,7 @@ class TelevetWave(_FastWave):
         self.data = data
         # self.source = "teleVet"
         self.param["source"] = "televet"
+        self.param["file"] = os.path.basename(filename)
         sampling_freq = data.index.max() / data.sec.iloc[-1]
         self.param["sampling_freq"] = sampling_freq
         print("-" * 20, "< loaded TelevetWave")
@@ -611,31 +612,24 @@ class MonitorWave(_FastWave):
     """
 
     def __init__(self, filename=None, load=True):
-        # print("-" * 20, "started MonitorWave init process")
-        # define filename -> self.filenamewa
         super().__init__()
         if filename is None:
             dir_path = paths.get("mon_data")
             filename = lmw.choosefile_gui(dir_path)
         self.filename = filename
+        self.param["file"] = os.path.basename(filename)
         # load header
-        header_df = lmw.loadmonitor_waveheader(filename)
-        header_df = pd.DataFrame(header_df)
-        if not header_df.empty:
-            self.header = dict(header_df.values)
+        header = lmw.loadmonitor_waveheader(filename)
+        self.header = header
         # load data
-        self.load = load
-        if load and not header_df.empty:
+        if load and header:
             data = lmw.loadmonitor_wavedata(filename)
             self.data = data
-        # self.source = "monitorWave"
-        # self.sampling_freq = 300
-        # self.param["fs"] = 300
-
+        else:
+            print("MonitorWave: didn't load the data (load={})".format(load))
         self.param["source"] = "monitorWave"
-        self.param["sampling_freq"] = 300
-
-        # print("-" * 20, "ended MonitorWave init process")
+        fs = float(header.get("Data Rate (ms)", 0)) * 60 / 1000
+        self.param["sampling_freq"] = fs  # 300
 
 
 def main(file_name=None):
@@ -667,15 +661,11 @@ def main(file_name=None):
     if not os.path.basename(file_name).startswith("M"):
         num = 2
     source = select_type(question="choose kind of file", items=kinds, num=num)
-    # general parameters
-    #   params = build_param_dico(file=os.path.basename(file_name), asource=source)
     if not os.path.isfile(file_name):
         print("this is not a file")
         return fig_list
     if source == "telVet":
         telvet = TelevetWave(file_name)
-        # params["kind"] = "telVet"
-        # telvet.param = params
         telvet.plot_wave()
     elif source == "monitorTrend":
         monitor_trend = MonitorTrend(file_name)
@@ -685,35 +675,22 @@ def main(file_name=None):
         if monitor_trend.header is None:
             print("empty header")
             return fig_list
-        params["t_fs"] = monitor_trend.header.get("Sampling Rate") / 60
-        monitor_trend.param = params
         if monitor_trend.data is not None:
             fig_list = monitor_trend.show_graphs()
     elif source == "monitorWave":
         monitor_wave = MonitorWave(file_name)
-        params["fs"] = float(monitor_wave.header["Data Rate (ms)"]) * 60 / 1000
-        params["kind"] = "as3"
-        monitor_wave.param = params
         monitor_wave.plot_wave()
     elif source == "taphTrend":
         taph_trend = TaphTrend(file_name)
-        taph_trend.param = params
-        # tdata= clean.clean_trendData(tdata)
         fig_list = taph_trend.show_graphs()
     else:
-        print("this is not recognized recording")
+        print("this is not a recognized recording")
     plt.show()
     return fig_list
 
 
 #%%
 if __name__ == "__main__":
-    # to work (on taphonius class)
-    # >>
-    file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
-    file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/Anonymous/Patients2021AUG10/Record13_36_34/SD2021AUG10-13_36_34.csv"
-    in_name = file_name
-    # <<
     in_name = None
     # check if a filename was provided from terminal call
     print(sys.argv)

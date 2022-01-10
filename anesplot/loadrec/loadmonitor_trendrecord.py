@@ -118,13 +118,12 @@ def loadmonitor_trenddata(filename, headerdico):
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
-    # print("loadmonitor_trendrecord.loadmonitor_trenddata")
 
     print("{} > loadmonitor_trenddata".format("-" * 20))
     if not os.path.isfile(filename):
-        print("{} {}".format("!" * 10, "file not found"))
+        print("{} {}".format("!" * 10, "datafile not found"))
         print("{}".format(filename))
-        print("{} {}".format("!" * 10, "file not found"))
+        print("{} {}".format("!" * 10, "datafile not found"))
         print()
         return pd.DataFrame()
 
@@ -137,8 +136,7 @@ def loadmonitor_trenddata(filename, headerdico):
         )
     except pd.errors.EmptyDataError:
         print("! " * 10 + " {} contains no data !".format(os.path.basename(filename)))
-        emptydf = pd.DataFrame()
-        return emptydf
+        return pd.DataFrame()
 
     datadf = pd.DataFrame(datadf)
     # drop waves time indicators(column name beginning with a '~')

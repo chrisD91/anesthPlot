@@ -57,7 +57,7 @@ def loadmonitor_waveheader(filename=None):
     :param str filename: full name of the file
 
     :returns: header
-    :rtype: pandas.Dataframe
+    :rtype: dictionary
     """
 
     print("{} > loadmonitor_waveheader".format("-" * 20))
@@ -86,7 +86,7 @@ def loadmonitor_waveheader(filename=None):
         print("canceled by the user")
         headerdf = pd.DataFrame()
     print("{} < loaded waveheader".format("-" * 20))
-    return headerdf
+    return dict(headerdf.values)
 
 
 def loadmonitor_wavedata(filename=None):
