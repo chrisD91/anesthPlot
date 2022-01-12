@@ -25,7 +25,7 @@ import time
 import pandas as pd
 
 # import numpy as np
-from PyQt5.QtWidgets import QApplication, QFileDialog, QWidget, QInputDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
 
 
 if not "paths" in dir():
@@ -78,7 +78,22 @@ def build_taph_decodedate_dico(pathdict=None):
     return dct
 
 
-def choose_taph_record(taphdico=None, year=2022, date=None):
+def extract_record_day(monitor_file_name):
+    """extract the date as 'YYYY_MM_DD' from a monitor_filename
+    input:
+        monitor file name (shortname)
+    output:
+        day : YYYY_MM_DD str
+    """
+    record_date = os.path.basename(monitor_file_name.lower())
+    for st in ["sd", "m", ".csv", "wave"]:
+        record_date = record_date.strip(st)
+    d = time.strptime(record_date, "%Y_%m_%d-%H_%M_%S")
+    day = time.strftime("%Y_%m_%d", d)
+    return day
+
+
+def choose_taph_record(monitorname=None):
     """select the taph recording:
     input:
         taphdico :  {date:path} builded from build_taph_decodedate_dico()'
@@ -88,23 +103,24 @@ def choose_taph_record(taphdico=None, year=2022, date=None):
         filename (str) full path
     """
     print("{} > choose taph_record".format("-" * 20))
-    if taphdico is None:
-        taphdico = build_taph_decodedate_dico()
-        recorddates = sorted(taphdico.keys(), reverse=True)
-    question = "select the recording date"
+    taphdico = build_taph_decodedate_dico()
+    recorddates = sorted(taphdico.keys(), reverse=True)
+
     global app
-    # index of the first record to be displayed based on year
-    i = 0
-    for i, v in enumerate(recorddates):
-        if str(year) in v:
-            print(i)
-            break
-        else:
-            i = 0
+    question = "select the recording date"
+
+    day_index = 0  # first key (<-> last date)
+    if monitorname is not None:
+        day = extract_record_day(monitorname)
+        # index of the first record to be displayed based on year
+        for i, v in enumerate(recorddates):
+            if str(day) in v:
+                day_index = i
+                break
     #    app = QApplication(sys.argv)
     widg = QWidget()
     recorddate, ok_pressed = QInputDialog.getItem(
-        widg, "select", question, recorddates, i, False
+        widg, "select", question, recorddates, day_index, False
     )
     if ok_pressed and recorddate:
         filename = taphdico[recorddate][
@@ -264,6 +280,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
 
-    file_name = choose_taph_record()
-    tdata_df = loadtaph_trenddata(loadtaph_trenddata(file_name))
+    monitor_name = "M2021_9_9-11_44_35.csv"
+    file_name = choose_taph_record(monitor_name)
+    tdata_df = loadtaph_trenddata(file_name)
     header_dico = loadtaph_patientfile(file_name)
