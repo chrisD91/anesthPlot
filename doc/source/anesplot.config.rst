@@ -7,8 +7,8 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   anesplot.config.build_recordRc
-   anesplot.config.load_recordRc
+   anesplot.config.build_recordrc
+   anesplot.config.load_recordrc
 
 Module contents
 ---------------
