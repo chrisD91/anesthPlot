@@ -17,31 +17,37 @@ recorded from the Monitor Software to be used mostly in a teaching environment.
    
       - a work in progres
       - the processes are mainly focused on horses anesthesia
-      - in our environment the data recorded came from an as3 or as5 anesthesia machine monitoring ekg, invasive pressure, etCO2, halogenate, spirometry.
+      - in our environment the data recorded came from either
+       
+        - an as3 or as5 anesthesia monitor (ekg, invasive pressure, etCO2, halogenate, spirometry)
+        - a Taphonius equine ventilator
+        - (some ekg data extracted using a Televet holter system)
 
 Features
 ---------
 
-- **load** recordings from a trend or a wave recordings
+- you can **load** recordings from a trend or a wave file
 
    - from command line:
       .. code-block:: bash
 
          python anesthPlot/anesplot/__main__.py
+         -> will open an GUI choose menu to select the recording 
+         (monitorTrend, taphoniusTrend, monitorWave, televetWave(export))
 
 
-      - build a **standard debriefing** (trends) **plot series** (script usage)
+      - will build a **standard debriefing** (trends) **plot series** (script usage)
          
          - global histograms (cardiovascular and anesthesia summary)
          - cardiovascular trends time based plots
          - respiratory trends time based plots
          - anesthesia trends time based plots
 
-      - build a **plot for wave** recording 
+      - or will build a **plot for wave** recording 
   
          - one or two waves on the same plot (script usage)
 
-- can also be used as a **python package**
+- you can also use this code as a **python package**
 
    - usage :
       .. code-block::  python
@@ -51,11 +57,12 @@ Features
          trends = rec.MonitorTrend(trendname)
          wavename = rec.trendname_to_wavename(trendname)
          waves = rec.MonitorWave(trends)
+         (same can be done with taphonius csv record files)
          
-         trends.show_graphs() # -> set of plots for debriefing purposes
+         trends.show_graphs() # -> set of plots for 'clinical' debriefing purposes
 
          waves.plot_waves() # -> one or two traces
-
+         # ... adjust manually the scales of the display
          waves.define_a_roi() # -> to register the plotting scales
          waves.animate_fig() #-> to build an animation using these parameters
 
