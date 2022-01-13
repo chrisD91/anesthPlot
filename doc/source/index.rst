@@ -48,9 +48,13 @@ Features
  
          import anesplot.record_main as rec
          trendname = 'a_full_path_to_csv_file'
+         # nb if no filename is provided, a chooseFile Gui will be called to choose the file
          trends = rec.MonitorTrend(trendname)
+         #(you can also use trends = rec.taphTrend()
          wavename = rec.trendname_to_wavename(trendname)
          waves = rec.MonitorWave(trends)
+         # and waves = rec.TelevetWave())
+
          
          trends.show_graphs() # -> set of plots for debriefing purposes
 
