@@ -342,10 +342,10 @@ def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
     traces = waves.roi["traces"]
     x_lims = tuple([int(_) for _ in waves.roi["sec"]])
     y_lims = [(floor(a), ceil(b)) for a, b in waves.roi["ylims"]]
-    fs = waves.sampling_freq
+    fs = waves.param.get("sampling_freq", 1)
     interval = 100
     # speed = 2  # speed of the animation
-    nb_of_points = speed * round(fs / interval) * 10
+    nb_of_points = speed * round(fs / interval) * 10  # nb of points per frame
 
     df = select_sub_dataframe(waves.data, traces, x_lims)
     fig, lines = init(waves, traces, x_lims, y_lims)
