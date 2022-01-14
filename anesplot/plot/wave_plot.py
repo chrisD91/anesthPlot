@@ -14,9 +14,6 @@ from matplotlib import animation
 import numpy as np
 import pandas as pd
 
-# import numpy as np
-# import pandas as pd
-# import matplotlib.pyplot as plt
 
 font_size = "medium"  # large, medium
 fig_params = {
@@ -360,9 +357,9 @@ def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
         fig,
         animate,
         # init_func = init_wave,
-        # frames=int(len(df) / 10),
-        interval=interval,
-        fargs=[df, traces, nb_of_points],
+        frames=int(len(df) / nb_of_points) + 1,
+        interval=interval,  # 100
+        fargs=[df, traces, nb_of_points],  # 30
         repeat=False,
         blit=True,
         #        save_count=int(len(df) / 10),
@@ -374,9 +371,10 @@ def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
         if savedir == "~":
             savedir = os.path.expanduser("~")
         filename = os.path.join(savedir, savename)
-
+        print("{} building video {} .png and .mp4".format("-" * 10, savename))
         ani.save(filename + ".mp4")
         fig.savefig(filename + ".png")
+        print("{} saved {} .png and .mp4".format("-" * 10, savename))
     plt.show()
 
 
