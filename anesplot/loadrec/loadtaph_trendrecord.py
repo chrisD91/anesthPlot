@@ -34,7 +34,7 @@ paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRe
 
 
 # list taph recordings
-def build_taph_decodedate_dico(pathdict=None):
+def build_taph_decodedate_dico(pathdict: dict = None) -> dict:
     """list all the taph recordings and the paths to the record:
     input:
         paths: dictionary containing {'taph': pathToTheData}
@@ -78,7 +78,7 @@ def build_taph_decodedate_dico(pathdict=None):
     return dct
 
 
-def extract_record_day(monitor_file_name):
+def extract_record_day(monitor_file_name: str) -> str:
     """extract the date as 'YYYY_MM_DD' from a monitor_filename
     input:
         monitor file name (shortname)
@@ -93,7 +93,7 @@ def extract_record_day(monitor_file_name):
     return day
 
 
-def choose_taph_record(monitorname=None):
+def choose_taph_record(monitorname: str = None) -> str:
     """select the taph recording:
     input:
         taphdico :  {date:path} builded from build_taph_decodedate_dico()'
@@ -102,7 +102,7 @@ def choose_taph_record(monitorname=None):
     output:
         filename (str) full path
     """
-    print("{} > choose taph_record".format("-" * 20))
+    print(f"{'-' * 20} > choose taph_record")
     taphdico = build_taph_decodedate_dico()
     recorddates = sorted(taphdico.keys(), reverse=True)
 
@@ -126,14 +126,14 @@ def choose_taph_record(monitorname=None):
         filename = taphdico[recorddate][
             -1
         ]  # if bug : two dirs, the last should contain the data
-        print("{} founded {}".format("-" * 10, os.path.basename(filename)))
+        print(f"{'-' * 10} founded {os.path.basename(filename)}")
     else:
         filename = None
-        print("{} cancelled".format("-" * 10))
+        print(f"{'-' * 10} cancelled")
     return filename
 
 
-def loadtaph_trenddata(filename):
+def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     """load the taphoniusData trends data.
 
     :param str filename: fullname
@@ -142,14 +142,14 @@ def loadtaph_trenddata(filename):
     :rtype: pandas.Dataframe
     """
 
-    print("{} > loadtaph_datafile".format("-" * 20))
+    print(f"{'-' * 20} > loadtaph_datafile")
     if not os.path.isfile(filename):
-        print("{} {}".format("!" * 10, "datafile not found"))
-        print("{}".format(filename))
-        print("{} {}".format("!" * 10, "datafile not found"))
+        print(f"{'!' * 10} datafile not found")
+        print(f"{filename}")
+        print(f"{'!' * 10} datafile not found")
         print()
         return pd.DataFrame()
-    print("{} loading taph_datafile {}".format("-" * 10, os.path.basename(filename)))
+    print(f"{'-' * 10} loading taph_datafile {os.path.basename(filename)}")
 
     # check
     # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
@@ -157,7 +157,7 @@ def loadtaph_trenddata(filename):
     try:
         df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
     except pd.errors.ParserError:
-        print("corrupted file ({})".format(os.path.basename(filename)))
+        print(f"corrupted file ({os.path.basename(filename)})")
         return pd.DataFrame()
 
     corr_title = {
@@ -227,15 +227,11 @@ def loadtaph_trenddata(filename):
         df[["co2exp", "co2insp"]] *= 760 / 100
     except KeyError:
         print("no capnographic recording")
-    print(
-        "{} < loaded taph_datafile ({}) -> pd.DataFrame".format(
-            "-" * 20, os.path.basename(filename)
-        )
-    )
+    print(f"{'-' * 20} < loaded taph_datafile ({os.path.basename(filename)}")
     return df
 
 
-def loadtaph_patientfile(filename):
+def loadtaph_patientfile(filename: str) -> dict:
     """load the taphonius patient.csv file
     input:
         filename : (str) the full filename
@@ -246,14 +242,14 @@ def loadtaph_patientfile(filename):
     """
     headername = os.path.join(os.path.dirname(filename), "Patient.csv")
 
-    print("{} > loading taph_patientfile".format("-" * 20))
+    print(f"{'-' * 20} > loading taph_patientfile")
     if not os.path.isfile(headername):
-        print("{} {}".format("!" * 10, "patient_file not found"))
-        print("{}".format(headername))
-        print("{} {}".format("!" * 10, "patient_file not found"))
+        print(f"{'!' * 10} patient_file not found")
+        print(f"{headername}")
+        print(f"{'!' * 10} patient_file not found")
         print()
         return {}
-    print("{} loading  {}".format("-" * 10, os.path.basename(headername)))
+    print(f"{'-' * 10} loading {os.path.basename(headername)}")
 
     df = pd.read_csv(headername, header=None, usecols=[0, 1], encoding="iso8859_15")
     # NB encoding needed for accentuated letters
@@ -264,11 +260,7 @@ def loadtaph_patientfile(filename):
     # convert to a dictionary
     descr = df.loc[1].to_dict()
 
-    print(
-        "{} < loaded taph_patientfile ({}) -> dict".format(
-            "-" * 20, os.path.basename(headername)
-        )
-    )
+    print(f"{'-' * 20} < loaded taph_patientfile ({os.path.basename(headername)})")
     return descr
 
 

@@ -18,31 +18,9 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 #%%
-# def choosefile_gui(dir_path=None):
-#     """select a file using a dialog.
-
-#     :param str dir_path: optional location of the data (paths['data'])
-
-#     :returns: filename (full path)
-#     :rtype: str
-#     """
-
-#     if dir_path is None:
-#         dir_path = os.path.expanduser("~")
-#     options = QFileDialog.Options()
-#     caption = "choose a recording"
-#     # to be able to see the caption, but impose to work with the mouse
-#     #    options |= QFileDialog.DontUseNativeDialog
-#     fname = QFileDialog.getOpenFileName(
-#         caption=caption, directory=dir_path, filter="*.csv", options=options
-#     )
-#     #    fname = QFileDialog.getOpenfilename(caption=caption,
-#     #                                        directory=direct, filter='*.csv')
-#     # TODO : be sure to be able to see the caption
-#     return fname[0]
 
 
-def choosefile_gui(dirpath=None):
+def choosefile_gui(dirpath: str = None) -> str:
     """select a file using a dialog.
 
     :param str dir_path: optional location of the data (ex : paths['data'], default : 'home')
@@ -54,7 +32,7 @@ def choosefile_gui(dirpath=None):
     if dirpath is None:
         dirpath = os.path.expanduser("~")
 
-    apps = QApplication([dirpath])
+    app = QApplication([dirpath])
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirpath, filter="csv (*.csv)"
     )
@@ -66,7 +44,7 @@ def choosefile_gui(dirpath=None):
     return filename
 
 
-def loadtelevet(fname=None, all_traces=False):
+def loadtelevet(fname: str = None, all_traces: bool = False) -> pd.DataFrame:
     """load the televetCsvExportedFile.
 
     :param str file: name of the file
@@ -81,14 +59,14 @@ def loadtelevet(fname=None, all_traces=False):
         fname = "STEF_0031_00114_20171205_121305.csv"
     filename = os.path.join(filepath, fname)
 
-    print("{} > loadtelevet datafile".format("-" * 20))
+    print(f"{'-' * 20} > loadtelevet datafile")
     if not os.path.isfile(filename):
-        print("{} {}".format("!" * 10, "televet datafile not found"))
-        print("{}".format(filename))
-        print("{} {}".format("!" * 10, "televet datafile not found"))
+        print(f"{'!' * 10} televet datafile not found")
+        print(f"{filename}")
+        print(f"{'!' * 10} televet datafile not found")
         print()
         return pd.DataFrame()
-    print("{} loading televet {}".format("-" * 10, os.path.basename(filename)))
+    print(f"{'-' * 10} loading televet {os.path.basename(filename)}")
 
     if all_traces:
         df = pd.read_csv(filename, sep=";")
@@ -104,10 +82,11 @@ def loadtelevet(fname=None, all_traces=False):
     df["sec"] = df.index / 500
     df["min"] = df.sec / 60
 
-    print("{} < loaded televet datafile".format("-" * 20))
+    print(f"{'-' * 20} < loaded televet datafile")
     return df
 
 
+#%%
 if __name__ == "__main__":
     import config.load_recordrc
 

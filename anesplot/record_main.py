@@ -63,7 +63,7 @@ faulthandler.enable()
 app = QApplication(sys.argv)
 
 
-def choosefile_gui(dirname=None):
+def choosefile_gui(dirname: str = None) -> str:
     """Select a file via a dialog and return the (full) filename.
 
     parameters
@@ -100,12 +100,12 @@ def choosefile_gui(dirname=None):
     return str(fname)
 
 
-def trendname_to_wavename(name):
+def trendname_to_wavename(name: str) -> str:
     """just compute the supposed name"""
     return name.split(".")[0] + "Wave.csv"
 
 
-def select_type(question=None, items=None, num=0):
+def select_type(question: str = None, items: list = None, num: int = 0) -> str:
     """select the recording type:
 
     parameters
@@ -117,7 +117,7 @@ def select_type(question=None, items=None, num=0):
         kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
     """
     if items is None:
-        items = ("monitorTrend", "monitorWave", "taphTrend", "telVet")
+        items = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     if question is None:
         question = "choose kind of file"
     global app
@@ -131,7 +131,7 @@ def select_type(question=None, items=None, num=0):
     return selection
 
 
-def select_wave(waves, num=1):
+def select_wave(waves: list, num=1) -> str:
     """select the recording type:
 
     parameters
@@ -157,7 +157,7 @@ def select_wave(waves, num=1):
     return selection
 
 
-def plot_trenddata(datadf, header, param_dico):
+def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict:
     """clinical main plots of a trend recordings
 
     parameters
@@ -298,7 +298,7 @@ class MonitorTrend(_SlowWave):
             plot clinical main plots
     """
 
-    def __init__(self, filename=None, load=True):
+    def __init__(self, filename: str = None, load: bool = True):
         super().__init__()
         if filename is None:
             filename = lmt.choosefile_gui(paths["mon_data"])
@@ -324,7 +324,7 @@ class TaphTrend(_SlowWave):
 
     """
 
-    def __init__(self, filename=None):
+    def __init__(self, filename: str = None):
         super().__init__()
         if filename is None:
             filename = ltt.choose_taph_record()
@@ -340,7 +340,7 @@ class TaphTrend(_SlowWave):
         self.param["source"] = "taphTrend"
         self.param["sampling_freq"] = None
 
-    def extract_taph_actions(self, data):
+    def extract_taph_actions(self, data: pd.DataFrame):
         """extract Taph actions
 
         parameters
@@ -400,10 +400,10 @@ class _FastWave(_Waves):
             return
         # print("-" * 10, "filtering : builded 'ekgMovAvg' ")
         # df["ekgMovAvg"] = wf.rol_mean(df[item], fs)
-        print("-" * 10, "filtering : builded 'ekgLowPass' ")
+        print(f"{'-' * 10} filtering : builded 'ekgLowPass' ")
         df["ekgLowPass"] = wf.fix_baseline_wander(df[item], fs)
 
-    def plot_wave(self, traces_list=None):
+    def plot_wave(self, traces_list: list = None):
         """simple choose and plot for a wave
         input:
             traces_list : list of waves to plot (max=2)
@@ -419,7 +419,7 @@ class _FastWave(_Waves):
             traces_list = None
             print("there are no data to plot")
         else:
-            print("-" * 20, "started FastWave plot_wave")
+            print(f"{'-' * 20} started FastWave plot_wave")
             cols = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
             if traces_list is None:
                 traces_list = []
@@ -442,10 +442,10 @@ class _FastWave(_Waves):
                 fig = None
                 lines = None
             self.fig = fig
-            print("-" * 20, "ended FastWave plot_wave")
+            print(f"{'-' * 20} ended FastWave plot_wave")
         return fig, lines, traces_list
 
-    def record_roi(self, erase=False):
+    def record_roi(self, erase: bool = False) -> dict:
         """define a Region Of Interest (roi).
 
         input : erase (boolean) default=False
@@ -518,7 +518,6 @@ class TelevetWave(_FastWave):
             dir_path = paths.get("telv_data")
             filename = ltv.choosefile_gui(dir_path)
         self.filename = filename
-        print("-" * 20, " > loading TelevetWave")
         data = ltv.loadtelevet(filename)
         self.data = data
         # self.source = "teleVet"
@@ -526,8 +525,6 @@ class TelevetWave(_FastWave):
         self.param["file"] = os.path.basename(filename)
         sampling_freq = data.index.max() / data.sec.iloc[-1]
         self.param["sampling_freq"] = sampling_freq
-        print("-" * 20, "< loaded TelevetWave")
-        print("-" * 10, "loaded {}".format(self.param["file"]))
 
 
 class MonitorWave(_FastWave):
@@ -541,7 +538,7 @@ class MonitorWave(_FastWave):
     methods ... FILLME
     """
 
-    def __init__(self, filename=None, load=True):
+    def __init__(self, filename: str = None, load: bool = True):
         super().__init__()
         if filename is None:
             dir_path = paths.get("mon_data")
@@ -550,7 +547,7 @@ class MonitorWave(_FastWave):
         self.param["file"] = os.path.basename(filename)
         header = lmw.loadmonitor_waveheader(filename)
         self.header = header
-        if all(load and header):
+        if load and bool(header):
             data = lmw.loadmonitor_wavedata(filename)
             self.data = data
         else:
@@ -561,7 +558,7 @@ class MonitorWave(_FastWave):
         self.param["sampling_freq"] = fs  # 300
 
 
-def main(file_name=None):
+def main(file_name: str = None):
     """main script called from command line
     call : "python anesthPlot/anesplot/__main__.py"
     args : optional filename (fullname)
@@ -569,7 +566,7 @@ def main(file_name=None):
     return: set of plots for either monitorTrend, monitorWave oe televet recording
     """
     # os.chdir(paths.get("recordMain", os.path.expanduser('~')))
-    print("backEnd= ", plt.get_backend())  # required ?
+    print(f"backEnd= {plt.get_backend()}")  # required ?
     print("start QtApp")
     global app
     # app = QApplication(sys.argv)
@@ -577,7 +574,7 @@ def main(file_name=None):
 
     # choose file and indicate the source
     print("select the file containing the data")
-    print("file_name is {}".format(file_name))
+    print(f"file_name is {file_name}")
     if file_name is None:
         file_name = choosefile_gui(paths["data"])
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
