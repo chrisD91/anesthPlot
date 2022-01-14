@@ -30,19 +30,7 @@ fig_params = {
 plt.rcParams.update(fig_params)
 plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
-# bright = {
-#         'blue' : [x/256 for x in [0, 119, 170]],
-#         'cyan' : [x/256 for x in [102, 204, 238]],
-#         'green' : [x/256 for x in [34, 136, 51]],
-#         'yellow' : [x/256 for x in [204, 187, 68]],
-#         'red' : [x/256 for x in [238, 103, 119]],
-#         'purple' : [x/256 for x in [170, 51, 119]],
-#         'grey' : [x/256 for x in [187, 187, 187]]
-#         }
 
-# colors = bright
-
-# ////////////////////////////////////////////////////////////////
 def color_axis(ax, spine="bottom", color="r"):
     """change the color of the label & tick & spine.
 
@@ -60,7 +48,6 @@ def color_axis(ax, spine="bottom", color="r"):
 
 
 #%%
-# def plot_wave(df, keys=[], mini=None, maxi=None, datetime=False):
 def plot_wave(data, keys, param):
     """plot the waves recorded (from as5)
 
@@ -226,7 +213,6 @@ def plot_wave(data, keys, param):
 
 
 def get_roi(fig, df, params) -> dict:
-    # def get_roi(waves):
     """use the drawn figure to extract the relevant data in order to build an animation
 
     :param waves: a wave recording
@@ -245,10 +231,6 @@ def get_roi(fig, df, params) -> dict:
 
     """
 
-    # fig = waves.fig
-    # df = waves.data
-    # params = waves.param
-    # ylims
     ylims = tuple([_.get_ylim() for _ in fig.get_axes()])
     # xlims
     ax = fig.get_axes()[0]
@@ -284,7 +266,6 @@ def get_roi(fig, df, params) -> dict:
 #%% select subdata
 
 
-# def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
 def create_video(
     data, param, roi, speed=1, save=False, savename="example", savedir="~"
 ):
@@ -315,15 +296,12 @@ def create_video(
         sub_df = sub_df[keys].copy()
         return sub_df
 
-    # def init(waves, keys, xlims, ylims):
     def init(data, param, keys, xlims, ylims):
         """build a new figure and associated line2D objects"""
         plt.close("all")
         dtime = param["dtime"]
         param["dtime"] = False
-        # fig, lines, _ = waves.plot_wave(keys)   # traces_list
         fig, lines = plot_wave(data, keys, param)
-
         for ax, ylim in zip(fig.get_axes(), ylims):
             ax.set_ylim(ylim)
             ax.set_xlim(xlims)
@@ -353,23 +331,14 @@ def create_video(
         )
         return (line0, line1)
 
-    # traces = waves.roi["traces"]
-    # x_lims = tuple([int(_) for _ in waves.roi["sec"]])
-    # y_lims = [(floor(a), ceil(b)) for a, b in waves.roi["ylims"]]
-    # fs = waves.param.get("sampling_freq", 1)
-    # interval = 100
-    # # speed = 2  # speed of the animation
-    # nb_of_points = speed * round(fs / interval) * 10  # nb of points per frame
     traces = roi["traces"]
     x_lims = tuple([int(_) for _ in roi["sec"]])
     y_lims = [(floor(a), ceil(b)) for a, b in roi["ylims"]]
     fs = param.get("sampling_freq", 1)
     interval = 100
-    # speed = 2  # speed of the animation
     nb_of_points = speed * round(fs / interval) * 10  # nb of points per frame
 
     df = select_sub_dataframe(data, traces, x_lims)
-    # fig, lines = init(waves, traces, x_lims, y_lims)
     fig, lines = init(data, param, traces, x_lims, y_lims)
 
     for line in lines:
@@ -387,7 +356,6 @@ def create_video(
         fargs=[df, traces, nb_of_points],  # 30
         repeat=False,
         blit=True,
-        #        save_count=int(len(df) / 10),
     )
 
     if save:
