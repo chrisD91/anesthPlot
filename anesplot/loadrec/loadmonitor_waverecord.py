@@ -21,7 +21,7 @@ import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
-def choosefile_gui(dirname=None):
+def choosefile_gui(dirname: str = None) -> str:
     """Select a file via a dialog and return the (full) filename.
 
     parameters
@@ -51,7 +51,7 @@ def choosefile_gui(dirname=None):
     return str(fname)
 
 
-def loadmonitor_waveheader(filename=None) -> dict:
+def loadmonitor_waveheader(filename: str = None) -> dict:
     """load the wave file header.
 
     :param str filename: full name of the file
@@ -60,15 +60,15 @@ def loadmonitor_waveheader(filename=None) -> dict:
     :rtype: dictionary
     """
 
-    print("{} > loadmonitor_waveheader".format("-" * 20))
+    print(f"{'-' * 20} > loadmonitor_waveheader")
     if not os.path.isfile(filename):
-        print("{} {}".format("!" * 10, "file not found"))
-        print("{}".format(filename))
-        print("{} {}".format("!" * 10, "file not found"))
+        print(f"{'!' * 10} file not found)")
+        print(f"{filename}")
+        print(f"{'!' * 10} file not found)")
         print()
-        return pd.DataFrame()
+        return {}
 
-    print("{} loading header {}".format("-" * 10, os.path.basename(filename)))
+    print(f"{'-' * 10} loading header {os.path.basename(filename)}")
 
     if filename is None:
         filename = choosefile_gui()
@@ -86,11 +86,11 @@ def loadmonitor_waveheader(filename=None) -> dict:
     except FileNotFoundError:
         print("canceled by the user")
         header = {}
-    print("{} < loaded waveheader".format("-" * 20))
+    print(f"{'-' * 20} < loaded waveheader")
     return header
 
 
-def loadmonitor_wavedata(filename=None):
+def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
     """load the monitor wave csvDataFile.
 
     :param str filename: full name of the file
@@ -99,15 +99,15 @@ def loadmonitor_wavedata(filename=None):
     :rtype: pandas.Dataframe
     """
 
-    print("{} > loadmonitor_wavedata".format("-" * 20))
+    print(f"{'-' * 20} > loadmonitor_wavedata")
     if not os.path.isfile(filename):
-        print("{} {}".format("!" * 10, "file not found"))
-        print("{}".format(filename))
-        print("{} {}".format("!" * 10, "file not found"))
+        print(f"{'!' * 10} file not found")
+        print("f{filename}")
+        print(f"{'!' * 10} file not found")
         print()
         return pd.DataFrame()
 
-    print("{} loading wavedata {}".format("-" * 10, os.path.basename(filename)))
+    print(f"{'-' * 10} loading wavedata {os.path.basename(filename)}")
     sampling_fr = 300  # sampling rate
     try:
         date = pd.read_csv(filename, nrows=1, header=None).iloc[0][1]
@@ -128,9 +128,7 @@ def loadmonitor_wavedata(filename=None):
     datadf = pd.DataFrame(datadf)
     if datadf.empty:
         print(
-            "{} there are no data in this file : {} !".format(
-                "! " * 10, os.path.basename(filename)
-            )
+            f"{'!' * 10} there are no data in this file : {os.path.basename(filename)} !"
         )
         return datadf
     # columns names correction
@@ -185,7 +183,7 @@ def loadmonitor_wavedata(filename=None):
     if "wco2" in datadf.columns:
         datadf.loc[datadf.wco2 < 0, "wco2"] = 0
 
-    print("{} < loaded wavedata".format("-" * 20))
+    print(f"{'-' * 20} < loaded wavedata")
     return datadf
 
 
@@ -205,12 +203,8 @@ if __name__ == "__main__":
             if "Wave" in file:
                 wheader_df = loadmonitor_waveheader(file_name)
                 wdata_df = loadmonitor_wavedata(file_name)
-                print("loaded {} in wheader_df & wdata_df".format(file))
+                print(f"loaded {file} in wheader_df & wdata_df")
             else:
-                print(
-                    "{}  {} is not a MonitorWave recording   {}".format(
-                        "!" * 5, file, "!" * 5
-                    )
-                )
+                print(f"{'!' * 5} {file} is not a MonitorWave recording {'!' * 5}")
         else:
-            print("{}  {} if not a Monitor record  {}".format("!" * 5, file, "!" * 5))
+            print(f"{'!' * 5} {file} is not a Monitor record {'!' * 5}")
