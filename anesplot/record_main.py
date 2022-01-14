@@ -429,12 +429,14 @@ class _FastWave(_Waves):
                     if trace is not None:
                         traces_list.append(trace)
             if traces_list:
+                print("call wplot.plot_wave")
                 fig, lines = wplot.plot_wave(
                     self.data, keys=traces_list, param=self.param
                 )
+                print("returned from wplot.plot_wave")
                 self.trace_list = traces_list
-                pyperclip.copy(str(traces_list))
-                plt.show()
+                # pyperclip.copy(str(traces_list))
+                plt.show()  # required to display the plot before exiting
             else:
                 self.trace_list = None
                 fig = None
@@ -460,7 +462,8 @@ class _FastWave(_Waves):
         if erase:
             roidict = {}
         elif self.fig:
-            roidict = wplot.get_roi(self)
+            # roidict = wplot.get_roi(self)
+            roidict = wplot.get_roi(self.fig, self.data, self.param)
             roidict.update({"traces": self.trace_list, "fig": self.fig})
         else:
             print("no fig attribute, please use plot_wave() method to build one")
@@ -487,8 +490,17 @@ class _FastWave(_Waves):
         """
         if self.roi:
             wplot.create_video(
-                self, speed=speed, save=save, savename=savename, savedir="~"
+                self.data,
+                self.param,
+                self.roi,
+                speed=speed,
+                save=save,
+                savename=savename,
+                savedir="~",
             )
+            # wplot.create_video(
+            #     self, speed=speed, save=save, savename=savename, savedir="~"
+            # )
         else:
             print("no roi attribute, please use record_roi() to build one")
 

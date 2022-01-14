@@ -225,7 +225,8 @@ def plot_wave(data, keys, param):
 #%%
 
 
-def get_roi(waves):
+def get_roi(fig, df, params) -> dict:
+    # def get_roi(waves):
     """use the drawn figure to extract the relevant data in order to build an animation
 
     :param waves: a wave recording
@@ -234,13 +235,21 @@ def get_roi(waves):
     traces used to build the plot, the fig object
     :rtype: dictionary
 
+    input:
+        fig : matplotlib.pyplot.figure
+        df : dataframe used to build the figure
+        params = paramter dictionary
+
+    return:
+        roi : dictionary containing ylims, xlims(point, dtime and sec)
+
     """
 
-    fig = waves.fig
-    df = waves.data
-    params = waves.param
+    # fig = waves.fig
+    # df = waves.data
+    # params = waves.param
     # ylims
-    ylims = [_.get_ylim() for _ in fig.get_axes()]
+    ylims = tuple([_.get_ylim() for _ in fig.get_axes()])
     # xlims
     ax = fig.get_axes()[0]
     if params["dtime"]:
@@ -268,14 +277,17 @@ def get_roi(waves):
         roidict[k] = lims
     print("{} {}".format("-" * 10, "defined a roi"))
     # append ylims and traces
-    roidict.update({"ylims": ylims})
+    roidict["ylims"] = ylims
     return roidict
 
 
 #%% select subdata
 
 
-def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
+# def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
+def create_video(
+    data, param, roi, speed=1, save=False, savename="example", savedir="~"
+):
     """create a video from a figure
     input:
         waves : waves object
@@ -303,20 +315,25 @@ def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
         sub_df = sub_df[keys].copy()
         return sub_df
 
-    def init(waves, keys, xlims, ylims):
+    # def init(waves, keys, xlims, ylims):
+    def init(data, param, keys, xlims, ylims):
+        """build a new figure and associated line2D objects"""
         plt.close("all")
-        dtime = waves.param["dtime"]
-        waves.param["dtime"] = False
-        fig, lines, _ = waves.plot_wave(keys)
+        dtime = param["dtime"]
+        param["dtime"] = False
+        # fig, lines, _ = waves.plot_wave(keys)   # traces_list
+        fig, lines = plot_wave(data, keys, param)
+
         for ax, ylim in zip(fig.get_axes(), ylims):
             ax.set_ylim(ylim)
             ax.set_xlim(xlims)
-        waves.param["dtime"] = dtime
+        # restaure dtime
+        param["dtime"] = dtime
         return fig, lines
 
-    def animate(i, df, keys, nbpoint):
+    def animate(i, df, keys, nbpoint) -> tuple:
         """
-        animate frame[i], add 10 points to the lines
+        animate frame[i], add nbpoint to the lines
         return the two lines2D objects
         """
         if len(keys) == 1:
@@ -336,16 +353,24 @@ def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
         )
         return (line0, line1)
 
-    traces = waves.roi["traces"]
-    x_lims = tuple([int(_) for _ in waves.roi["sec"]])
-    y_lims = [(floor(a), ceil(b)) for a, b in waves.roi["ylims"]]
-    fs = waves.param.get("sampling_freq", 1)
+    # traces = waves.roi["traces"]
+    # x_lims = tuple([int(_) for _ in waves.roi["sec"]])
+    # y_lims = [(floor(a), ceil(b)) for a, b in waves.roi["ylims"]]
+    # fs = waves.param.get("sampling_freq", 1)
+    # interval = 100
+    # # speed = 2  # speed of the animation
+    # nb_of_points = speed * round(fs / interval) * 10  # nb of points per frame
+    traces = roi["traces"]
+    x_lims = tuple([int(_) for _ in roi["sec"]])
+    y_lims = [(floor(a), ceil(b)) for a, b in roi["ylims"]]
+    fs = param.get("sampling_freq", 1)
     interval = 100
     # speed = 2  # speed of the animation
     nb_of_points = speed * round(fs / interval) * 10  # nb of points per frame
 
-    df = select_sub_dataframe(waves.data, traces, x_lims)
-    fig, lines = init(waves, traces, x_lims, y_lims)
+    df = select_sub_dataframe(data, traces, x_lims)
+    # fig, lines = init(waves, traces, x_lims, y_lims)
+    fig, lines = init(data, param, traces, x_lims, y_lims)
 
     for line in lines:
         line.set_data([], [])
@@ -366,8 +391,6 @@ def create_video(waves, speed=1, save=False, savename="example", savedir="~"):
     )
 
     if save:
-        # TODO : the saved video finish before the end of the display
-        # savename = savename
         if savedir == "~":
             savedir = os.path.expanduser("~")
         filename = os.path.join(savedir, savename)
