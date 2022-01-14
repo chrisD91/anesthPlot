@@ -14,6 +14,7 @@ import os
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as np
 
 # import utils
@@ -33,8 +34,8 @@ plt.rcParams.update(params)
 plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 
-# ////////////////////////////////////////////////////////////////
-def remove_outliers(df, key, limits=None):
+# ------------------------------------------------------
+def remove_outliers(df: pd.DataFrame, key: str, limits: dict = None) -> pd.Series:
     """remove outliers
     input:
         df : pandas.Dataframe
@@ -51,7 +52,7 @@ def remove_outliers(df, key, limits=None):
             "hr": (10, 100),
         }
     if key not in limits:
-        print("{} limits are not defined".format(key))
+        print(f"{key} limits are not defined")
     ser = df[key].copy()
     ser[ser < limits[key][0]] = np.nan
     ser[ser > limits[key][1]] = np.nan
@@ -59,7 +60,7 @@ def remove_outliers(df, key, limits=None):
     return ser
 
 
-def color_axis(ax, spine="bottom", color="r"):
+def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r"):
     """change the color of the label & tick & spine.
 
     :param matplotlib.pyplot.axis ax: the axis
@@ -75,7 +76,7 @@ def color_axis(ax, spine="bottom", color="r"):
         ax.tick_params(axis="y", colors=color)
 
 
-def append_loc_to_fig(ax, dt_list, label="g"):
+def append_loc_to_fig(ax: plt.Axes, dt_list: list, label: str = "g") -> dict:
     """append vertical lines to indicate a location 'eg: arterial blood gas'
 
     :param matplotlib.pyplot.axis ax: the axis
@@ -95,7 +96,7 @@ def append_loc_to_fig(ax, dt_list, label="g"):
     return res
 
 
-def save_graph(path, ext="png", close=True, verbose=True):
+def save_graph(path: str, ext: str = "png", close: bool = True, verbose: bool = True):
     """Save a figure from pyplot.
     Parameters
     ----------
@@ -126,7 +127,7 @@ def save_graph(path, ext="png", close=True, verbose=True):
     # The final path to save to
     savepath = os.path.join(directory, filename)
     if verbose:
-        print("Saving figure to '%s'..." % savepath),
+        print(f"Saving figure to {savepath}")
     # Actually save the figure
     plt.savefig(savepath)
     # Close it
@@ -137,7 +138,7 @@ def save_graph(path, ext="png", close=True, verbose=True):
 
 
 #%%
-def plot_header(descr, param=None):
+def plot_header(descr: dict, param: dict = None) -> plt.Figure:
     """plot the header of the file.
 
     :param dict descr: header of the recording
@@ -182,7 +183,8 @@ def plot_header(descr, param=None):
     return fig
 
 
-def hist_cardio(data, param=None):
+# ------------------------------------------------------
+def hist_cardio(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     """mean arterial pressure histogramme using matplotlib.
 
     :param pandas.DataFrame data: the recorded trends data
@@ -197,10 +199,10 @@ def hist_cardio(data, param=None):
 
     if "ip1m" not in data.columns:
         print("no ip1 in the data")
-        return
+        return plt.Figure()
     if "hr" not in data.columns:
         print("no hr in the data")
-        return
+        return plt.Figure()
     save = param.get("save", False)
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
@@ -212,7 +214,7 @@ def hist_cardio(data, param=None):
     ser = remove_outliers(data, "ip1m")
     if len(ser) > 0:
         ax.hist(ser.dropna(), bins=30, color="tab:red", edgecolor="red", alpha=0.7)
-        q25, q50, q75 = np.percentile(ser, [25, 50, 75])
+        q50 = np.percentile(ser, [50])
         ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
         for lim in [70, 80]:
             ax.axvline(lim, color="tab:grey", alpha=1)
@@ -241,7 +243,7 @@ def hist_cardio(data, param=None):
             alpha=0.8,
         )
         ax.set_xlabel("bpm", alpha=0.5)
-        q25, q50, q75 = np.percentile(ser, [25, 50, 75])
+        q50 = np.percentile(ser, [50])
         ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
     else:
         ax.text(
@@ -275,8 +277,8 @@ def hist_cardio(data, param=None):
     return fig
 
 
-# ---------------------------------------------------------------------------------------------------
-def plot_one_over_time(x, y, colour):
+# ------------------------------------------------------
+def plot_one_over_time(x, y, colour: str) -> plt.Figure:
     """plot y over x using colour"""
 
     fig = plt.figure()
@@ -291,8 +293,8 @@ def plot_one_over_time(x, y, colour):
     return fig
 
 
-# ----------------------------------------------------------------------------------------
-def hist_co2_iso(data, param=None):
+# ------------------------------------------------------
+def hist_co2_iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     """CO2 and iso histogramme
     (NB CO2 should have been converted from % to mmHg)
 
@@ -305,7 +307,7 @@ def hist_co2_iso(data, param=None):
         param = {}
     if "co2exp" not in data.columns:
         print("no co2exp in the data")
-        return
+        return plt.figure()
     save = param.get("save", False)
     # fig = plt.figure(figsize=(15,8))
     fig = plt.figure(figsize=(12, 5))
@@ -319,7 +321,7 @@ def hist_co2_iso(data, param=None):
         ax1.hist(ser, bins=20, color="tab:blue", edgecolor="tab:blue", alpha=0.8)
         for limit in [35, 45]:
             ax1.axvline(limit, color="tab:grey", alpha=1)
-        q25, q50, q75 = np.percentile(ser, [25, 50, 75])
+        q50 = np.percentile(ser, [50])
         ax1.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
         ax1.set_xlabel("mmHg", alpha=0.5)
     else:
@@ -381,8 +383,8 @@ def hist_co2_iso(data, param=None):
     return fig
 
 
-# ---------------------------------------------------------------------------------------------------
-def cardiovasc(data, param=None):
+# ------------------------------------------------------
+def cardiovasc(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     """cardiovascular plot
 
     :param pandas.Dataframe data: the recorded trends data
@@ -396,10 +398,10 @@ def cardiovasc(data, param=None):
         param = {}
     if "hr" not in data.columns:
         print("no pulseRate in the recording")
-        return
+        return plt.figure()
     if "ip1m" not in data.columns:
         print("no arterial pressure in the recording")
-        return
+        return plt.figure()
     # global timeUnit
     dtime = param.get("dtime", False)
     if dtime:
@@ -472,8 +474,8 @@ def cardiovasc(data, param=None):
     return fig
 
 
-# ---------------------------------------------------------------------------------------------------
-def cardiovasc_p1p2(data, param=None):
+# ------------------------------------------------------
+def cardiovasc_p1p2(data: pd.DataFrame, param: dict = None) -> pd.DataFrame:
     """cardiovascular plot with central venous pressure (p2)
 
     :param pandas.Dataframe data: the trends recorded data
@@ -487,13 +489,13 @@ def cardiovasc_p1p2(data, param=None):
         param = {}
     if "hr" not in data.columns:
         print("no pulseRate in the recording")
-        return
+        return plt.figure()
     if "ip1m" not in data.columns:
         print("no arterial pressure in the recording")
-        return
+        return plt.figure()
     if "ip2m" not in data.columns:
         print("no venous pressure in the recording")
-        return
+        return plt.figure()
     # global timeUnit
     dtime = param.get("dtime", False)
     if dtime:
@@ -582,8 +584,8 @@ def cardiovasc_p1p2(data, param=None):
     return fig
 
 
-# ---------------------------------------------------------------------------------------------------
-def co2iso(data, param=None):
+# ------------------------------------------------------
+def co2iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     """anesth plot (CO2/iso)
 
     :param pandas.Dataframe data: the recorded data
@@ -598,7 +600,7 @@ def co2iso(data, param=None):
         param = {}
     if "co2exp" not in data.columns:
         print("no co2exp in the recording")
-        return
+        return plt.figure()
     dtime = param.get("dtime", False)
     if dtime:
         df = data.set_index("datetime")[["co2insp", "co2exp", "aaInsp", "aaExp"]]
@@ -676,8 +678,8 @@ def func(ax, x, y1, y2, color="tab:blue", x0=38):
     ax.axhline(x0, linewidth=1, linestyle="dashed", color=color)
 
 
-# ---------------------------------------------------------------------------
-def co2o2(data, param):
+# ------------------------------------------------------
+def co2o2(data: pd.DataFrame, param: dict) -> plt.Figure:
     """respiratory plot (CO2 and Iso)
 
     :param pandas.DataFrame data: recorded trends data
@@ -692,12 +694,12 @@ def co2o2(data, param):
         data.co2exp
     except KeyError:
         print("no CO2 records in this recording")
-        return
+        return plt.figure()
     try:
         data.o2exp
     except KeyError:
         print("no O2 records in this recording")
-        return
+        return plt.figure()
 
     path = param.get("path", "")
     xmin = param.get("xmin", None)
@@ -756,8 +758,8 @@ def co2o2(data, param):
     return fig
 
 
-# ---------------------------------------------------------------------------------------
-def ventil(data, param):
+# ------------------------------------------------------
+def ventil(data: pd.DataFrame, param=dict) -> plt.Figure:
     """plot ventilation parameters
     (.tvInsp, .pPeak, .pPlat, .peep, .minVexp, .co2RR, .co2exp )
 
@@ -872,8 +874,8 @@ def ventil(data, param):
     return fig
 
 
-# ------------------------------------------------------------------------
-def recrut(data, param):
+# ------------------------------------------------------
+def recrut(data: pd.DataFrame, param: dict) -> plt.Figure:
     """display a recrut manoeuver (.pPeak, .pPlat, .peep, .tvInsp)
 
     :param pandas.DataFrame data: recorded data
@@ -942,7 +944,7 @@ def recrut(data, param):
     return fig
 
 
-def ventil_cardio(data, param):
+def ventil_cardio(data: pd.DataFrame, param: dict) -> plt.Figure:
     """build ventilation and cardiovascular plot
 
     :param pandas.DataFrame data: teh recorded trends data
@@ -1025,8 +1027,8 @@ def ventil_cardio(data, param):
     return fig
 
 
-# ------------------------------------------------------------------------
-def save_distri(data, path):
+# ------------------------------------------------------
+def save_distri(data: pd.DataFrame, path: dict):
     """save as 'O_..' the 4 distributions graphs for cardiovasc annd respi"""
 
     #    bpgas(data).savefig((path["sFig"] + "O_bpgas.png"), bbox_inches="tight")
@@ -1037,7 +1039,7 @@ def save_distri(data, path):
     hist_cardio(data).savefig((path["sFig"] + "O_hist_cardio.png"), bbox_inches="tight")
 
 
-def fig_memo(path, fig_name):
+def fig_memo(apath: str, fig_name: str):
     """
     append latex citation commands in a txt file inside the fig folder
     create the file iif it doesn't exist
@@ -1048,7 +1050,7 @@ def fig_memo(path, fig_name):
         + "} \n\end{frame} \n %----------------- \n \\n"
     )
 
-    fig_insert = os.path.join(path, "figIncl.txt")
+    fig_insert = os.path.join(apath, "figIncl.txt")
     with open(fig_insert, "a") as file:
         file.write(include_text + "\n")
         file.close()
