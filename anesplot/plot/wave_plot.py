@@ -31,7 +31,7 @@ plt.rcParams.update(fig_params)
 plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 
-def color_axis(ax, spine="bottom", color="r"):
+def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r"):
     """change the color of the label & tick & spine.
 
     :param matplotlib.pyplot.axis ax: the axis
@@ -48,7 +48,7 @@ def color_axis(ax, spine="bottom", color="r"):
 
 
 #%%
-def plot_wave(data, keys, param):
+def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
     """plot the waves recorded (from as5)
 
     :param pandas.DataFrame data: the recorded trends data
@@ -65,11 +65,11 @@ def plot_wave(data, keys, param):
         try:
             key in data.columns
         except KeyError:
-            print("the trace {} is not in the data".format(key))
-            return
+            print(f"the trace {key} is not in the data")
+            return plt.figure()
     if len(keys) not in [1, 2]:
-        print("only one or two keys are allowed ", keys, "were used")
-        return
+        print(f"only one or two keys are allowed ({keys} were used)")
+        return plt.figure()
     # default plotting
     names = dict(
         wekg=["ECG", "tab:blue", "mVolt"],
@@ -212,7 +212,7 @@ def plot_wave(data, keys, param):
 #%%
 
 
-def get_roi(fig, df, params) -> dict:
+def get_roi(fig: plt.Figure, df: pd.DataFrame, params: dict) -> dict:
     """use the drawn figure to extract the relevant data in order to build an animation
 
     :param waves: a wave recording
@@ -257,7 +257,7 @@ def get_roi(fig, df, params) -> dict:
             # no dt values for televet
             lims = (np.nan, np.nan)
         roidict[k] = lims
-    print("{} {}".format("-" * 10, "defined a roi"))
+    print(f"{'-' * 10} defined a roi")
     # append ylims and traces
     roidict["ylims"] = ylims
     return roidict
@@ -267,7 +267,13 @@ def get_roi(fig, df, params) -> dict:
 
 
 def create_video(
-    data, param, roi, speed=1, save=False, savename="example", savedir="~"
+    data: pd.DataFrame,
+    param: dict,
+    roi: dict,
+    speed: int = 1,
+    save: bool = False,
+    savename: str = "example",
+    savedir: str = "~",
 ):
     """create a video from a figure
     input:
@@ -281,7 +287,9 @@ def create_video(
         .png file
     """
 
-    def select_sub_dataframe(datadf, keys, xlims):
+    def select_sub_dataframe(
+        datadf: pd.DataFrame, keys: list, xlims: tuple
+    ) -> pd.DataFrame:
         """extract subdataframe corresponding to the roi
 
         :param waves: wave recording
@@ -296,7 +304,7 @@ def create_video(
         sub_df = sub_df[keys].copy()
         return sub_df
 
-    def init(data, param, keys, xlims, ylims):
+    def init(data: pd.DataFrame, param: dict, keys: list, xlims: tuple, ylims: list):
         """build a new figure and associated line2D objects"""
         plt.close("all")
         dtime = param["dtime"]
@@ -309,7 +317,7 @@ def create_video(
         param["dtime"] = dtime
         return fig, lines
 
-    def animate(i, df, keys, nbpoint) -> tuple:
+    def animate(i: int, df: pd.DataFrame, keys: list, nbpoint: int) -> tuple:
         """
         animate frame[i], add nbpoint to the lines
         return the two lines2D objects
@@ -362,11 +370,12 @@ def create_video(
         if savedir == "~":
             savedir = os.path.expanduser("~")
         filename = os.path.join(savedir, savename)
-        print("{} building video {} .png and .mp4".format("-" * 10, savename))
+        print(f"{'-' * 10} building video : {savename}.png and .mp4")
         ani.save(filename + ".mp4")
         fig.savefig(filename + ".png")
-        print("{} saved {} .png and .mp4".format("-" * 10, savename))
+        print(f"{'-' * 10} saved {savename}.png and .mp4")
     plt.show()
 
 
-ani = "global_to_maintain animation"
+# ani = "global_to_maintain animation"
+ani = None
