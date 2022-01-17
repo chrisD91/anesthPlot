@@ -9,6 +9,7 @@ to extract the events from the taphonius files
 
 """
 import os
+from datetime import datetime
 
 import pandas as pd
 
@@ -29,12 +30,22 @@ def convert_day(st):
 
 def extract_taphmessages(df):
     """extract the messages that contain the kw"""
+    # nb
+    # df = data[["events", "datetime"]].dropna().set_index("datetime")
+    # df.events = df.events.apply(
+    #     lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
+    # )
     content = set()
-    for cell in df.events:
+    for cell in df.events.dropna():
         for event in cell:
             content.add(event.split("-")[-1])
     content = {_.split(":")[0].strip() for _ in content}
     content = {_.split("from")[0].strip() for _ in content}
+    content = {_.split("(")[0] for _ in content}
+    print(f"{'-' * 10} extract_taphmessages")
+    print(f"{'-' * 5} content : ")
+    for item in content:
+        print(item)
 
     acts = {_ for _ in content if "changed" in _}
     acts = {
@@ -43,6 +54,38 @@ def extract_taphmessages(df):
     errors = content - acts
 
     return errors, acts
+
+
+def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
+    """build a pandas datafame with a countinuous datetime:event pairs
+    input:
+    ------
+    datadf : pd.DataFrame taphonius recording
+    """
+    # df = eventdf
+    df = datadf[["events", "datetime"]].dropna()
+    df = df.set_index("datetime")
+    df.events = df.events.apply(
+        lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
+    )
+    newdf = pd.DataFrame()
+    for index, event in df.events.iteritems():
+        events = [
+            (_.split("-")[0].strip().lower(), _.split("-")[1].strip().lower())
+            for _ in event
+        ]
+        dico = {}
+        thedate = index.date()
+        for t, event in events:
+            try:
+                thetime = datetime.strptime(t, "%H:%M:%S.%f").time()
+            except ValueError:
+                # print(key)
+                t = t.split("]")[0].split(" ")[-1] + ".0"
+            themoment = datetime.combine(thedate, thetime)
+            dico[themoment] = event
+        newdf = pd.concat([newdf, pd.Series(dico)])
+    return newdf
 
 
 #%%
