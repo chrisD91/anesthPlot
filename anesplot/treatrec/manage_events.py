@@ -69,6 +69,8 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
         lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
     )
     newdf = pd.DataFrame()
+    if df.events.dropna().empty:
+        return newdf
     for index, event in df.events.iteritems():
         events = [
             (_.split("-")[0].strip().lower(), _.split("-")[1].strip().lower())
@@ -77,14 +79,14 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
         dico = {}
         thedate = index.date()
         for t, event in events:
-            try:
-                thetime = datetime.strptime(t, "%H:%M:%S.%f").time()
-            except ValueError:
-                # print(key)
-                t = t.split("]")[0].split(" ")[-1] + ".0"
-            themoment = datetime.combine(thedate, thetime)
-            dico[themoment] = event
-        newdf = pd.concat([newdf, pd.Series(dico)])
+            if 3 < len(t) < 13:
+                try:
+                    thetime = datetime.strptime(t, "%H:%M:%S.%f").time()
+                    themoment = datetime.combine(thedate, thetime)
+                    dico[themoment] = event
+                except ValueError:
+                    pass
+        newdf = pd.concat([newdf, pd.Series(dico, dtype="object")])
     return newdf
 
 
