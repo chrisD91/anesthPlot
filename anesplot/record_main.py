@@ -131,7 +131,7 @@ def select_type(question: str = None, items: list = None, num: int = 0) -> str:
     return selection
 
 
-def select_wave(waves: list, num=1) -> str:
+def select_wave_to_plot(waves: list, num=1) -> str:
     """select the recording type:
 
     parameters
@@ -170,7 +170,7 @@ def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict
 
     return
     ----
-    afig_dico : dict of name:fig
+    afig_dico : {names:fig_obj}
     """
     # clean the data for taph monitoring
     if param_dico["source"] == "taphTrend":
@@ -316,12 +316,19 @@ class MonitorTrend(_SlowWave):
 
 class TaphTrend(_SlowWave):
     """taphonius trends recordings
+    input : filename : path to file
 
-    input  ... FILLME
-
-    attributes ... FILLME
-
-
+    attibutes:
+    ----------
+        data : pd.DataFrame = recorded data
+        header : dictionary = recorded info (patient, ...)
+        param : dictionary  = usage information (file, scales, ...)
+        actions : pd.DataFrame
+    methods:
+    --------
+        clean_trend : 'to be developped'
+        extract_taph_actions : extract user actions during anesthesia
+        show_graphs : plot the clinical debrief 'suite'
     """
 
     def __init__(self, filename: str = None):
@@ -335,12 +342,12 @@ class TaphTrend(_SlowWave):
         self.data = data
         header = ltt.loadtaph_patientfile(filename)
         self.header = header
-        self.actions = self.extract_taph_actions(data)
+        self.actions = self.extract_taph_actions()
 
         self.param["source"] = "taphTrend"
         self.param["sampling_freq"] = None
 
-    def extract_taph_actions(self, data: pd.DataFrame):
+    def extract_taph_actions(self):
         """extract Taph actions
 
         parameters
@@ -352,7 +359,7 @@ class TaphTrend(_SlowWave):
         ------
         actiondf pandas dataframe
         """
-        eventdf = data[["events", "datetime"]].dropna()
+        eventdf = self.data[["events", "datetime"]].dropna()
         eventdf = eventdf.set_index("datetime")
         eventdf.events = eventdf.events.apply(
             lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
@@ -360,18 +367,33 @@ class TaphTrend(_SlowWave):
         error_messages, action_messages = treat.manage_events.extract_taphmessages(
             eventdf
         )
-        events = treat.manage_events.extract_event(eventdf)
-        actions = treat.manage_events.extract_actions(eventdf, action_messages)
-        if actions:
-            actiondf = treat.manage_events.build_dataframe(actions)
+        events_dico = treat.manage_events.extract_event(eventdf)
+        actions_dico = treat.manage_events.extract_actions(eventdf, action_messages)
+        if actions_dico:
+            actiondf = treat.manage_events.build_dataframe(actions_dico)
         else:
-            actiondf = None
+            actiondf = pd.DataFrame
             print("no actions detected")
         # remove time, keep event
         #        eventdf.events = eventdf.events.apply(lambda st: st.split("-")[1])
         # TODO extract all the event in a column
-
         return actiondf
+
+    def export_taph_events(self, save_to_file=False):
+        "export in a txt files all the events (paths:~/temp/events.txt)"
+        if save_to_file:
+            filename = os.path.expanduser(os.path.join("~", "temp", "events.txt"))
+            with open(filename, "w", encoding="utf-8") as f:
+                for i, line in enumerate(self.data.events.dropna()):
+                    f.write("-" * 10, "\n")
+                    for item in line.split("\r\n"):
+                        f.write(f"{i} {item}, \n")
+            print(f"saved taph events to {filename}")
+        else:
+            for i, line in enumerate(self.data.events.dropna()):
+                print("-" * 10)
+                for item in line.split("\r\n"):
+                    print(i, item)
 
 
 # ++++++++
@@ -425,7 +447,7 @@ class _FastWave(_Waves):
                 traces_list = []
                 # trace = select_type(question='choose wave', items=cols)
                 for num in [1, 2]:
-                    trace = select_wave(waves=cols, num=num)
+                    trace = select_wave_to_plot(waves=cols, num=num)
                     if trace is not None:
                         traces_list.append(trace)
             if traces_list:
