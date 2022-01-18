@@ -10,12 +10,14 @@ to extract the events from the taphonius files
 """
 import os
 from datetime import datetime
+from typing import Tuple, Dict
 
 import pandas as pd
 
+pd.set_option("display.max_rows", 500)
 
 #%%
-def convert_day(st):
+def convert_day(st: str) -> str:
     """get a day YYYYmonthD an convert it to YYY-month-D"""
     previous = st[0]
     new = st[0]
@@ -28,7 +30,7 @@ def convert_day(st):
     return new
 
 
-def extract_taphmessages(df):
+def extract_taphmessages(df: pd.DataFrame, display=False):
     """extract the messages that contain the kw"""
     # nb
     # df = data[["events", "datetime"]].dropna().set_index("datetime")
@@ -42,10 +44,11 @@ def extract_taphmessages(df):
     content = {_.split(":")[0].strip() for _ in content}
     content = {_.split("from")[0].strip() for _ in content}
     content = {_.split("(")[0] for _ in content}
-    print(f"{'-' * 10} extract_taphmessages")
-    print(f"{'-' * 5} content : ")
-    for item in content:
-        print(item)
+    if display:
+        print(f"{'-' * 10} extract_taphmessages")
+        print(f"{'-' * 5} content : ")
+        for item in content:
+            print(item)
 
     acts = {_ for _ in content if "changed" in _}
     acts = {
@@ -71,21 +74,42 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     newdf = pd.DataFrame()
     if df.events.dropna().empty:
         return newdf
-    for index, event in df.events.iteritems():
+    undecoded = []
+    for index, line in df.events.iteritems():
         events = [
             (_.split("-")[0].strip().lower(), _.split("-")[1].strip().lower())
-            for _ in event
+            for _ in line
         ]
         dico = {}
         thedate = index.date()
         for t, event in events:
-            if 3 < len(t) < 13:
+            # if 3 < len(t) < 13:
+            if 3 < len(t) < 16:  # for data recorded in 2014
                 try:
                     thetime = datetime.strptime(t, "%H:%M:%S.%f").time()
                     themoment = datetime.combine(thedate, thetime)
                     dico[themoment] = event
                 except ValueError:
-                    pass
+                    H = t.split(" ")[0]
+                    am, ms = t.split(" ")[1].split(".")
+                    newt = H + "." + ms + " " + am
+                    thetime = pd.to_datetime(newt).time()
+                    themoment = datetime.combine(thedate, thetime)
+                    dico[themoment] = event
+            # TODO optimize the code
+            # print(f"build_event_dataframe: failing to decode '{event}'")
+            elif len(t) >= 16:
+                event = t.split("]")[1].strip()
+                try:
+                    themoment = pd.to_datetime(t.split("]")[0])
+                except pd.errors.OutOfBoundsDatetime:
+                    themoment = index
+                dico[themoment] = event
+                print(f" len(t) > 16, we have t:{t} <-> {themoment}, event={event}")
+            else:
+                undecoded.append((t, event))
+        if undecoded:
+            print(f"{'!'* 5} undecoded = {undecoded}")
         newdf = pd.concat([newdf, pd.Series(dico, dtype="object")])
     return newdf
 
@@ -95,14 +119,14 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 # message = ""  # ?? presetq
 
 
-def extract_event(df):
+def extract_event(df: pd.DataFrame) -> Dict:
     """extract timestamp of the messages
     input:
         df: pandasDataFrame containing the taphonius events
     output:
         marks: dictionary {message : [timestamp]}
     """
-    marks = {}
+    marks: Dict[str, list] = {}
     messages = ["Init Complete", "Ventilate"]
     for mes in messages:
         # for message in action_messages:
@@ -120,7 +144,7 @@ def extract_event(df):
     return marks
 
 
-def extract_actions(df, messages):
+def extract_actions(df: pd.DataFrame, messages) -> Dict:
     """extract actions dtime and changes from taph recording:
     input:
         df: pandasDataFrame of taph events
@@ -128,7 +152,7 @@ def extract_actions(df, messages):
     output
         marks: dictionary {action : [[timestamp, (valueBefore, valueAfter)], ...]}
     """
-    marks = {}
+    marks: Dict[str, list] = {}
     for mes in messages:
         matching = []
         for i, cell in enumerate(df.events):
@@ -155,7 +179,7 @@ def extract_actions(df, messages):
 #%%
 
 
-def build_dataframe(acts):
+def build_dataframe(acts) -> pd.DataFrame:
     """build a dataframe containing all the actions, one per column"""
 
     names = {

@@ -342,6 +342,7 @@ class TaphTrend(_SlowWave):
         self.data = data
         header = ltt.loadtaph_patientfile(filename)
         self.header = header
+
         self.actions = self.extract_taph_actions()
         self.dt_events_df = treat.manage_events.build_event_dataframe(self.data)
 
