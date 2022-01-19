@@ -15,8 +15,11 @@ from typing import Tuple, Dict
 import pandas as pd
 
 pd.set_option("display.max_rows", 500)
+pd.set_option("display.max_colwidth", 50)
 
 #%%
+
+
 def convert_day(st: str) -> str:
     """get a day YYYYmonthD an convert it to YYY-month-D"""
     previous = st[0]
@@ -64,18 +67,22 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     input:
     ------
     datadf : pd.DataFrame taphonius recording
+    ouput:
+        newdf: pd.DataFrame index=datetime,
     """
+    newdf = pd.DataFrame(columns=["events"])
     if datadf.empty:
         print("empty dataframe")
-        return pd.DataFrame()
+        return newdf
     df = datadf[["events", "datetime"]].dropna().set_index("datetime")
     df.events = df.events.apply(
         lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
     )
     if df.events.dropna().empty:
-        return pd.DataFrame()
-
-    newdf = pd.DataFrame()
+        print("no events in the recording")
+        return newdf
+    # linearize the events
+    events_ser = pd.Series(name="events", dtype=str)
     for index, line in df.events.iteritems():
         t_event = [
             (_.split("-")[0].strip().lower(), _.split("-")[1].strip().lower())
@@ -97,11 +104,12 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
                 H = t.split(" ")[0]
                 am, ms = t.split(" ")[1].split(".")
                 thetime = pd.to_datetime(H + "." + ms + " " + am).time()
-
             themoment = datetime.combine(thedate, thetime)
             dico[themoment] = event
 
-        newdf = pd.concat([newdf, pd.Series(dico, dtype="object")])
+        batch = pd.Series(dico, dtype="object", name="events")
+        events_ser = events_ser.append(batch)
+    newdf = pd.DataFrame(events_ser)
     return newdf
 
 
