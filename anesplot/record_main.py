@@ -327,7 +327,6 @@ class TaphTrend(_SlowWave):
     methods:
     --------
         clean_trend : 'to be developped'
-        extract_taph_actions : extract user actions during anesthesia
         show_graphs : plot the clinical debrief 'suite'
     """
 
@@ -343,46 +342,16 @@ class TaphTrend(_SlowWave):
         header = ltt.loadtaph_patientfile(filename)
         self.header = header
 
-        self.actions = self.extract_taph_actions()
         self.dt_events_df = treat.manage_events.build_event_dataframe(self.data)
+        self.actions, self.events = treat.manage_events.extract_taphmessages(
+            self.dt_events_df
+        )
+        self.ventil_drive_df = treat.manage_events.extract_ventilation_drive(
+            self.dt_events_df, self.actions
+        )
 
         self.param["source"] = "taphTrend"
         self.param["sampling_freq"] = None
-
-    def extract_taph_actions(self):
-        """extract Taph actions
-
-        parameters
-        ----------
-        data : pandas dataframe
-            record df form taphonius recording)
-
-        return
-        ------
-        actiondf pandas dataframe
-        """
-        if self.data.empty:
-            print(f"empty dataframe")
-            return pd.DataFrame()
-        eventdf = self.data[["events", "datetime"]].dropna()
-        eventdf = eventdf.set_index("datetime")
-        eventdf.events = eventdf.events.apply(
-            lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
-        )
-        error_messages, action_messages = treat.manage_events.extract_taphmessages(
-            eventdf
-        )
-        events_dico = treat.manage_events.extract_event(eventdf)
-        actions_dico = treat.manage_events.extract_actions(eventdf, action_messages)
-        if actions_dico:
-            actiondf = treat.manage_events.build_dataframe(actions_dico)
-        else:
-            actiondf = pd.DataFrame
-            print("no actions detected")
-        # remove time, keep event
-        #        eventdf.events = eventdf.events.apply(lambda st: st.split("-")[1])
-        # TODO extract all the event in a column
-        return actiondf
 
     def export_taph_events(self, save_to_file=False):
         "export in a txt files all the events (paths:~/temp/events.txt)"

@@ -12,11 +12,12 @@ import os
 from datetime import datetime
 from typing import Tuple, Dict
 
+import numpy as np
 import pandas as pd
 
 pd.set_option("display.max_rows", 500)
 pd.set_option("display.max_colwidth", 50)
-
+pd.set_option("display.max_columns", 500)
 #%%
 
 
@@ -33,20 +34,23 @@ def convert_day(st: str) -> str:
     return new
 
 
-def extract_taphmessages(df: pd.DataFrame, display=False):
-    """extract the messages that contain the kw"""
-    # nb
-    # df = data[["events", "datetime"]].dropna().set_index("datetime")
-    # df.events = df.events.apply(
-    #     lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
-    # )
-    content = set()
-    for cell in df.events.dropna():
-        for event in cell:
-            content.add(event.split("-")[-1])
+def extract_taphmessages(df: pd.DataFrame, display: bool = False):
+    """extract the messages
+    input:
+
+    return:
+        acts : dict of actions
+        content: dict of taph messages
+    """
+    content = set(df.events)
     content = {_.split(":")[0].strip() for _ in content}
     content = {_.split("from")[0].strip() for _ in content}
     content = {_.split("(")[0] for _ in content}
+
+    acts = {_ for _ in content if "changed" in _}
+    acts = {
+        _ for _ in acts if not _.startswith("power") and not _.startswith("primary")
+    }
     if display:
         print(f"{'-' * 10} extract_taphmessages")
         print(f"{'-' * 5} content : ")
@@ -57,9 +61,8 @@ def extract_taphmessages(df: pd.DataFrame, display=False):
     acts = {
         _ for _ in acts if not _.startswith("Power") and not _.startswith("Primary")
     }
-    errors = content - acts
 
-    return errors, acts
+    return acts, content
 
 
 def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
@@ -68,19 +71,19 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     ------
     datadf : pd.DataFrame taphonius recording
     ouput:
-        newdf: pd.DataFrame index=datetime,
+        dteventdf: pd.DataFrame index=datetime,
     """
-    newdf = pd.DataFrame(columns=["events"])
+    dteventdf = pd.DataFrame(columns=["events"])
     if datadf.empty:
         print("empty dataframe")
-        return newdf
+        return dteventdf
     df = datadf[["events", "datetime"]].dropna().set_index("datetime")
     df.events = df.events.apply(
         lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
     )
     if df.events.dropna().empty:
         print("no events in the recording")
-        return newdf
+        return dteventdf
     # linearize the events
     events_ser = pd.Series(name="events", dtype=str)
     for index, line in df.events.iteritems():
@@ -109,8 +112,34 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 
         batch = pd.Series(dico, dtype="object", name="events")
         events_ser = events_ser.append(batch)
-    newdf = pd.DataFrame(events_ser)
-    return newdf
+    dteventdf = pd.DataFrame(events_ser)
+    return dteventdf
+
+
+def extract_ventilation_drive(
+    datadf: pd.DataFrame, actions: set = None
+) -> pd.DataFrame:
+    """extract a dataframe containing the ventilatory management"""
+    # TODO extract the beginning (ventilate -> to first change)
+    if actions is None:
+        actions = {
+            "cpap value changed",
+            "mwpl value changed",
+            "rr changed",
+            "tidal volume changed",
+        }
+
+    # df = self.dt_events_df
+    df = datadf.copy()
+    df = df.replace("NAN", np.nan)
+    for action in actions:
+        mask = df.events.str.contains(action)
+        df[action] = np.nan
+        # df.loc[mask, [action]] = df.events
+        df.loc[mask, [action]] = df.loc[mask, ["events"]]
+        df[action] = df[action].dropna().apply(lambda st: float(st.split(" ")[-1]))
+        df[action] = df[action].ffill()
+    return df
 
 
 #%%
@@ -118,29 +147,30 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 # message = ""  # ?? presetq
 
 
-def extract_event(df: pd.DataFrame) -> Dict:
+def extract_event(df: pd.DataFrame) -> dict:
     """extract timestamp of the messages
     input:
         df: pandasDataFrame containing the taphonius events
     output:
         marks: dictionary {message : [timestamp]}
     """
-    marks: Dict[str, list] = {}
-    messages = ["Init Complete", "Ventilate"]
-    for mes in messages:
-        # for message in action_messages:
-        matching = []
-        for i, cell in enumerate(df.events):
-            for event in cell:
-                if mes in event:
-                    matching.append((i, event))
-                    # print(event)
-        marks[mes] = []
-        for match in matching:
-            i = match[0]
-            time_stp = df.index[i]
-            marks[mes].append(time_stp)
-    return marks
+    messages = ["Init Complete", "Ventilate", "standby", "data finalised"]
+    messages = [_.lower() for _ in messages]
+
+    ser = pd.Series(dtype=str)
+    for index, event in df.events.iteritems():
+        for message in messages:
+            if message in event:
+                ser.loc[index] = event
+    return ser.to_dict()
+
+
+actions = [
+    "cpap value changed",
+    "mwpl value changed",
+    "rr changed",
+    "tidal volume changed",
+]
 
 
 def extract_actions(df: pd.DataFrame, messages) -> Dict:
@@ -224,19 +254,3 @@ if __name__ == "__main__":
 
     # see the taphClass
     ttrend = rec.TaphTrend(file_name)
-    self = ttrend
-    eventdf = self.data[["events", "datetime"]].dropna()
-    eventdf = eventdf.set_index("datetime")
-    eventdf.events = eventdf.events.apply(
-        lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
-    )
-
-    day = file.split("-")[0].strip("SD")
-    day = convert_day(day)
-
-    error_messages, action_messages = extract_taphmessages(eventdf)
-
-    events = extract_event(eventdf)
-    actions = extract_actions(eventdf, action_messages)
-
-    action_df = build_dataframe(actions)
