@@ -64,6 +64,7 @@ def test_loadtaph(num=15):
         num : (int) number of iterations
     """
     apath = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
+    tested = []
     records = []
     for root, dirs, files in os.walk(apath):
         found = [_ for _ in files if _.startswith("SD") and _.endswith(".csv")]
@@ -74,6 +75,7 @@ def test_loadtaph(num=15):
     if records:
         for trend_name in choices(records, k=num):
             pyperclip.copy(trend_name)
+            print(f"testing {trend_name}")
             trends = rec.TaphTrend(trend_name)
             assert isinstance(trends.data, pd.DataFrame)
             # trends.show_graphs()

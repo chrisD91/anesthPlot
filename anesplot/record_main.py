@@ -361,6 +361,9 @@ class TaphTrend(_SlowWave):
         ------
         actiondf pandas dataframe
         """
+        if self.data.empty:
+            print(f"empty dataframe")
+            return pd.DataFrame()
         eventdf = self.data[["events", "datetime"]].dropna()
         eventdf = eventdf.set_index("datetime")
         eventdf.events = eventdf.events.apply(

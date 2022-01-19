@@ -65,7 +65,9 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     ------
     datadf : pd.DataFrame taphonius recording
     """
-    # df = eventdf
+    if datadf.empty:
+        print("empty dataframe")
+        return pd.DataFrame()
     df = datadf[["events", "datetime"]].dropna()
     df = df.set_index("datetime")
     df.events = df.events.apply(
