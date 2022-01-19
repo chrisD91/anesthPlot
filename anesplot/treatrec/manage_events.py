@@ -79,6 +79,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
         events = [
             (_.split("-")[0].strip().lower(), _.split("-")[1].strip().lower())
             for _ in line
+            if _
         ]
         dico = {}
         thedate = index.date()
@@ -217,7 +218,9 @@ if __name__ == "__main__":
 
     file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
     file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/Anonymous/Patients2021AUG10/Record13_36_34/SD2021AUG10-13_36_34.csv"
-
+    file_name = os.path.expanduser(
+        "~/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/Anonymous/Patients2014NOV07/Record19_34_48/SD2014NOV7-19_34_49.csv"
+    )
     file = os.path.basename(file_name)
 
     # see the taphClass
