@@ -80,6 +80,8 @@ def test_loadtaph(num=15):
             assert isinstance(trends.data, pd.DataFrame)
             # trends.show_graphs()
             # plt.close("all")
+            trends.extract_events()
+
     else:
         print("{} there are no taphfiles in the selected folder".format("!" * 10))
         print(apath)
