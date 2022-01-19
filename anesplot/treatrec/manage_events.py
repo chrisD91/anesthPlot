@@ -59,7 +59,7 @@ def extract_taphmessages(df: pd.DataFrame, display: bool = False):
 
     acts = {_ for _ in content if "changed" in _}
     acts = {
-        _ for _ in acts if not _.startswith("Power") and not _.startswith("Primary")
+        _ for _ in acts if not _.startswith("power") and not _.startswith("primary")
     }
 
     return acts, content
@@ -117,7 +117,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 
 
 def extract_ventilation_drive(
-    datadf: pd.DataFrame, actions: set = None
+    dteventdf: pd.DataFrame, actions: set = None
 ) -> pd.DataFrame:
     """extract a dataframe containing the ventilatory management"""
     # TODO extract the beginning (ventilate -> to first change)
@@ -129,17 +129,17 @@ def extract_ventilation_drive(
             "tidal volume changed",
         }
 
-    # df = self.dt_events_df
-    df = datadf.copy()
-    df = df.replace("NAN", np.nan)
+    # dteventdf = self.dt_events_df
+    dteventdf = dteventdf.replace("NAN", np.nan)
     for action in actions:
-        mask = df.events.str.contains(action)
-        df[action] = np.nan
-        # df.loc[mask, [action]] = df.events
-        df.loc[mask, [action]] = df.loc[mask, ["events"]]
-        df[action] = df[action].dropna().apply(lambda st: float(st.split(" ")[-1]))
-        df[action] = df[action].ffill()
-    return df
+        mask = dteventdf.events.str.contains(action)
+        dteventdf[action] = np.nan
+        dteventdf.loc[mask, [action]] = dteventdf.events
+        dteventdf[action] = (
+            dteventdf[action].dropna().apply(lambda st: float(st.split(" ")[-1]))
+        )
+        dteventdf[action] = dteventdf[action].ffill()
+    return dteventdf
 
 
 #%%

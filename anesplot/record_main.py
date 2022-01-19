@@ -342,16 +342,21 @@ class TaphTrend(_SlowWave):
         header = ltt.loadtaph_patientfile(filename)
         self.header = header
 
-        self.dt_events_df = treat.manage_events.build_event_dataframe(self.data)
-        self.actions, self.events = treat.manage_events.extract_taphmessages(
-            self.dt_events_df
-        )
-        self.ventil_drive_df = treat.manage_events.extract_ventilation_drive(
-            self.dt_events_df, self.actions
-        )
-
         self.param["source"] = "taphTrend"
         self.param["sampling_freq"] = None
+
+    def extract_events(self):
+        dt_events_df = treat.manage_events.build_event_dataframe(self.data)
+        self.dt_events_df = dt_events_df
+
+        actions, events = treat.manage_events.extract_taphmessages(self.dt_events_df)
+        self.actions = actions
+        self.events = events
+
+        ventil_drive_df = treat.manage_events.extract_ventilation_drive(
+            dt_events_df, actions
+        )
+        self.ventil_drive_df = ventil_drive_df
 
     def export_taph_events(self, save_to_file=False):
         "export in a txt files all the events (paths:~/temp/events.txt)"
