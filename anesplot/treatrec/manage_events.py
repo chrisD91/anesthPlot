@@ -68,51 +68,39 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     if datadf.empty:
         print("empty dataframe")
         return pd.DataFrame()
-    df = datadf[["events", "datetime"]].dropna()
-    df = df.set_index("datetime")
+    df = datadf[["events", "datetime"]].dropna().set_index("datetime")
     df.events = df.events.apply(
         lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
     )
-    newdf = pd.DataFrame()
     if df.events.dropna().empty:
-        return newdf
-    undecoded = []
+        return pd.DataFrame()
+
+    newdf = pd.DataFrame()
     for index, line in df.events.iteritems():
-        events = [
+        t_event = [
             (_.split("-")[0].strip().lower(), _.split("-")[1].strip().lower())
             for _ in line
             if _
         ]
         dico = {}
         thedate = index.date()
-        for t, event in events:
-            # if 3 < len(t) < 13:
-            if 3 < len(t) < 16:  # for data recorded in 2014
-                try:
-                    thetime = datetime.strptime(t, "%H:%M:%S.%f").time()
-                    themoment = datetime.combine(thedate, thetime)
-                    dico[themoment] = event
-                except ValueError:
-                    H = t.split(" ")[0]
-                    am, ms = t.split(" ")[1].split(".")
-                    newt = H + "." + ms + " " + am
-                    thetime = pd.to_datetime(newt).time()
-                    themoment = datetime.combine(thedate, thetime)
-                    dico[themoment] = event
-            # TODO optimize the code
-            # print(f"build_event_dataframe: failing to decode '{event}'")
-            elif len(t) >= 16:
+        for t, event in t_event:
+            if len(t) >= 16:
                 event = t.split("]")[1].strip()
-                try:
-                    themoment = pd.to_datetime(t.split("]")[0])
-                except pd.errors.OutOfBoundsDatetime:
-                    themoment = index
-                dico[themoment] = event
-                print(f" len(t) > 16, we have t:{t} <-> {themoment}, event={event}")
-            else:
-                undecoded.append((t, event))
-        if undecoded:
-            print(f"{'!'* 5} undecoded = {undecoded}")
+                t = t.split("]")[0]
+            try:
+                thetime = pd.to_datetime(t).time()
+            except pd.errors.OutOfBoundsDatetime:
+                thetime = index.time()
+            except ValueError:
+                # am/pm coding for old files
+                H = t.split(" ")[0]
+                am, ms = t.split(" ")[1].split(".")
+                thetime = pd.to_datetime(H + "." + ms + " " + am).time()
+
+            themoment = datetime.combine(thedate, thetime)
+            dico[themoment] = event
+
         newdf = pd.concat([newdf, pd.Series(dico, dtype="object")])
     return newdf
 
@@ -173,6 +161,7 @@ def extract_actions(df: pd.DataFrame, messages) -> Dict:
             try:
                 values = [float(_) for _ in values]
             except:
+                print("exception... to be documented")
                 values = values
             time_stp = df.index[i]
             marks[mes].append([time_stp, values])
