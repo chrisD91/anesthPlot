@@ -136,7 +136,9 @@ def extract_ventilation_drive(
         dteventdf[action] = np.nan
         dteventdf.loc[mask, [action]] = dteventdf.events
         dteventdf[action] = (
-            dteventdf[action].dropna().apply(lambda st: float(st.split(" ")[-1]))
+            dteventdf[action]
+            .dropna()
+            .apply(lambda st: float(st.split(" ")[-1].replace("s", "")))
         )
         dteventdf[action] = dteventdf[action].ffill()
     return dteventdf
