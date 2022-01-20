@@ -15,7 +15,7 @@ from typing import Tuple, Dict
 import numpy as np
 import pandas as pd
 
-pd.set_option("display.max_rows", 500)
+pd.set_option("display.max_rows", None)
 pd.set_option("display.max_colwidth", 50)
 pd.set_option("display.max_columns", 500)
 #%%
@@ -48,7 +48,7 @@ def extract_taphmessages(df: pd.DataFrame, display: bool = False):
     content = {_.split("(")[0] for _ in content}
 
     acts = {_ for _ in content if "changed" in _}
-    not_acts = {"power", "primary", "preset", "scales", "buffer"}
+    not_acts = {"power", "primary", "preset", "scales", "buffer", "trace"}
     acts = {_ for _ in acts if not any(_.startswith(w) for w in not_acts)}
 
     if display:
@@ -118,12 +118,12 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 
 
 def extract_ventilation_drive(
-    dteventdf: pd.DataFrame, actions: set = None
+    dteventdf: pd.DataFrame, acts: set = None
 ) -> pd.DataFrame:
     """extract a dataframe containing the ventilatory management"""
     # TODO extract the beginning (ventilate -> to first change)
-    if actions is None:
-        actions = {
+    if acts is None:
+        acts = {
             "cpap value changed",
             "mwpl value changed",
             "rr changed",
@@ -133,21 +133,23 @@ def extract_ventilation_drive(
     def line_to_floatvalue(line: str):
         """return float value else none"""
         line = line.split(" ")[-1].replace("s", "")
-        return float(line) if line.isnumeric() else np.nan
+        try:
+            val = float(line)
+        except ValueError:
+            print(f"line_to_floatvalue: fix me for '{line}'")
+            val = np.nan
+        return val
 
-    # see https://www.roelpeters.be/solve-pandas-valueerror-cannot-reindex-from-a-duplicate-axis/
     # df.index.is_unique
     # dteventdf = self.dt_events_df
     dteventdf = dteventdf.replace("NAN", np.nan)
-    for action in actions:
-        mask = dteventdf.events.str.contains(action)
+    for act in acts:
+        mask = dteventdf.events.str.contains(act)
         if len(mask.unique()) > 1:
-            dteventdf[action] = np.nan
-            dteventdf.loc[mask, [action]] = dteventdf.events
-            dteventdf[action] = (
-                dteventdf[action].dropna().apply(lambda st: line_to_floatvalue(st))
-            )
-            dteventdf[action] = dteventdf[action].ffill()
+            dteventdf[act] = np.nan
+            dteventdf.loc[mask, [act]] = dteventdf.events
+            dteventdf[act] = dteventdf[act].dropna().apply(line_to_floatvalue)
+            dteventdf[act] = dteventdf[act].ffill()
 
     return dteventdf.dropna(how="all", axis=1)
 
@@ -173,47 +175,6 @@ def extract_event(df: pd.DataFrame) -> dict:
             if message in event:
                 ser.loc[index] = event
     return ser.to_dict()
-
-
-actions = [
-    "cpap value changed",
-    "mwpl value changed",
-    "rr changed",
-    "tidal volume changed",
-]
-
-
-def extract_actions(df: pd.DataFrame, messages) -> Dict:
-    """extract actions dtime and changes from taph recording:
-    input:
-        df: pandasDataFrame of taph events
-        actions : action messages
-    output
-        marks: dictionary {action : [[timestamp, (valueBefore, valueAfter)], ...]}
-    """
-    marks: Dict[str, list] = {}
-    for mes in messages:
-        matching = []
-        for i, cell in enumerate(df.events):
-            for event in cell:
-                if mes in event:
-                    matching.append((i, event))
-                    # print(event)
-        # action : [[dtime, before, after], ...]
-        marks[mes] = []
-        for match in matching:
-            i = match[0]
-            values = list(match[1].split("from")[-1].strip().split(" to "))
-
-            values = [_.replace("s", "") for _ in values]
-            try:
-                values = [float(_) for _ in values]
-            except:
-                print("exception... to be documented")
-                values = values
-            time_stp = df.index[i]
-            marks[mes].append([time_stp, values])
-    return marks
 
 
 #%%
@@ -260,7 +221,8 @@ if __name__ == "__main__":
     file_name = os.path.expanduser(
         "~/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/Anonymous/Patients2014NOV07/Record19_34_48/SD2014NOV7-19_34_49.csv"
     )
-    file = os.path.basename(file_name)
 
     # see the taphClass
     ttrend = rec.TaphTrend(file_name)
+    ttrend.extract_events()
+    ttrend.show_graphs()
