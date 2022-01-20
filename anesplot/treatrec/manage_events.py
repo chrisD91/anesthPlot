@@ -81,20 +81,25 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
         return dteventdf
     # linearize the events
     events_ser = pd.Series(name="events", dtype=str)
+    events_ser.flags.allows_duplicate_labels = False
     for index, line in df.events.iteritems():
         # break if injevtion event eg
         # SD2015MAR1-5_58_19.csv
-        t_event = [
+        t_event = {
             (_.split("-")[0].strip().lower(), _.split("-")[-1].strip().lower())
             for _ in line
             if _
-        ]
+        }
         dico = {}
         thedate = index.date()
         for t, event in t_event:
             if len(t) >= 16:
                 event = t.split("]")[-1].strip()
                 t = t.split("]")[0]
+            if " am" in t:
+                t = t.replace(" am", "") + " am"
+            if " am" in t:
+                t = t.replace(" pm", "") + " pm"
             try:
                 thetime = pd.to_datetime(t).time()
             except pd.errors.OutOfBoundsDatetime:
@@ -103,10 +108,6 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
                 thetime = index.time()
             except ValueError:
                 thetime = index.time()
-                # # am/pm coding for old files
-                # H = t.split(" ")[0]
-                # am, ms = t.split(" ")[1].split(".")
-                # thetime = pd.to_datetime(H + "." + ms + " " + am).time()
             themoment = datetime.combine(thedate, thetime)
             dico[themoment] = event
 
@@ -134,6 +135,8 @@ def extract_ventilation_drive(
         line = line.split(" ")[-1].replace("s", "")
         return float(line) if line.isnumeric() else np.nan
 
+    # see https://www.roelpeters.be/solve-pandas-valueerror-cannot-reindex-from-a-duplicate-axis/
+    # df.index.is_unique
     # dteventdf = self.dt_events_df
     dteventdf = dteventdf.replace("NAN", np.nan)
     for action in actions:
