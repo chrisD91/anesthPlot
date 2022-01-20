@@ -140,14 +140,31 @@ def extract_ventilation_drive(
             val = np.nan
         return val
 
-    # df.index.is_unique
-    # dteventdf = self.dt_events_df
+    assert (
+        dteventdf.index.is_unique
+    ), "extract_ventilation_drive: check unicity for dteventdf.index"
+
     dteventdf = dteventdf.replace("NAN", np.nan)
     for act in acts:
         mask = dteventdf.events.str.contains(act)
         if len(mask.unique()) > 1:
+            # fill with change messages
             dteventdf[act] = np.nan
             dteventdf.loc[mask, [act]] = dteventdf.events
+            # fill with 'from'
+            if any(dteventdf.events.str.contains("ventilate")):
+                # set  the first value
+                start_index = dteventdf[
+                    dteventdf.events.str.contains("ventilate")
+                ].index[0]
+                first_index = dteventdf.loc[mask, [act]].index[0]
+                first_message = dteventdf.loc[mask, [act]].iloc[0][act]
+                if start_index > first_index:
+                    message = first_message  # value = post change
+                else:  # value = pre change
+                    message = first_message.split("to")[0].strip(" ")
+                dteventdf.loc[start_index, [act]] = message
+            # fill with values
             dteventdf[act] = dteventdf[act].dropna().apply(line_to_floatvalue)
             dteventdf[act] = dteventdf[act].ffill()
 
