@@ -98,7 +98,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
                 t = t.split("]")[0]
             if " am" in t:
                 t = t.replace(" am", "") + " am"
-            if " am" in t:
+            if " pm" in t:
                 t = t.replace(" pm", "") + " pm"
             try:
                 thetime = pd.to_datetime(t).time()
