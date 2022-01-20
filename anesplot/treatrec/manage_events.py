@@ -37,7 +37,7 @@ def convert_day(st: str) -> str:
 def extract_taphmessages(df: pd.DataFrame, display: bool = False):
     """extract the messages
     input:
-
+        df : pd.DataFrame of dt_event_df
     return:
         acts : dict of actions
         content: dict of taph messages
@@ -48,19 +48,14 @@ def extract_taphmessages(df: pd.DataFrame, display: bool = False):
     content = {_.split("(")[0] for _ in content}
 
     acts = {_ for _ in content if "changed" in _}
-    acts = {
-        _ for _ in acts if not _.startswith("power") and not _.startswith("primary")
-    }
+    not_acts = {"power", "primary", "preset", "scales", "buffer"}
+    acts = {_ for _ in acts if not any(_.startswith(w) for w in not_acts)}
+
     if display:
         print(f"{'-' * 10} extract_taphmessages")
         print(f"{'-' * 5} content : ")
         for item in content:
             print(item)
-
-    acts = {_ for _ in content if "changed" in _}
-    acts = {
-        _ for _ in acts if not _.startswith("power") and not _.startswith("primary")
-    }
 
     return acts, content
 
@@ -87,8 +82,10 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     # linearize the events
     events_ser = pd.Series(name="events", dtype=str)
     for index, line in df.events.iteritems():
+        # break if injevtion event eg
+        # SD2015MAR1-5_58_19.csv
         t_event = [
-            (_.split("-")[0].strip().lower(), _.split("-")[1].strip().lower())
+            (_.split("-")[0].strip().lower(), _.split("-")[-1].strip().lower())
             for _ in line
             if _
         ]
@@ -96,17 +93,20 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
         thedate = index.date()
         for t, event in t_event:
             if len(t) >= 16:
-                event = t.split("]")[1].strip()
+                event = t.split("]")[-1].strip()
                 t = t.split("]")[0]
             try:
                 thetime = pd.to_datetime(t).time()
             except pd.errors.OutOfBoundsDatetime:
                 thetime = index.time()
+            except pd.errors.ParserError:
+                thetime = index.time()
             except ValueError:
-                # am/pm coding for old files
-                H = t.split(" ")[0]
-                am, ms = t.split(" ")[1].split(".")
-                thetime = pd.to_datetime(H + "." + ms + " " + am).time()
+                thetime = index.time()
+                # # am/pm coding for old files
+                # H = t.split(" ")[0]
+                # am, ms = t.split(" ")[1].split(".")
+                # thetime = pd.to_datetime(H + "." + ms + " " + am).time()
             themoment = datetime.combine(thedate, thetime)
             dico[themoment] = event
 
@@ -129,19 +129,24 @@ def extract_ventilation_drive(
             "tidal volume changed",
         }
 
+    def line_to_floatvalue(line: str):
+        """return float value else none"""
+        line = line.split(" ")[-1].replace("s", "")
+        return float(line) if line.isnumeric() else np.nan
+
     # dteventdf = self.dt_events_df
     dteventdf = dteventdf.replace("NAN", np.nan)
     for action in actions:
         mask = dteventdf.events.str.contains(action)
-        dteventdf[action] = np.nan
-        dteventdf.loc[mask, [action]] = dteventdf.events
-        dteventdf[action] = (
-            dteventdf[action]
-            .dropna()
-            .apply(lambda st: float(st.split(" ")[-1].replace("s", "")))
-        )
-        dteventdf[action] = dteventdf[action].ffill()
-    return dteventdf
+        if len(mask.unique()) > 1:
+            dteventdf[action] = np.nan
+            dteventdf.loc[mask, [action]] = dteventdf.events
+            dteventdf[action] = (
+                dteventdf[action].dropna().apply(lambda st: line_to_floatvalue(st))
+            )
+            dteventdf[action] = dteventdf[action].ffill()
+
+    return dteventdf.dropna(how="all", axis=1)
 
 
 #%%
