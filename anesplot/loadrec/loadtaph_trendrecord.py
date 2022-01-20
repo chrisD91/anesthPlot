@@ -22,6 +22,7 @@ import sys
 from collections import defaultdict
 import time
 
+import numpy as np
 import pandas as pd
 
 # import numpy as np
@@ -212,9 +213,17 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     df = pd.DataFrame(df)
     df = df.dropna(axis=0, how="all")
     df = df.dropna(axis=1, how="all")
+
+    if len(df) < 4:
+        print(f"empty file ({os.path.basename(filename)})")
+        for col in ["datetime", "time", "eTime", "eTimeMin"]:
+            df[col] = np.nan
+        return df
+
     df["datetime"] = pd.to_datetime(df.Date + ";" + df.Time)
     df["time"] = df.Date + "-" + df.Time
     df["time"] = pd.to_datetime(df["time"], dayfirst=True)
+
     sampling = (df.time[1] - df.time[0]).seconds
     df["eTime"] = df.index * sampling
     df["eTimeMin"] = df.eTime / 60
