@@ -53,10 +53,13 @@ def remove_outliers(df: pd.DataFrame, key: str, limits: dict = None) -> pd.Serie
         }
     if key not in limits:
         print(f"{key} limits are not defined")
-    ser = df[key].copy()
-    ser[ser < limits[key][0]] = np.nan
-    ser[ser > limits[key][1]] = np.nan
-    ser = ser.dropna()
+    if key in df.columns:
+        ser = df[key].copy()
+        ser[ser < limits[key][0]] = np.nan
+        ser[ser > limits[key][1]] = np.nan
+        ser = ser.dropna()
+    else:
+        ser = pd.Series()
     return ser
 
 
@@ -601,6 +604,10 @@ def co2iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     if "co2exp" not in data.columns:
         print("no co2exp in the recording")
         return plt.figure()
+    if "aaExp" not in data.columns:
+        print("no aaExp in the recording")
+        return plt.figure()
+
     dtime = param.get("dtime", False)
     if dtime:
         df = data.set_index("datetime")[["co2insp", "co2exp", "aaInsp", "aaExp"]]
