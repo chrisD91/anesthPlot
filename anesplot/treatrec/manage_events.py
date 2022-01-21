@@ -130,13 +130,15 @@ def extract_ventilation_drive(
             "tidal volume changed",
         }
 
-    def line_to_floatvalue(line: str):
+    runs = ["ventilate", "standby"]
+
+    def end_of_line_to_float(line: str):
         """return float value else none"""
         line = line.split(" ")[-1].replace("s", "")
         try:
             val = float(line)
         except ValueError:
-            print(f"line_to_floatvalue: fix me for '{line}'")
+            print(f"end_of_line_to_float: fix me for '{line}'")
             val = np.nan
         return val
 
@@ -145,30 +147,47 @@ def extract_ventilation_drive(
     ), "extract_ventilation_drive: check unicity for dteventdf.index"
 
     dteventdf = dteventdf.replace("NAN", np.nan)
+    # ventilation True or False
+    dteventdf["ventil"] = np.nan
+    dteventdf.iloc[0, dteventdf.columns.get_loc("ventil")] = False
+    for dt, event in dteventdf.events.iteritems():
+        if "ventil" in event:
+            dteventdf.loc[dt, ["ventil"]] = True
+        elif "standby" in event:
+            dteventdf.loc[dt, ["ventil"]] = False
+    dteventdf.ventil = dteventdf.ventil.ffill()
+
     for act in acts:
         mask = dteventdf.events.str.contains(act)
         if len(mask.unique()) > 1:
-            dteventdf[act] = np.nan
-            dteventdf.loc[mask, [act]] = dteventdf.events
             # fill with change messages
             dteventdf[act] = np.nan
             dteventdf.loc[mask, [act]] = dteventdf.events
-            # fill with 'from'
-            if any(dteventdf.events.str.contains("ventilate")):
-                # set  the first value
-                start_index = dteventdf[
-                    dteventdf.events.str.contains("ventilate")
-                ].index[0]
-                first_index = dteventdf.loc[mask, [act]].index[0]
-                first_message = dteventdf.loc[mask, [act]].iloc[0][act]
-                if start_index > first_index:
-                    message = first_message  # value = post change
-                else:  # value = pre change
-                    message = first_message.split("to")[0].strip(" ")
-                dteventdf.loc[start_index, [act]] = message
-            # fill with values
-            dteventdf[act] = dteventdf[act].dropna().apply(line_to_floatvalue)
+            # fill first line with 'from'
+            first_message = dteventdf.loc[mask, [act]].iloc[0][act]
+            from_message = first_message.split("to")[0].strip(" ")
+            dteventdf.iloc[0, dteventdf.columns.get_loc(act)] = from_message
+            # to values and fill
+            dteventdf[act] = dteventdf[act].dropna().apply(end_of_line_to_float)
             dteventdf[act] = dteventdf[act].ffill()
+            # # clean ouside runs
+            # stops = dteventdf.events[
+            #     dteventdf.events.str.contains(runs[1])
+            # ].index.tolist()
+            # starts = dteventdf.events[
+            #     dteventdf.events.str.contains(runs[0])
+            # ].index.tolist()
+            # stops.insert(0, dteventdf.index[0])
+            # starts.append(dteventdf.index[-1])
+            # for stop, start in zip(stops, starts):
+            #     print("-" * 20)
+            #     print(stop)
+            #     print(start)
+            #     # print(dteventdf.loc[stop:start, [act]])
+            #     # dteventdf.loc[stop:start, [act]] = np.nan
+            #     print("-" * 20)
+
+            df = dteventdf
 
     return dteventdf.dropna(how="all", axis=1)
 
