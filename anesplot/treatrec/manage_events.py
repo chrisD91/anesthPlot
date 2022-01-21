@@ -170,24 +170,8 @@ def extract_ventilation_drive(
             # to values and fill
             dteventdf[act] = dteventdf[act].dropna().apply(end_of_line_to_float)
             dteventdf[act] = dteventdf[act].ffill()
-            # # clean ouside runs
-            # stops = dteventdf.events[
-            #     dteventdf.events.str.contains(runs[1])
-            # ].index.tolist()
-            # starts = dteventdf.events[
-            #     dteventdf.events.str.contains(runs[0])
-            # ].index.tolist()
-            # stops.insert(0, dteventdf.index[0])
-            # starts.append(dteventdf.index[-1])
-            # for stop, start in zip(stops, starts):
-            #     print("-" * 20)
-            #     print(stop)
-            #     print(start)
-            #     # print(dteventdf.loc[stop:start, [act]])
-            #     # dteventdf.loc[stop:start, [act]] = np.nan
-            #     print("-" * 20)
-
-            df = dteventdf
+            # remove non ventilate values
+            dteventdf.loc[~dteventdf.ventil, [act]] = np.nan
 
     return dteventdf.dropna(how="all", axis=1)
 
