@@ -12,6 +12,8 @@ import os
 from datetime import datetime
 from typing import Tuple, Dict
 
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
 
@@ -42,6 +44,8 @@ def extract_taphmessages(df: pd.DataFrame, display: bool = False):
         acts : dict of actions
         content: dict of taph messages
     """
+    if df.empty:
+        return {}, {}
     content = set(df.events)
     content = {_.split(":")[0].strip() for _ in content}
     content = {_.split("from")[0].strip() for _ in content}
@@ -121,7 +125,10 @@ def extract_ventilation_drive(
     dteventdf: pd.DataFrame, acts: set = None
 ) -> pd.DataFrame:
     """extract a dataframe containing the ventilatory management"""
-    # TODO extract the beginning (ventilate -> to first change)
+    if dteventdf.empty:
+        print("extract_ventilation_drive: dt_event_df is empty")
+        return pd.DataFrame()
+
     if acts is None:
         acts = {
             "cpap value changed",
@@ -130,7 +137,7 @@ def extract_ventilation_drive(
             "tidal volume changed",
         }
 
-    runs = ["ventilate", "standby"]
+    runs = {"ventilate": True, "standby": False}
 
     def end_of_line_to_float(line: str):
         """return float value else none"""
@@ -150,11 +157,11 @@ def extract_ventilation_drive(
     # ventilation True or False
     dteventdf["ventil"] = np.nan
     dteventdf.iloc[0, dteventdf.columns.get_loc("ventil")] = False
-    for dt, event in dteventdf.events.iteritems():
-        if "ventil" in event:
-            dteventdf.loc[dt, ["ventil"]] = True
-        elif "standby" in event:
-            dteventdf.loc[dt, ["ventil"]] = False
+    runs = {"ventilate": True, "standby": False}
+    for k, bol in runs.items():
+        for dt, event in dteventdf.events.iteritems():
+            if k in event:
+                dteventdf.loc[dt, ["ventil"]] = bol
     dteventdf.ventil = dteventdf.ventil.ffill()
 
     for act in acts:
@@ -174,6 +181,39 @@ def extract_ventilation_drive(
             dteventdf.loc[~dteventdf.ventil, [act]] = np.nan
 
     return dteventdf.dropna(how="all", axis=1)
+
+
+def plot_ventilation_drive(df: pd.DataFrame) -> plt.Figure:
+    df.columns = [_.split(" ")[0] for _ in df.columns]
+    cols = df.columns[2:]
+
+    labels = {"it": "inspTime", "tidal": "tidalVol", "rr": "respRate"}
+
+    plt.close("all")
+    fig = plt.figure()
+    fig.suptitle("respiratory drive")
+    ax = fig.add_subplot(111)
+    for col in cols:
+        if col == "rr":
+            ax.step(
+                df.index,
+                df[col].fillna(0),
+                linewidth=2.5,
+                linestyle=":",
+                color="k",
+                label=labels[col],
+            )
+            # ax.plot(df.index, df[col].fillna(0), linewidth=2.5, linestyle=':',  color='k', label=col)
+        else:
+            ax.step(df.index, df[col].fillna(0), linewidth=1.5, label=labels[col])
+            # ax.plot(df.index, df[col].fillna(0), linewidth=1.5, label=col)
+    ax.legend()
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+    ymax = ax.get_ylim()[1]
+    ax.set_ylim(0, round(ymax / 5) * 5)
+    for spine in ["top", "right"]:
+        ax.spines[spine].set_visible(False)
+    fig.tight_layout()
 
 
 #%%
