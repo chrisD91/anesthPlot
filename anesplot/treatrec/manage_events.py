@@ -220,6 +220,7 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
     fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
 
     fig.tight_layout()
+    return fig
 
 
 #%%
@@ -240,28 +241,32 @@ def plot_events(
     dteventdf.loc[mask, ["color"]] = "blue"
     mask = dteventdf.events.str.contains("changed")
     dteventdf.loc[mask, ["color"]] = "green"
-
+    # set index to num
+    dteventdf.reset_index(inplace=True)
+    dteventdf.rename(columns={"index": "dt"}, inplace=True)
     fig = plt.figure(figsize=(15, 4))
     ax = fig.add_subplot(111)
     dteventdf["uni"] = 1
     # ax.plot(dteventdf.uni)
     ax.scatter(dteventdf.index, dteventdf.uni, color=dteventdf.color, marker=".")
     # ax.scatter(dteventdf.index, dteventdf.uni, color="tab:green", marker=".")
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     for dt, color in dteventdf.color.iteritems():
         ax.vlines(dt, 0, 1, color=color)
     # filter messages to remove the actions
 
     # plot the events - action
     for dt, (event, color) in dteventdf[["events", "color"]].iterrows():
+        # pos = (mdates.date2num(dt), 1)
+        pos = (dt, 1)
         ax.annotate(
             event,
-            (mdates.date2num(dt), 1),
+            pos,
             rotation=45,
             va="bottom",
             ha="left",
             color=color,
         )
+    # ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     ax.set_ylim(0, 25)
     for spine in ["left", "top", "right"]:
         ax.spines[spine].set_visible(False)

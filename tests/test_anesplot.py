@@ -81,6 +81,8 @@ def test_loadtaph(num=15):
             # trends.show_graphs()
             # plt.close("all")
             trends.extract_events()
+            trends.plot_ventil_drive()
+            trends.plot_events()
 
     else:
         print("{} there are no taphfiles in the selected folder".format("!" * 10))
