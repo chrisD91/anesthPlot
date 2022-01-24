@@ -183,7 +183,7 @@ def extract_ventilation_drive(
     return dteventdf.dropna(how="all", axis=1)
 
 
-def plot_ventilation_drive(df: pd.DataFrame) -> plt.Figure:
+def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
     """plot the ventilatory drive ie the data that were changed"""
     df.columns = [_.split(" ")[0] for _ in df.columns]
     cols = df.columns[2:]
@@ -216,8 +216,66 @@ def plot_ventilation_drive(df: pd.DataFrame) -> plt.Figure:
     ax.set_ylim(0, round(ymax / 5) * 5)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
+    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
+    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+
     fig.tight_layout()
 
+
+#%%
+
+plt.close("all")
+
+
+def plot_events(
+    dteventdf: pd.DataFrame, param: dict, todrop: list = None
+) -> plt.figure:
+
+    if todrop is None:
+        todrop = []
+
+    # manage color
+    dteventdf["color"] = "red"
+    mask = dteventdf.events.str.contains("vacuum")
+    dteventdf.loc[mask, ["color"]] = "blue"
+    mask = dteventdf.events.str.contains("changed")
+    dteventdf.loc[mask, ["color"]] = "green"
+
+    fig = plt.figure(figsize=(15, 4))
+    ax = fig.add_subplot(111)
+    dteventdf["uni"] = 1
+    # ax.plot(dteventdf.uni)
+    ax.scatter(dteventdf.index, dteventdf.uni, color=dteventdf.color, marker=".")
+    # ax.scatter(dteventdf.index, dteventdf.uni, color="tab:green", marker=".")
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+    for dt, color in dteventdf.color.iteritems():
+        ax.vlines(dt, 0, 1, color=color)
+    # filter messages to remove the actions
+
+    # plot the events - action
+    for dt, (event, color) in dteventdf[["events", "color"]].iterrows():
+        ax.annotate(
+            event,
+            (mdates.date2num(dt), 1),
+            rotation=45,
+            va="bottom",
+            ha="left",
+            color=color,
+        )
+    ax.set_ylim(0, 25)
+    for spine in ["left", "top", "right"]:
+        ax.spines[spine].set_visible(False)
+    ax.yaxis.set_ticks([])
+
+    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
+    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+
+    fig.tight_layout()
+
+    return fig
+
+
+# fig = plot_events(ttrend.dt_events_df)
 
 #%%
 # TODO find preset values
