@@ -184,6 +184,7 @@ def extract_ventilation_drive(
 
 
 def plot_ventilation_drive(df: pd.DataFrame) -> plt.Figure:
+    """plot the ventilatory drive ie the data that were changed"""
     df.columns = [_.split(" ")[0] for _ in df.columns]
     cols = df.columns[2:]
 
@@ -203,10 +204,12 @@ def plot_ventilation_drive(df: pd.DataFrame) -> plt.Figure:
                 color="k",
                 label=labels[col],
             )
-            # ax.plot(df.index, df[col].fillna(0), linewidth=2.5, linestyle=':',  color='k', label=col)
         else:
-            ax.step(df.index, df[col].fillna(0), linewidth=1.5, label=labels[col])
-            # ax.plot(df.index, df[col].fillna(0), linewidth=1.5, label=col)
+            if col not in labels:
+                print(f"plot_ventilation_drive : please update the labels for {col}")
+            ax.step(
+                df.index, df[col].fillna(0), linewidth=1.5, label=labels.get(col, col)
+            )
     ax.legend()
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     ymax = ax.get_ylim()[1]
