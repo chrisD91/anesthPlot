@@ -189,7 +189,12 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
     df.columns = [_.split(" ")[0] for _ in df.columns]
     cols = df.columns[2:]
 
-    labels = {"it": "inspTime", "tidal": "tidalVol", "rr": "respRate"}
+    labels = {
+        "it": "inspTime",
+        "tidal": "tidalVol",
+        "rr": "respRate",
+        "buffer": "bufferVolume",
+    }
 
     plt.close("all")
     fig = plt.figure()
