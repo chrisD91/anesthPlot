@@ -135,6 +135,7 @@ def extract_ventilation_drive(
             "mwpl value changed",
             "rr changed",
             "tidal volume changed",
+            "buffer vol",
         }
 
     runs = {"ventilate": True, "standby": False}
@@ -234,6 +235,11 @@ def plot_events(
 
     if todrop is None:
         todrop = []
+    # drop events
+    for item in todrop:
+        dteventdf = dteventdf.drop(
+            dteventdf.loc[dteventdf.events.str.contains(item)].index
+        )
 
     # manage color
     dteventdf["color"] = "red"
@@ -241,6 +247,11 @@ def plot_events(
     dteventdf.loc[mask, ["color"]] = "blue"
     mask = dteventdf.events.str.contains("changed")
     dteventdf.loc[mask, ["color"]] = "green"
+    mask = dteventdf.events.str.contains("ventilate")
+    dteventdf.loc[mask, ["color"]] = "black"
+    mask = dteventdf.events.str.contains("standby")
+    dteventdf.loc[mask, ["color"]] = "black"
+
     # set index to num
     dteventdf.reset_index(inplace=True)
     dteventdf.rename(columns={"index": "dt"}, inplace=True)

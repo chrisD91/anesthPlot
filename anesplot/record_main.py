@@ -361,8 +361,10 @@ class TaphTrend(_SlowWave):
     def plot_ventil_drive(self):
         treat.manage_events.plot_ventilation_drive(self.ventil_drive_df, self.param)
 
-    def plot_events(self):
-        treat.manage_events.plot_events(self.dt_events_df, self.param)
+    def plot_events(self, todrop: list = None):
+        treat.manage_events.plot_events(self.dt_events_df, self.param, todrop)
+
+    # TODO : add exclusion list
 
     def export_taph_events(self, save_to_file=False):
         "export in a txt files all the events (paths:~/temp/events.txt)"
