@@ -9,7 +9,7 @@ to extract the events from the taphonius files
 
 """
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Tuple, Dict
 
 import matplotlib.pyplot as plt
@@ -78,7 +78,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
         return dteventdf
     df = datadf[["events", "datetime"]].dropna().set_index("datetime")
     df.events = df.events.apply(
-        lambda st: [_.strip("[").strip("]") for _ in st.split("\r\n")]
+        lambda st: [_.strip("[").strip("]") for _ in st.splitlines()]
     )
     if df.events.dropna().empty:
         print("no events in the recording")
@@ -87,7 +87,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     events_ser = pd.Series(name="events", dtype=str)
     events_ser.flags.allows_duplicate_labels = False
     for index, line in df.events.iteritems():
-        # break if injevtion event eg
+        # break if injection event eg
         # SD2015MAR1-5_58_19.csv
         t_event = {
             (_.split("-")[0].strip().lower(), _.split("-")[-1].strip().lower())
@@ -95,7 +95,8 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
             if _
         }
         dico = {}
-        thedate = index.date()
+        indexdate = index.date()
+        indextime = index.time()
         for t, event in t_event:
             if len(t) >= 16:
                 event = t.split("]")[-1].strip()
@@ -105,14 +106,19 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
             if " pm" in t:
                 t = t.replace(" pm", "") + " pm"
             try:
-                thetime = pd.to_datetime(t).time()
+                eventtime = pd.to_datetime(t).time()
             except pd.errors.OutOfBoundsDatetime:
-                thetime = index.time()
+                eventtime = index.time()
             except pd.errors.ParserError:
-                thetime = index.time()
+                eventtime = index.time()
             except ValueError:
-                thetime = index.time()
-            themoment = datetime.combine(thedate, thetime)
+                eventtime = index.time()
+            # TODO - to be improved for speed
+            themoment = datetime.combine(indexdate, eventtime)
+            # check overlap minutes/day around midnight
+            moment_minus_index = themoment - datetime.combine(indexdate, indextime)
+            if moment_minus_index.total_seconds() / 60 > 60:
+                themoment = themoment - timedelta(days=1)
             dico[themoment] = event
 
         batch = pd.Series(dico, dtype="object", name="events")
@@ -189,7 +195,14 @@ def extract_ventilation_drive(
 
 
 def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
-    """plot the ventilatory drive ie the data that were changed"""
+    """plot the ventilatory drive ie the data that were changed
+    input:
+        df : pd.DataFrame = ventildrive_df
+        param : dict
+
+    return
+        plt.figure
+    """
     df.columns = [_.split(" ")[0] for _ in df.columns]
     cols = df.columns[2:]
 
@@ -198,9 +211,10 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
         "tidal": "tidalVol",
         "rr": "respRate",
         "buffer": "bufferVolume",
+        "cpap": "peep",
+        "mwpl": "pressureLimit",
     }
 
-    plt.close("all")
     fig = plt.figure()
     fig.suptitle("respiratory drive")
     ax = fig.add_subplot(111)
@@ -241,6 +255,7 @@ plt.close("all")
 def plot_events(
     dteventdf: pd.DataFrame, param: dict, todrop: list = None
 ) -> plt.figure:
+    """plot all the events on an enumerate base"""
 
     if todrop is None:
         todrop = []
@@ -350,11 +365,7 @@ def build_dataframe(acts) -> pd.DataFrame:
         df = pd.DataFrame(event, columns=["dt", colname]).set_index("dt")
         dflist.append(df)
         if colname == "notdefined":
-            print(
-                "manage_events.build_dataframe : names should be updated for {}".format(
-                    act
-                )
-            )
+            print(f"manage_events.build_dataframe : names should be updated for {act}")
     df = pd.concat(dflist).sort_index()
 
     return df
@@ -364,13 +375,16 @@ def build_dataframe(acts) -> pd.DataFrame:
 if __name__ == "__main__":
     import anesplot.record_main as rec
 
-    file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
-    file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/Anonymous/Patients2021AUG10/Record13_36_34/SD2021AUG10-13_36_34.csv"
-    file_name = os.path.expanduser(
-        "~/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/Anonymous/Patients2014NOV07/Record19_34_48/SD2014NOV7-19_34_49.csv"
+    afile = "before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
+    afile = "Anonymous/Patients2021AUG10/Record13_36_34/SD2021AUG10-13_36_34.csv"
+    afile = (
+        "before2020/Anonymous/Patients2014NOV07/Record19_34_48/SD2014NOV7-19_34_49.csv"
     )
 
+    file_name = os.path.join(rec.paths["taph_data"], afile)
     # see the taphClass
     ttrend = rec.TaphTrend(file_name)
     ttrend.extract_events()
     ttrend.show_graphs()
+    ttrend.plot_events()
+    ttrend.plot_ventil_drive()
