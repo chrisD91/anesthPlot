@@ -147,12 +147,12 @@ def detect_beats(ser, fs=300, species="horse", mult=1):
     pk, beats_params = sg.find_peaks(
         ser * -1, height=height, distance=distance, prominence=prominence
     )
-    df["pLoc"] = pk
+    df["p_loc"] = pk
     for key in beats_params.keys():
         df[key] = beats_params[key]
     if "peak_heights" in df.columns:
-        df = df.rename(columns={"peak_heights": "yLoc"})
-        df.yLoc *= -1  # inverted trace <-> horse R wave
+        df = df.rename(columns={"peak_heights": "y_loc"})
+        df.y_loc *= -1  # inverted trace <-> horse R wave
     return df
 
 
@@ -165,10 +165,10 @@ def plot_beats(ecg, beats):
     ax0.plot(ecg.values, label="ekg")
     ax0.set_ylabel("ekg (mV)")
     ax0.set_xlabel("pt value")
-    ax0.plot(beats.pLoc, beats.yLoc, "o", color="orange", label="R")
+    ax0.plot(beats.p_loc, beats.y_loc, "o", color="orange", label="R")
 
     ax1 = fig.add_subplot(212, sharex=ax0)
-    ax1.plot(beats.pLoc[:-1], np.diff(beats.pLoc), "r-", label="rr")
+    ax1.plot(beats.p_loc[:-1], np.diff(beats.p_loc), "r-", label="rr")
     ax1.set_ylabel("rr (pt value)")
     ax1.set_xlabel("pt value")
     fig.legend()
@@ -190,7 +190,7 @@ def plot_beats(ecg, beats):
 def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None, yscale=1):
     """locate the beat in the figure, append to a dataframe['toAppend']
 
-    :param pandas.Dataframe beatdf: contains the point based location (pLocs)
+    :param pandas.Dataframe beatdf: contains the point based location (p_locs)
     :param pandas dataframe ekgdf: contains the wave recording ((wekg_lowpass)
     :param pandas.Dataframa tochange_df: to store the beats toAppend or toRemove
     :param pyplot.Figure fig: figure to find time limits
@@ -231,19 +231,19 @@ def append_beat(beatdf, ekgdf, tochange_df, fig, lim=None, yscale=1):
     if len(onepoint_beatdf) < 1:
         print("no beat founded")
         return tochange_df
-    found_loc = onepoint_beatdf.pLoc.values[0]
-    yloc = onepoint_beatdf.yLoc.values[0]
+    found_loc = onepoint_beatdf.p_loc.values[0]
+    y_loc = onepoint_beatdf.y_loc.values[0]
     # reassign the pt value
-    ploc = ekgdf.wekg_lowpass.loc[lim[0] : lim[1]].index[found_loc]
-    onepoint_beatdf["pLoc"] = ploc
-    print("founded ", ploc)
+    p_loc = ekgdf.wekg_lowpass.loc[lim[0] : lim[1]].index[found_loc]
+    onepoint_beatdf["p_loc"] = p_loc
+    print("founded ", p_loc)
     # append to figure
-    fig.get_axes()[0].plot(ploc, yloc, "og")
-    onepoint_beatdf.pLoc = ploc
-    onepoint_beatdf.left_bases += ploc - found_loc
-    onepoint_beatdf.right_bases.values[0] += ploc - found_loc
+    fig.get_axes()[0].plot(p_loc, y_loc, "og")
+    onepoint_beatdf.p_loc = p_loc
+    onepoint_beatdf.left_bases += p_loc - found_loc
+    onepoint_beatdf.right_bases.values[0] += p_loc - found_loc
     # insert in the tochange_df
-    # beatdf = beatdf.drop_duplicates('pLoc')
+    # beatdf = beatdf.drop_duplicates('p_loc')
     tochange_df = tochange_df.append(onepoint_beatdf)
     return tochange_df
 
@@ -273,7 +273,7 @@ def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
     if lim is None:
         lims = fig.get_axes()[0].get_xlim()
         lim = (int(lims[0]), int(lims[1]))
-    position = beatdf.pLoc[(lim[0] < beatdf.pLoc) & (beatdf.pLoc < lim[1])]
+    position = beatdf.p_loc[(lim[0] < beatdf.p_loc) & (beatdf.p_loc < lim[1])]
     iloc = position.index.values[0]
     ptloc = position.values  # pt values of the peak
     if len(ptloc) > 1:
@@ -281,15 +281,15 @@ def remove_beat(beatdf, ekgdf, tochange_df, fig, lim=None):
         return tochange_df
     pos = int(ptloc[0])  # array -> value
     # mark on the graph
-    pLoc, yLoc = beatdf.loc[iloc, ["pLoc", "yLoc"]]
-    pLoc = int(pLoc)
+    p_loc, y_loc = beatdf.loc[iloc, ["p_loc", "y_loc"]]
+    p_loc = int(p_loc)
     ax = fig.get_axes()[0]
-    ax.plot(pLoc, yLoc, "Xr")
+    ax.plot(p_loc, y_loc, "Xr")
     # mark to remove
     onepoint_beatdf = beatdf.loc[iloc].copy()
     onepoint_beatdf["action"] = "remove"
     tochange_df = tochange_df.append(onepoint_beatdf, ignore_index=True)
-    # beatdf.loc[pos, ['yLoc']] = np.NaN
+    # beatdf.loc[pos, ['y_loc']] = np.NaN
     print("position is ", pos)
     return tochange_df
 
@@ -339,22 +339,22 @@ def update_beat_df(beatdf, tochangedf, path_to_file="", from_file=False):
         try:
             beatdf = pd.read_csv(name, index_col=0)
         except FileNotFoundError:
-            print("file is not present ({})".format(name))
+            print(f"file is not present ({name})")
         name = os.path.join(path_to_file, "toChange.csv")
         tochangedf = pd.read_csv(name, index_col=0)
-    for col in ["pLoc", "left_bases", "right_bases"]:
+    for col in ["p_loc", "left_bases", "right_bases"]:
         tochangedf[col] = tochangedf[col].astype(int)
     # remove
-    to_remove = tochangedf.loc[tochangedf["action"] == "remove", ["pLoc"]]
+    to_remove = tochangedf.loc[tochangedf["action"] == "remove", ["p_loc"]]
     to_remove = to_remove.values.flatten().tolist()
-    beatdf = beatdf.set_index("pLoc").drop(to_remove, errors="ignore")
+    beatdf = beatdf.set_index("p_loc").drop(to_remove, errors="ignore")
     beatdf.reset_index(inplace=True)
     # append
     temp_df = tochangedf.loc[tochangedf["action"] == "append"].set_index("action")
     beatdf = beatdf.append(temp_df, ignore_index=True)
     # rebuild
     beatdf.drop_duplicates(keep=False, inplace=True)
-    beatdf = beatdf.sort_values(by="pLoc").reset_index(drop=True)
+    beatdf = beatdf.sort_values(by="p_loc").reset_index(drop=True)
     return beatdf
 
 
@@ -368,7 +368,7 @@ def compute_rr(beatdf, fs=None):
     parameters
     ----------
     beatdf : pd.DataFrame
-        with 'pLoc'
+        with 'p_loc'
     fs : integer
         sampling frequency
 
@@ -384,8 +384,8 @@ def compute_rr(beatdf, fs=None):
     if fs is None:
         fs = 300
     # compute rr intervals
-    #    beat_df['rr'] = np.diff(beat_df.pLoc)
-    beatdf["rr"] = beatdf.pLoc.shift(-1) - beatdf.pLoc  # pt duration
+    #    beat_df['rr'] = np.diff(beat_df.p_loc)
+    beatdf["rr"] = beatdf.p_loc.shift(-1) - beatdf.p_loc  # pt duration
     beatdf.rr = beatdf.rr / fs * 1_000  # time duration
     # remove outliers (HR < 20)
     if len(beatdf.loc[beatdf.rr > 20_000]) > 0:
@@ -420,14 +420,14 @@ def interpolate_rr(beatdf, kind=None):
         kind = "cubic"
     ahr_df = pd.DataFrame()
     # prepare = sorting and removing possible duplicates
-    beatdf = beatdf.sort_values(by="pLoc")
-    beatdf = beatdf.drop_duplicates("pLoc")
+    beatdf = beatdf.sort_values(by="p_loc")
+    beatdf = beatdf.drop_duplicates("p_loc")
 
-    first_beat_pt = int(beatdf.iloc[0].pLoc)
-    last_beat_pt = int(beatdf.iloc[-2].pLoc)  # last interval
+    first_beat_pt = int(beatdf.iloc[0].p_loc)
+    last_beat_pt = int(beatdf.iloc[-2].p_loc)  # last interval
     newx = np.arange(first_beat_pt, last_beat_pt)
     # interpolate rr
-    rrx = beatdf.pLoc[:-1].values  # rr locations
+    rrx = beatdf.p_loc[:-1].values  # rr locations
     rry = beatdf.rr[:-1].values  # rr values
     f = interp1d(rrx, rry, kind=kind)
     newy = f(newx)
@@ -540,14 +540,14 @@ def append_ihr_to_trend(trenddf, wavedf, ekgdf):
 
 def save_trends_data(trenddf, savename="", dirpath="data"):
     """
-     save the trends data to a csv and hd5 file, including an ihr column
+    save the trends data to a csv and hd5 file, including an ihr column
 
-     parameters
-     ----------
-     trenddf : pd.dataframes
-     savename : str
-     dirpath : str
-         path to save in (default= current working directory)
+    parameters
+    ----------
+    trenddf : pd.dataframes
+    savename : str
+    dirpath : str
+        path to save in (default= current working directory)
 
     output
     ------
@@ -557,7 +557,7 @@ def save_trends_data(trenddf, savename="", dirpath="data"):
     if dirpath is None:
         dirpath = os.getcwd()
     if not os.path.isdir(dirpath):
-        print("folder {} does not exist, please build it".format(dirpath))
+        print("folder {dirpath} does not exist, please build it")
         return
     filename = savename + "_" + "trendData"
     if filename.startswith("_"):
@@ -585,7 +585,7 @@ def save_waves_data(wavedf, savename="", dirpath="data"):
     if dirpath is None:
         dirpath = os.getcwd()
     if not os.path.isdir(dirpath):
-        print("folder {} does not exist, please build it".format(dirpath))
+        print("folder {dirpath} does not exist, please build it")
         return
     filename = savename + "_" + "waveData"
     if filename.startswith("_"):
