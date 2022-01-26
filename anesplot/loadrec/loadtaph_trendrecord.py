@@ -142,7 +142,9 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     :returns: df = trends data
     :rtype: pandas.Dataframe
     """
-
+    if filename is None:
+        print(f"{'!' * 10} no name provided")
+        return pd.DataFrame()
     print(f"{'-' * 20} > loadtaph_datafile")
     if not os.path.isfile(filename):
         print(f"{'!' * 10} datafile not found")
@@ -156,7 +158,14 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
 
     try:
-        df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
+        #        df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
+        df = pd.read_csv(
+            filename,
+            sep=",",
+            header=1,
+            skiprows=[2],
+            index_col=False,
+        )
     except pd.errors.ParserError:
         print(f"corrupted file ({os.path.basename(filename)})")
         df = pd.read_csv(
@@ -164,8 +173,9 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
             sep=",",
             header=1,
             skiprows=[2],
-            error_bad_lines=False,
+            on_bad_lines="skip",
             engine="python",
+            index_col=False,
         )
         # return pd.DataFrame()
 
@@ -227,7 +237,11 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         for col in ["datetime", "time", "eTime", "eTimeMin"]:
             df[col] = np.nan
         return df
+    # # >>
+    # import pdb
 
+    # pdb.set_trace()
+    # # >>
     df["datetime"] = pd.to_datetime(df.Date + ";" + df.Time)
     df["time"] = df.Date + "-" + df.Time
     df["time"] = pd.to_datetime(df["time"], dayfirst=True)
@@ -283,13 +297,19 @@ def loadtaph_patientfile(filename: str) -> dict:
 
 #%%
 if __name__ == "__main__":
-    from config.load_recordrc import build_paths
+    from anesplot.config.load_recordrc import build_paths
 
     paths = build_paths()
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
 
-    monitor_name = "M2021_9_9-11_44_35.csv"
-    file_name = choose_taph_record(monitor_name)
+    #   monitor_name = "M2021_9_9-11_44_35.csv"
+    #    file_name = choose_taph_record(monitor_name)
+
+    file_name = os.path.join(
+        paths["taph_data"],
+        "before2020/Anonymous/Patients2013DEC17/Record08_29_27/SD2013DEC17-8_29_27.csv",
+    )
+
     tdata_df = loadtaph_trenddata(file_name)
     header_dico = loadtaph_patientfile(file_name)

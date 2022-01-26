@@ -335,7 +335,8 @@ class TaphTrend(_SlowWave):
         if filename is None:
             filename = ltt.choose_taph_record()
         self.filename = filename
-        self.param["file"] = os.path.basename(filename)
+        if filename:
+            self.param["file"] = os.path.basename(filename)
 
         data = ltt.loadtaph_trenddata(filename)
         self.data = data

@@ -146,8 +146,12 @@ def extract_ventilation_drive(
         try:
             val = float(line)
         except ValueError:
-            print(f"end_of_line_to_float: fix me for '{line}'")
-            val = np.nan
+            try:
+                # old files
+                val = float(line.replace(",", "."))
+            except ValueError:
+                print(f"end_of_line_to_float: fix me for '{line}'")
+                val = np.nan
         return val
 
     assert (
