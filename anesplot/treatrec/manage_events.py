@@ -70,6 +70,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     ------
     datadf : pd.DataFrame taphonius recording
     ouput:
+    ------
         dteventdf: pd.DataFrame index=datetime,
     """
     dteventdf = pd.DataFrame(columns=["events"])
@@ -122,7 +123,14 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
             dico[themoment] = event
 
         batch = pd.Series(dico, dtype="object", name="events")
-        events_ser = events_ser.append(batch)
+        try:
+            events_ser = events_ser.append(batch)
+        except pd.errors.DuplicateLabelError:
+            # two events at the same index
+            for dt in batch.index:
+                if dt in events_ser:
+                    batch = batch.drop(index=dt)
+            events_ser = events_ser.append(batch)
     dteventdf = pd.DataFrame(events_ser)
     return dteventdf
 
@@ -380,6 +388,7 @@ if __name__ == "__main__":
     afile = (
         "before2020/Anonymous/Patients2014NOV07/Record19_34_48/SD2014NOV7-19_34_49.csv"
     )
+    afile = "before2020/BELAMIDUBOCAGE_A15-8244/Patients2015JUN25/Record15_48_30/SD2015JUN25-15_48_30.csv"
 
     file_name = os.path.join(rec.paths["taph_data"], afile)
     # see the taphClass
