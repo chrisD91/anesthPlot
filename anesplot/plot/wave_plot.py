@@ -32,11 +32,22 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 
 def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r"):
-    """change the color of the label & tick & spine.
+    """
+    change the color of the label & tick & spine.
 
-    :param matplotlib.pyplot.axis ax: the axis
-    :param str spine: optional location in ['bottom', 'left', 'top', 'right']
-    :param str colors: optional color
+    Parameters
+    ----------
+    ax : plt.Axes
+        the axis to work on.
+    spine : str, optional (default is "bottom")
+        location in ['bottom', 'left', 'top', 'right']
+    color : str, optional (default is "r")
+        color to use
+
+    Returns
+    -------
+    None.
+
     """
     ax.spines[spine].set_color(color)
     if spine == "bottom":
@@ -49,17 +60,25 @@ def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r"):
 
 #%%
 def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
-    """plot the waves recorded (from as5)
-
-    :param pandas.DataFrame data: the recorded trends data
-    :param list keys: one or two in ['wekg','ECG','wco2','wawp','wflow','wap']
-    :param dict {mini: limits in point value (index), maxi: limits in point value (index)}
-
-    :returns fig: plt.figure  the plot
-    :returns lines: plt.line2D the line to animate
-
-    (Nb plot data/index, but the xscale is indicated as sec)
     """
+    plot the waves recorded (from as5)
+    (Nb plot data/index, but the xscale is indicated as sec)
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        recorded waves data.
+    keys : list
+        one or two in ['wekg','ECG','wco2','wawp','wflow','wap'].
+    param : dict
+        {mini: limits in point value (index), maxi: limits in point value (index)}.
+
+    Returns
+    -------
+    matplotlib.pyplot.Figure
+
+    """
+
     # test wave in dataframe
     for key in keys:
         try:
@@ -213,22 +232,22 @@ def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
 
 
 def get_roi(fig: plt.Figure, df: pd.DataFrame, params: dict) -> dict:
-    """use the drawn figure to extract the relevant data in order to build an animation
+    """
+    use the drawn figure to extract the relevant data in order to build an animation
 
-    :param waves: a wave recording
-    :type waves: MonitorWave object
-    :return: a dictionary containing ylims, xlims(point, dtime and sec),
-    traces used to build the plot, the fig object
-    :rtype: dictionary
 
-    input:
-        fig : matplotlib.pyplot.figure
-        df : dataframe used to build the figure
-        params = paramter dictionary
+    Parameters
+    ----------
+    fig : plt.Figure
+        the figure to get data from.
+    df : pd.DataFrame
+        waves recording.
+    params : dict of parameters
 
-    return:
-        roi : dictionary containing ylims, xlims(point, dtime and sec)
-
+    Returns
+    -------
+    dict :
+        containing ylims, xlims(point, dtime and sec)
     """
 
     ylims = tuple([_.get_ylim() for _ in fig.get_axes()])
@@ -275,29 +294,54 @@ def create_video(
     savename: str = "example",
     savedir: str = "~",
 ):
-    """create a video from a figure
-    input:
-        waves : waves object
-        speed : integer, speed of the display
-        save : boolean (default=False)
-        savename : str (default='example')
-        savedir : str (path, default='~'
-    return:
-        .mp4 file
-        .png file
+    """
+    create a video from a figure
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        waves data.
+    param : dict
+        recording parameters.
+    roi : dict
+        containing ylims, xlims(point, dtime and sec).
+    speed : int, optional (default is 1).
+        speed of the video.
+    save : bool, optional (default is False)
+        to save or not to save.
+    savename : str, optional (default is "example").
+        save (short) name.
+    savedir : str, optional (default is "~").
+        save dirname (full).
+
+    Returns
+    -------
+    .mp4 file
+    .png file
+
     """
 
     def select_sub_dataframe(
         datadf: pd.DataFrame, keys: list, xlims: tuple
     ) -> pd.DataFrame:
-        """extract subdataframe corresponding to the roi
+        """
+        extract subdataframe corresponding to the roi
 
-        :param waves: wave recording
-        :type waves: rec.MonitorWave (with a defined roi attribute)
-        :return: df
-        :rtype: pandas.dataframe
+        Parameters
+        ----------
+        datadf : pd.DataFrame
+            wave recording.
+        keys : list
+            list of columns to use (max : 2).
+        xlims : tuple
+            (xmin, xmax).
+
+        Returns
+        -------
+        sub_df : pandas.DataFrame
 
         """
+
         sub_df = datadf[xlims[0] < datadf.sec]
         sub_df = sub_df[sub_df.sec < xlims[1]]
         sub_df = sub_df.set_index("sec")
@@ -319,9 +363,26 @@ def create_video(
 
     def animate(i: int, df: pd.DataFrame, keys: list, nbpoint: int) -> tuple:
         """
-        animate frame[i], add nbpoint to the lines
-        return the two lines2D objects
+        animate the plot
+
+        Parameters
+        ----------
+        i : int
+            frame indice.
+        df : pd.DataFrame
+            the restricted data to use.
+        keys : list
+            the columns names.
+        nbpoint : int
+            nb of point to add in each new frame.
+
+        Returns
+        -------
+        tuple
+            the two lines2D objects.
+
         """
+
         if len(keys) == 1:
             trace_name = keys[0]
             line0.set_data(
