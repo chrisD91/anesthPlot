@@ -36,12 +36,21 @@ paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRe
 
 # list taph recordings
 def build_taph_decodedate_dico(pathdict: dict = None) -> dict:
-    """list all the taph recordings and the paths to the record:
-    input:
-        paths: dictionary containing {'taph': pathToTheData}
-    output:
-        dictionary: {date : filename}
     """
+    list all the taph recordings and the paths to the record
+
+    Parameters
+    ----------
+    pathdict : dict, optional
+        dictionary containing {'taph': pathToTheData}, (default is None).
+
+    Returns
+    -------
+    dict
+        get all the recorded files expressed as {date : filename}.
+
+    """
+
     if pathdict is None:
         pathdict = paths
     months = {
@@ -80,12 +89,21 @@ def build_taph_decodedate_dico(pathdict: dict = None) -> dict:
 
 
 def extract_record_day(monitor_file_name: str) -> str:
-    """extract the date as 'YYYY_MM_DD' from a monitor_filename
-    input:
-        monitor file name (shortname)
-    output:
-        day : YYYY_MM_DD str
     """
+    extract the date as 'YYYY_MM_DD' from a monitor_filename
+
+    Parameters
+    ----------
+    monitor_file_name : str
+        monitor file name (shortname).
+
+    Returns
+    -------
+    str
+        same date expressed as YYYY_MM_DD.
+
+    """
+
     record_date = os.path.basename(monitor_file_name.lower())
     for st in ["sd", "m", ".csv", "wave"]:
         record_date = record_date.strip(st)
@@ -95,14 +113,21 @@ def extract_record_day(monitor_file_name: str) -> str:
 
 
 def choose_taph_record(monitorname: str = None) -> str:
-    """select the taph recording:
-    input:
-        taphdico :  {date:path} builded from build_taph_decodedate_dico()'
-        year = integer to place the pointer in pull down menu
-        date = to be implemented (as year but to extract from monitor filename)
-    output:
-        filename (str) full path
     """
+    explore the recording folders and proposes to selct one
+
+    Parameters
+    ----------
+    monitorname : str, optional
+        a monitor file (short) name to place the pointer in the pull down menu.
+
+    Returns
+    -------
+    str
+        selected file (full) name.
+
+    """
+
     print(f"{'-' * 20} > choose taph_record")
     taphdico = build_taph_decodedate_dico()
     recorddates = sorted(taphdico.keys(), reverse=True)
@@ -135,13 +160,21 @@ def choose_taph_record(monitorname: str = None) -> str:
 
 
 def loadtaph_trenddata(filename: str) -> pd.DataFrame:
-    """load the taphoniusData trends data.
-
-    :param str filename: fullname
-
-    :returns: df = trends data
-    :rtype: pandas.Dataframe
     """
+    load the taphoniusData trends data.
+
+    Parameters
+    ----------
+    filename : str
+        selected file (full) name.
+
+    Returns
+    -------
+    pandas.DataFrame
+        the recorded data.
+
+    """
+
     if filename is None:
         print(f"{'!' * 10} no name provided")
         return pd.DataFrame()
@@ -263,14 +296,22 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
 
 
 def loadtaph_patientfile(filename: str) -> dict:
-    """load the taphonius patient.csv file
-    input:
-        filename : (str) the full filename
-            (the headername will be reconstructed inside the function)
-
-    output:
-        descr = dict of patient_data
     """
+    load the taphonius patient.csv file ('header' in monitor files, description)
+
+    Parameters
+    ----------
+    filename : str
+        the taph recording file (full) name ('SDYYYMMDD...').
+        (the headername will be reconstructed inside the function)
+
+    Returns
+    -------
+    dict
+        the patient description data.
+
+    """
+
     headername = os.path.join(os.path.dirname(filename), "Patient.csv")
 
     print(f"{'-' * 20} > loading taph_patientfile")

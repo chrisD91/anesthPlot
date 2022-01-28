@@ -21,12 +21,19 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 def choosefile_gui(dirpath: str = None) -> str:
-    """select a file using a dialog.
+    """
+    select a file using a dialog
 
-    :param str dir_path: optional location of the data (ex : paths['data'], default : 'home')
+    Parameters
+    ----------
+    dirpath : str, optional
+       location of the data, ex : paths['data']. (The default is None -> '~'.
 
-    :returns: filename (full path)
-    :rtype: str
+    Returns
+    -------
+    str
+        full name of the selected file.
+
     """
 
     if dirpath is None:
@@ -45,13 +52,21 @@ def choosefile_gui(dirpath: str = None) -> str:
 
 
 def loadtelevet(fname: str = None, all_traces: bool = False) -> pd.DataFrame:
-    """load the televetCsvExportedFile.
+    """
+    load the televetCsvExportedFile
 
-    :param str file: name of the file
-    :param bool all_traces: load all the derivations
+    Parameters
+    ----------
+    fname : str, optional
+        (full) name of the file (default is None).
+    all_traces : bool, optional
+        load all the derivations (default is False).
 
-    :returns: df = recorded traces
-    :rtype: pandas.Dataframe
+    Returns
+    -------
+    pandas.DataFrame
+        the recorded traces.
+
     """
 
     filepath = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTelVetRecorded"

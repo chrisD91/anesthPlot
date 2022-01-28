@@ -10,8 +10,14 @@ can be runned as a script::
 or imported as a package::
     import anesplot.record_main as rec
     %gui qt5 (required only to use the dialogs if using spyder)
-    trends = rec.MonitorTrend()
-    waves = rec.MonitorWave(rec.trendname_to_wavename(trends.filename))
+    # objects:
+    mtrends = rec.MonitorTrend()
+    waves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))
+    ttrends = rec.TaphTtrend()
+    # use methods and or attributes
+    mtrends.show_graphs() -> clinical debrief selection
+    waves.plot_wave() -> select one or two waves to plot
+    ...
 ----
 nb to work within spyder : move inside anestplot (>> cd anesplot)
 
@@ -66,15 +72,17 @@ app = QApplication(sys.argv)
 def choosefile_gui(dirname: str = None) -> str:
     """Select a file via a dialog and return the (full) filename.
 
-    parameters
-    ----
-    dir_path : str
-        location to place the gui ('generally paths['data']) else home
+    Parameters
+    ----------
+    dirname : str, optional
+        DESCRIPTION. location to place the gui ('generally paths['data']) else home
+                                                The default is None.
 
-    return
-    ----
-    fname[0] : str
-        filename
+    Returns
+    -------
+    fname[0]:str
+        DESCRIPTION. : full name of the selected file
+
     """
     global app
 
@@ -101,21 +109,30 @@ def choosefile_gui(dirname: str = None) -> str:
 
 
 def trendname_to_wavename(name: str) -> str:
-    """just compute the supposed name"""
+    """just compute the supposed (full)name"""
     return name.split(".")[0] + "Wave.csv"
 
 
 def select_type(question: str = None, items: list = None, num: int = 0) -> str:
-    """select the recording type:
-
-    parameters
-    ----
-
-    return
-    ----
-    kind : str
-        kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
     """
+    display a pulldown menu to choose the kind of recording
+
+    Parameters
+    ----------
+    question : str, optional
+        The question that appears in the dialog (default is None).
+    items : list, optional
+        the list of all items in the pulldown menu. (default is None).
+    num : int, optional
+        number in the list the pointer will be one. The default is 0.
+
+    Returns
+    -------
+    str
+        kind of recording in [monitorTrend, monitorWave, taphTrend, telvet].
+
+    """
+
     if items is None:
         items = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     if question is None:
@@ -132,16 +149,21 @@ def select_type(question: str = None, items: list = None, num: int = 0) -> str:
 
 
 def select_wave_to_plot(waves: list, num=1) -> str:
-    """select the recording type:
-
-    parameters
-    ----
-
-    return
-    ----
-    kind : str
-        kind of recording in [monitorTrend, monitorWave, taphTrend, telvet]
     """
+    select the wave trace to plot
+
+    Parameters
+    ----------
+    waves : list
+        list of available waves traces
+    num : TYPE, optional
+        index of the waves in the plot (1 or 2)
+    Returns
+    -------
+    str
+        wave name
+    """
+
     global app
     if num == 1:
         question = "choose first wave"
@@ -158,20 +180,25 @@ def select_wave_to_plot(waves: list, num=1) -> str:
 
 
 def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict:
-    """clinical main plots of a trend recordings
-
-    parameters
-    df : pdDataframe
-        recorded data (MonitorTrend.data)
-    header : dict
-        recording parameters (MonitorTrend.header)
-    param_dico : dict
-        plotting parameters (MonitorTrend.param)
-
-    return
-    ----
-    afig_dico : {names:fig_obj}
     """
+    generate a series of plots for anesthesia debriefing purposes
+
+    Parameters
+    ----------
+    datadf : pd.DataFrame
+        recorded data (MonitorTrend.data or TaphTrend.data).
+    header : dict
+        recording parameters (MonitorTrend.header or TaphTrend.header).
+    param_dico : dict
+        plotting parameters (MonitorTrend.param or TaphTrend.param).
+
+    Returns
+    -------
+    dict
+        afig_dico : {names:fig_obj} of displayed figures
+
+    """
+
     # clean the data for taph monitoring
     if param_dico["source"] == "taphTrend":
         if "co2exp" in datadf.columns.values:
@@ -237,6 +264,7 @@ class _Waves:
 
 # +++++++
 class _SlowWave(_Waves):
+
     """class for slowWaves = trends
 
     attributes:
@@ -482,22 +510,36 @@ class _FastWave(_Waves):
         self.roi = roidict
         return roidict
 
-    def animate_fig(self, speed=1, save=False, savename="video", savedir="~"):
-        """build a video the previous builded figure
+    def animate_fig(
+        self,
+        speed: int = 1,
+        save: bool = False,
+        savename: str = "video",
+        savedir: str = "~",
+    ):
+        """
+        build a video the previous builded figure
+        NB requires :
+            the .fig attribute (builded through .plot_wave())
+            and the .roi attribute (builded through .define_a_roi())
 
-        use .fig attribute (builded through .plot_wave())
-        and .roi attribute (builded through .define_a_roi())
+        Parameters
+        ----------
+        speed : int, optional
+            speed of the video (defaults is 1).
+        save : bool, optional
+            decide to save (default is False).
+        savename : str, optional
+            name of the video (default is "video").
+        savedir : str, optional
+            Path of the save folder (default is "~").
 
-        :param speed: speed of the video, defaults to 1
-        :type speed: int, optional
-        :param save: save or just display, defaults to False
-        :type save: boolean, optional
-        :param savedir: directory to save the animation, defaults to "~"
-        :type savedir: str, optional
-        :return: video file
-        :rtype: mp4
+        Returns
+        -------
+        None.
 
         """
+
         if self.roi:
             wplot.create_video(
                 self.data,
@@ -542,7 +584,7 @@ class MonitorWave(_FastWave):
         input : filename = path to file
         load = boolean to load data (default is True)
 
-    attibutes ... FILLME
+    attibutes ... FILLMEq
 
 
     methods ... FILLME
@@ -569,11 +611,21 @@ class MonitorWave(_FastWave):
 
 
 def main(file_name: str = None):
-    """main script called from command line
-    call : "python anesthPlot/anesplot/__main__.py"
-    args : optional filename (fullname)
+    """
+    main script called from command line
+    call : "python record_main.py"
+    call a GUI, load recording and display a series of plt.figure
+    NB filename will be placed in the clipboard
 
-    return: set of plots for either monitorTrend, monitorWave oe televet recording
+    Parameters
+    ----------
+    file_name : str, optional
+        recordfile fullname (default is None).
+
+    Returns
+    -------
+    None.
+
     """
     # os.chdir(paths.get("recordMain", os.path.expanduser('~')))
     print(f"backEnd= {plt.get_backend()}")  # required ?

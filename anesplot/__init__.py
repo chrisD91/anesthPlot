@@ -8,10 +8,12 @@ three way to use it:
     1. run directly anesplot from a terminal
         -> PYTHONPATH=<pathToAnesthPlot> python -m anesplot
         -> generate a quick plotting of most interestings parts
+        (e.g. to use during an anesthesia debriefing session)
     2. from an ipython terminal
         -> import anesthPlot.anesplot.recordmain as rec
-        -> trends = rec.MonitorTrend()
+        -> mtrends = rec.MonitorTrend()
         -> waves = rec.MonitorWave()
+        -> ttrends = rec.TaphTrend()
         -> ... and use the objects trends and waves
     3. import the module in a python environment (see below)
 

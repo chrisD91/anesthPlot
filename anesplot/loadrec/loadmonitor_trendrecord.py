@@ -25,18 +25,22 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 def choosefile_gui(dirname: str = None) -> str:
-    """Select a file via a dialog and return the (full) filename.
-
-    parameters
-    ----
-    dir_path : str
-        location to place the gui ('generally paths['data']) else home
-
-    return
-    ----
-    fname[0] : str
-        filename
     """
+    Select a file via a dialog and return the (full) filename.
+
+    Parameters
+    ----------
+    dirname : str, optional
+        location to place the gui ('generally paths['data']) else home
+                                   (default is None).
+
+    Returns
+    -------
+    str
+        the choosed file fullname.
+
+    """
+
     # nb these imports seems to be required to allow processing after importation
     # import sys
     # from PyQt5.QtWidgets import QApplication, QFileDialog
@@ -58,13 +62,21 @@ def choosefile_gui(dirname: str = None) -> str:
 
 # Monitor trend
 def loadmonitor_trendheader(filename: str) -> dict:
-    """load the file header.
-
-    :param str filename: full name of the file
-
-    :returns: header
-    :rtype: dict
     """
+    load the file header.
+
+    Parameters
+    ----------
+    filename : str
+        full name of the file.
+
+    Returns
+    -------
+    dict
+        the content of the header.
+
+    """
+
     print(f"{'-' * 20} > loadmonitor_trendheader")
     if not os.path.isfile(filename):
         print(f"{'!'* 10} file not found")
@@ -107,13 +119,21 @@ def loadmonitor_trendheader(filename: str) -> dict:
 
 
 def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
-    """load the monitor trend data
+    """
+    load the monitor trend data
 
-    :param str filename: fullname
-    :param dict headerdico: fileheader
+    Parameters
+    ----------
+    filename : str
+        full name of the datafile.
+    headerdico : dict
+        fileheader content.
 
-    :returns: df = trends data
-    :rtype: pandas.Dataframe
+    Returns
+    -------
+    pd.DataFrame
+        the recorded data.
+
     """
 
     print(f"{'-' * 20} > loadmonitor_trenddata")

@@ -22,18 +22,20 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 def choosefile_gui(dirname: str = None) -> str:
-    """Select a file via a dialog and return the (full) filename.
-
-    parameters
-    ----
-    dir_path : str
-        location to place the gui ('generally paths['data']) else home
-
-    return
-    ----
-    fname[0] : str
-        filename
     """
+    Select a file via a dialog and return the (full) filename.
+
+    Parameters
+    ----------
+    dirname : str, optional
+        DESCRIPTION. The default is None.
+
+    Returns
+    -------
+    str : the choosed file full name
+
+    """
+
     # nb these imports seems to be required to allow processing after importation
     # import sys
     # from PyQt5.QtWidgets import QApplication, QFileDialog
@@ -52,12 +54,19 @@ def choosefile_gui(dirname: str = None) -> str:
 
 
 def loadmonitor_waveheader(filename: str = None) -> dict:
-    """load the wave file header.
+    """
+    load the wave file header.
 
-    :param str filename: full name of the file
+    Parameters
+    ----------
+    filename : str, optional
+        full name of the file (default is None).
 
-    :returns: header
-    :rtype: dictionary
+    Returns
+    -------
+    dict
+        content of the header.
+
     """
 
     print(f"{'-' * 20} > loadmonitor_waveheader")
@@ -91,12 +100,19 @@ def loadmonitor_waveheader(filename: str = None) -> dict:
 
 
 def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
-    """load the monitor wave csvDataFile.
+    """
+    load the monitor wave csvDataFile.
 
-    :param str filename: full name of the file
+    Parameters
+    ----------
+    filename : str, optional
+        full name of the file (default is None).
 
-    :returns: df = trends data
-    :rtype: pandas.Dataframe
+    Returns
+    -------
+    pandas.Dataframe
+        the recorded wave data
+
     """
 
     print(f"{'-' * 20} > loadmonitor_wavedata")
