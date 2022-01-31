@@ -191,7 +191,10 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
 
     try:
-        #        df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
+        # df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
+        # row 0 -> groups
+        # row 1 -> header
+        # row 2 -> units
         df = pd.read_csv(
             filename,
             sep=",",
@@ -201,16 +204,17 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         )
     except pd.errors.ParserError:
         print(f"corrupted file ({os.path.basename(filename)})")
-        df = pd.read_csv(
-            filename,
-            sep=",",
-            header=1,
-            skiprows=[2],
-            on_bad_lines="skip",
-            engine="python",
-            index_col=False,
-        )
-        # return pd.DataFrame()
+        # generally related to pb with the auxillary controler
+        # df = pd.read_csv(
+        #     filename,
+        #     sep=",",
+        #     header=1,
+        #     skiprows=[2],
+        #     on_bad_lines="skip",
+        #     engine="python",
+        #     index_col=False,
+        # )
+        return pd.DataFrame()
 
     corr_title = {
         "Date": "Date",
@@ -338,6 +342,8 @@ def loadtaph_patientfile(filename: str) -> dict:
 
 #%%
 if __name__ == "__main__":
+
+    from PyQt5.QtWidgets import QApplication
     from anesplot.config.load_recordrc import build_paths
 
     paths = build_paths()
@@ -346,11 +352,12 @@ if __name__ == "__main__":
 
     #   monitor_name = "M2021_9_9-11_44_35.csv"
     #    file_name = choose_taph_record(monitor_name)
-
-    file_name = os.path.join(
-        paths["taph_data"],
-        "before2020/Anonymous/Patients2013DEC17/Record08_29_27/SD2013DEC17-8_29_27.csv",
+    name = (
+        "before2020/Anonymous/Patients2013DEC17/Record08_29_27/SD2013DEC17-8_29_27.csv"
     )
+    name = "Anonymous/Patients2022JAN21/Record22_52_07/SD2022JAN21-22_52_7.csv"
+    # chekc datetime (non linear and there is 2015 & 2021dates)
+    file_name = os.path.join(paths["taph_data"], name)
 
     tdata_df = loadtaph_trenddata(file_name)
     header_dico = loadtaph_patientfile(file_name)
