@@ -930,21 +930,32 @@ def ventil(data: pd.DataFrame, param=dict) -> plt.Figure:
     ax1_r.set_ylabel("pression")
     color_axis(ax1_r, "right", "tab:red")
 
-    monitor_items = {"pPlat", "pPlat", "peep"}
-    taph_items = {"pip", "peep1", "peep"}
-    if monitor_items < set(df.columns):
-        # if ("pPlat" in df.columns) and ("pPlat" in df.columns) and ("peep" in df.columns):
-        ax1_r.plot(df.pPeak, color="tab:red", linewidth=1, linestyle="-", label="pPeak")
-        ax1_r.plot(df.pPlat, color="tab:red", linewidth=1, linestyle=":", label="pPlat")
-        ax1_r.plot(df.peep, color="tab:red", linewidth=1, linestyle="-", label="peep")
-        ax1_r.fill_between(df.index, df.peep, df.pPeak, color="tab:red", alpha=0.1)
-    elif taph_items < set(df.columns):
-        ax1_r.plot(df.pip, color="tab:red", linewidth=1, linestyle="-", label="pip")
-        ax1_r.plot(df.peep, color="tab:red", linewidth=1, linestyle=":", label="peep")
-        ax1_r.plot(df.peep1, color="tab:red", linewidth=1, linestyle="-", label="peep1")
-        ax1_r.fill_between(df.index, df.peep, df.pip, color="tab:red", alpha=0.1)
+    toplot = {}
+    # monitor
+    if {"pPeak", "pPlat", "peep"} < set(df.columns):
+        toplot = {"peak": "pPeak", "peep": "peep", "plat": "pPlat"}
+        # correction if spirometry tubes have been inverted (plateau measure is false)
+        if df.peep.mean() > df.pPlat.mean():
+            toplot["peep"] = "pPlat"
+            toplot.pop("plat")
+    # taph
+    # TODO peep of peep1
+    # TODO fix end of file peak pressure
+    elif {"pip", "peep1", "peep"} < set(df.columns):
+        toplot = {"peak": "pip", "peep": "peep1"}
     else:
         print("no spirometry data in the recording")
+
+    if toplot:
+        style = ["-", "-", ":"]
+        for k, s in zip(toplot, style):
+            ax1_r.plot(
+                df[toplot[k]], color="tab:red", linewidth=1, linestyle=s, label=k
+            )
+        ax1_r.fill_between(
+            df.index, df[toplot["peak"]], df[toplot["peep"]], color="tab:red", alpha=0.1
+        )
+
     ax2 = fig.add_subplot(212, sharex=ax1)
     ax2.set_ylabel("MinVol & RR")
     # monitor
