@@ -429,7 +429,7 @@ def hist_co2_iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
             alpha=0.8,
         )
         ax2.set_xlabel("%", alpha=0.5)
-        q25, q50, q75 = np.percentile(ser.dropna(), [25, 50, 75])
+        _, q50, _ = np.percentile(ser.dropna(), [25, 50, 75])
         ax2.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
     else:
         ax2.text(
@@ -917,7 +917,10 @@ def ventil(data: pd.DataFrame, param=dict) -> plt.Figure:
     color_axis(ax1, "left", "tab:olive")
     ax1.yaxis.label.set_color("k")
     if "tvInsp" in df.columns:  # datex
-        ax1.plot(df.tvInsp, color="tab:olive", linewidth=2, label="tvInsp")
+        # comparison with the taphonius data ... to be improved
+        # calib = ttrend.data.tvInsp.mean() / taph_trend.data.tv.mean()
+        calib = 187
+        ax1.plot(df.tvInsp / calib, color="tab:olive", linewidth=2, label="tvInsp")
     elif "tv" in df.columns:  # taph
         ax1.plot(df.tv, color="tab:olive", linewidth=1, linestyle=":", label="tv")
         try:
@@ -939,7 +942,6 @@ def ventil(data: pd.DataFrame, param=dict) -> plt.Figure:
             toplot["peep"] = "pPlat"
             toplot.pop("plat")
     # taph
-    # TODO peep of peep1
     # TODO fix end of file peak pressure
     elif {"pip", "peep1", "peep"} < set(df.columns):
         toplot = {"peak": "pip", "peep": "peep1"}
@@ -965,8 +967,6 @@ def ventil(data: pd.DataFrame, param=dict) -> plt.Figure:
         # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
         ax2.plot(df.minVexp, color="tab:olive", linewidth=2, label="minVexp")
         ax2.plot(df.co2RR, color="tab:blue", linewidth=1, linestyle="--", label="co2RR")
-    # TODO add taphonius minute volume
-    # "minVol", "mv1", other scale
     elif taph_items < set(df.columns):
         # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
         # ax2.plot(df.minVexp, color="tab:olive", linewidth=2)
@@ -1232,6 +1232,6 @@ def fig_memo(apath: str, fig_name: str):
     )
 
     fig_insert = os.path.join(apath, "figIncl.txt")
-    with open(fig_insert, "a") as file:
+    with open(fig_insert, "a", encoding="utf-8") as file:
         file.write(include_text + "\n")
         file.close()
