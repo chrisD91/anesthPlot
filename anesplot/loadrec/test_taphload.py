@@ -19,7 +19,7 @@ import pandas as pd
 
 
 file_name = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/Anonymous/Patients2022JAN21/Record22_52_07/SD2022JAN21-22_52_7.csv"
-filename = file_name.copy()
+filename = file_name
 
 with open(filename) as f:
     lines = f.read().splitlines()

@@ -388,7 +388,10 @@ class TaphTrend(_SlowWave):
         self.ventil_drive_df = ventil_drive_df
 
     def plot_ventil_drive(self):
-        treat.manage_events.plot_ventilation_drive(self.ventil_drive_df, self.param)
+        fig = treat.manage_events.plot_ventilation_drive(
+            self.ventil_drive_df, self.param
+        )
+        fig.show()
 
     def plot_events(self, todrop: list = None):
         treat.manage_events.plot_events(self.dt_events_df, self.param, todrop)

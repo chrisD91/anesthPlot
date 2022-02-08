@@ -132,13 +132,27 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
                     batch = batch.drop(index=dt)
             events_ser = events_ser.append(batch)
     dteventdf = pd.DataFrame(events_ser)
+    dteventdf = dteventdf.sort_index()
     return dteventdf
 
 
 def extract_ventilation_drive(
     dteventdf: pd.DataFrame, acts: set = None
 ) -> pd.DataFrame:
-    """extract a dataframe containing the ventilatory management"""
+    """extract a dataframe containing the ventilatory management
+
+    Parameters
+    ----------
+    dteventdf : pd.DataFrame
+        a container for taph generated events (dtime as index, event as column).
+    acts : set, optional (default is None)
+        container for action messages.
+
+    Returns
+    -------
+    pd.DataFrame with datetime index and one column per action (ex 'rr changed')
+
+    """
     if dteventdf.empty:
         print("extract_ventilation_drive: dt_event_df is empty")
         return pd.DataFrame()
@@ -261,9 +275,26 @@ plt.close("all")
 
 
 def plot_events(
-    dteventdf: pd.DataFrame, param: dict, todrop: list = None
+    dteventdf: pd.DataFrame, param: dict, todrop: list = None, dtime: bool = False
 ) -> plt.figure:
-    """plot all the events on an enumerate base"""
+    """plot all events
+
+    Parameters
+    ----------
+    dteventdf : pd.DataFrame
+        the data with a datetime index, and an event column
+    param : dict
+        data recording parameters (just to get the filename)
+    todrop : list, optional (default is None)
+        str in the columns to drop the column
+    dtime : boolean (default is False)
+        to use dtime as the xscale.
+
+    Returns
+    -------
+    fig : plt.Figure
+
+    """
 
     if todrop is None:
         todrop = []
@@ -285,8 +316,9 @@ def plot_events(
     dteventdf.loc[mask, ["color"]] = "black"
 
     # set index to num
-    dteventdf.reset_index(inplace=True)
-    dteventdf.rename(columns={"index": "dt"}, inplace=True)
+    if not dtime:
+        dteventdf.reset_index(inplace=True)
+        dteventdf.rename(columns={"index": "dt"}, inplace=True)
     fig = plt.figure(figsize=(15, 4))
     ax = fig.add_subplot(111)
     dteventdf["uni"] = 1
@@ -309,7 +341,8 @@ def plot_events(
             ha="left",
             color=color,
         )
-    # ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+    if dtime:
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     ax.set_ylim(0, 25)
     for spine in ["left", "top", "right"]:
         ax.spines[spine].set_visible(False)
@@ -319,7 +352,7 @@ def plot_events(
     fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
 
     fig.tight_layout()
-
+    plt.show()
     return fig
 
 
