@@ -340,6 +340,9 @@ class MonitorTrend(_SlowWave):
             self.data = data
             self.param["sampling_freq"] = header.get("60/Sampling Rate", None)
             self.param["source"] = "monitorTrend"
+        else:
+            print(f"MonitorTrend: didn't load the data ({load=})")
+            self.data = pd.DataFrame()
 
 
 class TaphTrend(_SlowWave):
@@ -393,8 +396,8 @@ class TaphTrend(_SlowWave):
         )
         fig.show()
 
-    def plot_events(self, todrop: list = None):
-        treat.manage_events.plot_events(self.dt_events_df, self.param, todrop)
+    def plot_events(self, todrop: list = None, dtime: bool = False):
+        treat.manage_events.plot_events(self.dt_events_df, self.param, todrop, dtime)
 
     # TODO : add exclusion list
 
@@ -606,7 +609,7 @@ class MonitorWave(_FastWave):
             data = lmw.loadmonitor_wavedata(filename)
             self.data = data
         else:
-            print("MonitorWave: didn't load the data (load={})".format(load))
+            print(f"MonitorWave: didn't load the data ({load=})")
             self.data = pd.DataFrame()
         self.param["source"] = "monitorWave"
         fs = float(header.get("Data Rate (ms)", 0)) * 60 / 1000

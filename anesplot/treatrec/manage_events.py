@@ -10,7 +10,8 @@ to extract the events from the taphonius files
 """
 import os
 from datetime import datetime, timedelta
-from typing import Tuple, Dict
+from math import ceil
+from typing import Tuple, Dict, Set, Any
 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -36,12 +37,22 @@ def convert_day(st: str) -> str:
     return new
 
 
-def extract_taphmessages(df: pd.DataFrame, display: bool = False):
-    """extract the messages
-    input:
-        df : pd.DataFrame of dt_event_df
-    return:
-        acts : dict of actions
+def extract_taphmessages(df: pd.DataFrame, display: bool = False) -> Tuple[Any, Any]:
+    """
+    extract the messages
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        dt_event_df.
+    display : bool, optional (default is False)
+        print the messages in the terminal
+
+    Returns
+    -------
+    dict
+        acts : dict of actions.
+    dict
         content: dict of taph messages
     """
     if df.empty:
@@ -65,14 +76,20 @@ def extract_taphmessages(df: pd.DataFrame, display: bool = False):
 
 
 def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
-    """build a pandas datafame with a countinuous datetime:event pairs
-    input:
-    ------
-    datadf : pd.DataFrame taphonius recording
-    ouput:
-    ------
-        dteventdf: pd.DataFrame index=datetime,
     """
+    build a pandas datafame with a countinuous datetime:event pairs
+
+    Parameters
+    ----------
+    datadf : pd.DataFrame
+        the taphonius recording.
+
+    Returns
+    -------
+    dteventdf : pd.DataFrame
+        dataframe with index=datetime.
+    """
+
     dteventdf = pd.DataFrame(columns=["events"])
     if datadf.empty:
         print("empty dataframe")
@@ -217,13 +234,20 @@ def extract_ventilation_drive(
 
 
 def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
-    """plot the ventilatory drive ie the data that were changed
-    input:
-        df : pd.DataFrame = ventildrive_df
-        param : dict
+    """
+    plot the ventilatory drive ie the data that were changed
 
-    return
-        plt.figure
+    Parameters
+    ----------
+    df : pd.DataFrame
+        ventildrive_df
+    param : dict
+        the recording parameters
+
+    Returns
+    -------
+    fig : plt.Figure
+
     """
     df.columns = [_.split(" ")[0] for _ in df.columns]
     cols = df.columns[2:]
@@ -259,7 +283,7 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
     ax.legend()
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     ymax = ax.get_ylim()[1]
-    ax.set_ylim(0, round(ymax / 5) * 5)
+    ax.set_ylim(0, ceil(ymax / 5) * 5)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
