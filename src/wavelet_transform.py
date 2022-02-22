@@ -13,7 +13,7 @@ def Morlet_Wavelet_Decay(f, w0=6.0):
     """
     Time value of the wavelet where the amplitude decays of
     """
-    return 2 ** 0.5 * (w0 / (np.pi * f))
+    return 2**0.5 * (w0 / (np.pi * f))
 
 
 def from_fourier_to_morlet(freq):
@@ -32,7 +32,7 @@ def get_Morlet_of_right_size(f, dt, w0=6.0, with_t=False):
 
 def norm_constant_th(freq, dt, w0=6.0):
     # from theoretical calculus:
-    n = (w0 / 2.0 / np.sqrt(2.0 * np.pi) / freq) * (1.0 + np.exp(-(w0 ** 2) / 2))
+    n = (w0 / 2.0 / np.sqrt(2.0 * np.pi) / freq) * (1.0 + np.exp(-(w0**2) / 2))
     return n / dt
 
 
