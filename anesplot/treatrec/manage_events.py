@@ -181,8 +181,18 @@ def extract_ventilation_drive(
             "rr changed",
             "tidal volume changed",
             "buffer vol",
+            "it",
+            "ip",
         }
-
+    default_chris = {
+        "tidal": 7,
+        "rr": 8,
+        "it": 2,
+        "ip": 10,
+        "mwpl": 55,
+        "cpap": 5,
+        "buffer": 10,
+    }
     runs = {"ventilate": True, "standby": False}
 
     def end_of_line_to_float(line: str):
@@ -216,9 +226,9 @@ def extract_ventilation_drive(
 
     for act in acts:
         mask = dteventdf.events.str.contains(act)
+        dteventdf[act] = np.nan
         if len(mask.unique()) > 1:
             # fill with change messages
-            dteventdf[act] = np.nan
             dteventdf.loc[mask, [act]] = dteventdf.events
             # fill first line with 'from'
             first_message = dteventdf.loc[mask, [act]].iloc[0][act]
@@ -227,8 +237,10 @@ def extract_ventilation_drive(
             # to values and fill
             dteventdf[act] = dteventdf[act].dropna().apply(end_of_line_to_float)
             dteventdf[act] = dteventdf[act].ffill()
-            # remove non ventilate values
-            dteventdf.loc[~dteventdf.ventil, [act]] = np.nan
+        else:
+            dteventdf[act] = default_chris.get(act.split(" ")[0], np.nan)
+        # remove non ventilate values
+        dteventdf.loc[~dteventdf.ventil, [act]] = np.nan
 
     return dteventdf.dropna(how="all", axis=1)
 
