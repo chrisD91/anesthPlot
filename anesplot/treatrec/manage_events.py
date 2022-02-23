@@ -86,21 +86,21 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 
     Returns
     -------
-    dteventdf : pd.DataFrame
+    dteventsdf : pd.DataFrame
         dataframe with index=datetime.
     """
 
-    dteventdf = pd.DataFrame(columns=["events"])
+    dteventsdf = pd.DataFrame(columns=["events"])
     if datadf.empty:
         print("empty dataframe")
-        return dteventdf
+        return dteventsdf
     df = datadf[["events", "datetime"]].dropna().set_index("datetime")
     df.events = df.events.apply(
         lambda st: [_.strip("[").strip("]") for _ in st.splitlines()]
     )
     if df.events.dropna().empty:
         print("no events in the recording")
-        return dteventdf
+        return dteventsdf
     # linearize the events
     events_ser = pd.Series(name="events", dtype=str)
     events_ser.flags.allows_duplicate_labels = False
@@ -148,19 +148,19 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
                 if dt in events_ser:
                     batch = batch.drop(index=dt)
             events_ser = events_ser.append(batch)
-    dteventdf = pd.DataFrame(events_ser)
-    dteventdf = dteventdf.sort_index()
-    return dteventdf
+    dteventsdf = pd.DataFrame(events_ser)
+    dteventsdf = dteventsdf.sort_index()
+    return dteventsdf
 
 
 def extract_ventilation_drive(
-    dteventdf: pd.DataFrame, acts: set = None
+    dteventsdf: pd.DataFrame, acts: set = None
 ) -> pd.DataFrame:
     """extract a dataframe containing the ventilatory management
 
     Parameters
     ----------
-    dteventdf : pd.DataFrame
+    dteventsdf : pd.DataFrame
         a container for taph generated events (dtime as index, event as column).
     acts : set, optional (default is None)
         container for action messages.
@@ -170,7 +170,7 @@ def extract_ventilation_drive(
     pd.DataFrame with datetime index and one column per action (ex 'rr changed')
 
     """
-    if dteventdf.empty:
+    if dteventsdf.empty:
         print("extract_ventilation_drive: dt_event_df is empty")
         return pd.DataFrame()
 
@@ -211,42 +211,60 @@ def extract_ventilation_drive(
         return val
 
     assert (
-        dteventdf.index.is_unique
-    ), "extract_ventilation_drive: check unicity for dteventdf.index"
+        dteventsdf.index.is_unique
+    ), "extract_ventilation_drive: check unicity for dteventsdf.index"
 
-    dteventdf = dteventdf.replace("NAN", np.nan)
+    dteventsdf = dteventsdf.replace("NAN", np.nan)
     # ventilation True or False
-    dteventdf["ventil"] = np.nan
-    dteventdf.iloc[0, dteventdf.columns.get_loc("ventil")] = False
+    dteventsdf["ventil"] = np.nan
+    dteventsdf.iloc[0, dteventsdf.columns.get_loc("ventil")] = False
     runs = {"ventilate": True, "standby": False}
     for k, bol in runs.items():
-        for dt, event in dteventdf.events.iteritems():
+        for dt, event in dteventsdf.events.iteritems():
             if k in event:
-                dteventdf.loc[dt, ["ventil"]] = bol
-    dteventdf.ventil = dteventdf.ventil.ffill()
+                dteventsdf.loc[dt, ["ventil"]] = bol
+    dteventsdf.ventil = dteventsdf.ventil.ffill()
 
     for act in acts:
-        mask = dteventdf.events.str.contains(act)
-        dteventdf[act] = np.nan
+        if len(act.split(" ")) > 2:
+            # two words in act
+            mask = dteventsdf.events.str.contains(act)
+        else:
+            mask = dteventsdf.events.str.contains(" " + act + " ")
+        dteventsdf[act] = np.nan
         if len(mask.unique()) > 1:
             # fill with change messages
-            dteventdf.loc[mask, [act]] = dteventdf.events
-            # fill first line with 'from'
-            first_message = dteventdf.loc[mask, [act]].iloc[0][act]
+            dteventsdf.loc[mask, [act]] = dteventsdf.events
+            # replace first line with the first 'changed from ...'
+            first_message = dteventsdf.loc[mask, [act]].iloc[0][act]
             from_message = first_message.split("to")[0].strip(" ")
-            dteventdf.iloc[0, dteventdf.columns.get_loc(act)] = from_message
-            # to values and fill
-            dteventdf[act] = dteventdf[act].dropna().apply(end_of_line_to_float)
-            dteventdf[act] = dteventdf[act].ffill()
+            if default_chris[act.split(" ")[0]] == end_of_line_to_float(from_message):
+                dteventsdf.iloc[0, dteventsdf.columns.get_loc(act)] = from_message
+            else:
+                # replace the from extracted value by the defauls one
+                # taph bug : first message ie cpap value changed from 0, not preset 5)
+                print(f"first value is differant from default_settings for '{act}'")
+                print(f"replaced '{from_message}'")
+                print(
+                    f"by '{default_chris[act.split(' ')[0]]}' (as initial {act} value)"
+                )
+                dteventsdf.iloc[0, dteventsdf.columns.get_loc(act)] = str(
+                    default_chris[act.split(" ")[0]]
+                )
+            # to values extraction and fill
+            dteventsdf[act] = dteventsdf[act].dropna().apply(end_of_line_to_float)
+            dteventsdf[act] = dteventsdf[act].ffill()
         else:
-            dteventdf[act] = default_chris.get(act.split(" ")[0], np.nan)
+            dteventsdf[act] = default_chris.get(act.split(" ")[0], np.nan)
         # remove non ventilate values
-        dteventdf.loc[~dteventdf.ventil, [act]] = np.nan
+        dteventsdf.loc[~dteventsdf.ventil, [act]] = np.nan
 
-    return dteventdf.dropna(how="all", axis=1)
+    return dteventsdf.dropna(how="all", axis=1)
 
 
-def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
+def plot_ventilation_drive(
+    df: pd.DataFrame, param: dict, all_traces: bool = False
+) -> plt.Figure:
     """
     plot the ventilatory drive ie the data that were changed
 
@@ -256,6 +274,8 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
         ventildrive_df
     param : dict
         the recording parameters
+    all: bool (default is False)
+        to include {'buffer', 'ip', 'mwpl'}
 
     Returns
     -------
@@ -264,6 +284,10 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
     """
     df.columns = [_.split(" ")[0] for _ in df.columns]
     cols = df.columns[2:]
+
+    if not all_traces:
+        cols = [_ for _ in cols if _ not in {"buffer", "ip", "mwpl"}]
+        # tops = {"it", "tidal", "rr", "cpap"}
 
     labels = {
         "ip": "inspiratoryPause",
@@ -274,19 +298,12 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
         "cpap": "peep",
         "mwpl": "pressureLimit",
     }
-    tops = {"it", "tidal", "rr", "cpap"}
-    # bots = {'buffer', 'ip', 'mwpl'}
     # lack it -> to be checked
     fig = plt.figure()
     fig.suptitle("respiratory drive")
-    axt = fig.add_subplot(211)
-    axb = fig.add_subplot(212)
-    axes = [axt, axb]
+    ax = fig.add_subplot(111)
+
     for col in cols:
-        if col in tops:
-            ax = axes[0]
-        else:
-            ax = axes[1]
         if col == "rr":
             ax.step(
                 df.index,
@@ -302,13 +319,12 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
             ax.step(
                 df.index, df[col].fillna(0), linewidth=1.5, label=labels.get(col, col)
             )
-    for ax in axes:
-        ax.legend()
-        ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-        ymax = ax.get_ylim()[1]
-        ax.set_ylim(0, ceil(ymax / 5) * 5)
-        for spine in ["top", "right"]:
-            ax.spines[spine].set_visible(False)
+    ax.legend()
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+    ymax = ax.get_ylim()[1]
+    ax.set_ylim(0, ceil(ymax / 5) * 5)
+    for spine in ["top", "right"]:
+        ax.spines[spine].set_visible(False)
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
     fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
 
@@ -322,13 +338,13 @@ plt.close("all")
 
 
 def plot_events(
-    dteventdf: pd.DataFrame, param: dict, todrop: list = None, dtime: bool = False
+    dteventsdf: pd.DataFrame, param: dict, todrop: list = None, dtime: bool = False
 ) -> plt.figure:
     """plot all events
 
     Parameters
     ----------
-    dteventdf : pd.DataFrame
+    dteventsdf : pd.DataFrame
         the data with a datetime index, and an event column
     param : dict
         data recording parameters (just to get the filename)
@@ -347,37 +363,37 @@ def plot_events(
         todrop = []
     # drop events
     for item in todrop:
-        dteventdf = dteventdf.drop(
-            dteventdf.loc[dteventdf.events.str.contains(item)].index
+        dteventsdf = dteventsdf.drop(
+            dteventsdf.loc[dteventsdf.events.str.contains(item)].index
         )
 
     # manage color
-    dteventdf["color"] = "red"
-    mask = dteventdf.events.str.contains("vacuum")
-    dteventdf.loc[mask, ["color"]] = "blue"
-    mask = dteventdf.events.str.contains("changed")
-    dteventdf.loc[mask, ["color"]] = "green"
-    mask = dteventdf.events.str.contains("ventilate")
-    dteventdf.loc[mask, ["color"]] = "black"
-    mask = dteventdf.events.str.contains("standby")
-    dteventdf.loc[mask, ["color"]] = "black"
+    dteventsdf["color"] = "red"
+    mask = dteventsdf.events.str.contains("vacuum")
+    dteventsdf.loc[mask, ["color"]] = "blue"
+    mask = dteventsdf.events.str.contains("changed")
+    dteventsdf.loc[mask, ["color"]] = "green"
+    mask = dteventsdf.events.str.contains("ventilate")
+    dteventsdf.loc[mask, ["color"]] = "black"
+    mask = dteventsdf.events.str.contains("standby")
+    dteventsdf.loc[mask, ["color"]] = "black"
 
     # set index to num
     if not dtime:
-        dteventdf.reset_index(inplace=True)
-        dteventdf.rename(columns={"index": "dt"}, inplace=True)
+        dteventsdf.reset_index(inplace=True)
+        dteventsdf.rename(columns={"index": "dt"}, inplace=True)
     fig = plt.figure(figsize=(15, 4))
     ax = fig.add_subplot(111)
-    dteventdf["uni"] = 1
-    # ax.plot(dteventdf.uni)
-    ax.scatter(dteventdf.index, dteventdf.uni, color=dteventdf.color, marker=".")
-    # ax.scatter(dteventdf.index, dteventdf.uni, color="tab:green", marker=".")
-    for dt, color in dteventdf.color.iteritems():
+    dteventsdf["uni"] = 1
+    # ax.plot(dteventsdf.uni)
+    ax.scatter(dteventsdf.index, dteventsdf.uni, color=dteventsdf.color, marker=".")
+    # ax.scatter(dteventsdf.index, dteventsdf.uni, color="tab:green", marker=".")
+    for dt, color in dteventsdf.color.iteritems():
         ax.vlines(dt, 0, 1, color=color)
     # filter messages to remove the actions
 
     # plot the events - action
-    for dt, (event, color) in dteventdf[["events", "color"]].iterrows():
+    for dt, (event, color) in dteventsdf[["events", "color"]].iterrows():
         # pos = (mdates.date2num(dt), 1)
         pos = (dt, 1)
         ax.annotate(
