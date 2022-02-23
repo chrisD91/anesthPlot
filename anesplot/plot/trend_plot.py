@@ -544,7 +544,7 @@ def cardiovasc(data: pd.DataFrame, param: dict = None) -> plt.Figure:
         else:
             ax_r.spines["left"].set_visible(False)
 
-        # annotations
+    # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
     fig.text(0.01, 0.01, file, ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
@@ -1176,6 +1176,77 @@ def ventil_cardio(data: pd.DataFrame, param: dict) -> plt.Figure:
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
     fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    fig.tight_layout()
+    return fig
+
+
+def sat_hr(data: pd.DataFrame, param: dict) -> plt.Figure:
+    """
+    plot a sat and sat_hr over time
+
+    Parameters
+    ----------
+    taphdata : pd.DataFrame
+        the taph recording
+    dtime : boolean, optional (default is True)
+        plot over datetime (or elapsed time)
+
+    Returns
+    -------
+    fig : TYPE
+        DESCRIPTION.
+
+    """
+
+    if param is None:
+        param = {}
+    if "sat" not in data.columns:
+        print("no saturation in the recording")
+        return plt.figure()
+    if "spo2Hr" not in data.columns:
+        print("no satHr in the recording")
+        return plt.figure()
+    # global timeUnit
+    dtime = param.get("dtime", False)
+    if dtime:
+        df = data.set_index("datetime")[["sat", "spo2Hr"]]
+    else:
+        df = data.set_index("eTimeMin")[["sat", "spo2Hr"]]
+
+    fig = plt.figure()
+    axl = fig.add_subplot(111)
+    axr = axl.twinx()
+
+    for ax, trace, color, style in zip(
+        [axl, axr], ["sat", "spo2Hr"], ["tab:red", "tab:grey"], ["-", ":"]
+    ):
+
+        ax.plot(
+            df[trace],
+            color=color,
+            linestyle=style,
+            linewidth=2,
+        )
+        if dtime:
+            my_fmt = mdates.DateFormatter("%H:%M")
+            ax.xaxis.set_major_formatter(my_fmt)
+
+        ax.spines["top"].set_visible(False)
+        ax.set_ylabel(trace)
+        ax.yaxis.label.set_color(color)
+        ax.tick_params(axis="y", colors=color)
+        ax.tick_params(axis="x", colors="tab:grey")
+        ax.xaxis.label.set_color("tab:grey")
+
+    axl.set_ylim(60, 100)
+    axr.set_ylim(25, 70)
+    axr.spines["left"].set_visible(False)
+
+    # annotations
+    file = param.get("file", "")
+    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
+    fig.text(0.01, 0.01, file, ha="left", va="bottom", alpha=0.4)
+
     fig.tight_layout()
     return fig
 

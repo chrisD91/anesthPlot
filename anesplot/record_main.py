@@ -211,14 +211,16 @@ def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict
     afig_list = []
     print("building figures")
     # plotting
-    plot_func_list = (
+    plot_func_list = [
         tplot.ventil,
         tplot.co2o2,
         tplot.co2iso,
         tplot.cardiovasc,
         tplot.hist_co2_iso,
         tplot.hist_cardio,
-    )
+    ]
+    if param_dico["source"] == "taphTrend":
+        plot_func_list.insert(0, tplot.sat_hr)
     for func in plot_func_list:
         afig_list.append(func(datadf, param_dico))
 
@@ -378,6 +380,7 @@ class TaphTrend(_SlowWave):
         self.param["sampling_freq"] = None
 
     def extract_events(self):
+        """decode the taph messages, build events, actions and ventil_drive"""
         dt_events_df = treat.manage_events.build_event_dataframe(self.data)
         self.dt_events_df = dt_events_df
 
