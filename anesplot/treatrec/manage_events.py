@@ -184,6 +184,7 @@ def extract_ventilation_drive(
             "it",
             "ip",
         }
+    # nb in the taphonius, the default setings are not included in the recorded data
     default_chris = {
         "tidal": 7,
         "rr": 8,
@@ -205,7 +206,7 @@ def extract_ventilation_drive(
                 # old files
                 val = float(line.replace(",", "."))
             except ValueError:
-                print(f"end_of_line_to_float: fix me for '{line}'")
+                # print(f"end_of_line_to_float: fix me for '{line}'")
                 val = np.nan
         return val
 
@@ -265,6 +266,7 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
     cols = df.columns[2:]
 
     labels = {
+        "ip": "inspiratoryPause",
         "it": "inspTime",
         "tidal": "tidalVol",
         "rr": "respRate",
@@ -272,11 +274,19 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
         "cpap": "peep",
         "mwpl": "pressureLimit",
     }
-
+    tops = {"it", "tidal", "rr", "cpap"}
+    # bots = {'buffer', 'ip', 'mwpl'}
+    # lack it -> to be checked
     fig = plt.figure()
     fig.suptitle("respiratory drive")
-    ax = fig.add_subplot(111)
+    axt = fig.add_subplot(211)
+    axb = fig.add_subplot(212)
+    axes = [axt, axb]
     for col in cols:
+        if col in tops:
+            ax = axes[0]
+        else:
+            ax = axes[1]
         if col == "rr":
             ax.step(
                 df.index,
@@ -292,12 +302,13 @@ def plot_ventilation_drive(df: pd.DataFrame, param: dict) -> plt.Figure:
             ax.step(
                 df.index, df[col].fillna(0), linewidth=1.5, label=labels.get(col, col)
             )
-    ax.legend()
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-    ymax = ax.get_ylim()[1]
-    ax.set_ylim(0, ceil(ymax / 5) * 5)
-    for spine in ["top", "right"]:
-        ax.spines[spine].set_visible(False)
+    for ax in axes:
+        ax.legend()
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+        ymax = ax.get_ylim()[1]
+        ax.set_ylim(0, ceil(ymax / 5) * 5)
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
     fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
 

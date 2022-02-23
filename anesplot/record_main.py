@@ -388,9 +388,13 @@ class TaphTrend(_SlowWave):
         self.actions = actions
         self.events = events
 
-        ventil_drive_df = treat.manage_events.extract_ventilation_drive(
-            dt_events_df, actions
-        )
+        # ventil_drive_df = treat.manage_events.extract_ventilation_drive(
+        #     dt_events_df, actions
+        # )
+        # removed actions to be able to plot everything that arrives
+        # (not only actions ie include the preset values)
+        ventil_drive_df = treat.manage_events.extract_ventilation_drive(dt_events_df)
+
         self.ventil_drive_df = ventil_drive_df
 
     def plot_ventil_drive(self):
