@@ -363,10 +363,10 @@ class TaphTrend(_SlowWave):
         show_graphs : plot the clinical debrief 'suite'
     """
 
-    def __init__(self, filename: str = None):
+    def __init__(self, filename: str = None, monitorname: str = None):
         super().__init__()
         if filename is None:
-            filename = ltt.choose_taph_record()
+            filename = ltt.choose_taph_record(monitorname)
         self.filename = filename
         if filename:
             self.param["file"] = os.path.basename(filename)
@@ -378,6 +378,7 @@ class TaphTrend(_SlowWave):
 
         self.param["source"] = "taphTrend"
         self.param["sampling_freq"] = None
+        self.extract_events()
 
     def extract_events(self):
         """decode the taph messages, build events, actions and ventil_drive"""
@@ -387,23 +388,20 @@ class TaphTrend(_SlowWave):
         actions, events = treat.manage_events.extract_taphmessages(self.dt_events_df)
         self.actions = actions
         self.events = events
-
-        # ventil_drive_df = treat.manage_events.extract_ventilation_drive(
-        #     dt_events_df, actions
-        # )
         # removed actions to be able to plot everything that arrives
         # (not only actions ie include the preset values)
         ventil_drive_df = treat.manage_events.extract_ventilation_drive(dt_events_df)
-
         self.ventil_drive_df = ventil_drive_df
 
-    def plot_ventil_drive(self):
+    def plot_ventil_drive(self, all_traces: bool = False):
+        """plot the ventilation commands that have been used"""
         fig = treat.manage_events.plot_ventilation_drive(
-            self.ventil_drive_df, self.param
+            self.ventil_drive_df, self.param, all_traces
         )
         fig.show()
 
     def plot_events(self, todrop: list = None, dtime: bool = False):
+        """plot the events as a time display, dtime allow dtime use"""
         treat.manage_events.plot_events(self.dt_events_df, self.param, todrop, dtime)
 
     # TODO : add exclusion list

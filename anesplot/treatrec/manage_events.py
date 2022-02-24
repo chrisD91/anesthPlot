@@ -246,7 +246,7 @@ def extract_ventilation_drive(
                 print(f"first value is differant from default_settings for '{act}'")
                 print(f"replaced '{from_message}'")
                 print(
-                    f"by '{default_chris[act.split(' ')[0]]}' (as initial {act} value)"
+                    f"by '{default_chris[act.split(' ')[0]]}' (as initial '{act}' value)"
                 )
                 dteventsdf.iloc[0, dteventsdf.columns.get_loc(act)] = str(
                     default_chris[act.split(" ")[0]]
