@@ -90,6 +90,9 @@ import sys
 # see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
 from pathlib import Path
 
+import pyperclip
+
+
 # to be able to use imports in spyder
 # from PyQt5.QtWidgets import QApplication, QFileDialog
 
@@ -97,6 +100,19 @@ from pathlib import Path
 print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resolve())
 if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
     sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+
+
+def get_basic_debrief_commands():
+    lines = [
+        "mtrend = rec.MonitorTrend()",
+        "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrend.filename))",
+        "ttrend = rec.TaphTrend(monitorname = mtrend.filename)",
+    ]
+    print("basic debrief commands are in the clipboard")
+    return pyperclip.copy(" \n".join(lines))
+
+
+get_basic_debrief_commands()
 
 # build a QApplication to be able to use a Qt GUi to choose files or waves
 # try:
