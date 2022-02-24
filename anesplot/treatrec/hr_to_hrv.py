@@ -19,7 +19,7 @@ def build_hrv_limits(spec="horse"):
     return dico
 
 
-#%%
+# %%
 if __name__ == "__main__":
     hrv_dico = build_hrv_limits("horse")
     if "ekg_df" not in dir():

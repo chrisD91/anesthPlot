@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 # from glob import glob
 from PyQt5.QtWidgets import QFileDialog
 
-#%%
+# %%
 
 
 def gui_choosefile(paths=None):
@@ -27,7 +27,7 @@ def gui_choosefile(paths=None):
     return fname[0]
 
 
-#%% list a folder
+# %% list a folder
 plt.close("all")
 
 # =============================================================================
@@ -63,6 +63,6 @@ plt.close("all")
 # =============================================================================
 
 
-#%%
+# %%
 # if __name__ == '__main__':
 #    pass

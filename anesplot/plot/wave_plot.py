@@ -58,7 +58,7 @@ def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r"):
         ax.tick_params(axis="y", colors=color)
 
 
-#%%
+# %%
 def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
     """
     plot the waves recorded (from as5)
@@ -228,7 +228,7 @@ def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
     return fig, lines
 
 
-#%%
+# %%
 
 
 def get_roi(fig: plt.Figure, df: pd.DataFrame, params: dict) -> dict:
@@ -282,7 +282,7 @@ def get_roi(fig: plt.Figure, df: pd.DataFrame, params: dict) -> dict:
     return roidict
 
 
-#%% select subdata
+# %% select subdata
 
 
 def create_video(

@@ -17,7 +17,7 @@ import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
-#%%
+# %%
 
 
 def choosefile_gui(dirpath: str = None) -> str:
@@ -101,7 +101,7 @@ def loadtelevet(fname: str = None, all_traces: bool = False) -> pd.DataFrame:
     return df
 
 
-#%%
+# %%
 if __name__ == "__main__":
     import config.load_recordrc
 

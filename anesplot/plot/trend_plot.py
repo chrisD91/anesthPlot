@@ -179,7 +179,7 @@ def save_graph(path: str, ext: str = "png", close: bool = True, verbose: bool = 
         print("Done")
 
 
-#%%
+# %%
 def plot_header(descr: dict, param: dict = None) -> plt.Figure:
     """
     plot the header of the file.

@@ -682,7 +682,7 @@ def main(file_name: str = None):
     plt.show()
 
 
-#%%
+# %%
 if __name__ == "__main__":
     in_name = None
     # check if a filename was provided from terminal call

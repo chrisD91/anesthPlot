@@ -262,7 +262,7 @@ def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
     return datadf
 
 
-#%%
+# %%
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)

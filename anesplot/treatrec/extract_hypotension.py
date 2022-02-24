@@ -30,7 +30,7 @@ plt.rcParams.update(params)
 plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 # df = trends.data
-#%%
+# %%
 
 plt.close("all")
 
@@ -267,7 +267,7 @@ def plot_all_dir_hypo(dirname=None, scatter=False):
     return filename
 
 
-#%%
+# %%
 # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded/M2021_3_8-9_9_48.csv'
 # trends = rec.MonitorTrend(filename)
 plt.close("all")

@@ -94,7 +94,7 @@ def adapt_with_syspath(path_dico):
 #    adapt_with_syspath(paths)
 # trying to avoid to have a python package in the path
 
-#%%
+# %%
 if __name__ == "__main__":
     paths = build_paths()
     print(paths)

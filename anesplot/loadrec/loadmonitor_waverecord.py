@@ -203,7 +203,7 @@ def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
     return datadf
 
 
-#%%
+# %%
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)

@@ -21,7 +21,7 @@ import pandas as pd
 pd.set_option("display.max_rows", None)
 pd.set_option("display.max_colwidth", 50)
 pd.set_option("display.max_columns", 500)
-#%%
+# %%
 
 
 def convert_day(st: str) -> str:
@@ -332,7 +332,7 @@ def plot_ventilation_drive(
     return fig
 
 
-#%%
+# %%
 
 plt.close("all")
 
@@ -421,7 +421,7 @@ def plot_events(
 
 # fig = plot_events(ttrend.dt_events_df)
 
-#%%
+# %%
 # TODO find preset values
 # message = ""  # ?? presetq
 
@@ -444,7 +444,7 @@ def extract_event(df: pd.DataFrame) -> dict:
     return ser.to_dict()
 
 
-#%%
+# %%
 
 
 def build_dataframe(acts) -> pd.DataFrame:
@@ -475,7 +475,7 @@ def build_dataframe(acts) -> pd.DataFrame:
     return df
 
 
-#%%
+# %%
 if __name__ == "__main__":
     import anesplot.record_main as rec
 

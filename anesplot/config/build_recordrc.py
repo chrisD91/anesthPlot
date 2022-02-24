@@ -20,7 +20,9 @@ from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 
 # TODO add to path: mon_data, taph_data, telv_data
 
-#%%
+# %%
+
+
 def filedialog(
     kind="", directory=os.path.dirname(__file__), for_open=True, fmt="", is_folder=False
 ):
@@ -148,7 +150,8 @@ def main():
     except NameError:
         app.exec_()
 
-    #%%
+
+# %%
 
 
 if __name__ == "__main__":

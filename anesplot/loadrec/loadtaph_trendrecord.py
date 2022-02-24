@@ -340,7 +340,7 @@ def loadtaph_patientfile(filename: str) -> dict:
     return descr
 
 
-#%%
+# %%
 if __name__ == "__main__":
 
     from PyQt5.QtWidgets import QApplication

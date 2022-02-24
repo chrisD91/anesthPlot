@@ -118,7 +118,7 @@ from scipy.interpolate import interp1d
 
 # TODO shift the ihr of one beat (ie ihr should be on the end of the interval)
 
-#%%
+# %%
 
 
 def detect_beats(
@@ -413,7 +413,7 @@ def save_beats(
     tochangedf.to_csv(name + ".csv")
 
 
-#%% apply changes to the beatdf
+# %% apply changes to the beatdf
 
 
 def update_beat_df(
@@ -469,7 +469,7 @@ def update_beat_df(
 
 # beat_df = update_beat_df(beat_df, to_change_df)
 
-#%% =========================================
+# %% =========================================
 def compute_rr(beatdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
     """
     compute rr intervals (from pt to time)
@@ -611,7 +611,7 @@ def plot_rr(ahr_df: pd.DataFrame, param: dict, HR: bool = False) -> plt.Figure:
     return fig
 
 
-#%% heart rate
+# %% heart rate
 
 # TOTO = correct wave.datetime (multiple repetitions of the same value)
 
