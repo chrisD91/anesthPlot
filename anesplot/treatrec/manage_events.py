@@ -427,12 +427,21 @@ def plot_events(
 
 
 def extract_event(df: pd.DataFrame) -> dict:
-    """extract timestamp of the messages
-    input:
-        df: pandasDataFrame containing the taphonius events
-    output:
-        marks: dictionary {message : [timestamp]}
     """
+    extract timestamp of the messages
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        pandasDataFrame containing the taphonius events.
+
+    Returns
+    -------
+    dict
+        {message : [timestamp]}.
+
+    """
+
     messages = ["Init Complete", "Ventilate", "standby", "data finalised"]
     messages = [_.lower() for _ in messages]
 

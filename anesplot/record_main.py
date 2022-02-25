@@ -8,16 +8,21 @@ can be runned as a script::
     python record_main.py
 
 or imported as a package::
+
     import anesplot.record_main as rec
     %gui qt5 (required only to use the dialogs if using spyder)
+
     # objects:
     mtrends = rec.MonitorTrend()
     waves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))
     ttrends = rec.TaphTtrend()
-    # use methods and or attributes
+
+    # use methods and or attributes:
     mtrends.show_graphs() -> clinical debrief selection
     waves.plot_wave() -> select one or two waves to plot
+
     ...
+
 ----
 nb to work within spyder : move inside anestplot (>> cd anesplot)
 

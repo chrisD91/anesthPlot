@@ -11,6 +11,7 @@ Submodules
    anesplot.treatrec.ekg_to_hr
    anesplot.treatrec.extract_hypotension
    anesplot.treatrec.hr_to_hrv
+   anesplot.treatrec.manage_events
    anesplot.treatrec.wave_func
 
 Module contents

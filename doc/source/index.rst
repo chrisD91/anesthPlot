@@ -5,8 +5,6 @@
 
 Welcome to anesplot's documentation!
 ====================================
-Welcome to anesthPlot's documentation!
-======================================
 
 anesthPlot is a python package developped to extract, manipulate and plots anesthesia data 
 recorded from the Monitor Software to be used mostly in a teaching environment.
@@ -16,12 +14,13 @@ recorded from the Monitor Software to be used mostly in a teaching environment.
    This project is:
    
       - a work in progres
-      - the processes are mainly focused on horses anesthesia
+      - the processes are mainly focused on horses anesthesia (default values)
       - in our environment the data recorded came from either
        
         - an as3 or as5 anesthesia monitor (ekg, invasive pressure, etCO2, halogenate, spirometry)
         - a Taphonius equine ventilator
         - (some ekg data extracted using a Televet holter system)
+
 
 Features
 ---------
@@ -32,8 +31,8 @@ Features
       .. code-block:: bash
 
          python anesthPlot/anesplot/__main__.py
-         -> will open an GUI choose menu to select the recording 
-         (monitorTrend, taphoniusTrend, monitorWave, televetWave(export))
+         -> will open an GUI choose menu to choose the recording 
+         (MonitorTrend, TaphoniusTrend, MonitorWave, TelevetWave(export))
 
 
       - will build a **standard debriefing** (trends) **plot series** (script usage)
@@ -58,7 +57,7 @@ Features
          trends = rec.MonitorTrend(trendname)
          #(you can also use trends = rec.taphTrend()
          wavename = rec.trendname_to_wavename(trendname)
-         waves = rec.MonitorWave(trends)
+         waves = rec.MonitorWave(wavename)
         
          trends.show_graphs() # -> set of plots for 'clinical' debriefing purposes
 
@@ -74,11 +73,15 @@ Features
 
 
 
-
-
-
 main script
-==================
+=============
+
+.. note::
+
+   - anesplot.record_main can be called directly from a terminal
+   - is the entry point to the program
+
+
 
 .. toctree::
    :maxdepth: 1
@@ -86,13 +89,17 @@ main script
 
    anesplot.record_main
 
+
 modules
 ==================
 .. toctree::
    :maxdepth: 4
    :caption: Contents:
 
-   anesplot
+   anesplot.loadrec
+   anesplot.plot
+   anesplot.treatrec
+   anesplot.config
 
 
 Indices and tables
