@@ -353,8 +353,8 @@ class MonitorTrend(_SlowWave):
 
 
 class TaphTrend(_SlowWave):
-    """taphonius trends recordings
-    input : filename : path to file
+    """
+    taphonius trends recordings
 
     attibutes:
     ----------
@@ -362,10 +362,14 @@ class TaphTrend(_SlowWave):
         header : dictionary = recorded info (patient, ...)
         param : dictionary  = usage information (file, scales, ...)
         actions : pd.DataFrame
+
     methods:
     --------
-        clean_trend : 'to be developped'
-        show_graphs : plot the clinical debrief 'suite'
+        show_graphs (inherited) : plot the clinical debrief 'suite'
+        extract_events : decode the taph messages, build events, actions and ventil_drive
+        plot_ventil_drive : plot the ventilation commands that have been used"
+        plot_events : plot the events as a time display, dtime allow dtime use
+        export_taph_events : build a .txt containing all the events (paths:~/temp/events.txt)
     """
 
     def __init__(self, filename: str = None, monitorname: str = None):
@@ -459,9 +463,11 @@ class _FastWave(_Waves):
 
     def plot_wave(self, traces_list: list = None):
         """simple choose and plot for a wave
+
         input:
             traces_list : list of waves to plot (max=2)
                 if none -> open a dialog to choose column names
+
         return:
             fig : pyplot.figure
             lines : [line2D object]
@@ -500,12 +506,18 @@ class _FastWave(_Waves):
         return fig, lines, traces_list
 
     def record_roi(self, erase: bool = False) -> dict:
-        """define a Region Of Interest (roi).
+        """
+        define a Region Of Interest (roi).
 
-        input : erase (boolean) default=False
-        takes the figure attribute
-        return a dictionary containing:
-            dt : xscale datetime location
+        Parameters
+        ----------
+        erase : bool, optional (default is False)
+            takes the figure attribute
+
+        Returns
+        -------
+        dict
+            contains : dt : xscale datetime location
             pt: xscale point location
             sec: xscale seconde location
             ylims: ylimits
@@ -513,6 +525,7 @@ class _FastWave(_Waves):
             fig : the related figure
 
         """
+
         if erase:
             roidict = {}
         elif self.fig:
@@ -574,7 +587,9 @@ class _FastWave(_Waves):
 
 
 class TelevetWave(_FastWave):
-    """class to organise teleVet recordings transformed to csv files.
+    """
+    class to organise teleVet recordings transformed to csv files.
+
     input:
         filename : str (fullpath, default:None)
     """
