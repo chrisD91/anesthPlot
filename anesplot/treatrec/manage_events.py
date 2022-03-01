@@ -215,7 +215,7 @@ def extract_ventilation_drive(
     ), "extract_ventilation_drive: check unicity for dteventsdf.index"
 
     dteventsdf = dteventsdf.replace("NAN", np.nan)
-    # ventilation True or False
+    # extract the ventilation period -> ventilation True or False
     dteventsdf["ventil"] = np.nan
     dteventsdf.iloc[0, dteventsdf.columns.get_loc("ventil")] = False
     runs = {"ventilate": True, "standby": False}
@@ -226,7 +226,7 @@ def extract_ventilation_drive(
     dteventsdf.ventil = dteventsdf.ventil.ffill()
 
     for act in acts:
-        if len(act.split(" ")) > 2:
+        if len(act.split(" ")) > 1:
             # two words in act
             mask = dteventsdf.events.str.contains(act)
         else:
@@ -422,8 +422,6 @@ def plot_events(
 # fig = plot_events(ttrend.dt_events_df)
 
 # %%
-# TODO find preset values
-# message = ""  # ?? presetq
 
 
 def extract_event(df: pd.DataFrame) -> dict:
