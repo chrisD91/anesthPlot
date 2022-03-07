@@ -79,13 +79,12 @@ def choosefile_gui(dirname: str = None) -> str:
 
     Parameters
     ----------
-    dirname : str, optional
+    dirname : str, optional (default is None)
         DESCRIPTION. location to place the gui ('generally paths['data']) else home
-                                                The default is None.
 
     Returns
     -------
-    fname[0]:str
+    fname[0] : str
         DESCRIPTION. : full name of the selected file
 
     """
@@ -272,7 +271,8 @@ class _Waves:
 # +++++++
 class _SlowWave(_Waves):
 
-    """class for slowWaves = trends
+    """
+    class for slowWaves = trends
 
     attributes:
     -----------
@@ -309,7 +309,8 @@ class _SlowWave(_Waves):
 
 
 class MonitorTrend(_SlowWave):
-    """monitor trends recordings:
+    """
+    monitor trends recordings:
 
         input = filename : path to file
         load = boolean to load data (default is True)
@@ -462,16 +463,21 @@ class _FastWave(_Waves):
         df["ekgLowPass"] = wf.fix_baseline_wander(df[item], fs)
 
     def plot_wave(self, traces_list: list = None):
-        """simple choose and plot for a wave
+        """
+        simple choose and plot for a wave
 
-        input:
-            traces_list : list of waves to plot (max=2)
-                if none -> open a dialog to choose column names
+        Parameters
+        ----------
+        traces_list : list, optional (default is None)
+            list of waves to plot (max=2)
+            if none -> open a dialog to choose column names.
 
-        return:
+        Returns
+        -------
             fig : pyplot.figure
             lines : [line2D object]
             traces_list : [name of the traces]
+
         """
         if self.data.empty:
             fig = None
@@ -516,8 +522,8 @@ class _FastWave(_Waves):
 
         Returns
         -------
-        dict
-            contains : dt : xscale datetime location
+        dict that contains
+            dt : xscale datetime location
             pt: xscale point location
             sec: xscale seconde location
             ylims: ylimits
@@ -612,10 +618,11 @@ class TelevetWave(_FastWave):
 
 class MonitorWave(_FastWave):
     """class to organise monitorWave recordings.
+
         input : filename = path to file
         load = boolean to load data (default is True)
 
-    attibutes ... FILLMEq
+    attibutes ... FILLME
 
 
     methods ... FILLME
