@@ -232,7 +232,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         "Exp Time": "expTime",
         "TV.1": "tv1",
         "Insp Time": "inspTime",
-        "Exp Time.1": "expTime",
+        "Exp Time.1": "expTime1",
         "RR.1": "rr1",
         "MV.1": "mv1",
         "I Flow.1": "iFlow1",
