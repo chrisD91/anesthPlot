@@ -71,9 +71,6 @@ def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
         )
 
 
-save_name = os.path.join(os.path.expanduser("~"), "toPlay", "test_export.hdf")
-export_to_hdf(save_name, mtrend=mtrends, ttrend=ttrends, mwave=mwaves)
-
 # %%
 # TODO save / recover filename
 
@@ -105,8 +102,15 @@ def load_from_hdf(savename):
                 dico[k] = False
             if v == "True":
                 dico[k] = True
+            try:
+                v = float(v)
+            except ValueError:
+                v = v
+            finally:
+                dico[k] = v
         return dico
 
+    # TODO fix bug with sampling frequency (float)
     with pd.HDFStore(savename) as store:
         keys = store.keys(include="pandas")
         new_mtrends = rec.MonitorTrend(filename="", load=False)
@@ -116,6 +120,7 @@ def load_from_hdf(savename):
             new_mtrends.header = convert_to_float(header)
             param = store.get("mtrends_param").to_dict()[0]
             new_mtrends.param = convert_to_float(param)
+            new_mtrends.filename = new_mtrends.param["filename"]
             print(f"{'>'*10} loaded mtrends {'<'*10}")
 
         new_ttrends = rec.TaphTrend(filename="", load=False)
@@ -125,6 +130,7 @@ def load_from_hdf(savename):
             new_ttrends.header = convert_to_float(header)
             param = store.get("ttrends_param").to_dict()[0]
             new_ttrends.param = convert_to_float(param)
+            new_ttrends.filename = new_ttrends.param["filename"]
             new_ttrends.extract_events()
             print(f"{'>'*10} loaded ttrends {'<'*10}")
 
@@ -135,12 +141,16 @@ def load_from_hdf(savename):
             new_mwaves.header = convert_to_float(header)
             param = store.get("mwaves_param").to_dict()[0]
             new_mwaves.param = convert_to_float(param)
+            new_mwaves.filename = new_mwaves.param["filename"]
             print(f"{'>'*10} loaded mwaves {'<'*10}")
 
     return new_mtrends, new_ttrends, new_mwaves
 
 
-n_mtrends, n_ttrends, n_mwaves = load_from_hdf(save_name)
+# if __name__ == '__main__':
+#     save_name = os.path.join(os.path.expanduser("~"), "toPlay", "test_export.hdf")
+#     export_to_hdf(save_name, mtrend=mtrends, ttrend=ttrends, mwave=mwaves)
+#     n_mtrends, n_ttrends, n_mwaves = load_from_hdf(save_name)
 
 # duplicates = {_ for _ in cols if cols.count(_) > 1}
 # print(f"{duplicates=}")
