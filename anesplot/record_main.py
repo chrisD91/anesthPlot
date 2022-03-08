@@ -373,17 +373,22 @@ class TaphTrend(_SlowWave):
         export_taph_events : build a .txt containing all the events (paths:~/temp/events.txt)
     """
 
-    def __init__(self, filename: str = None, monitorname: str = None):
+    def __init__(
+        self, filename: str = None, monitorname: str = None, load: bool = True
+    ):
         super().__init__()
         if filename is None:
             filename = ltt.choose_taph_record(monitorname)
         self.filename = filename
         if filename:
             self.param["file"] = os.path.basename(filename)
-
-        data = ltt.loadtaph_trenddata(filename)
+        if load:
+            data = ltt.loadtaph_trenddata(filename)
+            header = ltt.loadtaph_patientfile(filename)
+        else:
+            data = pd.DataFrame()
+            header = dict()
         self.data = data
-        header = ltt.loadtaph_patientfile(filename)
         self.header = header
 
         self.param["source"] = "taphTrend"
