@@ -106,7 +106,7 @@ def get_basic_debrief_commands():
     lines = [
         "mtrends = rec.MonitorTrend()",
         "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))",
-        "ttrend = rec.TaphTrend(monitorname = mtrends.filename)",
+        "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
     ]
     print("basic debrief commands are in the clipboard")
     return pyperclip.copy(" \n".join(lines))
