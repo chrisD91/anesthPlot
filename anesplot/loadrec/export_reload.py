@@ -80,10 +80,22 @@ export_to_hdf(save_name, mtrend=mtrends, ttrend=ttrends, mwave=mwaves)
 
 def load_from_hdf(savename):
     """
-    load from file
+    build MonitorTrend, TaphTrenbd and MonitorWave objects
+    fill them from hdf file
+
+    Parameters
+    ----------
+    savename : str
+        the path to the saved hdf file.
+
+    Returns
+    -------
+    MonitorTrend, TaphTrend and MonitorWave
+    (empty objects if the corresponding keys are not present in the file)
     """
 
     def convert_to_float(dico):
+        """convert the str values of the dictionary"""
         for k, v in dico.items():
             if v.isdigit():
                 dico[k] = float(v)
