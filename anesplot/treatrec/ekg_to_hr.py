@@ -74,7 +74,7 @@ typically (copy, paste and execute line by line)
 
     - save the peaks locations::
 
-        tohr.save_beats(beat_df, to_change_df, savename='', savepath=None)
+        tohr.save_beats(beat_df, to_change_df, savename='', dirpath=None)
         (# or reload
         beat_df = pd.read_hdf('beatDf.hdf', key='beatDf') )
 
@@ -105,6 +105,7 @@ ____
 """
 
 import os
+import pyperclip
 from typing import Tuple
 
 import matplotlib.pyplot as plt
@@ -119,6 +120,20 @@ from scipy.interpolate import interp1d
 # TODO shift the ihr of one beat (ie ihr should be on the end of the interval)
 
 # %%
+
+
+def get_hr_template():
+    """
+    load hr template to clipboard
+
+    Returns
+    -------
+    None.
+
+    """
+    filename = "anesplot/treatrec/template_ekg_to_hr.txt"
+    with open(filename, "r") as f:
+        pyperclip.copy(f.read())
 
 
 def detect_beats(

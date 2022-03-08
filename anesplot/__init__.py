@@ -104,9 +104,9 @@ if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
 
 def get_basic_debrief_commands():
     lines = [
-        "mtrend = rec.MonitorTrend()",
-        "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrend.filename))",
-        "ttrend = rec.TaphTrend(monitorname = mtrend.filename)",
+        "mtrends = rec.MonitorTrend()",
+        "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))",
+        "ttrend = rec.TaphTrend(monitorname = mtrends.filename)",
     ]
     print("basic debrief commands are in the clipboard")
     return pyperclip.copy(" \n".join(lines))
