@@ -283,6 +283,8 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     df["time"] = df.Date + "-" + df.Time
     df["time"] = pd.to_datetime(df["time"], dayfirst=True)
 
+    df[["Date", "Time", "events"]] = df[["Date", "Time", "events"]].astype(str)
+
     sampling = (df.time[1] - df.time[0]).seconds
     df["eTime"] = df.index * sampling
     df["eTimeMin"] = df.eTime / 60
