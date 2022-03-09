@@ -98,8 +98,8 @@ typically (copy, paste and execute line by line)
 --------
 ::
 
-    tohr.save_trends_data(trends.data, savename=name, savepath='data')
-    tohr.save_waves_data(waves.data, savename=name, savepath='data')
+    tohr.save_trends_data(trends.data, savename=name, dirpath='data')
+    tohr.save_waves_data(waves.data, savename=name, dirpath='data')
 
 ____
 """
@@ -125,6 +125,7 @@ from scipy.interpolate import interp1d
 def get_hr_template(filenum=2):
     """
     load hr template to clipboard
+
 
     Returns
     -------
