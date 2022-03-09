@@ -4,6 +4,9 @@
 Created on Tue Mar  8 11:09:29 2022
 
 @author: cdesbois
+
+export to hdf the records objects, and load them back
+
 """
 
 

@@ -75,6 +75,16 @@ faulthandler.enable()
 app = QApplication(sys.argv)
 
 
+def get_basic_debrief_commands():
+    lines = [
+        "mtrends = rec.MonitorTrend()",
+        "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))",
+        "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
+    ]
+    print("basic debrief commands are in the clipboard")
+    return pyperclip.copy(" \n".join(lines))
+
+
 def choosefile_gui(dirname: str = None) -> str:
     """Select a file via a dialog and return the (full) filename.
 
