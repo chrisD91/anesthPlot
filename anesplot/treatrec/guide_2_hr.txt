@@ -1,0 +1,53 @@
+import pandas as pd
+
+import anesplot.record_main as rec
+from anesplot.treatrec import ekg_to_hr as tohr
+from anesplot.loadrec.export_reload import export_to_hdf, load_from_hdf
+
+paths = rec.paths
+paths["save"] = "~"
+
+# 1. load the ekg wave:
+name = ""
+save_name = os.path.join(paths["save"], name + ".hdf")
+mtrends, _, mwaves = load_from_hdf(save_name)
+
+# 2. treat the ekg wave:
+params = mwaves.param
+ekg_df = pd.DataFrame(mwaves.data.wekg)
+ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg, mwaves.param['sampling_freq'])
+beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, mult=1)
+
+# 3. perform the manual adjustments required:
+to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
+# zoom to have only one peak
+figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
+
+#- remove or add peaks : zoom on the figure to observe only one peak, then::
+to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
+# or
+to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure, yscale=1)
+
+# - combine to update the beat_df with the manual changes::
+beat_df = tohr.update_beat_df(beat_df, to_change_df, path_to_file="", from_file=False)
+
+# - save the peaks locations::
+# tohr.save_beats(beat_df, to_change_df, savename='', dirpath=paths["save"])
+# (# or reload
+# beat_df = pd.read_hdf(os.path.join(paths['save'], 'beatDf.hdf'), key='beatDf')
+
+# 4. go from points values to continuous time:
+beat_df = tohr.compute_rr(beat_df)
+ahr_df = tohr.interpolate_rr(beat_df)
+tohr.plot_rr(ahr_df, params, HR=True)
+
+# 5. append intantaneous heart rate to the initial data:
+ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
+mwaves.data = tohr.append_rr_and_ihr_to_wave(mwaves.data, ahr_df)
+mtrends.data = tohr.append_ihr_to_trend(mtrends.data, mwaves.data, ekg_df)
+
+# 6. save:
+tohr.save_trends_data(mtrends.data, savename=name, dirpath='data')
+tohr.save_waves_data(mwaves.data, savename=name, dirpath='data')
+
+export_to_hdf(save_name, mtrend=mtrends, mwave=mwaves)

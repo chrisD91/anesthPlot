@@ -49,7 +49,7 @@ typically (copy, paste and execute line by line)
         ekg_df = pd.DataFrame(waves.data.wekg)
         ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg,
                                                 waves.param['sampling_freq'])
-        beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, mult=1)
+        beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, threshold=1)
 
 3. perform the manual adjustments required:
 -------------------------------------------
@@ -122,7 +122,7 @@ from scipy.interpolate import interp1d
 # %%
 
 
-def get_hr_template():
+def get_hr_template(filenum=2):
     """
     load hr template to clipboard
 
@@ -131,13 +131,18 @@ def get_hr_template():
     None.
 
     """
-    filename = "anesplot/treatrec/template_ekg_to_hr.txt"
+    files = [
+        "anesplot/treatrec/guide_ekg_to_hr.txt",
+        "anesplot/treatrec/guide_1_build.txt",
+        "anesplot/treatrec/guide_2_hr.txt",
+    ]
+    filename = files[filenum]
     with open(filename, "r") as f:
         pyperclip.copy(f.read())
 
 
 def detect_beats(
-    ser: pd.Series, fs: int = 300, species: str = "horse", mult: float = 1
+    ser: pd.Series, fs: int = 300, species: str = "horse", threshold: float = 1
 ) -> pd.DataFrame:
     """
     detect the peak locations of the beats
@@ -150,8 +155,8 @@ def detect_beats(
         sampling frequency.
     species : str, optional (default is "horse")
         the species.
-    mult : float, optional (default is 1)
-        correction / 1 for qRs amplitude.
+    threshold : float, optional (default is 1)
+        correction for qRs amplitude.
 
     Returns
     -------
@@ -172,8 +177,8 @@ def detect_beats(
         print("no parametrisation performed ... to be done")
         return df
     # correcttion
-    height *= mult
-    prominence *= mult
+    height *= threshold
+    prominence *= threshold
     # detect
     pk, beats_params = sg.find_peaks(
         ser * -1, height=height, distance=distance, prominence=prominence
@@ -291,7 +296,7 @@ def append_beat(
     # restrict area around the undetected pic (based on pt x val)
     df = ekgdf.wekg_lowpass.loc[lim[0] : lim[1]]
     # locate the beat (external call)
-    onepoint_beatdf = detect_beats(df, mult=yscale)
+    onepoint_beatdf = detect_beats(df, threshold=yscale)
     onepoint_beatdf["action"] = "append"
     if len(onepoint_beatdf) < 1:
         print("no beat founded")
@@ -310,6 +315,7 @@ def append_beat(
     # insert in the tochangedf
     # beatdf = beatdf.drop_duplicates('p_loc')
     tochangedf = tochangedf.append(onepoint_beatdf)
+    # beware : a copy of the dataframe is returned
     return tochangedf
 
 
@@ -396,17 +402,18 @@ def save_beats(
     tochangedf: pd.DataFrame,
     savename: str = "",
     dirpath: str = None,
+    csv: bool = False,
 ):
-
     """
     save the beats locations as csv and hd5 file
 
     parameters
     ----------
-    beatde : pd.dataframes
+    beatdf : pd.dataframes
     tochangedf : pandas.dataframe
     savename : filename
     dirpath : path to save in
+    csv: bool (to save as csv)
 
     output
     ------
@@ -418,14 +425,15 @@ def save_beats(
     if filename.startswith("_"):
         filename = filename[1:]
     name = os.path.join(dirpath, filename)
-    beatdf.to_csv(name + ".csv")
     beatdf.to_hdf(name + ".hdf", mode="w", key="beatDf")
     tochangedf.to_hdf(name + ".hdf", mode="a", key="tochangeDf")
-    filename = savename + "_" + "tochangedf"
-    if filename.startswith("_"):
-        filename = filename[1:]
-    name = os.path.join(dirpath, filename)
-    tochangedf.to_csv(name + ".csv")
+    if csv:
+        beatdf.to_csv(name + ".csv")
+        filename = savename + "_" + "tochangedf"
+        if filename.startswith("_"):
+            filename = filename[1:]
+        name = os.path.join(dirpath, filename)
+        tochangedf.to_csv(name + ".csv")
 
 
 # %% apply changes to the beatdf

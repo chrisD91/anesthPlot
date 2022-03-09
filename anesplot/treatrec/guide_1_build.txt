@@ -1,0 +1,21 @@
+import pandas as pd
+
+import anesplot.record_main as rec
+from anesplot.treatrec import ekg_to_hr as tohr
+from anesplot.loadrec.export_reload import export_to_hdf, load_from_hdf
+
+paths = rec.paths
+paths["save"] = "~"
+
+# %% initial data
+filename = ""
+mtrends = rec.MonitorTrend(filename)
+mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))
+ttrends = rec.TaphTrend(monitorname=mtrends.filename)
+
+name = mtrends.header["Patient Name"].title().replace(" ", "")
+name = name[0].lower() + name[1:]
+
+save_name = os.path.join(paths["save"], name + ".hdf")
+export_to_hdf(save_name, mtrend=mtrends, mwave=mwaves, ttrend=ttrends)
+
