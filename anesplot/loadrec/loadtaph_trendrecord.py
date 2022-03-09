@@ -280,7 +280,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
 
     # pdb.set_trace()
     # # >>
-    df["datetime"] = pd.to_datetime(df.Date + ";" + df.Time)
+    df["datetime"] = pd.to_datetime(df.Date + ";" + df.Time, dayfirst=True)
     df["time"] = df.Date + "-" + df.Time
     df["time"] = pd.to_datetime(df["time"], dayfirst=True)
 
