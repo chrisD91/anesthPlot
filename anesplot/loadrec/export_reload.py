@@ -7,7 +7,7 @@ Created on Tue Mar  8 11:09:29 2022
 """
 
 
-import os
+# import os
 
 import pandas as pd
 
@@ -39,40 +39,40 @@ def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
 
     """
 
+    def fix_dtypes(df: pd.DataFrame) -> pd.DataFrame:
+        """fix the dtype of a dataframe"""
+        for col in df.columns:
+            try:
+                df[col] = pd.to_numeric(df[col])
+                # df[col] = df[col].astype('int64')
+            except ValueError:
+                df[col] = df[col].astype(str)
+        return df
+
     # monitor trends
     if mtrend:
         mtrend.data.to_hdf(savename, key="mtrends_data")
-        pd.DataFrame.from_dict(
-            {k: [str(v)] for k, v in mtrend.header.items()}
-        ).T.to_hdf(savename, key="mtrends_header")
-        pd.DataFrame.from_dict({k: [str(v)] for k, v in mtrend.param.items()}).T.to_hdf(
-            savename, key="mtrends_param"
-        )
-    # filename
-
+        dicodf = pd.DataFrame.from_dict({k: [v] for k, v in mtrend.header.items()})
+        fix_dtypes(dicodf).to_hdf(savename, key="mtrends_header")
+        dicodf = pd.DataFrame.from_dict({k: [v] for k, v in mtrend.param.items()})
+        fix_dtypes(dicodf).to_hdf(savename, key="mtrends_param")
     # taph trends
     if ttrend:
         ttrend.data.to_hdf(savename, key="ttrends_data")
-        pd.DataFrame.from_dict(
-            {k: [str(v)] for k, v in ttrend.header.items()}
-        ).T.to_hdf(savename, key="ttrends_header")
-        pd.DataFrame.from_dict({k: [str(v)] for k, v in ttrend.param.items()}).T.to_hdf(
-            savename, key="ttrends_param"
-        )
-
+        dicodf = pd.DataFrame.from_dict({k: [v] for k, v in ttrend.header.items()})
+        fix_dtypes(dicodf).to_hdf(savename, key="ttrends_header")
+        dicodf = pd.DataFrame.from_dict({k: [v] for k, v in ttrend.param.items()})
+        fix_dtypes(dicodf).to_hdf(savename, key="ttrends_param")
     # waves
     if mwave:
         mwave.data.to_hdf(savename, key="mwaves_data")
-        pd.DataFrame.from_dict({k: [str(v)] for k, v in mwave.header.items()}).T.to_hdf(
-            savename, key="mwaves_header"
-        )
-        pd.DataFrame.from_dict({k: [str(v)] for k, v in mwave.param.items()}).T.to_hdf(
-            savename, key="mwaves_param"
-        )
+        dicodf = pd.DataFrame.from_dict({k: [v] for k, v in mwave.header.items()})
+        fix_dtypes(dicodf).to_hdf(savename, key="mwaves_header")
+        dicodf = pd.DataFrame.from_dict({k: [v] for k, v in mwave.param.items()})
+        fix_dtypes(dicodf).to_hdf(savename, key="mwaves_param")
 
 
 # %%
-# TODO save / recover filename
 
 
 def load_from_hdf(savename):
@@ -91,66 +91,50 @@ def load_from_hdf(savename):
     (empty objects if the corresponding keys are not present in the file)
     """
 
-    def convert_to_float(dico):
-        """convert the str values of the dictionary"""
-        for k, v in dico.items():
-            if v.isdigit():
-                dico[k] = float(v)
-            if v == "None":
-                dico[k] = None
-            if v == "False":
-                dico[k] = False
-            if v == "True":
-                dico[k] = True
-            try:
-                v = float(v)
-            except ValueError:
-                v = v
-            finally:
-                dico[k] = v
-        return dico
+    def df_to_dico_with_none(df):
+        """df to dico, and replace nan with none"""
+        return df.mask(df.isna(), other=None).to_dict()[0]
 
-    # TODO fix bug with sampling frequency (float)
+    messages = []
     with pd.HDFStore(savename) as store:
         keys = store.keys(include="pandas")
         new_mtrends = rec.MonitorTrend(filename="", load=False)
         if "/" + "mtrends_data" in keys:
             new_mtrends.data = store.get("mtrends_data")
-            header = store.get("mtrends_header").to_dict()[0]
-            new_mtrends.header = convert_to_float(header)
-            param = store.get("mtrends_param").to_dict()[0]
-            new_mtrends.param = convert_to_float(param)
+            new_mtrends.header = df_to_dico_with_none(store.get("mtrends_header").T)
+            new_mtrends.param = df_to_dico_with_none(store.get("mtrends_param").T)
             new_mtrends.filename = new_mtrends.param["filename"]
-            print(f"{'>'*10} loaded mtrends {'<'*10}")
+            messages.append(f"{'-'*10} loaded mtrends {'-'*10}")
 
         new_ttrends = rec.TaphTrend(filename="", load=False)
         if "/" + "ttrends_data" in keys:
             new_ttrends.data = store.get("ttrends_data")
-            header = store.get("ttrends_header").to_dict()[0]
-            new_ttrends.header = convert_to_float(header)
-            param = store.get("ttrends_param").to_dict()[0]
-            new_ttrends.param = convert_to_float(param)
+            new_ttrends.header = df_to_dico_with_none(store.get("ttrends_header").T)
+            new_ttrends.param = df_to_dico_with_none(store.get("ttrends_param").T)
             new_ttrends.filename = new_ttrends.param["filename"]
             new_ttrends.extract_events()
-            print(f"{'>'*10} loaded ttrends {'<'*10}")
+            messages.append(f"{'-'*10} loaded ttrends {'-'*10}")
 
         new_mwaves = rec.MonitorWave(filename="", load=False)
         if "/" + "mwaves_data" in keys:
             new_mwaves.data = store.get("mwaves_data")
-            header = store.get("mwaves_header").to_dict()[0]
-            new_mwaves.header = convert_to_float(header)
-            param = store.get("mwaves_param").to_dict()[0]
-            new_mwaves.param = convert_to_float(param)
+            new_mwaves.header = df_to_dico_with_none(store.get("mwaves_header").T)
+            new_mwaves.param = df_to_dico_with_none(store.get("mwaves_param").T)
             new_mwaves.filename = new_mwaves.param["filename"]
-            print(f"{'>'*10} loaded mwaves {'<'*10}")
-
+            messages.append(f"{'-'*10} loaded mwaves {'-'*10}")
+    print()
+    for message in messages:
+        print(message)
     return new_mtrends, new_ttrends, new_mwaves
 
 
 # if __name__ == '__main__':
-#     save_name = os.path.join(os.path.expanduser("~"), "toPlay", "test_export.hdf")
-#     export_to_hdf(save_name, mtrend=mtrends, ttrend=ttrends, mwave=mwaves)
-#     n_mtrends, n_ttrends, n_mwaves = load_from_hdf(save_name)
+# save_name = os.path.join(os.path.expanduser("~"), "toPlay", "test_export.hdf")
+# export_to_hdf(save_name, mtrend=mtrends, ttrend=ttrends, mwave=mwaves)
+# n_mtrends, n_ttrends, n_mwaves = load_from_hdf(save_name)
 
 # duplicates = {_ for _ in cols if cols.count(_) > 1}
 # print(f"{duplicates=}")
+
+
+# %%
