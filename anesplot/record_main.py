@@ -450,6 +450,38 @@ class TaphTrend(_SlowWave):
                 for item in line.split("\r\n"):
                     print(i, item)
 
+    def shift_datetime(self, minutes: int):
+        """
+        shift the recording datetime
+
+        Parameters
+        ----------
+        minutes : int
+            minutes to add to the datetime.
+
+        Returns
+        -------
+        None.
+
+        """
+        ltt.shift_datetime(self.data, minutes)
+
+    def shift_etime(self, minutes: int):
+        """
+        shift the elapsed time
+
+        Parameters
+        ----------
+        minutes : int
+            the minutes to add to the elapsed time.
+
+        Returns
+        -------
+        None.
+
+        """
+        ltt.shift_elapsed_time(self.data, minutes)
+
 
 # ++++++++
 class _FastWave(_Waves):

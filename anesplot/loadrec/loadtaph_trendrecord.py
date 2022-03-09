@@ -20,6 +20,7 @@ ____
 import os
 import sys
 from collections import defaultdict
+from datetime import timedelta
 import time
 
 import numpy as np
@@ -340,6 +341,59 @@ def loadtaph_patientfile(filename: str) -> dict:
 
     print(f"{'-' * 20} < loaded taph_patientfile ({os.path.basename(headername)})")
     return descr
+
+
+def shift_datetime(df: pd.DataFrame, minutes_to_add: int = None) -> pd.DataFrame:
+    """
+    add a datetime shift to the dataframe to compensate computer time shift (usually one hour)
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        a recording (that have to contain 'datetime' and 'time' column.
+    minutes_to_add : int, optional
+        DESCRIPTION. The default is None.
+
+    Returns
+    -------
+    df : pd.DataFrame
+        the recording with shifted datetime and time columns.
+
+    """
+    if minutes_to_add:
+        shift = timedelta(minutes=minutes_to_add)
+        if {"datetime", "time"} < set(df.columns):
+            df["datetime"] += shift
+            df["time"] += shift
+        else:
+            print("datetime and time are not in the dataframe columns")
+    return df
+
+
+def shift_elapsed_time(df: pd.DataFrame, minutes_to_add: int = None) -> pd.DataFrame:
+    """
+    add a elapsedtime shift to the dataframe to compensate recording start
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        a recording (that have to contain 'datetime' and 'time' column.
+    minutes_to_add : int, optional (default is None)
+
+    Returns
+    -------
+    df : pd.DataFrame
+        the recording with shifted eTime and eTimeMin columns.
+
+    """
+    if minutes_to_add:
+        shift = minutes_to_add
+        if {"eTime", "eTimeMin"} < set(df.columns):
+            df["eTime"] += shift * 60
+            df["eTimeMin"] += shift
+        else:
+            print("eTime and eTimeMin are not in the dataframe columns")
+    return df
 
 
 # %%
