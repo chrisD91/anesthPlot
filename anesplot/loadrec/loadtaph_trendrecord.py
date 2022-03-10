@@ -20,7 +20,7 @@ ____
 import os
 import sys
 from collections import defaultdict
-from datetime import timedelta
+from datetime import timedelta, datetime
 import time
 
 import numpy as np
@@ -400,6 +400,30 @@ def shift_elapsed_time(
         else:
             print("eTime and eTimeMin are not in the dataframe columns")
     return datadf
+
+
+def sync_elapsed_time(datetime_0: datetime, taphdatadf: pd.DataFrame) -> pd.DataFrame:
+    """
+    use the first point of monitor recording to sync the taph elapsed time (s and min)
+    !!! beware, datetime should be the same one the two devices ... or corrected !!!
+
+    Parameters
+    ----------
+    datetime_0 : datetime.datetime
+        the 0 of the time (usually monitordatadf.datetime.iloc[0]
+    taphdatadf : pd.DataFrame
+        the taph recording.
+
+    Returns
+    -------
+    taphdatadf : pd.DataFrame
+        the corrected taph recording.
+
+    """
+    mini_index = (abs(taphdatadf.datetime - datetime_0)).idxmin()
+    taphdatadf.eTime -= taphdatadf.iloc[mini_index].eTime
+    taphdatadf.eTimeMin -= taphdatadf.iloc[mini_index].eTimeMin
+    return taphdatadf
 
 
 # %%

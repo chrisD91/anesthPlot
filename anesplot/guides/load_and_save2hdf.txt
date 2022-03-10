@@ -24,6 +24,16 @@ ttrends = rec.TaphTrend(monitorname=mtrends.filename)
 name = mtrends.header["Patient Name"].title().replace(" ", "")
 name = name[0].lower() + name[1:]
 
+
+mtrends.show_graphs()
+ttrends.show_graphs()
+## correction for machine time (in minutes)
+# ttrends.shift_datetime(60)
+
+## correction for etime (minutes and sec) based on the start of the monitor recording
+# mstart = mtrends.data.datetime.iloc[0]
+# ttrends.sync_etime(mstart)
+
+
 save_name = os.path.join(paths["save"], name + ".hdf")
 export_to_hdf(save_name, mtrend=mtrends, mwave=mwaves, ttrend=ttrends)
-

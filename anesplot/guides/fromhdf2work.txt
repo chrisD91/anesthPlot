@@ -17,7 +17,7 @@ paths["save"] = ""
 name = ""
 save_name = os.path.join(paths["save"], name + ".hdf")
 mtrends, ttrends, mwaves = load_from_hdf(save_name)
- 
+
 # get the name
 # file_name = os.path.join(paths["mon_data"], "")
 # mtrends = rec.MonitorTrend(file_name, load=False)
@@ -25,10 +25,3 @@ mtrends, ttrends, mwaves = load_from_hdf(save_name)
 # name = name[0].lower() + name[1:]
 
 # %%
-mtrends.show_graphs()
-ttrends.show_graphs()
-# correction for machine time (in minutes)
-# ttrends.shift_datetime(60)
-
-# correction for machine start
-# ttrends.shift_etime()

@@ -32,6 +32,7 @@ import os
 import sys
 from importlib import reload
 import faulthandler
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -485,6 +486,23 @@ class TaphTrend(_SlowWave):
 
         """
         ltt.shift_elapsed_time(self.data, minutes)
+
+    def sync_etime(self, datetime0: datetime.datetime):
+        """
+        shift the elapsed time based a 'zero' datetime.datetime
+
+        Parameters
+        ----------
+        datetime0 : datetime.datetime
+            the datetime considered to be zero.
+            typically mtrends.data.datetime.iloc[0]
+
+        Returns
+        -------
+        None.
+
+        """
+        ltt.sync_elapsed_time(datetime0, self.data)
 
 
 # ++++++++
