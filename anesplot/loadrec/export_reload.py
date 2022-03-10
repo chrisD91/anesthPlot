@@ -78,7 +78,7 @@ def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
 # %%
 
 
-def load_from_hdf(savename):
+def load_from_hdf(savename: str):
     """
     build MonitorTrend, TaphTrenbd and MonitorWave objects
     fill them from hdf file
@@ -94,9 +94,12 @@ def load_from_hdf(savename):
     (empty objects if the corresponding keys are not present in the file)
     """
 
-    def df_to_dico_with_none(df):
+    def df_to_dico_with_none(df: pd.DataFrame) -> dict:
         """df to dico, and replace nan with none"""
-        return df.mask(df.isna(), other=None).to_dict()[0]
+        if df.empty:
+            return dict()
+        else:
+            return df.mask(df.isna(), other=None).to_dict()[0]
 
     messages = []
     with pd.HDFStore(savename) as store:
