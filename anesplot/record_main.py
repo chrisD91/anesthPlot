@@ -361,6 +361,9 @@ class MonitorTrend(_SlowWave):
             self.data = data
             self.param["sampling_freq"] = header.get("60/Sampling Rate", None)
             self.param["source"] = "monitorTrend"
+            name = header["Patient Name"].title().replace(" ", "")
+            self.param["name"] = name[0].lower() + name[1:]
+
         else:
             print(f"MonitorTrend: didn't load the data ({load=})")
             self.data = pd.DataFrame()

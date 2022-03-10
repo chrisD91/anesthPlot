@@ -81,10 +81,10 @@ def build_taph_decodedate_dico(pathdict: dict = None) -> dict:
             # records.append(record_name)
 
             recorddate = record.strip("SD").strip(".csv").lower()
-            for k, v in months.items():
-                recorddate = recorddate.replace(k, v)
-            d = time.strptime(recorddate, "%Y_%m_%d-%H_%M_%S")
-            recorddate = "SD" + time.strftime("%Y_%m_%d-%H:%M:%S", d)
+            for abbr, num in months.items():
+                recorddate = recorddate.replace(abbr, num)
+            thedate = time.strptime(recorddate, "%Y_%m_%d-%H_%M_%S")
+            recorddate = "SD" + time.strftime("%Y_%m_%d-%H:%M:%S", thedate)
             dct[recorddate].append(record_name)
     return dct
 
@@ -106,10 +106,10 @@ def extract_record_day(monitor_file_name: str) -> str:
     """
 
     record_date = os.path.basename(monitor_file_name.lower())
-    for st in ["sd", "m", ".csv", "wave"]:
-        record_date = record_date.strip(st)
-    d = time.strptime(record_date, "%Y_%m_%d-%H_%M_%S")
-    day = time.strftime("%Y_%m_%d", d)
+    for txt in ["sd", "m", ".csv", "wave"]:
+        record_date = record_date.strip(txt)
+    thedate = time.strptime(record_date, "%Y_%m_%d-%H_%M_%S")
+    day = time.strftime("%Y_%m_%d", thedate)
     return day
 
 
@@ -140,8 +140,8 @@ def choose_taph_record(monitorname: str = None) -> str:
     if monitorname is not None:
         day = extract_record_day(monitorname)
         # index of the first record to be displayed based on year
-        for i, v in enumerate(recorddates):
-            if str(day) in v:
+        for i, thedate in enumerate(recorddates):
+            if str(day) in thedate:
                 day_index = i
                 break
     #    app = QApplication(sys.argv)
@@ -189,14 +189,15 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     print(f"{'-' * 10} loading taph_datafile {os.path.basename(filename)}")
 
     # check
-    # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
+    # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/'+
+    #'before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
 
     try:
         # df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
         # row 0 -> groups
         # row 1 -> header
         # row 2 -> units
-        df = pd.read_csv(
+        datadf = pd.read_csv(
             filename,
             sep=",",
             header=1,
@@ -265,41 +266,42 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         "Insp N2O": "n2oInsp",
         "Exp N2O": "n2oExp",
     }
-    df.rename(columns=corr_title, inplace=True)
-    df = pd.DataFrame(df)
-    df = df.dropna(axis=0, how="all")
-    df = df.dropna(axis=1, how="all")
+    datadf.rename(columns=corr_title, inplace=True)
+    datadf = pd.DataFrame(datadf)
+    # datadf.replace("nan", np.nan)
+    datadf = datadf.dropna(axis=0, how="all")
+    datadf = datadf.dropna(axis=1, how="all")
 
-    if len(df) < 4:
+    if len(datadf) < 4:
         print(f"empty file ({os.path.basename(filename)})")
         for col in ["datetime", "time", "eTime", "eTimeMin"]:
-            df[col] = np.nan
-        return df
+            datadf[col] = np.nan
+        return datadf
     # # >>
     # import pdb
 
     # pdb.set_trace()
     # # >>
-    df["datetime"] = pd.to_datetime(df.Date + ";" + df.Time, dayfirst=True)
-    df["time"] = df.Date + "-" + df.Time
-    df["time"] = pd.to_datetime(df["time"], dayfirst=True)
+    datadf["datetime"] = pd.to_datetime(datadf.Date + ";" + datadf.Time, dayfirst=True)
+    datadf["time"] = datadf.Date + "-" + datadf.Time
+    datadf["time"] = pd.to_datetime(datadf["time"], dayfirst=True)
 
-    df[["Date", "Time", "events"]] = df[["Date", "Time", "events"]].astype(str)
-
-    sampling = (df.time[1] - df.time[0]).seconds
-    df["eTime"] = df.index * sampling
-    df["eTimeMin"] = df.eTime / 60
+    datadf[["Date", "Time"]] = datadf[["Date", "Time"]].astype(str)
+    # nb not for events because that will cahnge np.nan to str(nan)
+    sampling = (datadf.time[1] - datadf.time[0]).seconds
+    datadf["eTime"] = datadf.index * sampling
+    datadf["eTimeMin"] = datadf.eTime / 60
     # to remove the zero values :
     # OK for histograms, but induce a bug in plotting
     #    data.ip1m = data.ip1m.replace([0], [None])
     #    data = data.replace([0], [None])
     # CO2: from % to mmHg
     try:
-        df[["co2exp", "co2insp"]] *= 760 / 100
+        datadf[["co2exp", "co2insp"]] *= 760 / 100
     except KeyError:
         print("no capnographic recording")
     print(f"{'-' * 20} < loaded taph_datafile ({os.path.basename(filename)})")
-    return df
+    return datadf
 
 
 def loadtaph_patientfile(filename: str) -> dict:
@@ -330,20 +332,22 @@ def loadtaph_patientfile(filename: str) -> dict:
         return {}
     print(f"{'-' * 10} loading {os.path.basename(headername)}")
 
-    df = pd.read_csv(headername, header=None, usecols=[0, 1], encoding="iso8859_15")
+    patientdf = pd.read_csv(
+        headername, header=None, usecols=[0, 1], encoding="iso8859_15"
+    )
     # NB encoding needed for accentuated letters
-    df[0] = df[0].str.replace(":", "")
-    df = df.set_index(0).T
+    patientdf[0] = patientdf[0].str.replace(":", "")
+    patientdf = patientdf.set_index(0).T
     # convert to num
-    df["Body weight"] = df["Body weight"].astype(float)
+    patientdf["Body weight"] = patientdf["Body weight"].astype(float)
     # convert to a dictionary
-    descr = df.loc[1].to_dict()
+    descr = patientdf.loc[1].to_dict()
 
     print(f"{'-' * 20} < loaded taph_patientfile ({os.path.basename(headername)})")
     return descr
 
 
-def shift_datetime(df: pd.DataFrame, minutes_to_add: int = None) -> pd.DataFrame:
+def shift_datetime(datadf: pd.DataFrame, minutes_to_add: int = None) -> pd.DataFrame:
     """
     add a datetime shift to the dataframe to compensate computer time shift (usually one hour)
 
@@ -362,15 +366,17 @@ def shift_datetime(df: pd.DataFrame, minutes_to_add: int = None) -> pd.DataFrame
     """
     if minutes_to_add:
         shift = timedelta(minutes=minutes_to_add)
-        if {"datetime", "time"} < set(df.columns):
-            df["datetime"] += shift
-            df["time"] += shift
+        if {"datetime", "time"} < set(datadf.columns):
+            datadf["datetime"] += shift
+            datadf["time"] += shift
         else:
             print("datetime and time are not in the dataframe columns")
-    return df
+    return datadf
 
 
-def shift_elapsed_time(df: pd.DataFrame, minutes_to_add: int = None) -> pd.DataFrame:
+def shift_elapsed_time(
+    datadf: pd.DataFrame, minutes_to_add: int = None
+) -> pd.DataFrame:
     """
     add a elapsedtime shift to the dataframe to compensate recording start
 
@@ -388,18 +394,18 @@ def shift_elapsed_time(df: pd.DataFrame, minutes_to_add: int = None) -> pd.DataF
     """
     if minutes_to_add:
         shift = minutes_to_add
-        if {"eTime", "eTimeMin"} < set(df.columns):
-            df["eTime"] += shift * 60
-            df["eTimeMin"] += shift
+        if {"eTime", "eTimeMin"} < set(datadf.columns):
+            datadf["eTime"] += shift * 60
+            datadf["eTimeMin"] += shift
         else:
             print("eTime and eTimeMin are not in the dataframe columns")
-    return df
+    return datadf
 
 
 # %%
 if __name__ == "__main__":
 
-    from PyQt5.QtWidgets import QApplication
+    # from PyQt5.QtWidgets import QApplication
     from anesplot.config.load_recordrc import build_paths
 
     paths = build_paths()
@@ -412,7 +418,7 @@ if __name__ == "__main__":
         "before2020/Anonymous/Patients2013DEC17/Record08_29_27/SD2013DEC17-8_29_27.csv"
     )
     name = "Anonymous/Patients2022JAN21/Record22_52_07/SD2022JAN21-22_52_7.csv"
-    # chekc datetime (non linear and there is 2015 & 2021dates)
+    # check datetime (non linear and there is 2015 & 2021dates)
     file_name = os.path.join(paths["taph_data"], name)
 
     tdata_df = loadtaph_trenddata(file_name)
