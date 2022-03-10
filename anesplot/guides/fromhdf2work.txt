@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Mar 10 08:37:18 2022
+
+@author: cdesbois
+"""
+import os
+
+import matplotlib.pyplot as plt
+
+import anesplot.record_main as rec
+from anesplot.loadrec.export_reload import load_from_hdf
+
+paths = rec.paths
+paths["save"] = ""
+name = ""
+save_name = os.path.join(paths["save"], name + ".hdf")
+mtrends, ttrends, mwaves = load_from_hdf(save_name)
+ 
+# get the name
+# file_name = os.path.join(paths["mon_data"], "")
+# mtrends = rec.MonitorTrend(file_name, load=False)
+# name = mtrends.header["Patient Name"].title().replace(" ", "")
+# name = name[0].lower() + name[1:]
+
+# %%
+mtrends.show_graphs()
+ttrends.show_graphs()
+# correction for machine time (in minutes)
+# ttrends.shift_datetime(60)
+
+# correction for machine start
+# ttrends.shift_etime()
