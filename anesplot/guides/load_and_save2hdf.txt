@@ -1,15 +1,23 @@
-import pandas as pd
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on
+
+@author: cdesbois
+"""
+
+
+import os
 
 import anesplot.record_main as rec
-from anesplot.treatrec import ekg_to_hr as tohr
-from anesplot.loadrec.export_reload import export_to_hdf, load_from_hdf
+from anesplot.loadrec.export_reload import export_to_hdf
 
 paths = rec.paths
 paths["save"] = "~"
 
-# %% initial data
+# %% load and save to hdf
 filename = ""
-mtrends = rec.MonitorTrend(filename)
+mtrends = rec.MonitorTrend(file_name)
 mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))
 ttrends = rec.TaphTrend(monitorname=mtrends.filename)
 
