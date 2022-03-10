@@ -90,7 +90,7 @@ rec.get_guide(paths)
 
         tohr.save_beats(beat_df, to_change_df, savename='', dirpath=None)
         (# or reload
-        beat_df = pd.read_hdf('beatDf.hdf', key='beatDf') )
+        beat_df = pd.read_hdf('beatloc_df.hdf', key='beatlocdf') )
 
 4. go from points values to continuous time:
 --------------------------------------------
@@ -188,7 +188,7 @@ def detect_beats(
 
 
 # ekg_df.wekg_lowpass, beat_df)
-def plot_beats(ekgdf: pd.DataFrame, beatdf: pd.DataFrame) -> plt.Figure:
+def plot_beats(ekgdf: pd.DataFrame, beatlocdf: pd.DataFrame) -> plt.Figure:
     """
     plot beat location on ekg display and rr values over time
 
@@ -196,7 +196,7 @@ def plot_beats(ekgdf: pd.DataFrame, beatdf: pd.DataFrame) -> plt.Figure:
     ----------
     ekgdf : pd.DataFrame.
         waves data (wekg & wekg_lowpass)
-    beatdf : pd.DataFrame
+    beatlocdf : pd.DataFrame
         the location of the beats (columns used are [p_loc and y_loc]).
 
     Returns
@@ -211,10 +211,10 @@ def plot_beats(ekgdf: pd.DataFrame, beatdf: pd.DataFrame) -> plt.Figure:
     ax0.plot(ekgdf.values, label="ekg")
     ax0.set_ylabel("ekg (mV)")
     ax0.set_xlabel("pt value")
-    ax0.plot(beatdf.p_loc, beatdf.y_loc, "o", color="orange", label="R")
+    ax0.plot(beatlocdf.p_loc, beatlocdf.y_loc, "o", color="orange", label="R")
 
     ax1 = fig.add_subplot(212, sharex=ax0)
-    ax1.plot(beatdf.p_loc[:-1], np.diff(beatdf.p_loc), "r-", label="rr")
+    ax1.plot(beatlocdf.p_loc[:-1], np.diff(beatlocdf.p_loc), "r-", label="rr")
     ax1.set_ylabel("rr (pt value)")
     ax1.set_xlabel("pt value")
     fig.legend()
@@ -234,7 +234,7 @@ def plot_beats(ekgdf: pd.DataFrame, beatdf: pd.DataFrame) -> plt.Figure:
 
 
 def append_beat(
-    beatdf: pd.DataFrame,
+    beatlocdf: pd.DataFrame,
     ekgdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     fig: plt.Figure,
@@ -246,7 +246,7 @@ def append_beat(
 
     Parameters
     ----------
-    beatdf : pd.Dataframe
+    beatlocdf : pd.Dataframe
         beat position (point based location : p_locs)
     ekgdf : pd.Dataframe
         waves data (wekg_lowpass).
@@ -275,7 +275,7 @@ def append_beat(
             and zoom to observe only a negative peak
 
         2.: call the function:
-            >>> to_change_df = remove_beat(beatdf, ekgdf, tochangedf, fig)
+            >>> to_change_df = remove_beat(beatlocdf, ekgdf, tochangedf, fig)
             -> the beat parameters will be added the dataFrame
 
         .in the end of the manual check, update the beat_df
@@ -291,31 +291,31 @@ def append_beat(
     # restrict area around the undetected pic (based on pt x val)
     df = ekgdf.wekg_lowpass.loc[lim[0] : lim[1]]
     # locate the beat (external call)
-    onepoint_beatdf = detect_beats(df, threshold=yscale)
-    onepoint_beatdf["action"] = "append"
-    if len(onepoint_beatdf) < 1:
+    onepoint_beatlocdf = detect_beats(df, threshold=yscale)
+    onepoint_beatlocdf["action"] = "append"
+    if len(onepoint_beatlocdf) < 1:
         print("no beat founded")
         return tochangedf
-    found_loc = onepoint_beatdf.p_loc.values[0]
-    y_loc = onepoint_beatdf.y_loc.values[0]
+    found_loc = onepoint_beatlocdf.p_loc.values[0]
+    y_loc = onepoint_beatlocdf.y_loc.values[0]
     # reassign the pt value
     p_loc = ekgdf.wekg_lowpass.loc[lim[0] : lim[1]].index[found_loc]
-    onepoint_beatdf["p_loc"] = p_loc
+    onepoint_beatlocdf["p_loc"] = p_loc
     print("founded ", p_loc)
     # append to figure
     fig.get_axes()[0].plot(p_loc, y_loc, "og")
-    onepoint_beatdf.p_loc = p_loc
-    onepoint_beatdf.left_bases += p_loc - found_loc
-    onepoint_beatdf.right_bases.values[0] += p_loc - found_loc
+    onepoint_beatlocdf.p_loc = p_loc
+    onepoint_beatlocdf.left_bases += p_loc - found_loc
+    onepoint_beatlocdf.right_bases.values[0] += p_loc - found_loc
     # insert in the tochangedf
-    # beatdf = beatdf.drop_duplicates('p_loc')
-    tochangedf = tochangedf.append(onepoint_beatdf)
+    # beatlocdf = beatlocdf.drop_duplicates('p_loc')
+    tochangedf = tochangedf.append(onepoint_beatlocdf)
     # beware : a copy of the dataframe is returned
     return tochangedf
 
 
 def remove_beat(
-    beatdf: pd.DataFrame,
+    beatlocdf: pd.DataFrame,
     ekgdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     fig: plt.figure,
@@ -326,7 +326,7 @@ def remove_beat(
 
     Parameters
     ----------
-    beatdf : pd.Dataframe
+    beatlocdf : pd.Dataframe
         beat position (point based location : p_locs)
     ekgdf : pd.Dataframe
         waves data (wekg_lowpass).
@@ -353,7 +353,7 @@ def remove_beat(
         and zoom to observe only a negative peak
 
     2.: call the function:::
-        >>> to_change_df = remove_beat(beatdf, ekgdf, tochangedf, fig)
+        >>> to_change_df = remove_beat(beatlocdf, ekgdf, tochangedf, fig)
         -> the beat parameters will be added the dataFrame
 
     .(in the end of the manual check, update the beat_df
@@ -368,7 +368,7 @@ def remove_beat(
     if lim is None:
         lims = fig.get_axes()[0].get_xlim()
         lim = (int(lims[0]), int(lims[1]))
-    position = beatdf.p_loc[(lim[0] < beatdf.p_loc) & (beatdf.p_loc < lim[1])]
+    position = beatlocdf.p_loc[(lim[0] < beatlocdf.p_loc) & (beatlocdf.p_loc < lim[1])]
     iloc = position.index.values[0]
     ptloc = position.values  # pt values of the peak
     if len(ptloc) > 1:
@@ -376,15 +376,15 @@ def remove_beat(
         return tochangedf
     pos = int(ptloc[0])  # array -> value
     # mark on the graph
-    p_loc, y_loc = beatdf.loc[iloc, ["p_loc", "y_loc"]]
+    p_loc, y_loc = beatlocdf.loc[iloc, ["p_loc", "y_loc"]]
     p_loc = int(p_loc)
     ax = fig.get_axes()[0]
     ax.plot(p_loc, y_loc, "Xr")
     # mark to remove
-    onepoint_beatdf = beatdf.loc[iloc].copy()
-    onepoint_beatdf["action"] = "remove"
-    tochangedf = tochangedf.append(onepoint_beatdf, ignore_index=True)
-    # beatdf.loc[pos, ['y_loc']] = np.NaN
+    onepoint_beatlocdf = beatlocdf.loc[iloc].copy()
+    onepoint_beatlocdf["action"] = "remove"
+    tochangedf = tochangedf.append(onepoint_beatlocdf, ignore_index=True)
+    # beatlocdf.loc[pos, ['y_loc']] = np.NaN
     print("position is ", pos)
     return tochangedf
 
@@ -393,7 +393,7 @@ def remove_beat(
 
 
 def save_beats(
-    beatdf: pd.DataFrame,
+    beatlocdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     savename: str = "",
     dirpath: str = None,
@@ -404,7 +404,7 @@ def save_beats(
 
     parameters
     ----------
-    beatdf : pd.dataframes
+    beatlocdf : pd.dataframes
     tochangedf : pandas.dataframe
     savename : filename
     dirpath : path to save in
@@ -412,18 +412,18 @@ def save_beats(
 
     output
     ------
-    hdf file, key='beatDf'
+    hdf file, key='beatlocdf'
     """
     if dirpath is None:
         dirpath = os.getcwd()
-    filename = savename + "_" + "beatDf"
+    filename = savename + "_" + "beatlocdf"
     if filename.startswith("_"):
         filename = filename[1:]
     name = os.path.join(dirpath, filename)
-    beatdf.to_hdf(name + ".hdf", mode="w", key="beatDf")
+    beatlocdf.to_hdf(name + ".hdf", mode="w", key="beatlocdf")
     tochangedf.to_hdf(name + ".hdf", mode="a", key="tochangeDf")
     if csv:
-        beatdf.to_csv(name + ".csv")
+        beatlocdf.to_csv(name + ".csv")
         filename = savename + "_" + "tochangedf"
         if filename.startswith("_"):
             filename = filename[1:]
@@ -431,11 +431,11 @@ def save_beats(
         tochangedf.to_csv(name + ".csv")
 
 
-# %% apply changes to the beatdf
+# %% apply changes to the beatlocdf
 
 
-def update_beat_df(
-    beatdf: pd.DataFrame,
+def update_beatloc_df(
+    beatlocdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     path_to_file: str = "",
     from_file: bool = False,
@@ -445,7 +445,7 @@ def update_beat_df(
 
     Parameters
     ----------
-    beatdf : pd.DataFrame
+    beatlocdf : pd.DataFrame
         beat position (point based location : p_locs)
     tochangedf : pd.DataFrame
         the beat to add or remove (point based toAppend & toRemove)
@@ -456,15 +456,15 @@ def update_beat_df(
 
     Returns
     -------
-    beatdf : pd.DataFrame
+    beatlocdf : pd.DataFrame
         updated beat position
 
     """
 
     if from_file:
-        name = os.path.join(path_to_file, "beatDf.csv")
+        name = os.path.join(path_to_file, "beatlocdf.csv")
         try:
-            beatdf = pd.read_csv(name, index_col=0)
+            beatlocdf = pd.read_csv(name, index_col=0)
         except FileNotFoundError:
             print(f"file is not present ({name})")
         name = os.path.join(path_to_file, "toChange.csv")
@@ -474,34 +474,34 @@ def update_beat_df(
     # remove
     to_remove = tochangedf.loc[tochangedf["action"] == "remove", ["p_loc"]]
     to_remove = to_remove.values.flatten().tolist()
-    beatdf = beatdf.set_index("p_loc").drop(to_remove, errors="ignore")
-    beatdf.reset_index(inplace=True)
+    beatlocdf = beatlocdf.set_index("p_loc").drop(to_remove, errors="ignore")
+    beatlocdf.reset_index(inplace=True)
     # append
     temp_df = tochangedf.loc[tochangedf["action"] == "append"].set_index("action")
-    beatdf = beatdf.append(temp_df, ignore_index=True)
+    beatlocdf = beatlocdf.append(temp_df, ignore_index=True)
     # rebuild
-    beatdf.drop_duplicates(keep=False, inplace=True)
-    beatdf = beatdf.sort_values(by="p_loc").reset_index(drop=True)
-    return beatdf
+    beatlocdf.drop_duplicates(keep=False, inplace=True)
+    beatlocdf = beatlocdf.sort_values(by="p_loc").reset_index(drop=True)
+    return beatlocdf
 
 
 # beat_df = update_beat_df(beat_df, to_change_df)
 
 # %% =========================================
-def compute_rr(beatdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
+def compute_rr(beatlocdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
     """
     compute rr intervals (from pt to time)
 
     Parameters
     ----------
-    beatdf : pd.DataFrame
+    beatlocdf : pd.DataFrame
         beat position (point based location : p_locs)
     fs : int, optional (default is None -> 300)
         the sampling frequency
 
     Returns
     -------
-    beatdf : pd.DataFrame
+    beatlocdf : pd.DataFrame
         beat position updated with rrvalues:
         'rr' =  rr duration
         'rrDiff' = rrVariation
@@ -512,27 +512,27 @@ def compute_rr(beatdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
         fs = 300
     # compute rr intervals
     #    beat_df['rr'] = np.diff(beat_df.p_loc)
-    beatdf["rr"] = beatdf.p_loc.shift(-1) - beatdf.p_loc  # pt duration
-    beatdf.rr = beatdf.rr / fs * 1_000  # time duration
+    beatlocdf["rr"] = beatlocdf.p_loc.shift(-1) - beatlocdf.p_loc  # pt duration
+    beatlocdf.rr = beatlocdf.rr / fs * 1_000  # time duration
     # remove outliers (HR < 20)
-    if len(beatdf.loc[beatdf.rr > 20_000]) > 0:
-        beatdf.loc[beatdf.rr > 20_000, ["rr"]] = np.nan
-    beatdf = beatdf.interpolate()
-    beatdf = beatdf.dropna(how="all")
-    beatdf = beatdf.dropna(axis=1, how="all")
+    if len(beatlocdf.loc[beatlocdf.rr > 20_000]) > 0:
+        beatlocdf.loc[beatlocdf.rr > 20_000, ["rr"]] = np.nan
+    beatlocdf = beatlocdf.interpolate()
+    beatlocdf = beatlocdf.dropna(how="all")
+    beatlocdf = beatlocdf.dropna(axis=1, how="all")
     # compute variation
-    beatdf["rrDiff"] = abs(beatdf.rr.shift(-1) - beatdf.rr)
-    beatdf["rrSqDiff"] = (beatdf.rr.shift(-1) - beatdf.rr) ** 2
-    return beatdf
+    beatlocdf["rrDiff"] = abs(beatlocdf.rr.shift(-1) - beatlocdf.rr)
+    beatlocdf["rrSqDiff"] = (beatlocdf.rr.shift(-1) - beatlocdf.rr) ** 2
+    return beatlocdf
 
 
-def interpolate_rr(beatdf: pd.DataFrame, kind: str = None) -> pd.DataFrame:
+def interpolate_rr(beatlocdf: pd.DataFrame, kind: str = None) -> pd.DataFrame:
     """
     interpolate the beat_df (pt -> time values)
 
     Parameters
     ----------
-    beatdf : pd.DataFrame
+    beatlocdf : pd.DataFrame
         beat position (point based location : p_locs).
     kind : str, optional (default is None -> "cubic")
         interpolation (in ['linear', 'cubic']
@@ -548,26 +548,26 @@ def interpolate_rr(beatdf: pd.DataFrame, kind: str = None) -> pd.DataFrame:
         kind = "cubic"
     ahr_df = pd.DataFrame()
     # prepare = sorting and removing possible duplicates
-    beatdf = beatdf.sort_values(by="p_loc")
-    beatdf = beatdf.drop_duplicates("p_loc")
+    beatlocdf = beatlocdf.sort_values(by="p_loc")
+    beatlocdf = beatlocdf.drop_duplicates("p_loc")
 
-    first_beat_pt = int(beatdf.iloc[0].p_loc)
-    last_beat_pt = int(beatdf.iloc[-2].p_loc)  # last interval
+    first_beat_pt = int(beatlocdf.iloc[0].p_loc)
+    last_beat_pt = int(beatlocdf.iloc[-2].p_loc)  # last interval
     newx = np.arange(first_beat_pt, last_beat_pt)
     # interpolate rr
-    rrx = beatdf.p_loc[:-1].values  # rr locations
-    rry = beatdf.rr[:-1].values  # rr values
+    rrx = beatlocdf.p_loc[:-1].values  # rr locations
+    rry = beatlocdf.rr[:-1].values  # rr values
     f = interp1d(rrx, rry, kind=kind)
     newy = f(newx)
     ahr_df["espts"] = newx
     ahr_df["rrInterpol"] = newy
     # interpolate rrDiff
-    rry = beatdf.rrDiff[:-1].values
+    rry = beatlocdf.rrDiff[:-1].values
     f = interp1d(rrx, rry, kind=kind)
     newy = f(newx)
     ahr_df["rrInterpolDiff"] = newy
     # interpolate rrSqrDiff
-    rry = beatdf.rrSqDiff[:-1].values
+    rry = beatlocdf.rrSqDiff[:-1].values
     f = interp1d(rrx, rry, kind=kind)
     newy = f(newx)
     ahr_df["rrInterpolSqDiff"] = newy
