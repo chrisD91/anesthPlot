@@ -8,7 +8,16 @@ typically (copy, paste and execute line by line)
 
 (
  NB templates are available in the anesplot/guide folder
- from the main entry port use get_guide())
+
+you can execute line by line in a file the following process:
+>>
+import anesplot.record_main as rec
+paths = rec.paths
+rec.get_guide(paths)
+-> fill the choice in the ipython terminal
+-> paste the template in the file
+<<
+)
 
 
 0. after
