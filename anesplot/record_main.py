@@ -52,6 +52,7 @@ rcParams["axes.ymargin"] = 0
 from config.load_recordrc import build_paths
 
 paths = build_paths()
+from anesplot.guides.choose_guide import get_guide
 
 # requires to have '.../anesthPlot' in the path
 # import anesplot.loadrec.loadmonitor_trendrecord as lmt

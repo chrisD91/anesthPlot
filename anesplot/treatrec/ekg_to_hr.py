@@ -6,6 +6,11 @@
 function used to treat an EKG signal and extract the heart rate
 typically (copy, paste and execute line by line)
 
+(
+ NB templates are available in the anesplot/guide folder
+ from the main entry port use get_guide())
+
+
 0. after
 --------
 ::
@@ -120,26 +125,6 @@ from scipy.interpolate import interp1d
 # TODO shift the ihr of one beat (ie ihr should be on the end of the interval)
 
 # %%
-
-
-def get_hr_template(filenum=2):
-    """
-    load hr template to clipboard
-
-
-    Returns
-    -------
-    None.
-
-    """
-    files = [
-        "anesplot/treatrec/guide_ekg_to_hr.txt",
-        "anesplot/treatrec/guide_1_build.txt",
-        "anesplot/treatrec/guide_2_hr.txt",
-    ]
-    filename = files[filenum]
-    with open(filename, "r") as f:
-        pyperclip.copy(f.read())
 
 
 def detect_beats(
