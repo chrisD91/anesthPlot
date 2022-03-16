@@ -487,7 +487,7 @@ class TaphTrend(_SlowWave):
         """
         ltt.shift_elapsed_time(self.data, minutes)
 
-    def sync_etime(self, datetime0: datetime.datetime):
+    def sync_etime(self, datetime0: datetime):
         """
         shift the elapsed time based a 'zero' datetime.datetime
 
