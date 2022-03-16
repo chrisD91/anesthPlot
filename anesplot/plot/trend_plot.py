@@ -530,8 +530,12 @@ def cardiovasc(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     if dtime:
         my_fmt = mdates.DateFormatter("%H:%M")
         ax_l.xaxis.set_major_formatter(my_fmt)
+        xlims = ax_l.get_xlim()
+        ax_l.set_xlim(data.iloc[0].datetime, xlims[1])
     else:
         ax_l.set_xlabel("etime (min)")
+        xlims = ax_l.get_xlim()
+        ax_l.set_xlim(data.iloc[0].eTimeMin, xlims[1])
 
     for i, ax in enumerate(fig.get_axes()):
         # call
@@ -1107,7 +1111,7 @@ def ventil_cardio(data: pd.DataFrame, param: dict) -> plt.Figure:
 
     """
 
-    path = param.get("path", "")
+    # path = param.get("path", "")
     # xmin = param.get("xmin", None)
     # xmax = param.get("xmax", None)
     # unit = param.get("unit", "")
