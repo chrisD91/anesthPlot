@@ -738,6 +738,7 @@ def save_trends_data(trenddf: pd.DataFrame, savename: str = "", dirpath: str = "
     fullname = os.path.join(dirpath, filename)
     # trenddf.to_csv(fullname + ".csv")
     trenddf.to_hdf(fullname + ".hdf", mode="w", key="trends_data")
+    print(f"saved trendDataframe to '{filename + '.hdf'}', key='trends_data'")
 
 
 def save_waves_data(wavedf: pd.DataFrame, savename: str = "", dirpath: str = "data"):
@@ -770,6 +771,7 @@ def save_waves_data(wavedf: pd.DataFrame, savename: str = "", dirpath: str = "da
     fullname = os.path.join(dirpath, filename)
     # wavedf.to_csv(fullname + ".csv")
     wavedf.to_hdf(fullname + ".hdf", mode="w", key="waves_data")
+    print(f"saved waveDataframe to '{filename + '.hdf'}', key='waves_data'")
 
 
 # ekg_df = append_rr_and_ihr_to_wave(ekg_df, ahr_df)

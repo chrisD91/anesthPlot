@@ -17,7 +17,7 @@ from anesplot.loadrec.export_reload import export_to_hdf, load_from_hdf
 paths = rec.paths
 paths["save"] = "~"
 
-# get the name 
+# get the name
 # %% get the name
 file_name = os.path.join(paths["mon_data"], "")
 mtrends = rec.MonitorTrend(file_name, load=False)
@@ -64,7 +64,7 @@ mwaves.data = tohr.append_rr_and_ihr_to_wave(mwaves.data, ahr_df)
 mtrends.data = tohr.append_ihr_to_trend(mtrends.data, mwaves.data, ekg_df)
 
 # 6. save:
-tohr.save_trends_data(mtrends.data, savename=name, dirpath=paths['save'])
-tohr.save_waves_data(mwaves.data, savename=name, dirpath=paths['save'])
+tohr.save_trends_data(mtrends.data, savename=name, dirpath=paths['save'] + '/data')
+tohr.save_waves_data(mwaves.data, savename=name, dirpath=paths['save'] + '/data')
 
-export_to_hdf(save_name, mtrend=mtrends, mwave=mwaves)
+export_data_to_hdf(save_name, mtrend=mtrends, mwave=mwaves)

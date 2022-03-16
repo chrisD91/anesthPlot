@@ -287,7 +287,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     datadf["time"] = pd.to_datetime(datadf["time"], dayfirst=True)
 
     datadf[["Date", "Time"]] = datadf[["Date", "Time"]].astype(str)
-    # nb not for events because that will cahnge np.nan to str(nan)
+    # nb not for events because that will change np.nan to str(nan)
     sampling = (datadf.time[1] - datadf.time[0]).seconds
     datadf["eTime"] = datadf.index * sampling
     datadf["eTimeMin"] = datadf.eTime / 60
@@ -353,14 +353,14 @@ def shift_datetime(datadf: pd.DataFrame, minutes_to_add: int = None) -> pd.DataF
 
     Parameters
     ----------
-    df : pd.DataFrame
+    datadf : pd.DataFrame
         a recording (that have to contain 'datetime' and 'time' column.
     minutes_to_add : int, optional
         DESCRIPTION. The default is None.
 
     Returns
     -------
-    df : pd.DataFrame
+    datadf : pd.DataFrame
         the recording with shifted datetime and time columns.
 
     """
@@ -382,13 +382,13 @@ def shift_elapsed_time(
 
     Parameters
     ----------
-    df : pd.DataFrame
+    datadf : pd.DataFrame
         a recording (that have to contain 'datetime' and 'time' column.
     minutes_to_add : int, optional (default is None)
 
     Returns
     -------
-    df : pd.DataFrame
+    datadf : pd.DataFrame
         the recording with shifted eTime and eTimeMin columns.
 
     """

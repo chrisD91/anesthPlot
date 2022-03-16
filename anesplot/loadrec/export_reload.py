@@ -17,7 +17,8 @@ import pandas as pd
 import anesplot.record_main as rec
 
 
-def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
+# def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
+def export_data_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
     """
     export the recordings in an hdf file
     keys are
@@ -59,6 +60,8 @@ def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
         fix_dtypes(dicodf).to_hdf(savename, key="mtrends_header")
         dicodf = pd.DataFrame.from_dict({k: [v] for k, v in mtrend.param.items()})
         fix_dtypes(dicodf).to_hdf(savename, key="mtrends_param")
+        print(f"monitorTrend to '{savename}")
+        print("keys= 'mtrends_data, mtrends_header, mtrends_param'")
     # taph trends
     if ttrend:
         ttrend.data.to_hdf(savename, key="ttrends_data")
@@ -66,6 +69,8 @@ def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
         fix_dtypes(dicodf).to_hdf(savename, key="ttrends_header")
         dicodf = pd.DataFrame.from_dict({k: [v] for k, v in ttrend.param.items()})
         fix_dtypes(dicodf).to_hdf(savename, key="ttrends_param")
+        print(f"taphTrend to '{savename}")
+        print("keys= 'ttrends_data, ttrends_header, ttrends_param'")
     # waves
     if mwave:
         mwave.data.to_hdf(savename, key="mwaves_data")
@@ -73,12 +78,15 @@ def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
         fix_dtypes(dicodf).to_hdf(savename, key="mwaves_header")
         dicodf = pd.DataFrame.from_dict({k: [v] for k, v in mwave.param.items()})
         fix_dtypes(dicodf).to_hdf(savename, key="mwaves_param")
+        print(f"monitorTrend to '{savename}")
+        print("keys= 'mwaves_data, mwaves_header, mtrends_param'")
 
 
 # %%
 
 
-def load_from_hdf(savename: str):
+# def load_from_hdf(savename: str):
+def build_obj_from_hdf(savename: str):
     """
     build MonitorTrend, TaphTrenbd and MonitorWave objects
     fill them from hdf file

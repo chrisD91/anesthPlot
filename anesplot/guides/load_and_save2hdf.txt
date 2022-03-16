@@ -35,5 +35,5 @@ ttrends.show_graphs()
 # ttrends.sync_etime(mstart)
 
 
-save_name = os.path.join(paths["save"], name + ".hdf")
-export_to_hdf(save_name, mtrend=mtrends, mwave=mwaves, ttrend=ttrends)
+save_name = os.path.join(paths["save"], 'data', name + ".hdf")
+export_data_to_hdf(save_name, mtrend=mtrends, mwave=mwaves, ttrend=ttrends)
