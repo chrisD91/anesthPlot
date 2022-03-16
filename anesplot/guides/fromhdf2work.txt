@@ -10,13 +10,16 @@ import os
 import matplotlib.pyplot as plt
 
 import anesplot.record_main as rec
-from anesplot.loadrec.export_reload import load_from_hdf
+from anesplot.loadrec.export_reload import build_obj_from_hdf
 
 paths = rec.paths
 paths["save"] = ""
 name = ""
-save_name = os.path.join(paths["save"], name + ".hdf")
-mtrends, ttrends, mwaves = load_from_hdf(save_name)
+save_name = os.path.join(paths["save"], 'data', name + ".hdf")
+if not os.path.isfile(save_name):
+    print(f"the file '{os.path.basename(save_name)}' doesn't exists")
+    print(f"check the folder '{os.path.dirname(save_name)}'")
+mtrends, ttrends, mwaves = build_obj_from_hdf(save_name)
 
 # get the name
 # file_name = os.path.join(paths["mon_data"], "")

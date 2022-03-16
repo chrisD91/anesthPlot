@@ -12,7 +12,7 @@ import pandas as pd
 
 import anesplot.record_main as rec
 from anesplot.treatrec import ekg_to_hr as tohr
-from anesplot.loadrec.export_reload import export_to_hdf, load_from_hdf
+from anesplot.loadrec.export_reload import export_data_to_hdf, build_obj_from_hdf
 
 paths = rec.paths
 paths["save"] = "~"
