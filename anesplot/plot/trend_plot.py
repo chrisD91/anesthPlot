@@ -18,16 +18,16 @@ import pandas as pd
 import numpy as np
 
 # import utils
-font_size = "medium"  # large, medium
+FONTSIZE = "medium"  # large, medium
 params = {
     "font.sans-serif": ["Arial"],
     "font.size": 12,
-    "legend.fontsize": font_size,
+    "legend.fontsize": FONTSIZE,
     "figure.figsize": (12, 3.1),
-    "axes.labelsize": font_size,
-    "axes.titlesize": font_size,
-    "xtick.labelsize": font_size,
-    "ytick.labelsize": font_size,
+    "axes.labelsize": FONTSIZE,
+    "axes.titlesize": FONTSIZE,
+    "xtick.labelsize": FONTSIZE,
+    "ytick.labelsize": FONTSIZE,
     "axes.xmargin": 0,
 }
 plt.rcParams.update(params)
@@ -35,13 +35,13 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 
 # ------------------------------------------------------
-def remove_outliers(df: pd.DataFrame, key: str, limits: dict = None) -> pd.Series:
+def remove_outliers(datadf: pd.DataFrame, key: str, limits: dict = None) -> pd.Series:
     """
     remove outliers
 
     Parameters
     ----------
-    df : pd.DataFrame
+    datadf : pd.DataFrame
         the data.
     key : str
         a column label to extract the trace.
@@ -61,19 +61,20 @@ def remove_outliers(df: pd.DataFrame, key: str, limits: dict = None) -> pd.Serie
             "ip1m": (15, 160),
             "hr": (10, 100),
         }
+
+    if key not in datadf.columns:
+        return pd.Series()
+
     if key not in limits:
         print(f"{key} limits are not defined")
-    if key in df.columns:
-        ser = df[key].copy()
-        ser[ser < limits[key][0]] = np.nan
-        ser[ser > limits[key][1]] = np.nan
-        ser = ser.dropna()
-    else:
-        ser = pd.Series()
+    ser = datadf[key].copy()
+    ser[ser < limits[key][0]] = np.nan
+    ser[ser > limits[key][1]] = np.nan
+    ser = ser.dropna()
     return ser
 
 
-def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r"):
+def color_axis(ax0: plt.Axes, spine: str = "bottom", color: str = "r"):
     """
     change the color of the label & tick & spine.
 
@@ -92,22 +93,22 @@ def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r"):
 
     """
 
-    ax.spines[spine].set_color(color)
+    ax0.spines[spine].set_color(color)
     if spine == "bottom":
-        ax.xaxis.label.set_color(color)
-        ax.tick_params(axis="x", colors=color)
+        ax0.xaxis.label.set_color(color)
+        ax0.tick_params(axis="x", colors=color)
     elif spine in ["left", "right"]:
-        ax.yaxis.label.set_color(color)
-        ax.tick_params(axis="y", colors=color)
+        ax0.yaxis.label.set_color(color)
+        ax0.tick_params(axis="y", colors=color)
 
 
-def append_loc_to_fig(ax: plt.Axes, dt_list: list, label: str = "g") -> dict:
+def append_loc_to_fig(ax0: plt.Axes, dt_list: list, label: str = "g") -> dict:
     """
     append vertical lines to indicate a time location 'for eg: arterial blood gas'
 
     Parameters
     ----------
-    ax : plt.Axes
+    ax0 : plt.Axes
         the axis to add on.
     dt_list : list
         list of datetime values.
@@ -124,9 +125,9 @@ def append_loc_to_fig(ax: plt.Axes, dt_list: list, label: str = "g") -> dict:
     num_times = mdates.date2num(dt_list)
     res = {}
     for i, num_time in enumerate(num_times):
-        st = label + str(i + 1)
-        ax.axvline(num_time, color="tab:blue")
-        ax.text(num_time, ax.get_ylim()[1], st, color="tab:blue")
+        txt = label + str(i + 1)
+        ax0.axvline(num_time, color="tab:blue")
+        ax0.text(num_time, ax0.get_ylim()[1], txt, color="tab:blue")
         res[i] = num_time
     return res
 
@@ -160,7 +161,8 @@ def save_graph(path: str, ext: str = "png", close: bool = True, verbose: bool = 
 
     # Extract the directory and filename from the given path
     directory = os.path.split(path)[0]
-    filename = "%s.%s" % (os.path.split(path)[1], ext)
+    # filename = "%s.%s" % (os.path.split(path)[1], ext)
+    filename = ".".join([os.path.split(path)[1], ext])
     if directory == "":
         directory = "."
     # If the directory does not exist, create it
@@ -216,17 +218,17 @@ def plot_header(descr: dict, param: dict = None) -> plt.Figure:
     # ['Age', 'Sex', 'Weight', 'Version', 'Date', 'Patient Name', 'Sampling Rate',
     # 'Height', 'Patient ID', 'Equipment', 'Procedure']
     fig = plt.figure(figsize=(nbcol * hcell + hpad, nbcol * wcell + wpad))
-    ax = fig.add_subplot(111)
-    ax.axis("off")
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
-    table = ax.table(cellText=txt, loc="center", fontsize=18, bbox=[0, 0, 1, 1])
+    ax0 = fig.add_subplot(111)
+    ax0.axis("off")
+    ax0.xaxis.set_visible(False)
+    ax0.yaxis.set_visible(False)
+    table = ax0.table(cellText=txt, loc="center", fontsize=18, bbox=[0, 0, 1, 1])
     # table.auto_set_font_size(False)
     table.set_fontsize(10)
     # table.set_zorder(10)
-    for sp in ax.spines.values():
-        sp.set_color("w")
-        sp.set_zorder(0)
+    for spineval in ax0.spines.values():
+        spineval.set_color("w")
+        spineval.set_zorder(0)
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
     fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
@@ -266,61 +268,61 @@ def hist_cardio(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     axes = axes.flatten()
 
-    ax = axes[0]
-    ax.set_title("arterial pressure", color="tab:red")
-    ax.set_xlabel("mmHg", alpha=0.5)
+    ax0 = axes[0]
+    ax0.set_title("arterial pressure", color="tab:red")
+    ax0.set_xlabel("mmHg", alpha=0.5)
     ser = remove_outliers(data, "ip1m")
     if len(ser) > 0:
-        ax.hist(ser.dropna(), bins=30, color="tab:red", edgecolor="red", alpha=0.7)
+        ax0.hist(ser.dropna(), bins=30, color="tab:red", edgecolor="red", alpha=0.7)
         q50 = np.percentile(ser, [50])
-        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+        ax0.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
         for lim in [70, 80]:
-            ax.axvline(lim, color="tab:grey", alpha=1)
-        ax.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
-        ax.set_xlabel("mmHg", alpha=0.5)
+            ax0.axvline(lim, color="tab:grey", alpha=1)
+        ax0.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
+        ax0.set_xlabel("mmHg", alpha=0.5)
     else:
-        ax.text(
+        ax0.text(
             0.5,
             0.5,
             "no data \n (arterial pressure)",
             horizontalalignment="center",
             fontsize="x-large",
             verticalalignment="center",
-            transform=ax.transAxes,
+            transform=ax0.transAxes,
         )
 
-    ax = axes[1]
-    ax.set_title("heart rate", color="k")
+    ax1 = axes[1]
+    ax1.set_title("heart rate", color="k")
     ser = remove_outliers(data, "hr")
     if len(ser) > 0:
-        ax.hist(
+        ax1.hist(
             ser,
             bins=30,
             color="tab:grey",
             edgecolor="tab:grey",
             alpha=0.8,
         )
-        ax.set_xlabel("bpm", alpha=0.5)
+        ax1.set_xlabel("bpm", alpha=0.5)
         q50 = np.percentile(ser, [50])
-        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+        ax1.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
     else:
-        ax.text(
+        ax1.text(
             0.5,
             0.5,
             "no data \n (heart rate)",
             horizontalalignment="center",
             fontsize="x-large",
             verticalalignment="center",
-            transform=ax.transAxes,
+            transform=ax1.transAxes,
         )
 
-    for ax in axes:
+    for axe in axes:
         # call
-        color_axis(ax, "bottom", "tab:grey")
-        ax.get_yaxis().set_visible(False)
-        ax.get_xaxis().tick_bottom()
+        color_axis(axe, "bottom", "tab:grey")
+        axe.get_yaxis().set_visible(False)
+        axe.get_xaxis().tick_bottom()
         for locs in ["top", "right", "left"]:
-            ax.spines[locs].set_visible(False)
+            axe.spines[locs].set_visible(False)
         # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
     fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
@@ -354,10 +356,10 @@ def plot_one_over_time(x, y, colour: str) -> plt.Figure:
     """
 
     fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(x, y, color=colour)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
+    axe = fig.add_subplot(111)
+    axe.plot(x, y, color=colour)
+    axe.spines["top"].set_visible(False)
+    axe.spines["right"].set_visible(False)
     fig.tight_layout()
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
@@ -442,13 +444,13 @@ def hist_co2_iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
             transform=ax2.transAxes,
         )
 
-    for ax in [ax1, ax2]:
+    for axe in [ax1, ax2]:
         # call
-        color_axis(ax, "bottom", "tab:grey")
-        ax.get_yaxis().set_visible(False)
-        ax.get_xaxis().tick_bottom()
+        color_axis(axe, "bottom", "tab:grey")
+        axe.get_yaxis().set_visible(False)
+        axe.get_xaxis().tick_bottom()
         for locs in ["top", "right", "left"]:
-            ax.spines[locs].set_visible(False)
+            axe.spines[locs].set_visible(False)
         # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
     fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
@@ -465,7 +467,7 @@ def hist_co2_iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def cardiovasc(data: pd.DataFrame, param: dict = None) -> plt.Figure:
+def cardiovasc(datadf: pd.DataFrame, param: dict = None) -> plt.Figure:
     """
     cardiovascular plot
 
@@ -485,18 +487,18 @@ def cardiovasc(data: pd.DataFrame, param: dict = None) -> plt.Figure:
 
     if param is None:
         param = {}
-    if "hr" not in data.columns:
+    if "hr" not in datadf.columns:
         print("no pulseRate in the recording")
         return plt.figure()
-    if "ip1m" not in data.columns:
+    if "ip1m" not in datadf.columns:
         print("no arterial pressure in the recording")
         return plt.figure()
     # global timeUnit
     dtime = param.get("dtime", False)
     if dtime:
-        df = data.set_index("datetime")[["ip1m", "ip1d", "ip1s", "hr"]]
+        pressuredf = datadf.set_index("datetime")[["ip1m", "ip1d", "ip1s", "hr"]]
     else:
-        df = data.set_index("eTimeMin")[["ip1m", "ip1d", "ip1s", "hr"]]
+        pressuredf = datadf.set_index("eTimeMin")[["ip1m", "ip1d", "ip1s", "hr"]]
 
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -512,15 +514,17 @@ def cardiovasc(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     color_axis(ax_l, "left", "tab:red")
     # for spine in ["top", "right"]:
     #     ax_l.spines[spine].set_visible(False)
-    ax_l.plot(df.ip1m, "-", color="red", label="arterial pressure", linewidth=2)
-    ax_l.fill_between(df.index, df.ip1d, df.ip1s, color="tab:red", alpha=0.5)
+    ax_l.plot(pressuredf.ip1m, "-", color="red", label="arterial pressure", linewidth=2)
+    ax_l.fill_between(
+        pressuredf.index, pressuredf.ip1d, pressuredf.ip1s, color="tab:red", alpha=0.5
+    )
     ax_l.set_ylim(30, 150)
     ax_l.axhline(70, linewidth=1, linestyle="dashed", color="tab:red")
 
     ax_r = ax_l.twinx()
     ax_r.set_ylabel("heart Rate")
     ax_r.set_ylim(20, 100)
-    ax_r.plot(df.hr, color="tab:grey", label="heart rate", linewidth=2)
+    ax_r.plot(pressuredf.hr, color="tab:grey", label="heart rate", linewidth=2)
     # call
     color_axis(ax_r, "right", "tab:grey")
     # ax_r.yaxis.label.set_color("black")
@@ -531,20 +535,20 @@ def cardiovasc(data: pd.DataFrame, param: dict = None) -> plt.Figure:
         my_fmt = mdates.DateFormatter("%H:%M")
         ax_l.xaxis.set_major_formatter(my_fmt)
         xlims = ax_l.get_xlim()
-        ax_l.set_xlim(data.iloc[0].datetime, xlims[1])
+        ax_l.set_xlim(datadf.iloc[0].datetime, xlims[1])
     else:
         ax_l.set_xlabel("etime (min)")
         xlims = ax_l.get_xlim()
-        ax_l.set_xlim(data.iloc[0].eTimeMin, xlims[1])
+        ax_l.set_xlim(datadf.iloc[0].eTimeMin, xlims[1])
 
-    for i, ax in enumerate(fig.get_axes()):
+    for i, axe in enumerate(fig.get_axes()):
         # call
-        color_axis(ax, "bottom", "tab:grey")
+        color_axis(axe, "bottom", "tab:grey")
         # color_axis(ax, "right", "tab:grey")
         for spine in ["top"]:
-            ax.spines[spine].set_visible(False)
+            axe.spines[spine].set_visible(False)
         if i == 0:
-            ax.spines["right"].set_visible(False)
+            axe.spines["right"].set_visible(False)
         else:
             ax_r.spines["left"].set_visible(False)
 
@@ -568,7 +572,7 @@ def cardiovasc(data: pd.DataFrame, param: dict = None) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def cardiovasc_p1p2(data: pd.DataFrame, param: dict = None) -> pd.DataFrame:
+def cardiovasc_p1p2(datadf: pd.DataFrame, param: dict = None) -> pd.DataFrame:
     """
     cardiovascular plot with central venous pressure (p2)
 
@@ -590,23 +594,23 @@ def cardiovasc_p1p2(data: pd.DataFrame, param: dict = None) -> pd.DataFrame:
 
     if param is None:
         param = {}
-    if "hr" not in data.columns:
+    if "hr" not in datadf.columns:
         print("no pulseRate in the recording")
         return plt.figure()
-    if "ip1m" not in data.columns:
+    if "ip1m" not in datadf.columns:
         print("no arterial pressure in the recording")
         return plt.figure()
-    if "ip2m" not in data.columns:
+    if "ip2m" not in datadf.columns:
         print("no venous pressure in the recording")
         return plt.figure()
     # global timeUnit
     dtime = param.get("dtime", False)
     if dtime:
-        df = data.set_index("datetime")[
+        pressuredf = datadf.set_index("datetime")[
             ["ip1m", "ip1d", "ip1s", "hr", "ip2s", "ip2d", "ip2m"]
         ]
     else:
-        df = data.set_index("eTimeMin")[
+        pressuredf = datadf.set_index("eTimeMin")[
             ["ip1m", "ip1d", "ip1s", "hr", "ip2s", "ip2d", "ip2m"]
         ]
     xmin = param.get("xmin", None)
@@ -625,31 +629,35 @@ def cardiovasc_p1p2(data: pd.DataFrame, param: dict = None) -> pd.DataFrame:
     color_axis(ax_l, "left", "tab:red")
     # for spine in ["top", "right"]:
     #     ax_l.spines[spine].set_visible(False)
-    ax_l.plot(df.ip1m, "-", color="red", label="arterial pressure", linewidth=2)
-    ax_l.fill_between(df.index, df.ip1d, df.ip1s, color="tab:red", alpha=0.5)
+    ax_l.plot(pressuredf.ip1m, "-", color="red", label="arterial pressure", linewidth=2)
+    ax_l.fill_between(
+        pressuredf.index, pressuredf.ip1d, pressuredf.ip1s, color="tab:red", alpha=0.5
+    )
     ax_l.set_ylim(30, 150)
     ax_l.axhline(70, linewidth=1, linestyle="dashed", color="tab:red")
 
     ax_r = ax_l.twinx()
     ax_r.set_ylabel("heart Rate")
     ax_r.set_ylim(20, 100)
-    ax_r.plot(df.hr, color="tab:grey", label="heart rate", linewidth=2)
+    ax_r.plot(pressuredf.hr, color="tab:grey", label="heart rate", linewidth=2)
     # call
     color_axis(ax_r, "right", "tab:grey")
     # ax_r.yaxis.label.set_color("black")
     # for spine in ["top", "left"]:
     #     ax_r.spines[spine].set_visible(False)
 
-    ax = axes[1]
-    ax.set_ylabel("venous Pressure", color="tab:blue")
+    ax1 = axes[1]
+    ax1.set_ylabel("venous Pressure", color="tab:blue")
     # call
-    color_axis(ax, "left", "tab:blue")
+    color_axis(ax1, "left", "tab:blue")
     # for spine in ["top", "right"]:
     #     ax_l.spines[spine].set_visible(False)
-    ax.plot(df.ip2m, "-", color="blue", label="venous pressure", linewidth=2)
-    ax.fill_between(df.index, df.ip2d, df.ip2s, color="tab:blue", alpha=0.5)
-    ax.set_ylim(-5, 15)
-    ax.axhline(0, linewidth=1, linestyle="-", color="tab:gray")
+    ax1.plot(pressuredf.ip2m, "-", color="blue", label="venous pressure", linewidth=2)
+    ax1.fill_between(
+        pressuredf.index, pressuredf.ip2d, pressuredf.ip2s, color="tab:blue", alpha=0.5
+    )
+    ax1.set_ylim(-5, 15)
+    ax1.axhline(0, linewidth=1, linestyle="-", color="tab:gray")
 
     if dtime:
         my_fmt = mdates.DateFormatter("%H:%M")
@@ -657,14 +665,14 @@ def cardiovasc_p1p2(data: pd.DataFrame, param: dict = None) -> pd.DataFrame:
     else:
         ax_l.set_xlabel("etime (min)")
 
-    for i, ax in enumerate(fig.get_axes()):
+    for i, axe in enumerate(fig.get_axes()):
         # call
-        color_axis(ax, "bottom", "tab:grey")
+        color_axis(axe, "bottom", "tab:grey")
         # color_axis(ax, "right", "tab:grey")
         for spine in ["top"]:
-            ax.spines[spine].set_visible(False)
+            axe.spines[spine].set_visible(False)
         if i == 0:
-            ax.spines["right"].set_visible(False)
+            axe.spines["right"].set_visible(False)
         else:
             ax_r.spines["left"].set_visible(False)
 
@@ -1093,13 +1101,13 @@ def recrut(data: pd.DataFrame, param: dict) -> plt.Figure:
     return fig
 
 
-def ventil_cardio(data: pd.DataFrame, param: dict) -> plt.Figure:
+def ventil_cardio(datadf: pd.DataFrame, param: dict) -> plt.Figure:
     """
     build ventilation and cardiovascular plot
 
     Parameters
     ----------
-    data : pd.DataFrame
+    datadf : pd.DataFrame
         trend data. Columns used : ['ip1s', 'ip1m', 'ip1d', 'hr']
     param : dict
         dict(save: boolean, path['save'], xmin, xmax, unit,
@@ -1117,11 +1125,11 @@ def ventil_cardio(data: pd.DataFrame, param: dict) -> plt.Figure:
     # unit = param.get("unit", "")
     dtime = param.get("dtime", False)
     if dtime:
-        df = data.set_index("datetime").copy()
+        df = datadf.set_index("datetime").copy()
     else:
-        df = data.set_index("eTimeMin").copy()
+        df = datadf.set_index("eTimeMin").copy()
 
-    if "tvInsp" not in data.columns:
+    if "tvInsp" not in datadf.columns:
         print("no spirometry data in the recording")
 
     fig = plt.figure(figsize=(12, 5))
@@ -1171,11 +1179,11 @@ def ventil_cardio(data: pd.DataFrame, param: dict) -> plt.Figure:
         ax1.set_xlabel("etime (min)")
 
     axes = [ax1, ax1_r, ax2]
-    for ax in axes:
-        ax.grid()
-        color_axis(ax, "bottom", "tab:grey")
-        ax.spines["top"].set_visible(False)
-        ax.get_xaxis().tick_bottom()
+    for axe in axes:
+        axe.grid()
+        color_axis(axe, "bottom", "tab:grey")
+        axe.spines["top"].set_visible(False)
+        axe.get_xaxis().tick_bottom()
 
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
@@ -1184,7 +1192,7 @@ def ventil_cardio(data: pd.DataFrame, param: dict) -> plt.Figure:
     return fig
 
 
-def sat_hr(data: pd.DataFrame, param: dict) -> plt.Figure:
+def sat_hr(datadf: pd.DataFrame, param: dict) -> plt.Figure:
     """
     plot a sat and sat_hr over time
 
@@ -1204,43 +1212,43 @@ def sat_hr(data: pd.DataFrame, param: dict) -> plt.Figure:
 
     if param is None:
         param = {}
-    if "sat" not in data.columns:
+    if "sat" not in datadf.columns:
         print("no saturation in the recording")
         return plt.figure()
-    if "spo2Hr" not in data.columns:
+    if "spo2Hr" not in datadf.columns:
         print("no satHr in the recording")
         return plt.figure()
     # global timeUnit
     dtime = param.get("dtime", False)
     if dtime:
-        df = data.set_index("datetime")[["sat", "spo2Hr"]]
+        satdf = datadf.set_index("datetime")[["sat", "spo2Hr"]]
     else:
-        df = data.set_index("eTimeMin")[["sat", "spo2Hr"]]
+        satdf = datadf.set_index("eTimeMin")[["sat", "spo2Hr"]]
 
     fig = plt.figure()
     axl = fig.add_subplot(111)
     axr = axl.twinx()
 
-    for ax, trace, color, style in zip(
+    for axe, trace, color, style in zip(
         [axl, axr], ["sat", "spo2Hr"], ["tab:red", "tab:grey"], ["-", ":"]
     ):
 
-        ax.plot(
-            df[trace],
+        axe.plot(
+            satdf[trace],
             color=color,
             linestyle=style,
             linewidth=2,
         )
         if dtime:
             my_fmt = mdates.DateFormatter("%H:%M")
-            ax.xaxis.set_major_formatter(my_fmt)
+            axe.xaxis.set_major_formatter(my_fmt)
 
-        ax.spines["top"].set_visible(False)
-        ax.set_ylabel(trace)
-        ax.yaxis.label.set_color(color)
-        ax.tick_params(axis="y", colors=color)
-        ax.tick_params(axis="x", colors="tab:grey")
-        ax.xaxis.label.set_color("tab:grey")
+        axe.spines["top"].set_visible(False)
+        axe.set_ylabel(trace)
+        axe.yaxis.label.set_color(color)
+        axe.tick_params(axis="y", colors=color)
+        axe.tick_params(axis="x", colors="tab:grey")
+        axe.xaxis.label.set_color("tab:grey")
 
     axl.set_ylim(60, 100)
     axr.set_ylim(25, 70)
