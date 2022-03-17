@@ -133,7 +133,7 @@ def choose_taph_record(monitorname: str = None) -> str:
     taphdico = build_taph_decodedate_dico()
     recorddates = sorted(taphdico.keys(), reverse=True)
 
-    global app
+    global APP
     question = "select the recording date"
 
     day_index = 0  # first key (<-> last date)
@@ -144,7 +144,7 @@ def choose_taph_record(monitorname: str = None) -> str:
             if str(day) in thedate:
                 day_index = i
                 break
-    #    app = QApplication(sys.argv)
+    #    APP = QApplication(sys.argv)
     widg = QWidget()
     recorddate, ok_pressed = QInputDialog.getItem(
         widg, "select", question, recorddates, day_index, False
@@ -433,17 +433,17 @@ if __name__ == "__main__":
     from anesplot.config.load_recordrc import build_paths
 
     paths = build_paths()
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
+    APP = QApplication(sys.argv)
+    APP.setQuitOnLastWindowClosed(True)
 
     #   monitor_name = "M2021_9_9-11_44_35.csv"
     #    file_name = choose_taph_record(monitor_name)
-    name = (
+    NAME = (
         "before2020/Anonymous/Patients2013DEC17/Record08_29_27/SD2013DEC17-8_29_27.csv"
     )
-    name = "Anonymous/Patients2022JAN21/Record22_52_07/SD2022JAN21-22_52_7.csv"
+    NAME = "Anonymous/Patients2022JAN21/Record22_52_07/SD2022JAN21-22_52_7.csv"
     # check datetime (non linear and there is 2015 & 2021dates)
-    file_name = os.path.join(paths["taph_data"], name)
+    file_name = os.path.join(paths["taph_data"], NAME)
 
     tdata_df = loadtaph_trenddata(file_name)
     header_dico = loadtaph_patientfile(file_name)

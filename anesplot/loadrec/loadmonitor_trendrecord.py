@@ -49,8 +49,8 @@ def choosefile_gui(dirname: str = None) -> str:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
-    global app
-    # app = QApplication(sys.argv)
+    global APP
+    # APP = QApplication(sys.argv)
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
@@ -163,8 +163,7 @@ def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
     # is empty (ie only a few lines of waves data)
     if datadf.set_index("Time").dropna(how="all").empty:
         print(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
-        emptydf = pd.DataFrame(columns=datadf.columns)
-        return emptydf
+        return pd.DataFrame(columns=datadf.columns)
     # to float values
     to_fix = []
     for col in datadf.columns:
@@ -264,12 +263,12 @@ def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
 
 # %%
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
-    dir_name = (
+    APP = QApplication(sys.argv)
+    APP.setQuitOnLastWindowClosed(True)
+    DIR_NAME = (
         "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
     )
-    file_name = choosefile_gui(dir_name)
+    file_name = choosefile_gui(DIR_NAME)
     file = os.path.basename(file_name)
     if not file:
         print("canceled by the user")

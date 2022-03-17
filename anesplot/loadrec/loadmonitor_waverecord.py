@@ -42,8 +42,8 @@ def choosefile_gui(dirname: str = None) -> str:
 
     if dirname is None:
         dirname = os.path.expanduser("~")
-    global app
-    #    app = QApplication(sys.argv)
+    global APP
+    #    APP = QApplication(sys.argv)
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
@@ -205,12 +205,12 @@ def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
 
 # %%
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
-    dir_name = (
+    APP = QApplication(sys.argv)
+    APP.setQuitOnLastWindowClosed(True)
+    DIR_NAME = (
         "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
     )
-    file_name = choosefile_gui(dir_name)
+    file_name = choosefile_gui(DIR_NAME)
     file = os.path.basename(file_name)
     if not file:
         print("canceled by the user")

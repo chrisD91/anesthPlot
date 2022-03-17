@@ -42,42 +42,42 @@ import matplotlib
 
 matplotlib.use("Qt5Agg")  # NB use automatic for updating
 import matplotlib.pyplot as plt
-from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
-
-# to have the display beginning from 0
 from matplotlib import rcParams
-
-rcParams["axes.xmargin"] = 0
-rcParams["axes.ymargin"] = 0
+from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
 from config.load_recordrc import build_paths
 
 paths = build_paths()
-from anesplot.guides.choose_guide import get_guide
+
 
 # requires to have '.../anesthPlot' in the path
-# import anesplot.loadrec.loadmonitor_trendrecord as lmt
-
-import loadrec.loadmonitor_trendrecord as lmt
-import loadrec.loadmonitor_waverecord as lmw
-import loadrec.loadtaph_trendrecord as ltt
-import loadrec.loadtelevet as ltv
+import loadrec
+from loadrec import loadmonitor_trendrecord as lmt
+from loadrec import loadmonitor_waverecord as lmw
+from loadrec import loadtaph_trendrecord as ltt
+from loadrec import loadtelevet as ltv
 import plot.trend_plot as tplot
 import plot.wave_plot as wplot
 
+from anesplot.guides.choose_guide import get_guide
+
 import treatrec.clean_data as clean
 import treatrec
-import loadrec
 
 import anesplot.treatrec.wave_func as wf
 
 # import anesplot.treatrec as treat
 
+# to have the display beginning from 0
+rcParams["axes.xmargin"] = 0
+rcParams["axes.ymargin"] = 0
+
 faulthandler.enable()
-app = QApplication(sys.argv)
+APP = QApplication(sys.argv)
 
 
 def get_basic_debrief_commands():
+    """copy in clipboard the usual commands to build a debrief"""
     lines = [
         "mtrends = rec.MonitorTrend()",
         "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))",
@@ -101,7 +101,7 @@ def choosefile_gui(dirname: str = None) -> str:
         DESCRIPTION. : full name of the selected file
 
     """
-    global app
+    global APP
 
     if dirname is None:
         dirname = (
@@ -137,7 +137,7 @@ def select_type(question: str = None, items: list = None, num: int = 0) -> str:
     Parameters
     ----------
     question : str, optional
-        The question that appears in the dialog (default is None).
+        The question that APPears in the dialog (default is None).
     items : list, optional
         the list of all items in the pulldown menu. (default is None).
     num : int, optional
@@ -154,8 +154,8 @@ def select_type(question: str = None, items: list = None, num: int = 0) -> str:
         items = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     if question is None:
         question = "choose kind of file"
-    global app
-    #    app = QApplication(sys.argv)
+    global APP
+    #    APP = QApplication(sys.argv)
     widg = QWidget()
     kind, ok_pressed = QInputDialog.getItem(widg, "select", question, items, num, False)
     if ok_pressed and kind:
@@ -181,12 +181,12 @@ def select_wave_to_plot(waves: list, num=1) -> str:
         wave name
     """
 
-    global app
+    global APP
     if num == 1:
         question = "choose first wave"
     if num == 2:
         question = "do you want a second one ?"
-    #    app = QApplication(sys.argv)
+    #    APP = QApplication(sys.argv)
     widg = QWidget()
     wave, ok_pressed = QInputDialog.getItem(widg, "select", question, waves, 0, False)
     if ok_pressed and wave:
@@ -405,7 +405,7 @@ class TaphTrend(_SlowWave):
             header = ltt.loadtaph_patientfile(filename)
         else:
             data = pd.DataFrame()
-            header = dict()
+            header = {}
         self.data = data
         self.header = header
 
@@ -443,11 +443,11 @@ class TaphTrend(_SlowWave):
         "export in a txt files all the events (paths:~/temp/events.txt)"
         if save_to_file:
             filename = os.path.expanduser(os.path.join("~", "temp", "events.txt"))
-            with open(filename, "w", encoding="utf-8") as f:
+            with open(filename, "w", encoding="utf-8") as file:
                 for i, line in enumerate(self.data.events.dropna()):
-                    f.write("-" * 10, "\n")
+                    file.write("-" * 10, "\n")
                     for item in line.split("\r\n"):
-                        f.write(f"{i} {item}, \n")
+                        file.write(f"{i} {item}, \n")
             print(f"saved taph events to {filename}")
         else:
             for i, line in enumerate(self.data.events.dropna()):
@@ -520,11 +520,11 @@ class _FastWave(_Waves):
 
     def filter_ekg(self):
         """filter the ekg trace -> build 'ekgMovAvg' & 'ekgLowPass'"""
-        df = self.data
-        fs = self.param["sampling_freq"]
-        if "wekg" in df.columns:
+        datadf = self.data
+        samplingfreq = self.param["sampling_freq"]
+        if "wekg" in datadf.columns:
             item = "wekg"
-        elif "d2" in df.columns:
+        elif "d2" in datadf.columns:
             item = "d2"
         else:
             print("no ekg trace in the data")
@@ -532,7 +532,7 @@ class _FastWave(_Waves):
         # print("-" * 10, "filtering : builded 'ekgMovAvg' ")
         # df["ekgMovAvg"] = wf.rol_mean(df[item], fs)
         print(f"{'-' * 10} filtering : builded 'ekgLowPass' ")
-        df["ekgLowPass"] = wf.fix_baseline_wander(df[item], fs)
+        datadf["ekgLowPass"] = wf.fix_baseline_wander(datadf[item], samplingfreq)
 
     def plot_wave(self, traces_list: list = None):
         """
@@ -712,14 +712,13 @@ class MonitorWave(_FastWave):
         header = lmw.loadmonitor_waveheader(filename)
         self.header = header
         if load and bool(header):
-            data = lmw.loadmonitor_wavedata(filename)
-            self.data = data
+            self.data = lmw.loadmonitor_wavedata(filename)
         else:
             print(f"MonitorWave: didn't load the data ({load=})")
             self.data = pd.DataFrame()
         self.param["source"] = "monitorWave"
-        fs = float(header.get("Data Rate (ms)", 0)) * 60 / 1000
-        self.param["sampling_freq"] = fs  # 300
+        self.param["sampling_freq"] = float(header.get("Data Rate (ms)", 0)) * 60 / 1000
+        # usually 300 Hz
 
 
 def main(file_name: str = None):
@@ -742,9 +741,9 @@ def main(file_name: str = None):
     # os.chdir(paths.get("recordMain", os.path.expanduser('~')))
     print(f"backEnd= {plt.get_backend()}")  # required ?
     print("start QtApp")
-    global app
-    # app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
+    global APP
+    # APP = QApplication(sys.argv)
+    APP.setQuitOnLastWindowClosed(True)
 
     # choose file and indicate the source
     print("select the file containing the data")
@@ -783,14 +782,14 @@ def main(file_name: str = None):
 
 # %%
 if __name__ == "__main__":
-    in_name = None
+    IN_NAME = None
     # check if a filename was provided from terminal call
     print(sys.argv)
 
     if len(sys.argv) > 1:
         provided_name = sys.argv[1]
         if os.path.isfile(provided_name):
-            in_name = provided_name
+            IN_NAME = provided_name
         else:
             print("the provided filename is not valid")
-    main(in_name)
+    main(IN_NAME)

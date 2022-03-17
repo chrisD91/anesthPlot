@@ -40,7 +40,7 @@ def build_paths():
 
     else:
         # absent -> default
-        print("didn't find -> {}, using default values".format(rc_filename))
+        print(f"didn't find -> {rc_filename}, using default values")
         print("consider running buildConfig.py to build one")  # default config
         try:
             # print(__file__)
@@ -48,7 +48,7 @@ def build_paths():
             # print("loc = {}".format(loc))
             sep = os.path.sep
             examples = os.path.join(sep.join(loc.split(sep)[:-2]), "example_files")
-            print("examples = {}".format(examples))
+            print(f"examples = {examples}")
             dirname = examples
         except NameError:
             print("exception !!!")

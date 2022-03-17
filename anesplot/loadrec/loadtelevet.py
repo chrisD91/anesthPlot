@@ -35,11 +35,12 @@ def choosefile_gui(dirpath: str = None) -> str:
         full name of the selected file.
 
     """
+    global APP
 
     if dirpath is None:
         dirpath = os.path.expanduser("~")
 
-    app = QApplication([dirpath])
+    APP = QApplication([dirpath])
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirpath, filter="csv (*.csv)"
     )
@@ -84,21 +85,21 @@ def loadtelevet(fname: str = None, all_traces: bool = False) -> pd.DataFrame:
     print(f"{'-' * 10} loading televet {os.path.basename(filename)}")
 
     if all_traces:
-        df = pd.read_csv(filename, sep=";")
+        datadf = pd.read_csv(filename, sep=";")
     else:
-        df = pd.read_csv(filename, sep=";", usecols=[2])  # only d2 loaded
+        datadf = pd.read_csv(filename, sep=";", usecols=[2])  # only d2 loaded
 
-    df.rename(
+    datadf.rename(
         columns={"Channel1": "d1", "Channel2": "wekg", "Channel3": "d3"}, inplace=True
     )
-    df /= 100  # to mV
+    datadf /= 100  # to mV
     # implement time values
-    df["point"] = df.index
-    df["sec"] = df.index / 500
-    df["min"] = df.sec / 60
+    datadf["point"] = datadf.index
+    datadf["sec"] = datadf.index / 500
+    datadf["min"] = datadf.sec / 60
 
     print(f"{'-' * 20} < loaded televet datafile")
-    return df
+    return datadf
 
 
 # %%
@@ -106,8 +107,8 @@ if __name__ == "__main__":
     import config.load_recordrc
 
     paths = config.load_recordrc.build_paths()
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
+    APP = QApplication(sys.argv)
+    APP.setQuitOnLastWindowClosed(True)
 
     file_name = choosefile_gui(paths.get("telv_data"))
     ekg_data = loadtelevet(file_name, all_traces=False)

@@ -43,15 +43,15 @@ def export_data_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
 
     """
 
-    def fix_dtypes(df: pd.DataFrame) -> pd.DataFrame:
+    def fix_dtypes(dataframe: pd.DataFrame) -> pd.DataFrame:
         """fix the dtype of a dataframe"""
-        for col in df.columns:
+        for col in dataframe.columns:
             try:
-                df[col] = pd.to_numeric(df[col])
+                dataframe[col] = pd.to_numeric(dataframe[col])
                 # df[col] = df[col].astype('int64')
             except ValueError:
-                df[col] = df[col].astype(str)
-        return df
+                dataframe[col] = dataframe[col].astype(str)
+        return dataframe
 
     # monitor trends
     if mtrend:
@@ -102,12 +102,11 @@ def build_obj_from_hdf(savename: str):
     (empty objects if the corresponding keys are not present in the file)
     """
 
-    def df_to_dico_with_none(df: pd.DataFrame) -> dict:
+    def df_to_dico_with_none(itemdf: pd.DataFrame) -> dict:
         """df to dico, and replace nan with none"""
-        if df.empty:
-            return dict()
-        else:
-            return df.mask(df.isna(), other=None).to_dict()[0]
+        if itemdf.empty:
+            return {}
+        return itemdf.mask(itemdf.isna(), other=None).to_dict()[0]
 
     messages = []
     with pd.HDFStore(savename) as store:
