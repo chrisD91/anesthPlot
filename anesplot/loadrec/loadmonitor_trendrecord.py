@@ -99,7 +99,8 @@ def loadmonitor_trendheader(filename: str) -> dict:
     # except UnicodeDecodeError as error:
     except pd.errors.EmptyDataError:
         print(f"{os.path.basename(filename)} as an empty header")
-        descr = {"empty": filename}
+        # descr = {"empty": filename}
+        descr = {}
     except FileNotFoundError:
         print("header not found")
         descr = {}

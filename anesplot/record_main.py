@@ -362,7 +362,8 @@ class MonitorTrend(_SlowWave):
             self.data = data
             self.param["sampling_freq"] = header.get("60/Sampling Rate", None)
             self.param["source"] = "monitorTrend"
-            name = header["Patient Name"].title().replace(" ", "")
+            name = str(header["Patient Name"]).title().replace(" ", "")
+            # name = name.title().replace(" ", "")
             self.param["name"] = name[0].lower() + name[1:]
 
         else:

@@ -10,7 +10,7 @@ import numpy as np
 # import pandas as pd
 
 
-def clean_trenddata(df):
+def clean_trenddata(datadf):
     """remove artifacts in the recorded trends"""
     param_list = [
         "ip1s",
@@ -74,18 +74,18 @@ def clean_trenddata(df):
     }
     # irrelevant
     for item, lims in range_dict.items():
-        if item in df.columns:
-            df.loc[df[item] < lims[0], item] = np.NaN
-            df.loc[df[item] > lims[1], item] = np.NaN
+        if item in datadf.columns:
+            datadf.loc[datadf[item] < lims[0], item] = np.NaN
+            datadf.loc[datadf[item] > lims[1], item] = np.NaN
     # outliers
     for item in param_list:
-        if item in df.columns:
-            mini, maxi = df[item].quantile([0.01, 0.99])
-            df.loc[df[item] < mini, item] = np.NaN
-            df.loc[df[item] > maxi, item] = np.NaN
+        if item in datadf.columns:
+            mini, maxi = datadf[item].quantile([0.01, 0.99])
+            datadf.loc[datadf[item] < mini, item] = np.NaN
+            datadf.loc[datadf[item] > maxi, item] = np.NaN
 
     # fill with interpolation
     # df = df.interpolate(method='linear')
     # TODO = pb when the animal is disconnected :
     # the linear interpolation is not relevant
-    return df
+    return datadf

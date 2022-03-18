@@ -119,8 +119,8 @@ ____
 """
 
 import os
-import pyperclip
 from typing import Tuple
+import pyperclip
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -159,7 +159,7 @@ def detect_beats(
 
     """
 
-    df = pd.DataFrame()
+    onepointbeatlocdf = pd.DataFrame()
     # fs = param.get('fs', 300)
     if species == "horse":
         height = 1.0  # mini
@@ -170,7 +170,7 @@ def detect_beats(
         #    plateau_size= 1
     else:
         print("no parametrisation performed ... to be done")
-        return df
+        return onepointbeatlocdf
     # correcttion
     height *= threshold
     prominence *= threshold
@@ -178,13 +178,13 @@ def detect_beats(
     pk, beats_params = sg.find_peaks(
         ser * -1, height=height, distance=distance, prominence=prominence
     )
-    df["p_loc"] = pk
+    onepointbeatlocdf["p_loc"] = pk
     for key in beats_params.keys():
-        df[key] = beats_params[key]
-    if "peak_heights" in df.columns:
-        df = df.rename(columns={"peak_heights": "y_loc"})
-        df.y_loc *= -1  # inverted trace <-> horse R wave
-    return df
+        onepointbeatlocdf[key] = beats_params[key]
+    if "peak_heights" in onepointbeatlocdf.columns:
+        onepointbeatlocdf = onepointbeatlocdf.rename(columns={"peak_heights": "y_loc"})
+        onepointbeatlocdf.y_loc *= -1  # inverted trace <-> horse R wave
+    return onepointbeatlocdf
 
 
 # ekg_df.wekg_lowpass, beat_df)
@@ -289,9 +289,10 @@ def append_beat(
         lims = fig.get_axes()[0].get_xlim()
         lim = (int(lims[0]), int(lims[1]))
     # restrict area around the undetected pic (based on pt x val)
-    df = ekgdf.wekg_lowpass.loc[lim[0] : lim[1]]
     # locate the beat (external call)
-    onepoint_beatlocdf = detect_beats(df, threshold=yscale)
+    onepoint_beatlocdf = detect_beats(
+        ekgdf.wekg_lowpass.loc[lim[0] : lim[1]], threshold=yscale
+    )
     onepoint_beatlocdf["action"] = "append"
     if len(onepoint_beatlocdf) < 1:
         print("no beat founded")
@@ -557,19 +558,19 @@ def interpolate_rr(beatlocdf: pd.DataFrame, kind: str = None) -> pd.DataFrame:
     # interpolate rr
     rrx = beatlocdf.p_loc[:-1].values  # rr locations
     rry = beatlocdf.rr[:-1].values  # rr values
-    f = interp1d(rrx, rry, kind=kind)
-    newy = f(newx)
+    interp = interp1d(rrx, rry, kind=kind)
+    newy = interp(newx)
     ahr_df["espts"] = newx
     ahr_df["rrInterpol"] = newy
     # interpolate rrDiff
     rry = beatlocdf.rrDiff[:-1].values
-    f = interp1d(rrx, rry, kind=kind)
-    newy = f(newx)
+    interp = interp1d(rrx, rry, kind=kind)
+    newy = interp(newx)
     ahr_df["rrInterpolDiff"] = newy
     # interpolate rrSqrDiff
     rry = beatlocdf.rrSqDiff[:-1].values
-    f = interp1d(rrx, rry, kind=kind)
-    newy = f(newx)
+    interp = interp1d(rrx, rry, kind=kind)
+    newy = interp(newx)
     ahr_df["rrInterpolSqDiff"] = newy
     return ahr_df
 
@@ -696,14 +697,14 @@ def append_ihr_to_trend(
     ratio = len(wavedf) / len(trenddf)
     ser = (wavedf.index.to_series() / ratio).astype(int)
     # fill the data
-    df = pd.DataFrame()
-    df["ihr"] = 1 / ekgdf.rrInterpol * 60 * 1000
+    ihrdf = pd.DataFrame()
+    ihrdf["ihr"] = 1 / ekgdf.rrInterpol * 60 * 1000
     # downsample
-    df = df["ihr"].groupby(ser).median()
+    ihrdf = ihrdf["ihr"].groupby(ser).median()
     # concatenate
     if "ihr" in trenddf.columns:
         trenddf.drop("ihr", axis=1, inplace=True)
-    trenddf = pd.concat([trenddf, df], axis=1)
+    trenddf = pd.concat([trenddf, ihrdf], axis=1)
     print("added instantaneous heart rate to a TREND dataframe")
     return trenddf
 
