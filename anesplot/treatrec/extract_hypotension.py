@@ -1,8 +1,11 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
+Created on Wed Jul 31 16:05:29 2019
 
-This is a temporary script file.
+@author: cdesbois
+
+scan folders and check for hypotension
 """
 import os
 

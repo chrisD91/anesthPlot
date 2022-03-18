@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 31 16:05:29 2019
+
+@author: cdesbois
+
+rr to hrv ... to be continued (see Yann work)
+"""
+
+
 def build_hrv_limits(spec="horse"):
     """
     return a dico containing HRV limits (VLF, LF, HF)

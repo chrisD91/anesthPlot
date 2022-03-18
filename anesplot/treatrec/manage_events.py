@@ -24,16 +24,16 @@ pd.set_option("display.max_columns", 500)
 # %%
 
 
-def convert_day(st: str) -> str:
+def convert_day(txt: str) -> str:
     """get a day YYYYmonthD an convert it to YYY-month-D"""
-    previous = st[0]
-    new = st[0]
-    for x in st[1:]:
-        if x.isalpha() == previous.isalpha():
-            new += x
+    previous = txt[0]
+    new = txt[0]
+    for m in txt[1:]:
+        if m.isalpha() == previous.isalpha():
+            new += m
         else:
-            new += "-" + x
-        previous = x
+            new += "-" + m
+        previous = m
     return new
 
 

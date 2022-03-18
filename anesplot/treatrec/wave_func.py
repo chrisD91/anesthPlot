@@ -4,7 +4,7 @@ Created on Fri Dec  8 12:46:41 2017
 
 @author: cdesbois
 """
-# import pandas as pd
+import pandas as pd
 import matplotlib.pyplot as plt
 
 # import os
@@ -13,11 +13,24 @@ from scipy.signal import medfilt
 
 
 # //////////////////////////////////////////////// cardio
-def fix_baseline_wander(data, fs=500):
+def fix_baseline_wander(data: pd.Series, fs: int = 500) -> list:
     """BaselineWanderRemovalMedian.m from ecg-kit.  Given a list of amplitude values
     (data) and sample rate (sr), it applies two median filters to data to
     compute the baseline.  The returned result is the original data minus this
     computed baseline.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        the wave recording.
+    fs : int, optional (default is 500)
+        The sampling frequency.
+
+    Returns
+    -------
+    list
+        DESCRIPTION.
+
     """
 
     # source : https://pypi.python.org/pypi/BaselineWanderRemoval/2017.10.25
@@ -40,7 +53,7 @@ def fix_baseline_wander(data, fs=500):
     return ecg_blr.tolist()
 
 
-def rol_mean(ser, win_lengh=1, fs=500):
+def rol_mean(ser: pd.Series, win_lengh: int = 1, fs: int = 500) -> list:
     """
     returns a rolling mean of a RR serie
 
@@ -62,18 +75,22 @@ def rol_mean(ser, win_lengh=1, fs=500):
     return mov_avg
 
 
-def return_points(df, fig):
+def return_points(wavedf: pd.DataFrame, fig: plt.Figure) -> dict:
     """
     return a tupple containing the point values of ROI
 
-    parameters
+    Parameters
     ----------
-    df: anesthesia record dataframe
-    fig: pyplot.figure
+    wavedf : pd.DataFrame
+        teh wave recording.
+    fig : plt.Figure
+        the plot to extract the xscale from.
 
-    returns
+    Returns
     -------
-    ROI: dict
+    dict
+        the Region Of Interest.
+
     """
 
     ax = fig.get_axes()[0]
@@ -81,8 +98,8 @@ def return_points(df, fig):
     lims = ax.get_xlim()
     limpt = (int(lims[0]), int(lims[1]))
     # sec value
-    limsec = (df.sec.loc[limpt[0]], df.sec.loc[limpt[1]])
-    limdatetime = (df.datetime.loc[limpt[0]], df.datetime.loc[limpt[1]])
+    limsec = (wavedf.sec.loc[limpt[0]], wavedf.sec.loc[limpt[1]])
+    limdatetime = (wavedf.datetime.loc[limpt[0]], wavedf.datetime.loc[limpt[1]])
     #    mini = wData.sec.get_loc(mini, method='nearest')
     #    mini = (df.sec - lims[0]).abs().argsort()[:1][0]
     #    maxi = (df.sec - lims[1]).abs().argsort()[:1][0]
@@ -97,7 +114,9 @@ def return_points(df, fig):
     return roidict
 
 
-def restrict_time_area(df1, mini=None, maxi=None):
+def restrict_time_area(
+    df1: pd.DataFrame, mini: int = None, maxi: int = None
+) -> pd.DataFrame:
     """
     return a new dataframe with reindexation
 
@@ -118,7 +137,7 @@ def restrict_time_area(df1, mini=None, maxi=None):
         "sec" in df1.columns
     except KeyError:
         print("'sec' should be in the dataframe columns")
-        return
+        return pd.DataFrame
     df2 = df1.iloc[np.arange(mini, maxi)].reset_index()
     df2.sec = df2.sec - df2.iloc[0].sec
     return df2
