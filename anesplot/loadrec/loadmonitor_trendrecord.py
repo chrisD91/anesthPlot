@@ -100,7 +100,7 @@ def loadmonitor_trendheader(filename: str) -> dict:
     except pd.errors.EmptyDataError:
         print(f"{os.path.basename(filename)} as an empty header")
         # descr = {"empty": filename}
-        descr = {}
+        descr = {}  # type: dict
     except FileNotFoundError:
         print("header not found")
         descr = {}
