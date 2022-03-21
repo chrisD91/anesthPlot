@@ -15,16 +15,16 @@ import numpy as np
 import pandas as pd
 
 
-font_size = "medium"  # large, medium
+FONT_SIZE = "medium"  # large, medium
 fig_params = {
     "font.sans-serif": ["Arial"],
     "font.size": 12,
-    "legend.fontsize": font_size,
+    "legend.fontsize": FONT_SIZE,
     "figure.figsize": (12, 3.1),
-    "axes.labelsize": font_size,
-    "axes.titlesize": font_size,
-    "xtick.labelsize": font_size,
-    "ytick.labelsize": font_size,
+    "axes.labelsize": FONT_SIZE,
+    "axes.titlesize": FONT_SIZE,
+    "xtick.labelsize": FONT_SIZE,
+    "ytick.labelsize": FONT_SIZE,
     "axes.xmargin": 0,
 }
 plt.rcParams.update(fig_params)
@@ -59,14 +59,14 @@ def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r"):
 
 
 # %%
-def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
+def plot_wave(datadf: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
     """
     plot the waves recorded (from as5)
-    (Nb plot data/index, but the xscale is indicated as sec)
+    (Nb plot datadf/index, but the xscale is indicated as sec)
 
     Parameters
     ----------
-    data : pd.DataFrame
+    datadf : pd.DataFrame
         recorded waves data.
     keys : list
         one or two in ['wekg','ECG','wco2','wawp','wflow','wap'].
@@ -80,16 +80,13 @@ def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
     """
 
     # test wave in dataframe
-    for key in keys:
-        try:
-            key in data.columns
-        except KeyError:
-            print(f"the trace {key} is not in the data")
-            return plt.figure()
+    if not set(keys) < set(datadf.columns):
+        print(f"the traces {set(keys) - set(datadf.columns)} is not in the data")
+        return plt.figure()
     if len(keys) not in [1, 2]:
         print(f"only one or two keys are allowed ({keys} were used)")
         return plt.figure()
-    # default plotting
+    # default plotting labels
     names = dict(
         wekg=["ECG", "tab:blue", "mVolt"],
         wco2=["expired CO2", "tab:blue", "mmHg"],
@@ -100,34 +97,34 @@ def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
         ihr=["instanous heart rate", "tab:blue", "bpm"],
     )
     # colors for missing keys
-    for key in keys:
-        if not key in names:
+    if set(keys) - names.keys():
+        for key in set(keys) - names.keys():
             names[key] = [key, "tab:blue", ""]
             if key.startswith("rr"):
                 names[key] = [key, "tab:green", ""]
     # time scaling (index value)
-    mini = param.get("mini", data.index[0])
-    maxi = param.get("maxi", data.index[-1])
-    if not data.index[0] <= mini <= data.index[-1]:
+    mini = param.get("mini", datadf.index[0])
+    maxi = param.get("maxi", datadf.index[-1])
+    if not datadf.index[0] <= mini <= datadf.index[-1]:
         print("mini value not in range, replaced by start time value")
-        mini = data.index[0]
-    if not data.index[0] <= maxi <= data.index[-1]:
+        mini = datadf.index[0]
+    if not datadf.index[0] <= maxi <= datadf.index[-1]:
         print("maxi value not in range, replaced by end time value")
-        maxi = data.index[-1]
+        maxi = datadf.index[-1]
     # datetime or elapsed time sec
     dtime = param.get("dtime", False)
-    if dtime and "datetime" not in data.columns:
+    if dtime and "datetime" not in datadf.columns:
         print("no datetime values, changed dtime to False")
         dtime = False
-    cols = set(keys)
+    cols = list(set(keys))
     if dtime:
-        cols.add("datetime")
-        df = data[cols].copy()
-        df = df.iloc[mini:maxi].set_index("datetime")
+        cols.insert(0, "datetime")
+        plotdf = datadf[cols].copy()
+        plotdf = plotdf.iloc[mini:maxi].set_index("datetime")
     else:
-        cols.add("sec")
-        df = data[cols].copy()
-        df = df.iloc[mini:maxi].set_index("sec")
+        cols.insert(0, "sec")
+        plotdf = datadf[cols].copy()
+        plotdf = plotdf.iloc[mini:maxi].set_index("sec")
     lines = []
     # one wave
     if len(keys) == 1:
@@ -138,7 +135,7 @@ def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
             ax = fig.add_subplot(111)
             ax.margins(0)
             color = names[key][1]
-            (line,) = ax.plot(df[key], color=color, alpha=0.6)
+            (line,) = ax.plot(plotdf[key], color=color, alpha=0.6)
             lines.append(line)
             ax.axhline(0, alpha=0.3)
             ax.set_ylabel(names[key][2])
@@ -152,8 +149,8 @@ def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
             if key == "wap":
                 ax.axhline(70, linestyle="dashed", alpha=0.5)
             if key == "wflow":
-                #                ax.fill_between(set.index, set[key], where = set[key] > 0,
-                #                                color = names[key][1], alpha=0.4)
+                # ax.fill_between(set.index, set[key], where = set[key] > 0,
+                #           color = names[key][1], alpha=0.4)
                 pass
         for spine in ["left", "bottom"]:
             color_axis(ax, spine=spine, color="tab:grey")
@@ -165,18 +162,16 @@ def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
     elif len(keys) == 2:
         fig = plt.figure(figsize=(10, 4))
         ax_list = []
-        ax1 = fig.add_subplot(2, 1, 1)
-        ax1.margins(0)
-        ax_list.append(ax1)
-        ax2 = fig.add_subplot(2, 1, 2, sharex=ax1)
-        ax2.margins(0)
-        ax_list.append(ax2)
+        ax0 = fig.add_subplot(2, 1, 1)
+        ax_list.append(ax0)
+        ax_list.append(fig.add_subplot(2, 1, 2, sharex=ax0))
         for i, key in enumerate(keys):
             ax = ax_list[i]
+            ax.margins(0)
             # ax.set_title(names[key][0])
             ax.set_ylabel(names[key][0], size="small")
             color = names[key][1]
-            (line,) = ax.plot(df[key], color=color, alpha=0.6)
+            (line,) = ax.plot(plotdf[key], color=color, alpha=0.6)
             lines.append(line)
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.3)
@@ -194,10 +189,11 @@ def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
             if key == "wekg":
                 ax.grid()
                 ax.set_ylim(
-                    1.05 * df["wekg"].quantile(0.001), 1.05 * df["wekg"].quantile(0.999)
+                    1.05 * plotdf["wekg"].quantile(0.001),
+                    1.05 * plotdf["wekg"].quantile(0.999),
                 )
             if key == "wflow":
-                #                ax.fill_between(set.index, set[key], where = set[key] > 0,
+                # ax.fill_between(set.index, set[key], where = set[key] > 0,
                 #                                color = names[key][1], alpha=0.4)
                 pass
             if key == "wap":
@@ -209,7 +205,7 @@ def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
                     linestyle="dashed",
                     alpha=0.5,
                 )
-                ax.set_ylim(40, 1.10 * df["wap"].quantile(0.99))
+                ax.set_ylim(40, 1.10 * plotdf["wap"].quantile(0.99))
             ax.get_xaxis().tick_bottom()
             if i > 0:
                 if not dtime:
@@ -231,7 +227,7 @@ def plot_wave(data: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
 # %%
 
 
-def get_roi(fig: plt.Figure, df: pd.DataFrame, params: dict) -> dict:
+def get_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     """
     use the drawn figure to extract the relevant data in order to build an animation
 
@@ -240,7 +236,7 @@ def get_roi(fig: plt.Figure, df: pd.DataFrame, params: dict) -> dict:
     ----------
     fig : plt.Figure
         the figure to get data from.
-    df : pd.DataFrame
+    datadf : pd.DataFrame
         waves recording.
     params : dict of parameters
 
@@ -259,19 +255,19 @@ def get_roi(fig: plt.Figure, df: pd.DataFrame, params: dict) -> dict:
         dtime_lims = [_.tz_localize(None) for _ in dtime_lims]
 
         i_lims = [
-            df.set_index("datetime").index.get_loc(_, method="nearest")
+            datadf.set_index("datetime").index.get_loc(_, method="nearest")
             for _ in dtime_lims
         ]
     else:
         # index = sec
         i_lims = [
-            df.set_index("sec").index.get_loc(_, method="nearest")
+            datadf.set_index("sec").index.get_loc(_, method="nearest")
             for _ in ax.get_xlim()
         ]
     roidict = {}
     for k, v in {"dt": "datetime", "pt": "point", "sec": "sec"}.items():
-        if v in df.columns:
-            lims = tuple([df.iloc[_][[v]].values[0] for _ in i_lims])
+        if v in datadf.columns:
+            lims = tuple([datadf.iloc[_][[v]].values[0] for _ in i_lims])
         else:
             # no dt values for televet
             lims = (np.nan, np.nan)
