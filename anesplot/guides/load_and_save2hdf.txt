@@ -10,7 +10,7 @@ Created on
 import os
 
 import anesplot.record_main as rec
-from anesplot.loadrec.export_reload import export_to_hdf
+from anesplot.loadrec.export_reload import export_data_to_hdf
 
 paths = rec.paths
 paths["save"] = "~"

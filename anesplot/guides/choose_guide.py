@@ -19,7 +19,7 @@ def get_guide(pathsdict: dict) -> str:
     Parameters
     ----------
     pathsdict : dict
-        typycally rec.paths
+        typically rec.paths
 
     Returns
     -------
