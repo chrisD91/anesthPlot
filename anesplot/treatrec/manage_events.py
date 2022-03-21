@@ -140,14 +140,12 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
             dico[themoment] = event
 
         batch = pd.Series(dico, dtype="object", name="events")
-        try:
-            events_ser = events_ser.append(batch)
-        except pd.errors.DuplicateLabelError:
+        if batch.index.values in events_ser.index.values:
             # two events at the same index
             for dt in batch.index:
                 if dt in events_ser:
                     batch = batch.drop(index=dt)
-            events_ser = events_ser.append(batch)
+        events_ser = pd.concat([events_ser, batch])
     dteventsdf = pd.DataFrame(events_ser)
     dteventsdf = dteventsdf.sort_index()
     return dteventsdf
