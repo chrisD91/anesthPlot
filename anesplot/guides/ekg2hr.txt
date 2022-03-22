@@ -25,9 +25,9 @@ name = mtrends.header["Patient Name"].title().replace(" ", "")
 name = name[0].lower() + name[1:]
 
 # 1. load the ekg wave:
-name = ""
-save_name = os.path.join(paths["save"], name + ".hdf")
-mtrends, _, mwaves = load_from_hdf(save_name)
+# name = ""
+save_name = os.path.join(paths["save"], 'data', name + ".hdf")
+mtrends, _, mwaves = build_obj_from_hdf(save_name)
 
 # 2. treat the ekg wave:
 params = mwaves.param
