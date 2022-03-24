@@ -311,7 +311,8 @@ def append_beat(
     # insert in the tochangedf
     # beatlocdf = beatlocdf.drop_duplicates('p_loc')
     # TODO : replace the .append by pd.concat (future warning)
-    tochangedf = tochangedf.append(onepoint_beatlocdf)
+    # tochangedf = tochangedf.append(onepoint_beatlocdf)
+    tochangedf = pd.concat([tochangedf, onepoint_beatlocdf])
     # beware : a copy of the dataframe is returned
     return tochangedf
 
@@ -383,10 +384,15 @@ def remove_beat(
     ax = fig.get_axes()[0]
     ax.plot(p_loc, y_loc, "Xr")
     # mark to remove
-    onepoint_beatlocdf = beatlocdf.loc[iloc].copy()
-    onepoint_beatlocdf["action"] = "remove"
+    onepoint_beatlocser = beatlocdf.loc[iloc].copy()
+    onepoint_beatlocser["action"] = "remove"
     # TODO : replace the append by pd.concat (future warning)
-    tochangedf = tochangedf.append(onepoint_beatlocdf, ignore_index=True)
+    # tochangedf = tochangedf.append(onepoint_beatlocdf, ignore_index=True)
+    # tochangedf = pd.concat([tochangedf, onepoint_beatlocser])
+
+    df = pd.concat([tochangedf.T, onepoint_beatlocser], axis=1, ignore_index=True)
+    tochangedf = df.T
+
     # beatlocdf.loc[pos, ['y_loc']] = np.NaN
     print("position is ", pos)
     return tochangedf
