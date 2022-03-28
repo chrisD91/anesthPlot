@@ -367,7 +367,7 @@ class MonitorTrend(_SlowWave):
             self.param["name"] = name[0].lower() + name[1:]
 
         else:
-            print(f"MonitorTrend: didn't load the data ({load=})")
+            print(f"{'-'*5} MonitorTrend: didn't load the data ({load=})")
             self.data = pd.DataFrame()
 
 
@@ -405,6 +405,7 @@ class TaphTrend(_SlowWave):
             data = ltt.loadtaph_trenddata(filename)
             header = ltt.loadtaph_patientfile(filename)
         else:
+            print(f"{'-'*5} TaphTrend: didn't load the data ({load=})")
             data = pd.DataFrame()
             header = {}
         self.data = data
@@ -715,7 +716,7 @@ class MonitorWave(_FastWave):
         if load and bool(header):
             self.data = lmw.loadmonitor_wavedata(filename)
         else:
-            print(f"MonitorWave: didn't load the data ({load=})")
+            print(f"{'-'*5} MonitorWave: didn't load the data ({load=})")
             self.data = pd.DataFrame()
         self.param["source"] = "monitorWave"
         self.param["sampling_freq"] = float(header.get("Data Rate (ms)", 0)) * 60 / 1000

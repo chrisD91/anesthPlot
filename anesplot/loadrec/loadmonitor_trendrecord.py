@@ -76,6 +76,9 @@ def loadmonitor_trendheader(filename: str) -> dict:
         the content of the header.
 
     """
+    if filename == "":
+        # to build and empty header
+        return {}
 
     print(f"{'-' * 20} > loadmonitor_trendheader")
     if not os.path.isfile(filename):

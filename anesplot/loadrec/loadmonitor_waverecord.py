@@ -68,6 +68,9 @@ def loadmonitor_waveheader(filename: str = None) -> dict:
         content of the header.
 
     """
+    if filename == "":
+        # to build and empty header
+        return {}
 
     print(f"{'-' * 20} > loadmonitor_waveheader")
     if not os.path.isfile(filename):
