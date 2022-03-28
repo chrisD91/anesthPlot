@@ -137,7 +137,7 @@ from scipy.interpolate import interp1d
 
 
 def detect_beats(
-    ser: pd.Series, fs: int = 300, species: str = "horse", threshold: float = 1
+    ser: pd.Series, fs: int = 300, species: str = "horse", threshold: float = -1
 ) -> pd.DataFrame:
     """
     detect the peak locations of the beats
@@ -150,8 +150,8 @@ def detect_beats(
         sampling frequency.
     species : str, optional (default is "horse")
         the species.
-    threshold : float, optional (default is 1)
-        correction for qRs amplitude.
+    threshold : float, optional (default is -1)
+        correction for qRs amplitude. (positive means higher than, negative means lower than)
 
     Returns
     -------
@@ -172,11 +172,12 @@ def detect_beats(
         print("no parametrisation performed ... to be done")
         return onepointbeatlocdf
     # correcttion
-    height *= threshold
-    prominence *= threshold
+    height *= abs(threshold)
+    prominence *= abs(threshold)
     # detect
+    sign = threshold / abs(threshold)  # +1 or -1 to invert the signal
     pk, beats_params = sg.find_peaks(
-        ser * -1, height=height, distance=distance, prominence=prominence
+        ser * sign, height=height, distance=distance, prominence=prominence
     )
     onepointbeatlocdf["p_loc"] = pk
     for key in beats_params.keys():
