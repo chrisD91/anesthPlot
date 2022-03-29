@@ -54,7 +54,7 @@ beatloc_df = tohr.update_beatloc_df(beatloc_df, to_change_df, path_to_file="", f
 # beatloc_df = pd.read_hdf(os.path.join(paths['save'], 'beatlocdf.hdf'), key='beatlocdf')
 
 # 4. go from points values to continuous time:
-beatloc_df = tohr.compute_rr(beatloc_df)
+beatloc_df = tohr.point_to_time_rr(beatloc_df)
 ahr_df = tohr.interpolate_rr(beatloc_df)
 tohr.plot_rr(ahr_df, params, HR=True)
 
@@ -64,7 +64,6 @@ mwaves.data = tohr.append_rr_and_ihr_to_wave(mwaves.data, ahr_df)
 mtrends.data = tohr.append_ihr_to_trend(mtrends.data, mwaves.data, ekg_df)
 
 # 6. save:
-tohr.save_trends_data(mtrends.data, savename=name, dirpath=paths['save'] + '/data')
-tohr.save_waves_data(mwaves.data, savename=name, dirpath=paths['save'] + '/data')
-
+# tohr.save_trends_data(mtrends.data, savename=name, dirpath=paths['save'] + '/data')
+# tohr.save_waves_data(mwaves.data, savename=name, dirpath=paths['save'] + '/data')
 export_data_to_hdf(save_name, mtrend=mtrends, mwave=mwaves)

@@ -96,7 +96,7 @@ rec.get_guide(paths)
 --------------------------------------------
 ::
 
-    beat_df = tohr.compute_rr(beat_df)
+    beat_df = tohr.point_to_time_rr(beat_df)
     ahr_df = tohr.interpolate_rr(beat_df)
     tohr.plot_rr(ahr_df, params)
 
@@ -310,11 +310,7 @@ def append_beat(
     onepoint_beatlocdf.left_bases += p_loc - found_loc
     onepoint_beatlocdf.right_bases.values[0] += p_loc - found_loc
     # insert in the tochangedf
-    # beatlocdf = beatlocdf.drop_duplicates('p_loc')
-    # TODO : replace the .append by pd.concat (future warning)
-    # tochangedf = tochangedf.append(onepoint_beatlocdf)
     tochangedf = pd.concat([tochangedf, onepoint_beatlocdf])
-    # beware : a copy of the dataframe is returned
     return tochangedf
 
 
@@ -387,10 +383,6 @@ def remove_beat(
     # mark to remove
     onepoint_beatlocser = beatlocdf.loc[iloc].copy()
     onepoint_beatlocser["action"] = "remove"
-    # TODO : replace the append by pd.concat (future warning)
-    # tochangedf = tochangedf.append(onepoint_beatlocdf, ignore_index=True)
-    # tochangedf = pd.concat([tochangedf, onepoint_beatlocser])
-
     df = pd.concat([tochangedf.T, onepoint_beatlocser], axis=1, ignore_index=True)
     tochangedf = df.T
 
@@ -498,7 +490,7 @@ def update_beatloc_df(
 # beat_df = update_beat_df(beat_df, to_change_df)
 
 # %% =========================================
-def compute_rr(beatlocdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
+def point_to_time_rr(beatlocdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
     """
     compute rr intervals (from pt to time)
 
@@ -720,7 +712,7 @@ def append_ihr_to_trend(
 
 def save_trends_data(trenddf: pd.DataFrame, savename: str = "", dirpath: str = "data"):
     """
-    save the trends data to a csv and hd5 file, including an ihr column (key='trends_data')
+    save the trends data to a hd5 file, including an ihr column (key='trends_data')
 
     Parameters
     ----------
@@ -809,6 +801,6 @@ def save_waves_data(wavedf: pd.DataFrame, savename: str = "", dirpath: str = "da
 #     figure = plot_beats(ekg_df.wekg_lowpass, beat_df)
 
 #     #fs=300
-#     beat_df = compute_rr(beat_df, monitorWave.param)
+#     beat_df = point_to_time_rr(beat_df, monitorWave.param)
 #     hr_df = interpolate_rr(beat_df)
 #     figure = plot_rr(hr_df, params, HR=True)
