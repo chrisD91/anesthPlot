@@ -559,7 +559,8 @@ class _FastWave(_Waves):
             traces_list = None
             print("there are no data to plot")
         else:
-            print(f"{'-' * 20} started FastWave plot_wave")
+            print(f"{'-' * 20} started FastWave plot_wave)")
+            print(f"{'-' * 10}> choose the wave(s)")
             cols = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
             if traces_list is None:
                 traces_list = []
@@ -585,7 +586,7 @@ class _FastWave(_Waves):
             print(f"{'-' * 20} ended FastWave plot_wave")
         return fig, lines, traces_list
 
-    def record_roi(self, erase: bool = False) -> dict:
+    def save_a_roi(self, erase: bool = False) -> dict:
         """
         define a Region Of Interest (roi).
 
@@ -664,6 +665,13 @@ class _FastWave(_Waves):
             # )
         else:
             print("no roi attribute, please use record_roi() to build one")
+
+    def plot_systolic_variation(self):
+        "plot the systolic variation"
+        if self.roi:
+            wplot.plot_systolic_pressure_variations(self)
+        else:
+            print("please define a ROI using mwave.save_a_roi")
 
 
 class TelevetWave(_FastWave):
