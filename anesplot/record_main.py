@@ -669,7 +669,7 @@ class _FastWave(_Waves):
     def plot_systolic_variation(self):
         "plot the systolic variation"
         if self.roi:
-            wplot.plot_systolic_pressure_variations(self)
+            wplot.plot_systolic_pressure_variation(self)
         else:
             print("please define a ROI using mwave.save_a_roi")
 
