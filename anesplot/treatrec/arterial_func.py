@@ -107,7 +107,7 @@ def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = Fa
     ax.set_ymargin(0.1)
 
     # find the (up) peaks
-    ser = datadf.wap
+    ser = datadf.wap.dropna()
     peak_df = get_peaks(ser, up=True)
 
     maxi, mini, med = peak_df["wap"].agg(["max", "min", "median"])
@@ -178,8 +178,11 @@ def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = Fa
     fig.tight_layout()
     plt.show()
 
-    return fig
+    return fig, pp_df
 
+
+# TODO : compute measure for a complete file
+# (ie median value over 60 sec for example, or a measure in every cycle)
 
 # %%
 
@@ -191,4 +194,4 @@ if __name__ == "__main__":
     FILE = "qDonUnico.hdf"
     filename = os.path.join(DIRNAME, FILE)
     _, _, mwaves = build_obj_from_hdf(filename)
-    figure = plot_systolic_pressure_variation(mwaves, (4100, 4160))
+    figure, _ = plot_systolic_pressure_variation(mwaves, (4100, 4160))
