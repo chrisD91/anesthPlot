@@ -6,6 +6,7 @@ Created on Tue Apr 19 09:08:56 2016
 """
 
 import os
+from bisect import bisect
 from math import floor, ceil
 from typing import Tuple
 
@@ -230,8 +231,7 @@ def plot_wave(datadf: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
 
 def get_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     """
-    use the drawn figure to extract the relevant data in order to build an animation
-
+    use the drawn figure to extract the x and x limits
 
     Parameters
     ----------
@@ -250,21 +250,12 @@ def get_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     ylims = tuple([_.get_ylim() for _ in fig.get_axes()])
     # xlims
     ax = fig.get_axes()[0]
-    if params["dtime"]:
+    if params["dtime"]:  # datetime in the x axis
         dtime_lims = [pd.to_datetime(mdates.num2date(_)) for _ in ax.get_xlim()]
-        # remove timezone
         dtime_lims = [_.tz_localize(None) for _ in dtime_lims]
-
-        i_lims = [
-            datadf.set_index("datetime").index.get_loc(_, method="nearest")
-            for _ in dtime_lims
-        ]
-    else:
-        # index = sec
-        i_lims = [
-            datadf.set_index("sec").index.get_loc(_, method="nearest")
-            for _ in ax.get_xlim()
-        ]
+        i_lims = [bisect(datadf.datetime, _) for _ in dtime_lims]
+    else:  # index = sec
+        i_lims = [bisect(datadf.sec, _) for _ in dtime_lims]
     roidict = {}
     for k, v in {"dt": "datetime", "pt": "point", "sec": "sec"}.items():
         if v in datadf.columns:
@@ -345,7 +336,7 @@ def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = Fa
         ax.hlines(yloc, sloc - inter_beat, sloc + inter_beat, color="tab:grey")
 
     # compute delta_PP
-    peaks_dwn, properties_dwn = find_peaks(-datadf.wap, height=-threshold, distance=300)
+    _, properties_dwn = find_peaks(-datadf.wap, height=-threshold, distance=300)
     # ax.plot(datadf.iloc[peaks_dwn], "ob", alpha=0.2)
     heights = pd.DataFrame()
     heights["pt_up"] = peaks_up
