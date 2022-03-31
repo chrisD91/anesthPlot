@@ -18,7 +18,25 @@ from scipy.signal import find_peaks
 plt.close("all")
 
 
-def get_peaks(ser: pd.Series, up: bool = True):
+def get_peaks(ser: pd.Series, up: bool = True) -> pd.DataFrame:
+    """
+    extract a peak location from an arterial time series
+
+    Parameters
+    ----------
+    ser : pd.Series
+        arterial time series (val = arterial wave, index = sec).
+    up : bool, optional (default is True)
+        extraction of the 'up' peaks. (false -> 'down peaks')
+
+    Returns
+    -------
+    peaksdf : pd.DataFrame that contains
+        'ploc' & 'sloc' : point and second based beat location
+        'wap' & 'peak_heights' : the arterials values
+        'local_max' & 'local_min' : boolean for local maxima and minima
+
+    """
 
     # find the (up) peaks
     threshold = ser.quantile(q=0.82)
@@ -87,11 +105,10 @@ def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = Fa
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
     ax.set_ymargin(0.1)
+
     # find the (up) peaks
     ser = datadf.wap
     peak_df = get_peaks(ser, up=True)
-
-    ax.plot(peak_df.set_index("sloc").wap, "or", alpha=0.2)
 
     maxi, mini, med = peak_df["wap"].agg(["max", "min", "median"])
     systolic_variation = (maxi - mini) / med
@@ -99,6 +116,7 @@ def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = Fa
     print(sys_var)
 
     # plot
+    ax.plot(peak_df.set_index("sloc").wap, "or", alpha=0.2)
     inter_beat = round((peak_df.sloc - peak_df.sloc.shift(1)).mean())
     beat_loc_df = peak_df.set_index("sloc")
     for sloc, yloc in beat_loc_df.loc[
@@ -120,8 +138,7 @@ def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = Fa
     delta_var = f"{delta_variation = :.2f}"
     print(delta_var)
 
-    if teach:
-        # plot mesure intervals
+    if teach:  # plot mesure intervals
         # sys_var
         sloc, yloc = beat_loc_df.wap.agg(["idxmax", "max"])
         ax.hlines(yloc, sloc - inter_beat, sloc + inter_beat, color="k", linewidth=3)
