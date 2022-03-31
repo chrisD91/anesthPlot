@@ -586,7 +586,7 @@ class _FastWave(_Waves):
             print(f"{'-' * 20} ended FastWave plot_wave")
         return fig, lines, traces_list
 
-    def save_a_roi(self, erase: bool = False) -> dict:
+    def save_roi(self, erase: bool = False) -> dict:
         """
         define a Region Of Interest (roi).
 
