@@ -296,11 +296,7 @@ def hist_cardio(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     ser = remove_outliers(data, "hr")
     if len(ser) > 0:
         ax1.hist(
-            ser,
-            bins=30,
-            color="tab:grey",
-            edgecolor="tab:grey",
-            alpha=0.8,
+            ser, bins=30, color="tab:grey", edgecolor="tab:grey", alpha=0.8,
         )
         ax1.set_xlabel("bpm", alpha=0.5)
         q50 = np.percentile(ser, [50])
@@ -1234,10 +1230,7 @@ def sat_hr(datadf: pd.DataFrame, param: dict) -> plt.Figure:
     ):
 
         axe.plot(
-            satdf[trace],
-            color=color,
-            linestyle=style,
-            linewidth=2,
+            satdf[trace], color=color, linestyle=style, linewidth=2,
         )
         if dtime:
             my_fmt = mdates.DateFormatter("%H:%M")

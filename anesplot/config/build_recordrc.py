@@ -14,7 +14,7 @@ location at the root of anesplot
 import os
 import sys
 
-import yaml
+import yaml  # type: ignore
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 

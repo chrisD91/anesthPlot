@@ -11,7 +11,7 @@
 import os
 import sys
 
-import yaml
+import yaml  # type: ignore
 
 # TODO : move the configuration file to the home dir as .anesplotrc
 

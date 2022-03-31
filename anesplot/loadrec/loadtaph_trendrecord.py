@@ -198,11 +198,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         # row 1 -> header
         # row 2 -> units
         datadf = pd.read_csv(
-            filename,
-            sep=",",
-            header=1,
-            skiprows=[2],
-            index_col=False,
+            filename, sep=",", header=1, skiprows=[2], index_col=False,
         )
     except pd.errors.ParserError:
         print(f"corrupted file ({os.path.basename(filename)})")
