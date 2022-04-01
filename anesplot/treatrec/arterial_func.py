@@ -72,6 +72,26 @@ def get_peaks(ser: pd.Series, up: bool = True) -> pd.DataFrame:
     return peaksdf
 
 
+def compute_systolic_variation(ser: pd.Series) -> float:
+    """
+    return the systolic variation
+
+    Parameters
+    ----------
+    ser : pd.Series
+        peak height series.
+
+    Returns
+    -------
+    float
+        (maxi - mini) / med.
+
+    """
+    maxi, mini, med = ser.agg(["max", "min", "median"])
+    maxi, mini, mean = ser.agg(["max", "min", "mean"])
+    return (maxi - mini) / mean
+
+
 def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = False):
     """
     extract and plot the systolic pressure variation"
@@ -116,13 +136,15 @@ def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = Fa
     print(sys_var)
 
     # plot
-    ax.plot(peak_df.set_index("sloc").wap, "or", alpha=0.2)
+    # ax.plot(peak_df.set_index("sloc").wap, "-r", alpha=0.2)
     inter_beat = round((peak_df.sloc - peak_df.sloc.shift(1)).mean())
     beat_loc_df = peak_df.set_index("sloc")
     for sloc, yloc in beat_loc_df.loc[
         beat_loc_df.local_max + beat_loc_df.local_min, "wap"
     ].iteritems():
-        ax.hlines(yloc, sloc - inter_beat, sloc + inter_beat, color="tab:grey")
+        ax.hlines(
+            yloc, sloc - 0.7 * inter_beat, sloc + 0.7 * inter_beat, color="tab:grey"
+        )
 
     # compute delta_PP
     peak_df_dwn = get_peaks(ser, up=False)
@@ -141,7 +163,13 @@ def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = Fa
     if teach:  # plot mesure intervals
         # sys_var
         sloc, yloc = beat_loc_df.wap.agg(["idxmax", "max"])
-        ax.hlines(yloc, sloc - inter_beat, sloc + inter_beat, color="k", linewidth=3)
+        ax.hlines(
+            yloc,
+            sloc - 0.7 * inter_beat,
+            sloc + 0.7 * inter_beat,
+            color="k",
+            linewidth=3,
+        )
         sloc, yloc = beat_loc_df.wap.agg(["idxmin", "min"])
         ax.hlines(yloc, sloc - inter_beat, sloc + inter_beat, color="k", linewidth=3)
         # delta_PP
@@ -181,12 +209,39 @@ def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = Fa
     return fig, pp_df
 
 
+def plot_record_systolic_variation(mwave):
+    df = get_peaks(mwave.data.set_index("sec").wap.dropna())
+
+    df["sys_var"] = np.nan
+    # fs = int(mwaves.param["sampling_freq"])
+    # start = df.index.min()
+    end = df.index.max()
+    indexes = list(df.loc[df.local_max].index)
+    for b1, b2 in zip([0,] + indexes, indexes + [end,]):
+        df.loc[b1:b2, "sys_var"] = compute_systolic_variation(df.loc[b1:b2, "wap"])
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(mwaves.data.set_index("sec").wap, "-r")
+    axT = ax.twinx()
+    axT.plot(df.set_index("sloc").sys_var * 100, "-b")
+    ax.set_ylim(50, 150)
+    axT.set_ylim(0, 20)
+    ax.set_ylabel("arterial pressure (mmHg)")
+    axT.set_ylabel("systolic variation (%)")
+    fig.tight_layout()
+
+    return fig, df
+
+
 # TODO : compute measure for a complete file
 # (ie median value over 60 sec for example, or a measure in every cycle)
 
 # %%
 
+
 if __name__ == "__main__":
+    import numpy as np
     import anesplot.record_main as rec
     from anesplot.loadrec.export_reload import build_obj_from_hdf
 
@@ -194,4 +249,5 @@ if __name__ == "__main__":
     FILE = "qDonUnico.hdf"
     filename = os.path.join(DIRNAME, FILE)
     _, _, mwaves = build_obj_from_hdf(filename)
-    figure, _ = plot_systolic_pressure_variation(mwaves, (4100, 4160))
+
+    # figure, _ = plot_systolic_pressure_variation(mwaves, (4100, 4160))
