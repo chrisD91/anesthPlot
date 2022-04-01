@@ -211,7 +211,11 @@ def median_filter(num_std=3):
 
 def plot_record_systolic_variation(mwave):
 
-    df = get_peaks(mwave.data.set_index("sec").wap.dropna())
+    ap_ser = mwave.data.set_index("sec").wap.dropna()
+    # TODO filtering process?
+    # ser = ser.rolling(10).apply(median_filter(num_std=3), raw=True)
+    df = get_peaks(ap_ser)
+    # df = get_peaks(mwave.data.set_index("sec").wap.dropna())
 
     df["sys_var"] = np.nan
     # fs = int(mwaves.param["sampling_freq"])
@@ -225,8 +229,7 @@ def plot_record_systolic_variation(mwave):
     fig = plt.figure()
     fig.suptitle("systolic variation over time")
     ax = fig.add_subplot(111)
-    ax.plot(mwaves.data.set_index("sec").wap, "-r", label="arterial pressure")
-    # TODO append median filterin
+    ax.plot(ap_ser, "-r", label="arterial pressure")
     axT = ax.twinx()
     # heart rate
     ser = (
@@ -248,6 +251,10 @@ def plot_record_systolic_variation(mwave):
     for ax in fig.get_axes():
         for spine in ["top"]:
             ax.spines[spine].set_visible(False)
+    # annotations
+    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
+    fig.text(0.01, 0.01, mwave.param["file"], ha="left", va="bottom", alpha=0.4)
+
     fig.tight_layout()
 
     return fig, df
@@ -269,23 +276,24 @@ if __name__ == "__main__":
     samp_figure, _ = plot_sample_systolic_pressure_variation(mwaves, (4100, 4160))
     record_figure, peaks_df = plot_record_systolic_variation(mwaves)
 
+    def hampel_filter_pandas(input_series, window_size, n_sigmas=3):
+        # https://towardsdatascience.com/outlier-detection-with-hampel-filter-85ddf523c73d
 
-def hampel_filter_pandas(input_series, window_size, n_sigmas=3):
-    # https://towardsdatascience.com/outlier-detection-with-hampel-filter-85ddf523c73d
+        k = 1.4826  # scale factor for Gaussian distribution
+        new_series = input_series.copy()
 
-    k = 1.4826  # scale factor for Gaussian distribution
-    new_series = input_series.copy()
+        # helper lambda function
+        MAD = lambda x: np.median(np.abs(x - np.median(x)))
 
-    # helper lambda function
-    MAD = lambda x: np.median(np.abs(x - np.median(x)))
+        rolling_median = input_series.rolling(
+            window=2 * window_size, center=True
+        ).median()
+        rolling_mad = k * input_series.rolling(
+            window=2 * window_size, center=True
+        ).apply(MAD)
+        diff = np.abs(input_series - rolling_median)
 
-    rolling_median = input_series.rolling(window=2 * window_size, center=True).median()
-    rolling_mad = k * input_series.rolling(window=2 * window_size, center=True).apply(
-        MAD
-    )
-    diff = np.abs(input_series - rolling_median)
+        indices = list(np.argwhere(diff > (n_sigmas * rolling_mad)).flatten())
+        new_series[indices] = rolling_median[indices]
 
-    indices = list(np.argwhere(diff > (n_sigmas * rolling_mad)).flatten())
-    new_series[indices] = rolling_median[indices]
-
-    return new_series, indices
+        return new_series, indices
