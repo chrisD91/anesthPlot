@@ -37,15 +37,13 @@ def get_peaks(ser: pd.Series, up: bool = True) -> pd.DataFrame:
         'local_max' & 'local_min' : boolean for local maxima and minima
 
     """
-
+    ser_detrended = rec.wf.fix_baseline_wander(ser, 300)
+    threshold = ser_detrended.quantile(q=0.82)
     # find the (up) peaks
-    threshold = ser.quantile(q=0.82)
-    # ax.axhline(threshold, color="tab:green", alpha=0.5)
-    # added a distance to avoid double detection
     if up:
-        peaks, properties = find_peaks(ser, height=threshold, distance=300)
+        peaks, properties = find_peaks(ser_detrended, height=threshold, distance=300)
     else:
-        peaks, properties = find_peaks(-ser, height=-threshold, distance=300)
+        peaks, properties = find_peaks(-ser_detrended, height=-threshold, distance=300)
     # ser -> peak_df (ie restrict index)
     peaksdf = ser.reset_index().loc[peaks]
     peaksdf = peaksdf.rename(columns={"sec": "sloc"})
@@ -54,15 +52,14 @@ def get_peaks(ser: pd.Series, up: bool = True) -> pd.DataFrame:
     # append heights
     for key in properties:
         peaksdf[key] = properties[key]
-
     # get local min max
     peaksdf["local_max"] = False
     peaksdf["local_min"] = False
     # get local max
-    maxis_loc, _ = find_peaks(peaksdf.peak_heights)
+    maxis_loc, _ = find_peaks(peaksdf.wap)
     peaksdf.loc[maxis_loc, "local_max"] = True
     # get local min
-    minis_loc, _ = find_peaks(-peaksdf.peak_heights)
+    minis_loc, _ = find_peaks(-peaksdf.wap)
     peaksdf.loc[minis_loc, "local_min"] = True
 
     if not up:
@@ -73,26 +70,15 @@ def get_peaks(ser: pd.Series, up: bool = True) -> pd.DataFrame:
 
 
 def compute_systolic_variation(ser: pd.Series) -> float:
-    """
-    return the systolic variation
+    """return the systolic variation : (maxi - mini) / mean """
 
-    Parameters
-    ----------
-    ser : pd.Series
-        peak height series.
-
-    Returns
-    -------
-    float
-        (maxi - mini) / med.
-
-    """
-    maxi, mini, med = ser.agg(["max", "min", "median"])
     maxi, mini, mean = ser.agg(["max", "min", "mean"])
     return (maxi - mini) / mean
 
 
-def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = False):
+def plot_sample_systolic_pressure_variation(
+    mwave, lims: Tuple = None, teach: bool = False
+):
     """
     extract and plot the systolic pressure variation"
 
@@ -155,8 +141,8 @@ def plot_systolic_pressure_variation(mwave, lims: Tuple = None, teach: bool = Fa
     pp_df = pd.concat([pp_df, peak_df_dwn], axis=1)
     pp_df["delta"] = pp_df.peak_heights_up - pp_df.peak_heights_dwn
 
-    maxi, mini, med = pp_df["delta"].agg(["max", "min", "median"])
-    delta_variation = (maxi - mini) / med
+    maxi, mini, mean = pp_df["delta"].agg(["max", "min", "mean"])
+    delta_variation = (maxi - mini) / mean
     delta_var = f"{delta_variation = :.2f}"
     print(delta_var)
 
@@ -234,30 +220,38 @@ def plot_record_systolic_variation(mwave):
     indexes = list(df.loc[df.local_max].index)
     for b1, b2 in zip([0,] + indexes, indexes + [end,]):
         df.loc[b1:b2, "sys_var"] = compute_systolic_variation(df.loc[b1:b2, "wap"])
+    df["i_pr"] = (1 / (df.sloc - df.sloc.shift(1))) * 60
 
     fig = plt.figure()
     fig.suptitle("systolic variation over time")
     ax = fig.add_subplot(111)
-    ax.plot(mwaves.data.set_index("sec").wap, "-r")
+    ax.plot(mwaves.data.set_index("sec").wap, "-r", label="arterial pressure")
+    # TODO append median filterin
     axT = ax.twinx()
+    # heart rate
+    ser = (
+        df.set_index("sloc").i_pr.rolling(10).apply(median_filter(num_std=3), raw=True)
+    )
+    ser = df.set_index("sloc").i_pr
+    ser = ser.fillna(method="bfill").fillna(method="ffill")
+    axT.plot(ser.rolling(10, center=True).mean(), ":k", linewidth=2)
+    # sys_var
     ser = df.set_index("sloc").sys_var * 100
-    # axT.plot(ser.dropna(), "-b", label='ser')
-    new_series = ser.rolling(100).apply(median_filter(num_std=3), raw=True)
-    axT.plot(new_series.dropna().rolling(10).mean(), "-b", label="med_rolmean")
+    ser = ser.rolling(50).apply(median_filter(num_std=3), raw=True)
+    ser = ser.fillna(method="bfill").fillna(method="ffill")
+    axT.plot(ser.dropna().rolling(10).mean(), "-b", label="sys_var med_rolmean")
     ax.set_ylim(50, 150)
-    axT.set_ylim(0, 20)
-    for spine in ["top"]:
-        ax.spines[spine].set_visible(False)
+    axT.set_ylim(0, 40)
     ax.set_xlabel("time (sec)")
     ax.set_ylabel("arterial pressure (mmHg)")
     axT.set_ylabel("systolic variation (%)")
+    for ax in fig.get_axes():
+        for spine in ["top"]:
+            ax.spines[spine].set_visible(False)
     fig.tight_layout()
 
     return fig, df
 
-
-# TODO : compute measure for a complete file
-# (ie median value over 60 sec for example, or a measure in every cycle)
 
 # %%
 
@@ -272,8 +266,8 @@ if __name__ == "__main__":
     filename = os.path.join(DIRNAME, FILE)
     _, _, mwaves = build_obj_from_hdf(filename)
 
-    figure, _ = plot_systolic_pressure_variation(mwaves, (4100, 4160))
-    figure, df = plot_record_systolic_variation(mwaves)
+    samp_figure, _ = plot_sample_systolic_pressure_variation(mwaves, (4100, 4160))
+    record_figure, peaks_df = plot_record_systolic_variation(mwaves)
 
 
 def hampel_filter_pandas(input_series, window_size, n_sigmas=3):

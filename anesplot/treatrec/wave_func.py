@@ -13,7 +13,7 @@ from scipy.signal import medfilt
 
 
 # //////////////////////////////////////////////// cardio
-def fix_baseline_wander(data: pd.Series, fs: int = 500) -> list:
+def fix_baseline_wander(data: pd.Series, fs: int = 500) -> pd.Series:
     """BaselineWanderRemovalMedian.m from ecg-kit.  Given a list of amplitude values
     (data) and sample rate (sr), it applies two median filters to data to
     compute the baseline.  The returned result is the original data minus this
@@ -50,7 +50,11 @@ def fix_baseline_wander(data: pd.Series, fs: int = 500) -> list:
         winsize += 1
     baseline_estimate = medfilt(baseline_estimate, kernel_size=winsize)
     ecg_blr = data - baseline_estimate
-    return ecg_blr.tolist()
+    # return ecg_blr.tolist()
+    return pd.Series(ecg_blr)
+
+
+# TODO = return a pd.Series
 
 
 def rol_mean(ser: pd.Series, win_lengh: int = 1, fs: int = 500) -> list:
