@@ -666,12 +666,17 @@ class _FastWave(_Waves):
         else:
             print("no roi attribute, please use record_roi() to build one")
 
-    def plot_systolic_variation(self):
+    def plot_sample_systolic_variation(self):
         "plot the systolic variation"
         if self.roi:
-            wplot.plot_systolic_pressure_variation(self)
+            treatrec.arterial_func.plot_sample_systolic_pressure_variation(self)
+            # wplot.plot_systolic_pressure_variation(self)
         else:
             print("please define a ROI using mwave.save_a_roi")
+
+    def plot_record_systolic_variation(self):
+        "plot the systolic variation"
+        treatrec.arterial_func.plot_record_systolic_variation(self)
 
 
 class TelevetWave(_FastWave):

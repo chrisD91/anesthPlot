@@ -7,3 +7,4 @@ from . import ekg_to_hr
 from . import hr_to_hrv
 from . import wave_func
 from . import manage_events
+from . import arterial_func

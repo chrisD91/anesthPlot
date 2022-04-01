@@ -11,8 +11,11 @@ import os
 from typing import Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
+
+from .wave_func import fix_baseline_wander
 
 # %%
 plt.close("all")
@@ -37,7 +40,7 @@ def get_peaks(ser: pd.Series, up: bool = True) -> pd.DataFrame:
         'local_max' & 'local_min' : boolean for local maxima and minima
 
     """
-    ser_detrended = rec.wf.fix_baseline_wander(ser, 300)
+    ser_detrended = fix_baseline_wander(ser, 300)
     threshold = ser_detrended.quantile(q=0.82)
     # find the (up) peaks
     if up:
