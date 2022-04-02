@@ -15,7 +15,11 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
 
-from .wave_func import fix_baseline_wander
+from anesplot.treatrec.wave_func import fix_baseline_wander
+from anesplot.plot.wave_plot import color_axis
+
+# from .wave_func import fix_baseline_wander
+# from ..plot.wave_plot import color_axis
 
 # %%
 plt.close("all")
@@ -186,8 +190,8 @@ def plot_sample_systolic_pressure_variation(
     fig.suptitle(title)
     ax.set_ylabel("arterial pressure")
     ax.set_xlabel("time (sec)")
-    # color_axis(ax, "left", "red")
-    # color_axis(ax, "bottom", "grey")
+    color_axis(ax, "left", "red")
+    color_axis(ax, "bottom", "grey")
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
     fig.text(0.01, 0.01, mwave.param["file"], ha="left", va="bottom", alpha=0.4)
@@ -213,7 +217,25 @@ def median_filter(num_std=3):
 
 
 def plot_record_systolic_variation(mwave):
+    """
+    plot systolic variation over the whole record
 
+    Parameters
+    ----------
+    mwave : rec.MonitorWave object
+        a monitor recording containing an arterial ('wap') recording.
+
+    Returns
+    -------
+    fig : pyplot.Figure
+        pressure, sys_var and hr plot
+    df : pandas.DataFrame
+        peaks locations and description.
+
+    """
+    if "wap" not in mwave.data.columns:
+        print("please provide a MonitorWave object that contains an arterial record")
+        return plt.figure(), pd.DataFrame()
     ap_ser = mwave.data.set_index("sec").wap.dropna()
     # TODO filtering process?
     # ser = ser.rolling(10).apply(median_filter(num_std=3), raw=True)
@@ -233,6 +255,8 @@ def plot_record_systolic_variation(mwave):
     fig.suptitle("systolic variation over time")
     ax = fig.add_subplot(111)
     ax.plot(ap_ser, "-r", label="arterial pressure")
+    # check the precise location
+    # ax.plot(df.set_index("sloc").wap, "og")
     axT = ax.twinx()
     # heart rate
     ser = (
@@ -248,9 +272,12 @@ def plot_record_systolic_variation(mwave):
     axT.plot(ser.dropna().rolling(10).mean(), "-b", label="sys_var med_rolmean")
     ax.set_ylim(50, 150)
     axT.set_ylim(0, 40)
+    color_axis(ax, spine="left", color="r")
+    color_axis(axT, spine="right", color="b")
+    color_axis(ax, spine="bottom", color="tab:grey")
     ax.set_xlabel("time (sec)")
     ax.set_ylabel("arterial pressure (mmHg)")
-    axT.set_ylabel("systolic variation (%)")
+    axT.set_ylabel("systolic variation (%) & hr (bpm)")
     for ax in fig.get_axes():
         for spine in ["top"]:
             ax.spines[spine].set_visible(False)
@@ -263,6 +290,7 @@ def plot_record_systolic_variation(mwave):
     return fig, df
 
 
+# TODO save the df in a file (cf ekg2HR)
 # %%
 
 

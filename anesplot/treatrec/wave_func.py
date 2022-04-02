@@ -34,9 +34,11 @@ def fix_baseline_wander(data: pd.Series, fs: int = 500) -> pd.Series:
     """
 
     # source : https://pypi.python.org/pypi/BaselineWanderRemoval/2017.10.25
+    print("\n fix baseline_wander")
     print("source = Python port of BaselineWanderRemovalMedian.m from ECG-kit")
-    print("Alex Page, alex.page@rochester.edu")
-    print("https://bitbucket.org/atpage/baselinewanderremoval/src/master/")
+    print()
+    # print("Alex Page, alex.page@rochester.edu")
+    # print("https://bitbucket.org/atpage/baselinewanderremoval/src/master/")
 
     data = np.array(data)
     winsize = int(round(0.2 * fs))
