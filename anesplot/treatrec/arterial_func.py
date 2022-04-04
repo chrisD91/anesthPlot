@@ -15,8 +15,8 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
 
-from anesplot.treatrec.wave_func import fix_baseline_wander
 from anesplot.plot.wave_plot import color_axis
+from anesplot.treatrec.wave_func import fix_baseline_wander
 
 # from .wave_func import fix_baseline_wander
 # from ..plot.wave_plot import color_axis
@@ -209,7 +209,7 @@ def median_filter(num_std=3):
         s = x[-1]
         return (
             s
-            if s >= _median - num_std * _std and s <= _median + num_std * _std
+            if (_median - num_std * _std) <= s <= (_median + num_std * _std)
             else np.nan
         )
 
@@ -296,6 +296,7 @@ def plot_record_systolic_variation(mwave):
 
 if __name__ == "__main__":
     import numpy as np
+
     import anesplot.record_main as rec
     from anesplot.loadrec.export_reload import build_obj_from_hdf
 

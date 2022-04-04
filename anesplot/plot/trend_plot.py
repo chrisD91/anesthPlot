@@ -14,8 +14,8 @@ import os
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 # import utils
 FONTSIZE = "medium"  # large, medium

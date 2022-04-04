@@ -120,11 +120,11 @@ ____
 
 import os
 from typing import Tuple
-import pyperclip
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pyperclip
 import scipy.signal as sg
 from scipy.interpolate import interp1d
 

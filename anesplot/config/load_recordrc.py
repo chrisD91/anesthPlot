@@ -57,27 +57,6 @@ def build_paths():
     print("data location is {}".format(rcdico["data"]))
     return rcdico
 
-    # try:
-    #     local_mod_path = os.path.dirname(__file__)
-    #     # local_mod_path = main_loc
-    #     print("__file__= {}".format(__file__))
-    #     print("argv= {}".format(sys.argv))
-    # except NameError:
-    #     # for inside spyder
-    #     local_mod_path = "/Users/cdesbois/pg/chrisPg/anesthplot/anesplot/config"
-    #     print('no local directory')
-    # rc_file = os.path.join(local_mod_path, "recordRc.yaml")
-    # # load
-    # if os.path.isfile(rc_file):
-    #     with open(rc_file, "r") as ymlfile:
-    #         cfg = yaml.safe_load(ymlfile)
-    #         return cfg
-    # else:
-    #     print("didn't find {}".format(rc_file))
-    #     # print("no recordRc.yaml configFile present")
-    #     print("please build one -> cf buildConfig.py")
-    #     return None
-
 
 def adapt_with_syspath(path_dico):
     """add the folder location to the system path."""

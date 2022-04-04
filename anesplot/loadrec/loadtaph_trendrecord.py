@@ -19,16 +19,15 @@ ____
 
 import os
 import sys
-from collections import defaultdict
-from datetime import timedelta, datetime
 import time
+from collections import defaultdict
+from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
 
 # import numpy as np
-from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
-
+from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
 
 if not "paths" in dir():
     paths = {}
@@ -129,7 +128,7 @@ def choose_taph_record(monitorname: str = None) -> str:
 
     """
 
-    print(f"{'-' * 20} > choose taph_record")
+    print(f"{' ' * 20} + choose taph_record")
     taphdico = build_taph_decodedate_dico()
     recorddates = sorted(taphdico.keys(), reverse=True)
 
@@ -179,7 +178,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     if filename is None:
         print(f"{'!' * 10} no name provided")
         return pd.DataFrame()
-    print(f"{'-' * 20} > loadtaph_datafile")
+    print(f"{'-' * 20} < loadtaph_datafile")
     if not os.path.isfile(filename):
         print(f"{'!' * 10} datafile not found")
         print(f"{filename}")
@@ -296,7 +295,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         datadf[["co2exp", "co2insp"]] *= 760 / 100
     except KeyError:
         print("no capnographic recording")
-    print(f"{'-' * 20} < loaded taph_datafile ({os.path.basename(filename)})")
+    print(f"{'-' * 20} > loaded taph_datafile ({os.path.basename(filename)})")
     return datadf
 
 
@@ -319,14 +318,14 @@ def loadtaph_patientfile(filename: str) -> dict:
 
     headername = os.path.join(os.path.dirname(filename), "Patient.csv")
 
-    print(f"{'-' * 20} > loading taph_patientfile")
+    print(f"{'.' * 20} < loading taph_patientfile")
     if not os.path.isfile(headername):
         print(f"{'!' * 10} patient_file not found")
         print(f"{headername}")
         print(f"{'!' * 10} patient_file not found")
         print()
         return {}
-    print(f"{'-' * 10} loading {os.path.basename(headername)}")
+    print(f"{'.' * 10} loading {os.path.basename(headername)}")
 
     patientdf = pd.read_csv(
         headername, header=None, usecols=[0, 1], encoding="iso8859_15"
@@ -339,7 +338,7 @@ def loadtaph_patientfile(filename: str) -> dict:
     # convert to a dictionary
     descr = patientdf.loc[1].to_dict()
 
-    print(f"{'-' * 20} < loaded taph_patientfile ({os.path.basename(headername)})")
+    print(f"{'-' * 20} > loaded taph_patientfile ({os.path.basename(headername)})")
     return descr
 
 

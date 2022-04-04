@@ -80,14 +80,14 @@ def loadmonitor_trendheader(filename: str) -> dict:
         # to build and empty header
         return {}
 
-    print(f"{'-' * 20} > loadmonitor_trendheader")
+    print(f"{'-' * 20} < loadmonitor_trendheader")
     if not os.path.isfile(filename):
         print(f"{'!'* 10} file not found")
         print(f"{filename}")
         print(f"{'!'* 10} file not found")
         print()
         return {}
-    print(f"{'-' * 10} loading header {os.path.basename(filename)}")
+    print(f"{'.' * 10} loading header {os.path.basename(filename)}")
 
     try:
         headerdf = pd.read_csv(
@@ -118,7 +118,7 @@ def loadmonitor_trendheader(filename: str) -> dict:
             headerdf[col] = headerdf[col].astype(float)
         # convert to a dictionary
         descr = headerdf.loc[1].to_dict()
-    print(f"{'-' * 20} < loaded trendheader")
+    print(f"{'-' * 20} > loaded trendheader")
     return descr
 
 
@@ -140,7 +140,7 @@ def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
 
     """
 
-    print(f"{'-' * 20} > loadmonitor_trenddata")
+    print(f"{'-' * 20} < loadmonitor_trenddata")
     if not os.path.isfile(filename):
         print(f"{'!' * 10} datafile not found")
         print("{filename}")
@@ -148,7 +148,7 @@ def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
         print()
         return pd.DataFrame()
 
-    print(f"{'-' * 10} loading trenddata {os.path.basename(filename)}")
+    print(f"{'.' * 10} loading trenddata {os.path.basename(filename)}")
     try:
         datadf = pd.read_csv(filename, sep=",", skiprows=[13], header=12)
     except UnicodeDecodeError:
@@ -261,7 +261,7 @@ def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
         datadf.datetime = datetime_series
     # remove irrelevant measures
     # df.co2exp.loc[data.co2exp < 30] = np.nan
-    print(f"{'-' * 20} < loaded trenddata")
+    print(f"{'-' * 20} > loaded trenddata")
     return datadf
 
 

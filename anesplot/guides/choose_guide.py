@@ -7,6 +7,7 @@ Created on Thu Mar 10 08:37:18 2022
 """
 
 import os
+
 import pyperclip
 
 # from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget

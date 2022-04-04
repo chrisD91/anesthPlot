@@ -28,43 +28,40 @@ nb to work within spyder : move inside anestplot (>> cd anesplot)
 
 """
 
+import faulthandler
 import os
 import sys
-from importlib import reload
-import faulthandler
 from datetime import datetime
-
-import numpy as np
-import pandas as pd
-import pyperclip
+from importlib import reload
 
 import matplotlib
 
-matplotlib.use("Qt5Agg")  # NB use automatic for updating
+matplotlib.use("Qt5Agg")  # NB required for the dialogs
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pyperclip
 from matplotlib import rcParams
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
-from config.load_recordrc import build_paths
+from .config.load_recordrc import build_paths
 
 paths = build_paths()
 
 
+import plot.trend_plot as tplot
+import plot.wave_plot as wplot
+import treatrec
+import treatrec.clean_data as clean
+import treatrec.wave_func as wf
+from guides.choose_guide import get_guide
+
 # requires to have '.../anesthPlot' in the path
-import loadrec
+# import loadrec
 from loadrec import loadmonitor_trendrecord as lmt
 from loadrec import loadmonitor_waverecord as lmw
 from loadrec import loadtaph_trendrecord as ltt
 from loadrec import loadtelevet as ltv
-import plot.trend_plot as tplot
-import plot.wave_plot as wplot
-
-from anesplot.guides.choose_guide import get_guide
-
-import treatrec.clean_data as clean
-import treatrec
-
-import anesplot.treatrec.wave_func as wf
 
 # import anesplot.treatrec as treat
 
@@ -796,15 +793,15 @@ def main(file_name: str = None):
 
 
 # %%
-if __name__ == "__main__":
-    IN_NAME = None
-    # check if a filename was provided from terminal call
-    print(sys.argv)
+# if __name__ == "__main__":
+#     IN_NAME = None
+#     # check if a filename was provided from terminal call
+#     print(sys.argv)
 
-    if len(sys.argv) > 1:
-        provided_name = sys.argv[1]
-        if os.path.isfile(provided_name):
-            IN_NAME = provided_name
-        else:
-            print("the provided filename is not valid")
-    main(IN_NAME)
+#     if len(sys.argv) > 1:
+#         provided_name = sys.argv[1]
+#         if os.path.isfile(provided_name):
+#             IN_NAME = provided_name
+#         else:
+#             print("the provided filename is not valid")
+#     main(IN_NAME)

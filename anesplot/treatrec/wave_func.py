@@ -4,11 +4,11 @@ Created on Fri Dec  8 12:46:41 2017
 
 @author: cdesbois
 """
-import pandas as pd
 import matplotlib.pyplot as plt
 
 # import os
 import numpy as np
+import pandas as pd
 from scipy.signal import medfilt
 
 

@@ -9,9 +9,10 @@ scan folders and check for hypotension
 """
 import os
 
+import matplotlib.pyplot as plt
+
 # import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 from anesplot.record_main import MonitorTrend

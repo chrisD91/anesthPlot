@@ -6,3 +6,6 @@
 
 # from . import build_recordrc
 # from . import load_recordrc
+
+import config.build_recordrc
+import config.load_recordrc

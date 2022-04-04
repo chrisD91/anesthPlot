@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import signal
 
+
 ### MORLET WAVELET, definition, properties and normalization
 def Morlet_Wavelet(t, f, w0=6.0):
     x = 2.0 * np.pi * f * t

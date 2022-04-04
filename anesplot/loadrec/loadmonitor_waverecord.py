@@ -72,7 +72,7 @@ def loadmonitor_waveheader(filename: str = None) -> dict:
         # to build and empty header
         return {}
 
-    print(f"{'-' * 20} > loadmonitor_waveheader")
+    print(f"{'-' * 20} < loadmonitor_waveheader")
     if not os.path.isfile(filename):
         print(f"{'!' * 10} file not found)")
         print(f"{filename}")
@@ -80,7 +80,7 @@ def loadmonitor_waveheader(filename: str = None) -> dict:
         print()
         return {}
 
-    print(f"{'-' * 10} loading header {os.path.basename(filename)}")
+    print(f"{'.' * 10} loading header {os.path.basename(filename)}")
 
     if filename is None:
         filename = choosefile_gui()
@@ -98,7 +98,7 @@ def loadmonitor_waveheader(filename: str = None) -> dict:
     except FileNotFoundError:
         print("canceled by the user")
         header = {}
-    print(f"{'-' * 20} < loaded waveheader")
+    print(f"{'-' * 20} > loaded waveheader")
     return header
 
 
@@ -118,7 +118,7 @@ def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
 
     """
 
-    print(f"{'-' * 20} > loadmonitor_wavedata")
+    print(f"{'-' * 20} < loadmonitor_wavedata")
     if not os.path.isfile(filename):
         print(f"{'!' * 10} file not found")
         print("f{filename}")
@@ -126,7 +126,7 @@ def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
         print()
         return pd.DataFrame()
 
-    print(f"{'-' * 10} loading wavedata {os.path.basename(filename)}")
+    print(f"{'.' * 10} loading wavedata {os.path.basename(filename)}")
     sampling_fr = 300  # sampling rate
     try:
         date = pd.read_csv(filename, nrows=1, header=None).iloc[0][1]
@@ -202,7 +202,7 @@ def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
     if "wco2" in datadf.columns:
         datadf.loc[datadf.wco2 < 0, "wco2"] = 0
 
-    print(f"{'-' * 20} < loaded wavedata")
+    print(f"{'-' * 20} > loaded wavedata")
     return datadf
 
 
