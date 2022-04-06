@@ -5,7 +5,7 @@
 main script/module to load and display an anesthesia record
 
 can be runned as a script::
-    python record_main.py
+    "python record_main.py" or "python -m anesplot"
 
 or imported as a package::
 
@@ -44,7 +44,7 @@ import pyperclip
 from matplotlib import rcParams
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
-from .config.load_recordrc import build_paths
+from config.load_recordrc import build_paths
 
 paths = build_paths()
 
@@ -314,7 +314,11 @@ class _SlowWave(_Waves):
 
     def show_graphs(self):
         """basic clinical plots"""
-        fig_dico = plot_trenddata(self.data, self.header, self.param)
+        if self.data.empty:
+            print("recording is empty : no data to plot")
+            fig_dico = {}
+        else:
+            fig_dico = plot_trenddata(self.data, self.header, self.param)
         return fig_dico
 
 
