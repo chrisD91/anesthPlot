@@ -25,7 +25,7 @@ from anesplot.treatrec.wave_func import fix_baseline_wander
 plt.close("all")
 
 
-def get_peaks(ser: pd.Series, up: bool = True) -> pd.DataFrame:
+def get_peaks(ser: pd.Series, up: bool = True, plot: bool = False) -> pd.DataFrame:
     """
     extract a peak location from an arterial time series
 
@@ -44,13 +44,35 @@ def get_peaks(ser: pd.Series, up: bool = True) -> pd.DataFrame:
         'local_max' & 'local_min' : boolean for local maxima and minima
 
     """
+    DISTANCE = 300
+    WIDTH = 1  # just to have a wisths measure in output
+    QUANTILE = .82
     ser_detrended = fix_baseline_wander(ser, 300)
-    threshold = ser_detrended.quantile(q=0.82)
+    height = ser_detrended.quantile(q=QUANTILE)
     # find the (up) peaks
     if up:
-        peaks, properties = find_peaks(ser_detrended, height=threshold, distance=300)
+        peaks, properties = find_peaks(
+            ser_detrended, height=height, distance=DISTANCE, width=WIDTH
+        )
     else:
-        peaks, properties = find_peaks(-ser_detrended, height=-threshold, distance=300)
+        peaks, properties = find_peaks(
+            -ser_detrended, height=-height, distance=DISTANCE, width=WIDTH
+        )
+    if plot:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.plot(ser_detrended, "-b")
+        ax.axhline(height)
+        ax.plot(peaks, ser_detrended.iloc[peaks], "ob")
+        ax.text(1, 1, f"{QUANTILE=}", transform=ax.transAxes)
+    # remove artefact:
+    LOW_WIDTH = 45
+    artefact = np.where(properties["widths"] < LOW_WIDTH)[0]
+    if plot:
+        ax.plot(artefact, ser_detrended.iloc[artefact], 'or')
+    peaks = np.delete(peaks, artefact)
+    for k, v in properties.items():
+        properties[k] = np.delete(v, artefact)
     # ser -> peak_df (ie restrict index)
     peaksdf = ser.reset_index().loc[peaks]
     peaksdf = peaksdf.rename(columns={"sec": "sloc"})
@@ -84,7 +106,7 @@ def compute_systolic_variation(ser: pd.Series) -> float:
 
 
 def plot_sample_systolic_pressure_variation(
-    mwave, lims: Tuple = None, teach: bool = False
+    mwave, lims: Tuple = None, teach: bool = False, each: bool = False
 ):
     """
     extract and plot the systolic pressure variation"
@@ -98,6 +120,8 @@ def plot_sample_systolic_pressure_variation(
         If none the mwave.roi will be used
     teach : boolean (default is False)
         if true added markers on the most relevant differences
+    each : boolean(default False)
+        if true plot all detected pulse
     Returns
     -------
     fig : plt.Figure
@@ -121,7 +145,7 @@ def plot_sample_systolic_pressure_variation(
 
     # find the (up) peaks
     ser = datadf.wap.dropna()
-    peak_df = get_peaks(ser, up=True)
+    peak_df = get_peaks(ser, up=True, plot=True, plot)
 
     maxi, mini, med = peak_df["wap"].agg(["max", "min", "median"])
     systolic_variation = (maxi - mini) / med
@@ -129,7 +153,8 @@ def plot_sample_systolic_pressure_variation(
     print(sys_var)
 
     # plot
-    # ax.plot(peak_df.set_index("sloc").wap, "-r", alpha=0.2)
+    if each:
+        ax.plot(peak_df.set_index("sloc").wap, "or", alpha=0.5)
     inter_beat = round((peak_df.sloc - peak_df.sloc.shift(1)).mean())
     beat_loc_df = peak_df.set_index("sloc")
     for sloc, yloc in beat_loc_df.loc[
@@ -256,7 +281,7 @@ def plot_record_systolic_variation(mwave):
     ax = fig.add_subplot(111)
     ax.plot(ap_ser, "-r", label="arterial pressure")
     # check the precise location
-    # ax.plot(df.set_index("sloc").wap, "og")
+    ax.plot(df.set_index("sloc").wap, "og")
     axT = ax.twinx()
     # heart rate
     ser = (
@@ -288,6 +313,11 @@ def plot_record_systolic_variation(mwave):
     fig.tight_layout()
 
     return fig, df
+
+    def get_lims():
+        fig = plt.gcf()
+        ax = fig.get_axes()[0]
+        return ax.get_xlim()
 
 
 # TODO save the df in a file (cf ekg2HR)
@@ -329,3 +359,9 @@ if __name__ == "__main__":
         new_series[indices] = rolling_median[indices]
 
         return new_series, indices
+
+    #%%
+    fig = record_figure
+    ax = fig.get_axes()[0]
+    lims = (3213.547862985215, 3392.643387626591)
+    ax.set_xlim(lims)
