@@ -8,6 +8,7 @@ Created on Tue Mar 29 13:00:08 2022
 
 
 import os
+from math import ceil, floor
 from typing import Tuple
 
 import matplotlib.pyplot as plt
@@ -25,7 +26,9 @@ from anesplot.treatrec.wave_func import fix_baseline_wander
 plt.close("all")
 
 
-def get_peaks(ser: pd.Series, up: bool = True, plot: bool = False) -> pd.DataFrame:
+def get_peaks(
+    ser: pd.Series, up: bool = True, annotations: bool = False
+) -> pd.DataFrame:
     """
     extract a peak location from an arterial time series
 
@@ -35,6 +38,8 @@ def get_peaks(ser: pd.Series, up: bool = True, plot: bool = False) -> pd.DataFra
         arterial time series (val = arterial wave, index = sec).
     up : bool, optional (default is True)
         extraction of the 'up' peaks. (false -> 'down peaks')
+    annotations : bool, optional (default is False)
+        plot annotations peak and indications.
 
     Returns
     -------
@@ -44,9 +49,11 @@ def get_peaks(ser: pd.Series, up: bool = True, plot: bool = False) -> pd.DataFra
         'local_max' & 'local_min' : boolean for local maxima and minima
 
     """
+    QUANTILE = 0.9
     DISTANCE = 300
-    WIDTH = 1  # just to have a wisths measure in output
-    QUANTILE = 0.82
+    WIDTH = 1  # just to have a width measure in the output
+    LOW_WIDTH = 45  # to remove the artefacts (narrow peaks)
+
     ser_detrended = fix_baseline_wander(ser, 300)
     height = ser_detrended.quantile(q=QUANTILE)
     # find the (up) peaks
@@ -58,18 +65,46 @@ def get_peaks(ser: pd.Series, up: bool = True, plot: bool = False) -> pd.DataFra
         peaks, properties = find_peaks(
             -ser_detrended, height=-height, distance=DISTANCE, width=WIDTH
         )
-    if plot:
+    if annotations:
         fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.plot(ser_detrended, "-b")
+        fig.suptitle("arterial_func.get_peaks (trace = detrended one's)")
+        # trend
+        ax = fig.add_subplot(211)
+        ax.plot(ser_detrended, "-r")
         ax.axhline(height)
-        ax.plot(peaks, ser_detrended.iloc[peaks], "ob")
-        ax.text(1, 1, f"{QUANTILE=}", transform=ax.transAxes)
+        ax.plot(peaks, ser_detrended.iloc[peaks], "og")
+        ax.set_ylim(
+            floor(min(ser_detrended) / 10) * 10, ceil(max(ser_detrended) / 10) * 10
+        )
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
+        # txt values
+        ax = fig.add_subplot(212)
+        ax.text(
+            0, 0.8, f"{QUANTILE=}", transform=ax.transAxes, color="tab:blue", ha="left"
+        )
+        ax.text(0, 0.6, f"{DISTANCE=}", transform=ax.transAxes, ha="left")
+
+        for i, (k, v) in enumerate(properties.items()):
+            txt = f"{k}: {np.median(v):.2f}"
+            print(i, txt)
+            if i / 5 < 1:
+                ax.text(0.2, i / 5, txt, transform=ax.transAxes, ha="left")
+            else:
+                ax.text(0.4, i / 5 - 1, txt, transform=ax.transAxes, ha="left")
+        ax.text(0.6, 0.4, f"{LOW_WIDTH=}", transform=ax.transAxes, ha="left")
+        for spine in ["left", "top", "right", "bottom"]:
+            ax.spines[spine].set_visible(False)
+        ax.xaxis.set_visible(False)
+        ax.yaxis.set_visible(False)
+        # annotations
+        fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
+        fig.tight_layout()
     # remove artefact:
-    LOW_WIDTH = 45
     artefact = np.where(properties["widths"] < LOW_WIDTH)[0]
-    if plot:
+    if annotations:
         ax.plot(artefact, ser_detrended.iloc[artefact], "or")
+        ax.text(0.7, 0.2, f"{artefact=}", transform=ax.transAxes, ha="left")
     peaks = np.delete(peaks, artefact)
     for k, v in properties.items():
         properties[k] = np.delete(v, artefact)
@@ -106,7 +141,7 @@ def compute_systolic_variation(ser: pd.Series) -> float:
 
 
 def plot_sample_systolic_pressure_variation(
-    mwave, lims: Tuple = None, teach: bool = False, each: bool = False
+    mwave, lims: Tuple = None, teach: bool = False, annotations: bool = False
 ):
     """
     extract and plot the systolic pressure variation"
@@ -120,7 +155,7 @@ def plot_sample_systolic_pressure_variation(
         If none the mwave.roi will be used
     teach : boolean (default is False)
         if true added markers on the most relevant differences
-    each : boolean(default False)
+    annotations : boolean(default False)
         if true plot all detected pulse
     Returns
     -------
@@ -145,7 +180,7 @@ def plot_sample_systolic_pressure_variation(
 
     # find the (up) peaks
     ser = datadf.wap.dropna()
-    peak_df = get_peaks(ser, up=True, plot=True)
+    peak_df = get_peaks(ser, up=True, annotations=annotations)
 
     maxi, mini, med = peak_df["wap"].agg(["max", "min", "median"])
     systolic_variation = (maxi - mini) / med
@@ -153,7 +188,7 @@ def plot_sample_systolic_pressure_variation(
     print(sys_var)
 
     # plot
-    if each:
+    if annotations:
         ax.plot(peak_df.set_index("sloc").wap, "or", alpha=0.5)
     inter_beat = round((peak_df.sloc - peak_df.sloc.shift(1)).mean())
     beat_loc_df = peak_df.set_index("sloc")
@@ -314,7 +349,7 @@ def plot_record_systolic_variation(mwave):
 
     return fig, df
 
-    def get_lims():
+    def get_xlims():
         fig = plt.gcf()
         ax = fig.get_axes()[0]
         return ax.get_xlim()
@@ -325,7 +360,6 @@ def plot_record_systolic_variation(mwave):
 
 
 if __name__ == "__main__":
-    import numpy as np
 
     import anesplot.record_main as rec
     from anesplot.loadrec.export_reload import build_obj_from_hdf
@@ -335,8 +369,11 @@ if __name__ == "__main__":
     filename = os.path.join(DIRNAME, FILE)
     _, _, mwaves = build_obj_from_hdf(filename)
 
-    samp_figure, _ = plot_sample_systolic_pressure_variation(mwaves, (4100, 4160))
-    record_figure, peaks_df = plot_record_systolic_variation(mwaves)
+    limits = (4100, 4160)
+    samp_figure, samp_peak_df = plot_sample_systolic_pressure_variation(
+        mwaves, limits, annotations=False
+    )
+    # record_figure, peaks_df = plot_record_systolic_variation(mwaves)
 
     def hampel_filter_pandas(input_series, window_size, n_sigmas=3):
         # https://towardsdatascience.com/outlier-detection-with-hampel-filter-85ddf523c73d
@@ -359,9 +396,3 @@ if __name__ == "__main__":
         new_series[indices] = rolling_median[indices]
 
         return new_series, indices
-
-    #%%
-    fig = record_figure
-    ax = fig.get_axes()[0]
-    lims = (3213.547862985215, 3392.643387626591)
-    ax.set_xlim(lims)
