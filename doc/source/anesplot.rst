@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    anesplot.config
+   anesplot.guide
    anesplot.loadrec
    anesplot.plot
    anesplot.treatrec

@@ -13,6 +13,7 @@ Submodules
    anesplot.treatrec.hr_to_hrv
    anesplot.treatrec.manage_events
    anesplot.treatrec.wave_func
+   anesplot.treatrec.arterial_func
 
 Module contents
 ---------------

@@ -31,8 +31,10 @@ Features
       .. code-block:: bash
 
          python anesthPlot/anesplot/__main__.py
+         or
+         python -m anesplot
          -> will open an GUI choose menu to choose the recording 
-         (MonitorTrend, TaphoniusTrend, MonitorWave, TelevetWave(export))
+         (MonitorTrend, TaphoniusTrend, MonitorWave, TelevetWave(from a .csv export))
 
 
       - will build a **standard debriefing** (trends) **plot series** (script usage)
@@ -78,9 +80,12 @@ main script
 
 .. note::
 
-   - anesplot.record_main can be called directly from a terminal
-   - is the entry point to the program
-
+   - anesplot/__main__.py:
+     - can be called directly from a terminal :
+  
+     "python -m anesplot" or "python anesplot/__main__.py"
+    
+     - is the entry point to the program ('record_main.py')
 
 
 .. toctree::
@@ -96,6 +101,7 @@ modules
    :maxdepth: 4
    :caption: Contents:
 
+   anesplot.guides
    anesplot.loadrec
    anesplot.plot
    anesplot.treatrec
