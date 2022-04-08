@@ -69,42 +69,42 @@ def get_peaks(
         fig = plt.figure()
         fig.suptitle("arterial_func.get_peaks (trace = detrended one's)")
         # trend
-        ax = fig.add_subplot(211)
-        ax.plot(ser_detrended, "-r")
-        ax.axhline(height)
-        ax.plot(peaks, ser_detrended.iloc[peaks], "og")
-        ax.set_ylim(
+        ax0 = fig.add_subplot(211)
+        ax0.plot(ser_detrended, "-r")
+        ax0.axhline(height)
+        ax0.plot(peaks, ser_detrended.iloc[peaks], "og")
+        ax0.set_ylim(
             floor(min(ser_detrended) / 10) * 10, ceil(max(ser_detrended) / 10) * 10
         )
         for spine in ["top", "right"]:
-            ax.spines[spine].set_visible(False)
+            ax0.spines[spine].set_visible(False)
         # txt values
-        ax = fig.add_subplot(212)
-        ax.text(
-            0, 0.8, f"{QUANTILE=}", transform=ax.transAxes, color="tab:blue", ha="left"
+        ax1 = fig.add_subplot(212)
+        ax1.text(
+            0, 0.8, f"{QUANTILE=}", transform=ax1.transAxes, color="tab:blue", ha="left"
         )
-        ax.text(0, 0.6, f"{DISTANCE=}", transform=ax.transAxes, ha="left")
+        ax1.text(0, 0.6, f"{DISTANCE=}", transform=ax1.transAxes, ha="left")
 
         for i, (k, v) in enumerate(properties.items()):
             txt = f"{k}: {np.median(v):.2f}"
             print(i, txt)
             if i / 5 < 1:
-                ax.text(0.2, i / 5, txt, transform=ax.transAxes, ha="left")
+                ax1.text(0.2, i / 5, txt, transform=ax1.transAxes, ha="left")
             else:
-                ax.text(0.4, i / 5 - 1, txt, transform=ax.transAxes, ha="left")
-        ax.text(0.6, 0.4, f"{LOW_WIDTH=}", transform=ax.transAxes, ha="left")
+                ax1.text(0.4, i / 5 - 1, txt, transform=ax1.transAxes, ha="left")
+        ax1.text(0.6, 0.4, f"{LOW_WIDTH=}", transform=ax1.transAxes, ha="left")
         for spine in ["left", "top", "right", "bottom"]:
-            ax.spines[spine].set_visible(False)
-        ax.xaxis.set_visible(False)
-        ax.yaxis.set_visible(False)
+            ax1.spines[spine].set_visible(False)
+        ax1.xaxis.set_visible(False)
+        ax1.yaxis.set_visible(False)
         # annotations
         fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
         fig.tight_layout()
     # remove artefact:
     artefact = np.where(properties["widths"] < LOW_WIDTH)[0]
     if annotations:
-        ax.plot(artefact, ser_detrended.iloc[artefact], "or")
-        ax.text(0.7, 0.2, f"{artefact=}", transform=ax.transAxes, ha="left")
+        ax0.plot(artefact, ser_detrended.loc[artefact], "or")
+        ax1.text(0.7, 0.2, f"{artefact=}", transform=ax1.transAxes, ha="left")
     peaks = np.delete(peaks, artefact)
     for k, v in properties.items():
         properties[k] = np.delete(v, artefact)
@@ -276,7 +276,7 @@ def median_filter(num_std=3):
     return _median_filter
 
 
-def plot_record_systolic_variation(mwave):
+def plot_record_systolic_variation(mwave, annotations=False):
     """
     plot systolic variation over the whole record
 
@@ -284,7 +284,8 @@ def plot_record_systolic_variation(mwave):
     ----------
     mwave : rec.MonitorWave object
         a monitor recording containing an arterial ('wap') recording.
-
+    annotations: bool (default=False)
+        add indications of peak detection in the graph
     Returns
     -------
     fig : pyplot.Figure
@@ -299,7 +300,7 @@ def plot_record_systolic_variation(mwave):
     ap_ser = mwave.data.set_index("sec").wap.dropna()
     # TODO filtering process?
     # ser = ser.rolling(10).apply(median_filter(num_std=3), raw=True)
-    df = get_peaks(ap_ser)
+    df = get_peaks(ap_ser, annotations=annotations)
     # df = get_peaks(mwave.data.set_index("sec").wap.dropna())
 
     df["sys_var"] = np.nan
@@ -316,7 +317,8 @@ def plot_record_systolic_variation(mwave):
     ax = fig.add_subplot(111)
     ax.plot(ap_ser, "-r", label="arterial pressure")
     # check the precise location
-    ax.plot(df.set_index("sloc").wap, "og")
+    if annotations:
+        ax.plot(df.set_index("sloc").wap, "og")
     axT = ax.twinx()
     # heart rate
     ser = (
@@ -349,10 +351,11 @@ def plot_record_systolic_variation(mwave):
 
     return fig, df
 
-    def get_xlims():
-        fig = plt.gcf()
-        ax = fig.get_axes()[0]
-        return ax.get_xlim()
+
+def get_xlims():
+    fig = plt.gcf()
+    ax = fig.get_axes()[0]
+    return ax.get_xlim()
 
 
 # TODO save the df in a file (cf ekg2HR)
@@ -373,7 +376,7 @@ if __name__ == "__main__":
     samp_figure, samp_peak_df = plot_sample_systolic_pressure_variation(
         mwaves, limits, annotations=False
     )
-    # record_figure, peaks_df = plot_record_systolic_variation(mwaves)
+    record_figure, peaks_df = plot_record_systolic_variation(mwaves, annotations=False)
 
     def hampel_filter_pandas(input_series, window_size, n_sigmas=3):
         # https://towardsdatascience.com/outlier-detection-with-hampel-filter-85ddf523c73d
