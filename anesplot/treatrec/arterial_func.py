@@ -46,7 +46,7 @@ def get_peaks(ser: pd.Series, up: bool = True, plot: bool = False) -> pd.DataFra
     """
     DISTANCE = 300
     WIDTH = 1  # just to have a wisths measure in output
-    QUANTILE = .82
+    QUANTILE = 0.82
     ser_detrended = fix_baseline_wander(ser, 300)
     height = ser_detrended.quantile(q=QUANTILE)
     # find the (up) peaks
@@ -69,7 +69,7 @@ def get_peaks(ser: pd.Series, up: bool = True, plot: bool = False) -> pd.DataFra
     LOW_WIDTH = 45
     artefact = np.where(properties["widths"] < LOW_WIDTH)[0]
     if plot:
-        ax.plot(artefact, ser_detrended.iloc[artefact], 'or')
+        ax.plot(artefact, ser_detrended.iloc[artefact], "or")
     peaks = np.delete(peaks, artefact)
     for k, v in properties.items():
         properties[k] = np.delete(v, artefact)
@@ -145,7 +145,7 @@ def plot_sample_systolic_pressure_variation(
 
     # find the (up) peaks
     ser = datadf.wap.dropna()
-    peak_df = get_peaks(ser, up=True, plot=True, plot)
+    peak_df = get_peaks(ser, up=True, plot=True)
 
     maxi, mini, med = peak_df["wap"].agg(["max", "min", "median"])
     systolic_variation = (maxi - mini) / med
