@@ -16,10 +16,9 @@ recorded from the Monitor Software to be used mostly in a teaching environment.
       - a work in progres
       - the processes are mainly focused on horses anesthesia (default values)
       - in our environment the data recorded came from either
-       
-        - an as3 or as5 anesthesia monitor (ekg, invasive pressure, etCO2, halogenate, spirometry)
-        - a Taphonius equine ventilator
-        - (some ekg data extracted using a Televet holter system)
+          - an as3 or as5 anesthesia monitor (ekg, invasive pressure, etCO2, halogenate, spirometry)
+          - a Taphonius equine ventilator 
+          - (some ekg .csv data extracted using a Televet holter system)
 
 
 Features
@@ -33,20 +32,20 @@ Features
          python anesthPlot/anesplot/__main__.py
          or
          python -m anesplot
-         -> will open an GUI choose menu to choose the recording 
-         (MonitorTrend, TaphoniusTrend, MonitorWave, TelevetWave(from a .csv export))
+         -> this will open an GUI choose menu to choose the recording 
+         (MonitorTrend, TaphoniusTrend, MonitorWave, TelevetWave)
 
 
-      - will build a **standard debriefing** (trends) **plot series** (script usage)
+      - this script approach will build a **standard plot series** for debriefing purposes:
          
          - global histograms (cardiovascular and anesthesia summary)
-         - cardiovascular trends time based plots
-         - respiratory trends time based plots
-         - anesthesia trends time based plots
+         - cardiovascular time based trends plots
+         - respiratory time based trends plots
+         - anesthesia time based trends plots
 
-      - or will build a **plot for wave** recording 
+      - or will build a user selected **plot for wave** recording 
   
-         - one or two waves on the same plot (script usage)
+         - one or two waves on the same plot (script usage, pop_up menu to choose)
 
 - you can also use this code as a **python package**
 
@@ -68,10 +67,12 @@ Features
          waves.define_a_roi() # -> to register the plotting scales
          waves.animate_fig() #-> to build an animation using these parameters
 
+         (nb running 'rec.get_basic_debrief_commands()' will prefill this standard code)
+
    - additional functions are available to extract instaneous heart rate
 
       - see anesplot/treatrec/ekg_to_hr.py
-
+      - (running 'rec.get_guide()' will prefill a standard approach)
 
 
 
