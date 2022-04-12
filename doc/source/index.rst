@@ -15,15 +15,14 @@ but this package can also facilite recording manipulation for other purposes.
  
 .. warning::
 
-This project is:
+  This is a work in progres, 
 
-   * a work in progres
    * the processes are mainly focused on horses anesthesia (default values) 
    * in our environment the data recorded came from either:
-
-     * an as3 or as5 anesthesia monitor (ekg, invasive pressure, etCO2, halogenate, spirometry)
-     * a Taphonius equine ventilator 
-     * (some ekg .csv data extracted using a Televet holter system)
+  
+      * an as3 or as5 anesthesia monitor (ekg, invasive pressure, etCO2, halogenate, spirometry)
+      * a Taphonius equine ventilator 
+      * (some ekg .csv data extracted using a Televet holter system)
 
 
 Features
@@ -52,7 +51,7 @@ Features
   
          - one or two waves on the same plot (script usage, pop_up menu to choose)
 
-   - or as a **python package** (import mode):
+   - or by using the code as a **python package** ('import mode'):
       .. code-block::  python
  
          import anesplot.record_main as rec
@@ -73,14 +72,14 @@ Features
       .. hint::   
          after **'import anesplot.record_main as rec'**
 
-         running **'rec.get_basic_debrief_commands()**' will prefill this standard code
+         **'rec.get_basic_debrief_commands()**' will prefill the clipboard with this standard code
 
    - additional functions are available to extract instaneous heart rate
 
       - see anesplot/treatrec/ekg_to_hr.py
 
 .. hint:: 
-  running **'rec.get_guide()'** will prefill a standard approach through clipboard)
+   **'rec.get_guide()'** allow the filling of the clipboard with standard approaches
 
 
 
