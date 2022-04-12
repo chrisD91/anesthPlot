@@ -4,13 +4,23 @@ anesplot.config package
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 4
+anesplot.config.build\_recordrc module
+--------------------------------------
 
-   anesplot.config.build_recordrc
-   anesplot.config.load_recordrc
+.. automodule:: anesplot.config.build_recordrc
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-Module contents 
+anesplot.config.load\_recordrc module
+-------------------------------------
+
+.. automodule:: anesplot.config.load_recordrc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
 ---------------
 
 .. automodule:: anesplot.config

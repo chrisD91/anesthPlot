@@ -8,7 +8,6 @@ Subpackages
    :maxdepth: 4
 
    anesplot.config
-   anesplot.guides
    anesplot.loadrec
    anesplot.plot
    anesplot.treatrec
@@ -16,10 +15,13 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 4
+anesplot.record\_main module
+----------------------------
 
-   anesplot.record_main
+.. automodule:: anesplot.record_main
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

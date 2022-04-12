@@ -15,14 +15,15 @@ but this package can also facilite recording manipulation for other purposes.
  
 .. warning::
 
-   This project is:
-   
-      - a work in progres
-      - the processes are mainly focused on horses anesthesia (default values)
-      - in our environment the data recorded came from either
-          - an as3 or as5 anesthesia monitor (ekg, invasive pressure, etCO2, halogenate, spirometry)
-          - a Taphonius equine ventilator 
-          - (some ekg .csv data extracted using a Televet holter system)
+This project is:
+
+   * a work in progres
+   * the processes are mainly focused on horses anesthesia (default values) 
+   * in our environment the data recorded came from either:
+
+     * an as3 or as5 anesthesia monitor (ekg, invasive pressure, etCO2, halogenate, spirometry)
+     * a Taphonius equine ventilator 
+     * (some ekg .csv data extracted using a Televet holter system)
 
 
 Features
@@ -30,7 +31,7 @@ Features
 
 - you can **load** recordings from a trend or a wave file
 
-   - from command line:
+   - from command line ('script mode'):
       .. code-block:: bash
 
          python anesthPlot/anesplot/__main__.py
@@ -51,9 +52,7 @@ Features
   
          - one or two waves on the same plot (script usage, pop_up menu to choose)
 
-- you can also use this code as a **python package**
-
-   - usage :
+   - or as a **python package** (import mode):
       .. code-block::  python
  
          import anesplot.record_main as rec
@@ -71,27 +70,32 @@ Features
          waves.define_a_roi() # -> to register the plotting scales
          waves.animate_fig() #-> to build an animation using these parameters
 
-         (nb running 'rec.get_basic_debrief_commands()' will prefill this standard code)
+      .. hint::   
+         after **'import anesplot.record_main as rec'**
+
+         running **'rec.get_basic_debrief_commands()**' will prefill this standard code
 
    - additional functions are available to extract instaneous heart rate
 
       - see anesplot/treatrec/ekg_to_hr.py
-      - (running 'rec.get_guide()' will prefill a standard approach)
+
+.. hint:: 
+  running **'rec.get_guide()'** will prefill a standard approach through clipboard)
 
 
 
 
-main script
-=============
+main script : anesplot/__main__.py
+==================================
 
 .. note::
-
-   - anesplot/__main__.py:
-     - can be called directly from a terminal :
   
-     "python -m anesplot" or "python anesplot/__main__.py"
-    
-     - is the entry point to the program ('record_main.py')
+  - it is the entry point to the program ('record_main.py')
+  - it can be called directly from a terminal :
+  
+   .. code-block:: bash
+  
+      "python -m anesplot" or "python anesplot/__main__.py"
 
 
 .. toctree::
@@ -102,7 +106,7 @@ main script
 
 
 modules
-==================
+========
 .. toctree::
    :maxdepth: 4
    :caption: Contents:

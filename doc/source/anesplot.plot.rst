@@ -4,11 +4,21 @@ anesplot.plot package
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 4
+anesplot.plot.trend\_plot module
+--------------------------------
 
-   anesplot.plot.trend_plot
-   anesplot.plot.wave_plot
+.. automodule:: anesplot.plot.trend_plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+anesplot.plot.wave\_plot module
+-------------------------------
+
+.. automodule:: anesplot.plot.wave_plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
