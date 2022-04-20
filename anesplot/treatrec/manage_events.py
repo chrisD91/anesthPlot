@@ -148,6 +148,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
         events_ser = pd.concat([events_ser, batch])
     dteventsdf = pd.DataFrame(events_ser)
     dteventsdf = dteventsdf.sort_index()
+    dteventsdf.index = pd.to_datetime(dteventsdf.index)
     return dteventsdf
 
 

@@ -13,3 +13,7 @@
     datadf.set_index("datetime").index.get_loc(_, method="nearest")
 
 - [x] module 'plot.wave_plot' has no attribute 'plot_systolic_pressure_variations'
+
+- [ ] build a function to choose a plot from a list for monitor  or taph record
+
+- [ ] fix time correction for taph records and plot_ventil_dive (plot is not updated after a time shift)

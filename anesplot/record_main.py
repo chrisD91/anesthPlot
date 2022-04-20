@@ -31,7 +31,7 @@ nb to work within spyder : move inside anestplot (>> cd anesplot)
 import faulthandler
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from importlib import reload
 
 import matplotlib
@@ -416,9 +416,13 @@ class TaphTrend(_SlowWave):
         self.param["sampling_freq"] = None
         self.extract_events()
 
-    def extract_events(self):
+    def extract_events(self, shift_min=None):
         """decode the taph messages, build events, actions and ventil_drive"""
         dt_events_df = treatrec.manage_events.build_event_dataframe(self.data)
+        if shift_min is not None:
+            shift = timedelta(minutes=shift_min)
+            dt_events_df.index = dt_events_df.index + shift
+
         self.dt_events_df = dt_events_df
 
         actions, events = treatrec.manage_events.extract_taphmessages(self.dt_events_df)
@@ -472,7 +476,9 @@ class TaphTrend(_SlowWave):
         None.
 
         """
-        ltt.shift_datetime(self.data, minutes)
+        self.data = ltt.shift_datetime(self.data, minutes)
+        # recompute events extractions, ventildrive, ...
+        self.extract_events(minutes)
 
     def shift_etime(self, minutes: int):
         """
