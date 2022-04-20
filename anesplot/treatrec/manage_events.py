@@ -11,7 +11,7 @@ to extract the events from the taphonius files
 import os
 from datetime import datetime, timedelta
 from math import ceil
-from typing import Any, Dict, Set, Tuple
+from typing import Any, Tuple
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -115,16 +115,16 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
         dico = {}
         indexdate = index.date()
         indextime = index.time()
-        for t, event in t_event:
-            if len(t) >= 16:
-                event = t.split("]")[-1].strip()
-                t = t.split("]")[0]
-            if " am" in t:
-                t = t.replace(" am", "") + " am"
-            if " pm" in t:
-                t = t.replace(" pm", "") + " pm"
+        for time, event in t_event:
+            if len(time) >= 16:
+                event = time.split("]")[-1].strip()
+                time = time.split("]")[0]
+            if " am" in time:
+                time = time.replace(" am", "") + " am"
+            if " pm" in time:
+                time = time.replace(" pm", "") + " pm"
             try:
-                eventtime = pd.to_datetime(t).time()
+                eventtime = pd.to_datetime(time).time()
             except pd.errors.OutOfBoundsDatetime:
                 eventtime = index.time()
             except pd.errors.ParserError:
@@ -365,34 +365,35 @@ def plot_events(
         dteventsdf = dteventsdf.drop(
             dteventsdf.loc[dteventsdf.events.str.contains(item)].index
         )
-
+    # copy to modifyonly inside the function
+    event_df = dteventsdf.copy()
     # manage color
-    dteventsdf["color"] = "red"
-    mask = dteventsdf.events.str.contains("vacuum")
-    dteventsdf.loc[mask, ["color"]] = "blue"
-    mask = dteventsdf.events.str.contains("changed")
-    dteventsdf.loc[mask, ["color"]] = "green"
-    mask = dteventsdf.events.str.contains("ventilate")
-    dteventsdf.loc[mask, ["color"]] = "black"
-    mask = dteventsdf.events.str.contains("standby")
-    dteventsdf.loc[mask, ["color"]] = "black"
+    event_df["color"] = "red"
+    mask = event_df.events.str.contains("vacuum")
+    event_df.loc[mask, ["color"]] = "blue"
+    mask = event_df.events.str.contains("changed")
+    event_df.loc[mask, ["color"]] = "green"
+    mask = event_df.events.str.contains("ventilate")
+    event_df.loc[mask, ["color"]] = "black"
+    mask = event_df.events.str.contains("standby")
+    event_df.loc[mask, ["color"]] = "black"
 
     # set index to num
     if not dtime:
-        dteventsdf.reset_index(inplace=True)
-        dteventsdf.rename(columns={"index": "dt"}, inplace=True)
+        event_df = event_df.reset_index()
+        event_df = event_df.rename(columns={"index": "dt"})
     fig = plt.figure(figsize=(15, 4))
     ax = fig.add_subplot(111)
-    dteventsdf["uni"] = 1
+    event_df["uni"] = 1
     # ax.plot(dteventsdf.uni)
-    ax.scatter(dteventsdf.index, dteventsdf.uni, color=dteventsdf.color, marker=".")
+    ax.scatter(event_df.index, event_df.uni, color=event_df.color, marker=".")
     # ax.scatter(dteventsdf.index, dteventsdf.uni, color="tab:green", marker=".")
-    for dt, color in dteventsdf.color.iteritems():
+    for dt, color in event_df.color.iteritems():
         ax.vlines(dt, 0, 1, color=color)
     # filter messages to remove the actions
 
     # plot the events - action
-    for dt, (event, color) in dteventsdf[["events", "color"]].iterrows():
+    for dt, (event, color) in event_df[["events", "color"]].iterrows():
         # pos = (mdates.date2num(dt), 1)
         pos = (dt, 1)
         ax.annotate(
@@ -418,13 +419,13 @@ def plot_events(
 # %%
 
 
-def extract_event(df: pd.DataFrame) -> dict:
+def extract_event(eventdf: pd.DataFrame) -> dict:
     """
     extract timestamp of the messages
 
     Parameters
     ----------
-    df : pd.DataFrame
+    eventdfdf : pd.DataFrame
         pandasDataFrame containing the taphonius events.
 
     Returns
@@ -438,7 +439,7 @@ def extract_event(df: pd.DataFrame) -> dict:
     messages = [_.lower() for _ in messages]
 
     ser = pd.Series(dtype=str)
-    for index, event in df.events.iteritems():
+    for index, event in eventdf.events.iteritems():
         for message in messages:
             if message in event:
                 ser.loc[index] = event
@@ -467,27 +468,27 @@ def build_dataframe(acts) -> pd.DataFrame:
     dflist = []
     for act, event in acts.items():
         colname = names.get(act, "notdefined")
-        df = pd.DataFrame(event, columns=["dt", colname]).set_index("dt")
-        dflist.append(df)
+        actdf = pd.DataFrame(event, columns=["dt", colname]).set_index("dt")
+        dflist.append(actdf)
         if colname == "notdefined":
             print(f"manage_events.build_dataframe : names should be updated for {act}")
-    df = pd.concat(dflist).sort_index()
+    acts_df = pd.concat(dflist).sort_index()
 
-    return df
+    return acts_df
 
 
 # %%
 if __name__ == "__main__":
     import anesplot.record_main as rec
 
-    afile = "before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
-    afile = "Anonymous/Patients2021AUG10/Record13_36_34/SD2021AUG10-13_36_34.csv"
-    afile = (
+    AFILE = "before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
+    AFILE = "Anonymous/Patients2021AUG10/Record13_36_34/SD2021AUG10-13_36_34.csv"
+    AFILE = (
         "before2020/Anonymous/Patients2014NOV07/Record19_34_48/SD2014NOV7-19_34_49.csv"
     )
-    afile = "before2020/BELAMIDUBOCAGE_A15-8244/Patients2015JUN25/Record15_48_30/SD2015JUN25-15_48_30.csv"
+    AFILE = "before2020/BELAMIDUBOCAGE_A15-8244/Patients2015JUN25/Record15_48_30/SD2015JUN25-15_48_30.csv"
 
-    file_name = os.path.join(rec.paths["taph_data"], afile)
+    file_name = os.path.join(rec.paths["taph_data"], AFILE)
     # see the taphClass
     ttrend = rec.TaphTrend(file_name)
     ttrend.extract_events()
