@@ -16,10 +16,12 @@ paths = rec.paths
 paths["save"] = "~"
 
 # %% load and save to hdf
-filename = ""
-mtrends = rec.MonitorTrend(file_name)
+m_name = ""
+mtrends = rec.MonitorTrend(m_name)
 mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))
 ttrends = rec.TaphTrend(monitorname=mtrends.filename)
+t_name = ''
+ttrends = rec.TaphTrend(t_name)
 
 name = mtrends.header["Patient Name"].title().replace(" ", "")
 name = name[0].lower() + name[1:]
