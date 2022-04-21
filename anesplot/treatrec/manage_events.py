@@ -140,7 +140,8 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
             dico[themoment] = event
 
         batch = pd.Series(dico, dtype="object", name="events")
-        if batch.index.values in events_ser.index.values:
+        #        if batch.index.values in events_ser.index.values:
+        if set(batch.index.values) < set(events_ser.index.values):
             # two events at the same index
             for dt in batch.index:
                 if dt in events_ser:
