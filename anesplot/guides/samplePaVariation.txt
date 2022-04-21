@@ -1,0 +1,7 @@
+# plt sample arterial pressure variation
+mwaves.plot_wave(["wap"])
+## adapt the scale
+# lims = ()
+# plt.gcf().get_axes()[0].set_xlim()
+mwaves.save_roi()
+mwaves.plot_sample_systolic_variation()
