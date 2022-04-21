@@ -134,7 +134,7 @@ def get_peaks(
 
 
 def compute_systolic_variation(ser: pd.Series) -> float:
-    """return the systolic variation : (maxi - mini) / mean """
+    """return the systolic variation : (maxi - mini) / mean"""
 
     maxi, mini, mean = ser.agg(["max", "min", "mean"])
     return (maxi - mini) / mean
@@ -308,7 +308,16 @@ def plot_record_systolic_variation(mwave, annotations=False):
     # start = df.index.min()
     end = df.index.max()
     indexes = list(df.loc[df.local_max].index)
-    for b1, b2 in zip([0,] + indexes, indexes + [end,]):
+    for b1, b2 in zip(
+        [
+            0,
+        ]
+        + indexes,
+        indexes
+        + [
+            end,
+        ],
+    ):
         df.loc[b1:b2, "sys_var"] = compute_systolic_variation(df.loc[b1:b2, "wap"])
     df["i_pr"] = (1 / (df.sloc - df.sloc.shift(1))) * 60
 

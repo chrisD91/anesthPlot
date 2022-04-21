@@ -33,6 +33,7 @@ import os
 import sys
 from datetime import datetime, timedelta
 from importlib import reload
+from typing import Tuple
 
 import matplotlib
 
@@ -673,10 +674,14 @@ class _FastWave(_Waves):
         else:
             print("no roi attribute, please use record_roi() to build one")
 
-    def plot_sample_systolic_variation(self):
+    def plot_sample_systolic_variation(
+        self, lims: Tuple = None, teach: bool = False, annotations: bool = False
+    ):
         "plot the systolic variation"
         if self.roi:
-            treatrec.arterial_func.plot_sample_systolic_pressure_variation(self)
+            treatrec.arterial_func.plot_sample_systolic_pressure_variation(
+                self, lims, teach, annotations
+            )
             # wplot.plot_systolic_pressure_variation(self)
         else:
             print("please define a ROI using mwave.save_a_roi")

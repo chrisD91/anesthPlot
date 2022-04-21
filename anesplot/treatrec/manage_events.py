@@ -397,7 +397,12 @@ def plot_events(
         # pos = (mdates.date2num(dt), 1)
         pos = (dt, 1)
         ax.annotate(
-            event, pos, rotation=45, va="bottom", ha="left", color=color,
+            event,
+            pos,
+            rotation=45,
+            va="bottom",
+            ha="left",
+            color=color,
         )
     if dtime:
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
