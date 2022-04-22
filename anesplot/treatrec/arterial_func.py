@@ -308,16 +308,7 @@ def plot_record_systolic_variation(mwave, annotations=False):
     # start = df.index.min()
     end = df.index.max()
     indexes = list(df.loc[df.local_max].index)
-    for b1, b2 in zip(
-        [
-            0,
-        ]
-        + indexes,
-        indexes
-        + [
-            end,
-        ],
-    ):
+    for b1, b2 in zip([0,] + indexes, indexes + [end,],):
         df.loc[b1:b2, "sys_var"] = compute_systolic_variation(df.loc[b1:b2, "wap"])
     df["i_pr"] = (1 / (df.sloc - df.sloc.shift(1))) * 60
 
