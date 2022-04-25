@@ -117,7 +117,7 @@ def build_obj_from_hdf(savename: str):
             new_mtrends.header = df_to_dico_with_none(store.get("mtrends_header").T)
             new_mtrends.param = df_to_dico_with_none(store.get("mtrends_param").T)
             new_mtrends.filename = new_mtrends.param["filename"]
-            messages.append(f"{'-'*10} loaded mtrends {'-'*10}")
+            messages.append(f"{'-'*10} loaded mtrends from hdf {'-'*10}")
 
         new_ttrends = rec.TaphTrend(filename="", load=False)
         if "/" + "ttrends_data" in keys:
@@ -126,7 +126,7 @@ def build_obj_from_hdf(savename: str):
             new_ttrends.param = df_to_dico_with_none(store.get("ttrends_param").T)
             new_ttrends.filename = new_ttrends.param["filename"]
             new_ttrends.extract_events()
-            messages.append(f"{'-'*10} loaded ttrends {'-'*10}")
+            messages.append(f"{'-'*10} loaded ttrends from hdf {'-'*10}")
 
         new_mwaves = rec.MonitorWave(filename="", load=False)
         if "/" + "mwaves_data" in keys:
@@ -134,7 +134,7 @@ def build_obj_from_hdf(savename: str):
             new_mwaves.header = df_to_dico_with_none(store.get("mwaves_header").T)
             new_mwaves.param = df_to_dico_with_none(store.get("mwaves_param").T)
             new_mwaves.filename = new_mwaves.param["filename"]
-            messages.append(f"{'-'*10} loaded mwaves {'-'*10}")
+            messages.append(f"{'-'*10} loaded mwaves from hdf {'-'*10}")
     print()
     for message in messages:
         print(message)
