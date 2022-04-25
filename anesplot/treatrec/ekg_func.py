@@ -47,21 +47,57 @@ def plot_sample_ekgbeat_overlap(mwave, lims: Tuple = None, threshold=-1) -> plt.
 
     beatloc_df = detect_beats(ser.dropna(), threshold=threshold)
     beatloc_df["x_loc"] = datadf.index[beatloc_df.p_loc]
+    if beatloc_df.empty:
+        print("no beat detected, change threshold?")
+        fig = plt.figure(figsize=(5, 5))
+        title = "no beat detected"
+        fig.suptitle(title)
+        ax = fig.add_subplot(111)
+        ax.hist(ser, bins=30, log=True, orientation="horizontal")
+        ax.set_ylabel("mv")
+        ax.set_ymargin(0.1)
+        ax.axhline(threshold, linewidth=3, color="r")
+        txt = f"actual {threshold=}"
+        ax.text(
+            1,
+            0.5,
+            txt,
+            horizontalalignment="right",
+            verticalalignment="center",
+            transform=ax.transAxes,
+            color="r",
+        )
+        txt = "? change threshold value in the function call ?"
+        ax.text(
+            1,
+            0.3,
+            txt,
+            horizontalalignment="right",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
+        ax.axhline(threshold, linewidth=3, color="r")
+        for spine in ["top", "right", "bottom"]:
+            ax.spines[spine].set_visible(False)
+        fig.tight_layout()
+        plt.show()
+        return fig
 
     interbeat_sec = (beatloc_df.x_loc.shift(-1) - beatloc_df.x_loc).dropna().median()
-    # interbeat *= .5
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 4))
     ax = fig.add_subplot(111)
     for i, x_loc in enumerate(beatloc_df.x_loc):
         x_loc = beatloc_df.x_loc[i]
-        beat = datadf.loc[x_loc - 0.3 * interbeat_sec : x_loc + 0.4 * interbeat_sec]
+        beat = datadf.loc[x_loc - 0.3 * interbeat_sec : x_loc + 0.5 * interbeat_sec]
         beat.index = beat.index - x_loc
-        ax.plot(beat)
+        ax.plot(beat, label=i)
     ax.set_ymargin(0.1)
+    # ax.legend()
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
-    ax.axhline(y=0, color="k")
+    ax.axhline(y=0, color="tab:grey")
+    ax.axvline(x=0, color="tab:grey")
     ax.set_ylabel("ekg (mv)")
     ax.set_xlabel("time (sec)")
 

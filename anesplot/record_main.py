@@ -690,6 +690,12 @@ class _FastWave(_Waves):
         "plot the systolic variation"
         treatrec.arterial_func.plot_record_systolic_variation(self)
 
+    def plot_sample_ekgbeat_overlap(self, threshold=-1, lims=None):
+        "overlap a sample ekg R centered traces"
+        treatrec.ekg_func.plot_sample_ekgbeat_overlap(
+            self, lims=lims, threshold=threshold
+        )
+
 
 class TelevetWave(_FastWave):
     """
