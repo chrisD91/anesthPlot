@@ -56,9 +56,6 @@ def fix_baseline_wander(ekg_ser: pd.Series, fs: int = 300) -> pd.Series:
     return pd.Series(data=ekg_filtered, index=ekg_ser.index)
 
 
-# TODO = return a pd.Series
-
-
 def rol_mean(ser: pd.Series, win_lengh: int = 1, fs: int = 500) -> list:
     """
     returns a rolling mean of a RR serie

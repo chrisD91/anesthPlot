@@ -57,14 +57,18 @@ def get_peaks(
     ser_detrended = fix_baseline_wander(ser, 300)
     height = ser_detrended.quantile(q=QUANTILE)
     # find the (up) peaks
+    peaksdf = pd.DataFrame()
     if up:
-        peaks, properties = find_peaks(
+        peaksdf["ploc"], properties = find_peaks(
             ser_detrended, height=height, distance=DISTANCE, width=WIDTH
         )
     else:
-        peaks, properties = find_peaks(
+        peaksdf["ploc"], properties = find_peaks(
             -ser_detrended, height=-height, distance=DISTANCE, width=WIDTH
         )
+    peaksdf["sloc"] = ser.index[peaksdf.ploc]
+    for k, v in properties.items():
+        peaksdf[k] = v
     if annotations:
         fig = plt.figure()
         fig.suptitle("arterial_func.get_peaks (trace = detrended one's)")
@@ -72,7 +76,8 @@ def get_peaks(
         ax0 = fig.add_subplot(211)
         ax0.plot(ser_detrended, "-r")
         ax0.axhline(height)
-        ax0.plot(peaks, ser_detrended.iloc[peaks], "og")
+        # ax0.plot(peaks, ser_detrended.iloc[peaks], "og")
+        ax0.plot(peaksdf.sloc, ser_detrended.loc[peaksdf.sloc], "og")
         ax0.set_ylim(
             floor(min(ser_detrended) / 10) * 10, ceil(max(ser_detrended) / 10) * 10
         )
@@ -101,22 +106,14 @@ def get_peaks(
         fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
         fig.tight_layout()
     # remove artefact:
-    artefact = np.where(properties["widths"] < LOW_WIDTH)[0]
+    artefact = np.where(peaksdf.widths < LOW_WIDTH)[0]
     if annotations:
-        ax0.plot(artefact, ser_detrended.loc[artefact], "or")
+        ax0.plot(artefact, ser_detrended.iloc[artefact], "or")
         ax1.text(0.7, 0.2, f"{artefact=}", transform=ax1.transAxes, ha="left")
-    peaks = np.delete(peaks, artefact)
-    for k, v in properties.items():
-        properties[k] = np.delete(v, artefact)
-    # ser -> peak_df (ie restrict index)
-    peaksdf = ser.reset_index().loc[peaks]
-    peaksdf = peaksdf.rename(columns={"sec": "sloc"})
-    peaksdf.index.name = "ploc"
-    peaksdf = peaksdf.reset_index()
-    # append heights
-    for key in properties:
-        peaksdf[key] = properties[key]
+    peaksdf.drop(labels=artefact, inplace=True)
+    peaksdf.reset_index(inplace=True)
     # get local min max
+    peaksdf["wap"] = ser[peaksdf.sloc].values
     peaksdf["local_max"] = False
     peaksdf["local_min"] = False
     # get local max

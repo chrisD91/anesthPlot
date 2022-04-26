@@ -83,15 +83,17 @@ def plot_sample_ekgbeat_overlap(mwave, lims: Tuple = None, threshold=-1) -> plt.
         plt.show()
         return fig
 
-    interbeat_sec = (beatloc_df.x_loc.shift(-1) - beatloc_df.x_loc).dropna().median()
+    # interbeat_sec = (beatloc_df.x_loc.shift(-1) - beatloc_df.x_loc).dropna().median()
 
     fig = plt.figure(figsize=(8, 4))
     ax = fig.add_subplot(111)
     for i, x_loc in enumerate(beatloc_df.x_loc):
         x_loc = beatloc_df.x_loc[i]
-        beat = ekgdf.loc[x_loc - 0.3 * interbeat_sec : x_loc + 0.5 * interbeat_sec]
+        # beat = ekgdf.loc[x_loc - 0.3 * interbeat_sec : x_loc + 0.5 * interbeat_sec]
+        beat = ekgdf.loc[x_loc - 0.3 : x_loc + 0.5]
         beat.index = beat.index - x_loc
-        ax.plot(beat, label=i)
+        ax.plot(beat, label=i, alpha=0.8)
+    ax.grid()
     ax.set_ymargin(0.1)
     # ax.legend()
     for spine in ["top", "right"]:
