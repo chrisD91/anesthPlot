@@ -36,24 +36,24 @@ def plot_sample_ekgbeat_overlap(mwave, lims: Tuple = None, threshold=-1) -> plt.
         the matplotlib figure.
 
     """
-    datadf = mwave.data[["sec", "wekg"]].dropna().copy()
+    ekgdf = mwave.data[["sec", "wekg"]].dropna().copy()
     if lims is None:
         lims = mwave.roi["sec"]
         # lims = (df.iloc[0].sec, df.iloc[0].sec + 60)
-    datadf = datadf.set_index("sec").loc[lims[0] : lims[1]]
+    ekgdf = ekgdf.set_index("sec").loc[lims[0] : lims[1]]
 
     # find the R peaks
-    ser = fix_baseline_wander(datadf.wekg, mwave.param["sampling_freq"])
+    ekgser = fix_baseline_wander(ekgdf.wekg, mwave.param["sampling_freq"])
 
-    beatloc_df = detect_beats(ser.dropna(), threshold=threshold)
-    beatloc_df["x_loc"] = datadf.index[beatloc_df.p_loc]
+    beatloc_df = detect_beats(ekgser.dropna(), threshold=threshold)
+    # beatloc_df["x_loc"] = ekgdf.index[beatloc_df.p_loc]
     if beatloc_df.empty:
         print("no beat detected, change threshold?")
         fig = plt.figure(figsize=(5, 5))
         title = "no beat detected"
         fig.suptitle(title)
         ax = fig.add_subplot(111)
-        ax.hist(ser, bins=30, log=True, orientation="horizontal")
+        ax.hist(ekgser, bins=30, log=True, orientation="horizontal")
         ax.set_ylabel("mv")
         ax.set_ymargin(0.1)
         ax.axhline(threshold, linewidth=3, color="r")
@@ -89,7 +89,7 @@ def plot_sample_ekgbeat_overlap(mwave, lims: Tuple = None, threshold=-1) -> plt.
     ax = fig.add_subplot(111)
     for i, x_loc in enumerate(beatloc_df.x_loc):
         x_loc = beatloc_df.x_loc[i]
-        beat = datadf.loc[x_loc - 0.3 * interbeat_sec : x_loc + 0.5 * interbeat_sec]
+        beat = ekgdf.loc[x_loc - 0.3 * interbeat_sec : x_loc + 0.5 * interbeat_sec]
         beat.index = beat.index - x_loc
         ax.plot(beat, label=i)
     ax.set_ymargin(0.1)

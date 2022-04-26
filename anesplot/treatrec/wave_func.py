@@ -13,17 +13,17 @@ from scipy.signal import medfilt
 
 
 # //////////////////////////////////////////////// cardio
-def fix_baseline_wander(data: pd.Series, fs: int = 500) -> pd.Series:
+def fix_baseline_wander(ekg_ser: pd.Series, fs: int = 300) -> pd.Series:
     """BaselineWanderRemovalMedian.m from ecg-kit.  Given a list of amplitude values
-    (data) and sample rate (sr), it applies two median filters to data to
+    (ekg_ser) and sample rate (sr), it applies two median filters to data to
     compute the baseline.  The returned result is the original data minus this
     computed baseline.
 
     Parameters
     ----------
-    data : pd.DataFrame
+    ekg_ser : pd.DataFrame
         the wave recording.
-    fs : int, optional (default is 500)
+    fs : int, optional (default is 300)
         The sampling frequency.
 
     Returns
@@ -40,20 +40,20 @@ def fix_baseline_wander(data: pd.Series, fs: int = 500) -> pd.Series:
     # print("Alex Page, alex.page@rochester.edu")
     # print("https://bitbucket.org/atpage/baselinewanderremoval/src/master/")
 
-    data = np.array(data)
+    ekg_array = ekg_ser.values
     winsize = int(round(0.2 * fs))
     # delayBLR = round((winsize-1)/2)
     if winsize % 2 == 0:
         winsize += 1
-    baseline_estimate = medfilt(data, kernel_size=winsize)
+    baseline_array = medfilt(ekg_array, kernel_size=winsize)
     winsize = int(round(0.6 * fs))
     # delayBLR = delayBLR + round((winsize-1)/2)
     if winsize % 2 == 0:
         winsize += 1
-    baseline_estimate = medfilt(baseline_estimate, kernel_size=winsize)
-    ecg_blr = data - baseline_estimate
+    baseline_array = medfilt(baseline_array, kernel_size=winsize)
+    ekg_filtered = ekg_array - baseline_array
     # return ecg_blr.tolist()
-    return pd.Series(ecg_blr)
+    return pd.Series(data=ekg_filtered, index=ekg_ser.index)
 
 
 # TODO = return a pd.Series

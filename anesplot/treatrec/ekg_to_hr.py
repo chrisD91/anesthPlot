@@ -159,7 +159,7 @@ def detect_beats(
 
     """
 
-    onepointbeatlocdf = pd.DataFrame()
+    beatlocdf = pd.DataFrame()
     # fs = param.get('fs', 300)
     if species == "horse":
         height = 1.0  # mini
@@ -170,7 +170,7 @@ def detect_beats(
         #    plateau_size= 1
     else:
         print("no parametrisation performed ... to be done")
-        return onepointbeatlocdf
+        return beatlocdf
     # correcttion
     height *= abs(threshold)
     prominence *= abs(threshold)
@@ -179,13 +179,14 @@ def detect_beats(
     pk, beats_params = sg.find_peaks(
         ser * sign, height=height, distance=distance, prominence=prominence
     )
-    onepointbeatlocdf["p_loc"] = pk
+    beatlocdf["p_loc"] = pk
+    beatlocdf["x_loc"] = ser.index[beatlocdf.p_loc]
     for key in beats_params.keys():
-        onepointbeatlocdf[key] = beats_params[key]
-    if "peak_heights" in onepointbeatlocdf.columns:
-        onepointbeatlocdf = onepointbeatlocdf.rename(columns={"peak_heights": "y_loc"})
-        onepointbeatlocdf.y_loc *= -1  # inverted trace <-> horse R wave
-    return onepointbeatlocdf
+        beatlocdf[key] = beats_params[key]
+    if "peak_heights" in beatlocdf.columns:
+        beatlocdf = beatlocdf.rename(columns={"peak_heights": "y_loc"})
+        beatlocdf.y_loc *= -1  # inverted trace <-> horse R wave
+    return beatlocdf
 
 
 # ekg_df.wekg_lowpass, beat_df)
