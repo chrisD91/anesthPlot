@@ -1245,6 +1245,7 @@ def sat_hr(datadf: pd.DataFrame, param: dict) -> plt.Figure:
 
     axl.set_ylim(60, 100)
     axr.set_ylim(25, 70)
+    axl.axhline(90, color='tab:red', linestyle=':', alpha=0.8)
     axr.spines["left"].set_visible(False)
 
     # annotations
