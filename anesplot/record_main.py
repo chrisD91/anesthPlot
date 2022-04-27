@@ -105,14 +105,6 @@ def choosefile_gui(dirname: str = None) -> str:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
-    ##########
-    # print("define widget")
-    # wid = QWidget()
-    # print("show command")
-    # wid.show()
-    # print("define options")
-    # options = QFileDialog.Options()
-    # options |= QFileDialog.DontUseNativeDialog
     print("define QFiledialog")
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
@@ -194,35 +186,62 @@ def select_wave_to_plot(waves: list, num=1) -> str:
     return selection
 
 
-def choose_trendplot(funclist: list):
+def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.figure:
     """
-    select the trendplot to build
+    choose and generate a trend plot
 
     Parameters
     ----------
-    funclist : list
-        list of available plotting functions
+    datadf : pd.DataFrame
+        recorded data (MonitorTrend.data or TaphTrend.data).
+    header : dict
+        recording parameters (MonitorTrend.header or TaphTrend.header).
+    param_dico : dict
+        plotting parameters (MonitorTrend.param or TaphTrend.param).
+
     Returns
     -------
-    selection : the selected function (or None)
+    plt.figure
+        the builded figure
     """
+    # clean the data for taph monitoring
+    if param_dico["source"] == "taphTrend":
+        if "co2exp" in datadf.columns.values:
+            datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
+        # test ip1m
+        if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
+            datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
+        else:
+            print("no pressure tdata recorded")
+    # plotting
+    func_list = [
+        tplot.ventil,
+        tplot.co2o2,
+        tplot.co2iso,
+        tplot.cardiovasc,
+        tplot.hist_co2_iso,
+        tplot.hist_cardio,
+    ]
+    if param_dico["source"] == "taphTrend":
+        func_list.insert(0, tplot.sat_hr)
+    # choose
     global APP
-    question = "choose wave to plot"
+    question = "choose function"
     #    APP = QApplication(sys.argv)
     widg = QWidget()
-    funclist.reverse()
-    names = [st.__name__ for st in funclist]
+    func_list.reverse()
+    names = [st.__name__ for st in func_list]
     name, ok_pressed = QInputDialog.getItem(widg, "select", question, names, 0, False)
-    if ok_pressed and name:
-        func = [_ for _ in funclist if _.__name__ == name][0]
-    else:
-        func = None
-    return func
+    if not ok_pressed and name:
+        return plt.figure()
+    func = [_ for _ in func_list if _.__name__ == name][0]
+    # plot
+    fig = func(datadf, param_dico)
+    plt.show()
+    return fig, name
 
 
-def plot_trenddata(
-    datadf: pd.DataFrame, header: dict, param_dico: dict, single: bool = False
-) -> dict:
+def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict:
     """
     generate a series of plots for anesthesia debriefing purposes
 
@@ -263,20 +282,11 @@ def plot_trenddata(
     ]
     if param_dico["source"] == "taphTrend":
         plot_func_list.insert(0, tplot.sat_hr)
-    # single = True
-    if single:
-        print("choose a figure to plot")
-        func = choose_trendplot(plot_func_list)
-        if func is not None:
-            afig_list.append(func(datadf, param_dico))
-        else:
-            return {}
-    else:
-        print("building figures")
-        for func in plot_func_list:
-            afig_list.append(func(datadf, param_dico))
-        if header:
-            afig_list.append(tplot.plot_header(header, param_dico))
+    print("building figures")
+    for func in plot_func_list:
+        afig_list.append(func(datadf, param_dico))
+    if header:
+        afig_list.append(tplot.plot_header(header, param_dico))
     # print("plt.show")
     plt.show()
     names = [st.__name__ for st in plot_func_list]
@@ -364,7 +374,7 @@ class _SlowWave(_Waves):
             print("recording is empty : no data to plot")
             fig_dico = {}
         else:
-            fig_dico = plot_trenddata(self.data, self.header, self.param, single=True)
+            fig_dico = plot_a_trend(self.data, self.header, self.param)
         return fig_dico
 
 
@@ -629,7 +639,6 @@ class _FastWave(_Waves):
                 )
                 print("returned from wplot.plot_wave")
                 self.trace_list = traces_list
-                # pyperclip.copy(str(traces_list))
                 plt.show()  # required to display the plot before exiting
             else:
                 self.trace_list = None
@@ -641,7 +650,7 @@ class _FastWave(_Waves):
 
     def save_roi(self, erase: bool = False) -> dict:
         """
-        define a Region Of Interest (roi).
+        memorize a Region Of Interest (roi).
 
         Parameters
         ----------
