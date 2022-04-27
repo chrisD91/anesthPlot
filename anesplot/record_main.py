@@ -194,7 +194,35 @@ def select_wave_to_plot(waves: list, num=1) -> str:
     return selection
 
 
-def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict:
+def choose_trendplot(funclist: list):
+    """
+    select the trendplot to build
+
+    Parameters
+    ----------
+    funclist : list
+        list of available plotting functions
+    Returns
+    -------
+    selection : the selected function (or None)
+    """
+    global APP
+    question = "choose wave to plot"
+    #    APP = QApplication(sys.argv)
+    widg = QWidget()
+    funclist.reverse()
+    names = [st.__name__ for st in funclist]
+    name, ok_pressed = QInputDialog.getItem(widg, "select", question, names, 0, False)
+    if ok_pressed and name:
+        func = [_ for _ in funclist if _.__name__ == name][0]
+    else:
+        func = None
+    return func
+
+
+def plot_trenddata(
+    datadf: pd.DataFrame, header: dict, param_dico: dict, single: bool = False
+) -> dict:
     """
     generate a series of plots for anesthesia debriefing purposes
 
@@ -224,7 +252,6 @@ def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict
         else:
             print("no pressure tdata recorded")
     afig_list = []
-    print("building figures")
     # plotting
     plot_func_list = [
         tplot.ventil,
@@ -236,12 +263,21 @@ def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict
     ]
     if param_dico["source"] == "taphTrend":
         plot_func_list.insert(0, tplot.sat_hr)
-    for func in plot_func_list:
-        afig_list.append(func(datadf, param_dico))
-
-    if header:
-        afig_list.append(tplot.plot_header(header, param_dico))
-    print("plt.show")
+    # single = True
+    if single:
+        print("choose a figure to plot")
+        func = choose_trendplot(plot_func_list)
+        if func is not None:
+            afig_list.append(func(datadf, param_dico))
+        else:
+            return {}
+    else:
+        print("building figures")
+        for func in plot_func_list:
+            afig_list.append(func(datadf, param_dico))
+        if header:
+            afig_list.append(tplot.plot_header(header, param_dico))
+    # print("plt.show")
     plt.show()
     names = [st.__name__ for st in plot_func_list]
     if header:
@@ -320,6 +356,15 @@ class _SlowWave(_Waves):
             fig_dico = {}
         else:
             fig_dico = plot_trenddata(self.data, self.header, self.param)
+        return fig_dico
+
+    def plot_trend(self):
+        """choose the graph to use from a pulldown menu"""
+        if self.data.empty:
+            print("recording is empty : no data to plot")
+            fig_dico = {}
+        else:
+            fig_dico = plot_trenddata(self.data, self.header, self.param, single=True)
         return fig_dico
 
 
