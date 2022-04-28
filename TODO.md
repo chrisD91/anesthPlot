@@ -14,6 +14,10 @@
 
 - [x] module 'plot.wave_plot' has no attribute 'plot_systolic_pressure_variations'
 
-- [ ] build a function to choose a plot from a list for monitor  or taph record
+- [x] build a function to choose a plot from a list for monitor  or taph record
 
 - [ ] fix time correction for taph records and plot_ventil_dive (plot is not updated after a time shift)
+
+- [ ] build a trend save_roi the same way for trends as for waves
+
+- [ ] homogeneize the return elements of the plot function for trends
