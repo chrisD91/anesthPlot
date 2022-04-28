@@ -4,16 +4,24 @@
 Created on Thu Apr 28 16:20:50 2022
 
 @author: cdesbois
+
 """
+import os
+from typing import Tuple
+
 import matplotlib.pyplot as plt
 
+from config.load_recordrc import build_paths
+paths = build_paths()
 
 from base import _Waves
 import treatrec.wave_func as wf
 import plot.w_agg_plot as wagg
 import plot.wave_plot as wplot
-
-
+import loadrec.agg_load as loadagg
+from loadrec import loadmonitor_waverecord as lmw
+import treatrec
+from loadrec import loadtelevet as ltv
 
 # ++++++++
 class _FastWave(_Waves):
