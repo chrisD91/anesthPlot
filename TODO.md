@@ -21,3 +21,14 @@
 - [ ] build a trend save_roi the same way for trends as for waves
 
 - [x] homogeneize the return elements of the plot function for trends
+
+- [ ] mwaves.data.columns :
+
+    - [ ] change sec by eTimeSec
+    - [ ] append eTimeMin
+    - [ ] change time by dtime
+
+- [ ] mtrends.data.columns
+
+    - [ ] change datetime by dtime
+    - [ ] change eTime by eTimeSec

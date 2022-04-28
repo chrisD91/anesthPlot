@@ -226,7 +226,7 @@ def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.fi
         func_list.insert(0, tplot.sat_hr)
     # choose
     global APP
-    question = "choose function"
+    question = "choose the function to use"
     #    APP = QApplication(sys.argv)
     widg = QWidget()
     func_list.reverse()
@@ -376,7 +376,7 @@ class _SlowWave(_Waves):
             name = ""
         else:
             print(f"{'-' * 20} started trends plot_trend)")
-            print(f"{'-' * 10}> choose the wave(s)")
+            print(f"{'-' * 10}> choose the trace")
             fig, name = plot_a_trend(self.data, self.header, self.param)
             print(f"{'-' * 20} ended trends plot_trend")
         return fig, name
