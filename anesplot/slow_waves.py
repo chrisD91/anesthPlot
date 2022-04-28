@@ -8,8 +8,10 @@ Created on Thu Apr 28 16:20:28 2022
 import os
 from datetime import datetime
 
+import pandas as pd
 
 from config.load_recordrc import build_paths
+
 paths = build_paths()
 from base import _Waves
 import loadrec.agg_load as loadagg

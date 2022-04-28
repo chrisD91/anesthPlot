@@ -31,16 +31,22 @@ nb to work within spyder : move inside anestplot (>> cd anesplot)
 import faulthandler
 import os
 import sys
+import pyperclip
 
 import matplotlib
+from matplotlib import rcParams
+import matplotlib.pyplot as plt
 
 matplotlib.use("Qt5Agg")  # NB required for the dialogs
+import pandas as pd
 
 from config.load_recordrc import build_paths
+from PyQt5.QtWidgets import QApplication
 
 paths = build_paths()
 
-# import loadrec.agg_load as loadagg
+import loadrec.agg_load as loadagg
+
 # import plot.t_agg_plot as tagg
 # import plot.w_agg_plot as wagg
 
@@ -86,7 +92,6 @@ def get_basic_debrief_commands():
 def trendname_to_wavename(name: str) -> str:
     """just compute the supposed (full)name"""
     return name.split(".")[0] + "Wave.csv"
-
 
 
 def main(file_name: str = None):

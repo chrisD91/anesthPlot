@@ -10,8 +10,10 @@ import os
 from typing import Tuple
 
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from config.load_recordrc import build_paths
+
 paths = build_paths()
 
 from base import _Waves

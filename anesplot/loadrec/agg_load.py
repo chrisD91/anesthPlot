@@ -8,6 +8,7 @@ Created on Thu Apr 28 15:50:27 2022
 
 from PyQt5.QtWidgets import QInputDialog, QWidget, QFileDialog
 
+
 def choosefile_gui(dirname: str = None) -> str:
     """Select a file via a dialog and return the (full) filename.
 
@@ -36,6 +37,7 @@ def choosefile_gui(dirname: str = None) -> str:
     if isinstance(fname, tuple):
         return fname[0]
     return str(fname)
+
 
 def select_type(question: str = None, items: list = None, num: int = 0) -> str:
     """
