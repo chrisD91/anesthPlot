@@ -51,7 +51,9 @@ paths = build_paths()
 
 
 import plot.trend_plot as tplot
+import plot.t_agg_plot as tagg
 import plot.wave_plot as wplot
+import plot.w_agg_plot as wagg
 import treatrec
 import treatrec.clean_data as clean
 import treatrec.wave_func as wf
@@ -308,6 +310,8 @@ class _Waves:
 
         """
         self.data = None
+        self.fig = None
+        self.roi = None
         self.header = None
         self.param = dict(
             xmin=None,
@@ -370,6 +374,7 @@ class _SlowWave(_Waves):
 
     def plot_trend(self):
         """choose the graph to use from a pulldown menu"""
+        # TODO add a preset if self.name is defined
         if self.data.empty:
             print("recording is empty : no data to plot")
             fig = plt.figure
@@ -379,7 +384,49 @@ class _SlowWave(_Waves):
             print(f"{'-' * 10}> choose the trace")
             fig, name = plot_a_trend(self.data, self.header, self.param)
             print(f"{'-' * 20} ended trends plot_trend")
+            self.fig = fig
+            self.name = name
         return fig, name
+
+    def save_roi(self, erase: bool = False) -> dict:
+        """
+        memorize a Region Of Interest (roi).
+
+        Parameters
+        ----------
+        erase : bool, optional (default is False)
+            takes the figure attribute
+
+        Returns
+        -------
+        dict that contains
+            dt : xscale datetime location
+            pt: xscale point location
+            sec: xscale seconde location
+            ylims: ylimits
+            traces: waves used to draw the figure
+            fig : the related figure
+
+        """
+        if erase:
+            roidict = {}
+        if self.fig:
+            roidict = tagg.get_trend_roi(self.fig, self.data, self.param)
+            roidict.update({"name": self.name, "fig": self.fig})
+        else:
+            print("no fig attribute, please use plot_trend() method to build one")
+            roidict = {}
+        self.roi = roidict
+        return roidict
+
+    def build_half_white(self):
+        if self.fig is None or self.name is None:
+            print("please build a figure to start with -> .plot_trend()")
+            return
+        if self.roi is None:
+            print("please define a roi -> .save_roi()")
+            return
+        tagg.build_half_white(self.fig, self.name, self.data, self.param, self.roi)
 
 
 class MonitorTrend(_SlowWave):
