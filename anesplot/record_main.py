@@ -269,35 +269,35 @@ def trendname_to_wavename(name: str) -> str:
 #     return fig_dico
 
 
-class _Waves:
-    """the base object to store the records."""
+# class _Waves:
+#     """the base object to store the records."""
 
-    def __init__(self):
-        """
-        :param filename: DESCRIPTION, defaults to None
-        :type filename: str, optional
-        :return: basic class for the records
-        :rtype: wave object
+#     def __init__(self):
+#         """
+#         :param filename: DESCRIPTION, defaults to None
+#         :type filename: str, optional
+#         :return: basic class for the records
+#         :rtype: wave object
 
-        """
-        self.data = None
-        self.fig = None
-        self.roi = None
-        self.header = None
-        self.param = dict(
-            xmin=None,
-            xmax=None,
-            ymin=0,
-            ymax=None,
-            path=paths.get("sFig", "~"),
-            unit="min",
-            save=False,
-            memo=False,
-            file=None,
-            source=None,
-            sampling_freq=None,
-            dtime=True,
-        )
+#         """
+#         self.data = None
+#         self.fig = None
+#         self.roi = None
+#         self.header = None
+#         self.param = dict(
+#             xmin=None,
+#             xmax=None,
+#             ymin=0,
+#             ymax=None,
+#             path=paths.get("sFig", "~"),
+#             unit="min",
+#             save=False,
+#             memo=False,
+#             file=None,
+#             source=None,
+#             sampling_freq=None,
+#             dtime=True,
+#         )
 
 
 # +++++++

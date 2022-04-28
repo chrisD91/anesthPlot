@@ -5,10 +5,15 @@ Created on Thu Apr 28 16:20:50 2022
 
 @author: cdesbois
 """
+import matplotlib.pyplot as plt
+
+
 from base import _Waves
 import treatrec.wave_func as wf
 import plot.w_agg_plot as wagg
 import plot.wave_plot as wplot
+
+
 
 # ++++++++
 class _FastWave(_Waves):
