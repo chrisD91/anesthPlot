@@ -372,10 +372,14 @@ class _SlowWave(_Waves):
         """choose the graph to use from a pulldown menu"""
         if self.data.empty:
             print("recording is empty : no data to plot")
-            fig_dico = {}
+            fig = plt.figure
+            name = ""
         else:
-            fig_dico = plot_a_trend(self.data, self.header, self.param)
-        return fig_dico
+            print(f"{'-' * 20} started trends plot_trend)")
+            print(f"{'-' * 10}> choose the wave(s)")
+            fig, name = plot_a_trend(self.data, self.header, self.param)
+            print(f"{'-' * 20} ended trends plot_trend")
+        return fig, name
 
 
 class MonitorTrend(_SlowWave):
@@ -672,8 +676,8 @@ class _FastWave(_Waves):
         if erase:
             roidict = {}
         elif self.fig:
-            # roidict = wplot.get_roi(self)
-            roidict = wplot.get_roi(self.fig, self.data, self.param)
+            # roidict = wplot.get_wave_roi(self)
+            roidict = wplot.get_wave_roi(self.fig, self.data, self.param)
             roidict.update({"traces": self.trace_list, "fig": self.fig})
         else:
             print("no fig attribute, please use plot_wave() method to build one")

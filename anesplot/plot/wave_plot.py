@@ -227,7 +227,7 @@ def plot_wave(datadf: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
 # %%
 
 
-def get_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
+def get_wave_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     """
     use the drawn figure to extract the x and x limits
 

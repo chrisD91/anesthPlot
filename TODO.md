@@ -20,4 +20,4 @@
 
 - [ ] build a trend save_roi the same way for trends as for waves
 
-- [ ] homogeneize the return elements of the plot function for trends
+- [x] homogeneize the return elements of the plot function for trends
