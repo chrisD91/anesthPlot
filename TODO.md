@@ -18,7 +18,7 @@
 
 - [ ] fix time correction for taph records and plot_ventil_dive (plot is not updated after a time shift)
 
-- [ ] build a trend save_roi the same way for trends as for waves
+- [x] build a trend save_roi the same way for trends as for waves
 
 - [x] homogeneize the return elements of the plot function for trends
 

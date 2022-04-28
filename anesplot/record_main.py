@@ -49,11 +49,12 @@ from config.load_recordrc import build_paths
 
 paths = build_paths()
 
+import loadrec.agg_load as loadagg
+import plot.t_agg_plot as tagg
+import plot.w_agg_plot as wagg
 
 import plot.trend_plot as tplot
-import plot.t_agg_plot as tagg
 import plot.wave_plot as wplot
-import plot.w_agg_plot as wagg
 import treatrec
 import treatrec.clean_data as clean
 import treatrec.wave_func as wf
@@ -87,215 +88,185 @@ def get_basic_debrief_commands():
     return pyperclip.copy(" \n".join(lines))
 
 
-def choosefile_gui(dirname: str = None) -> str:
-    """Select a file via a dialog and return the (full) filename.
-
-    Parameters
-    ----------
-    dirname : str, optional (default is None)
-        DESCRIPTION. location to place the gui ('generally paths['data']) else home
-
-    Returns
-    -------
-    fname[0] : str
-        DESCRIPTION. : full name of the selected file
-
-    """
-    global APP
-
-    if dirname is None:
-        dirname = (
-            "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
-        )
-    print("define QFiledialog")
-    fname = QFileDialog.getOpenFileName(
-        None, "Select a file...", dirname, filter="All files (*)"
-    )
-    print("return")
-    if isinstance(fname, tuple):
-        return fname[0]
-    return str(fname)
-
-
 def trendname_to_wavename(name: str) -> str:
     """just compute the supposed (full)name"""
     return name.split(".")[0] + "Wave.csv"
 
 
-def select_type(question: str = None, items: list = None, num: int = 0) -> str:
-    """
-    display a pulldown menu to choose the kind of recording
+# def select_type(question: str = None, items: list = None, num: int = 0) -> str:
+#     """
+#     display a pulldown menu to choose the kind of recording
 
-    Parameters
-    ----------
-    question : str, optional
-        The question that APPears in the dialog (default is None).
-    items : list, optional
-        the list of all items in the pulldown menu. (default is None).
-    num : int, optional
-        number in the list the pointer will be one. The default is 0.
+#     Parameters
+#     ----------
+#     question : str, optional
+#         The question that APPears in the dialog (default is None).
+#     items : list, optional
+#         the list of all items in the pulldown menu. (default is None).
+#     num : int, optional
+#         number in the list the pointer will be one. The default is 0.
 
-    Returns
-    -------
-    str
-        kind of recording in [monitorTrend, monitorWave, taphTrend, telvet].
+#     Returns
+#     -------
+#     str
+#         kind of recording in [monitorTrend, monitorWave, taphTrend, telvet].
 
-    """
+#     """
 
-    if items is None:
-        items = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
-    if question is None:
-        question = "choose kind of file"
-    global APP
-    #    APP = QApplication(sys.argv)
-    widg = QWidget()
-    kind, ok_pressed = QInputDialog.getItem(widg, "select", question, items, num, False)
-    if ok_pressed and kind:
-        selection = kind
-    else:
-        selection = None
-    return selection
-
-
-def select_wave_to_plot(waves: list, num=1) -> str:
-    """
-    select the wave trace to plot
-
-    Parameters
-    ----------
-    waves : list
-        list of available waves traces
-    num : TYPE, optional
-        index of the waves in the plot (1 or 2)
-    Returns
-    -------
-    str
-        wave name
-    """
-
-    global APP
-    if num == 1:
-        question = "choose first wave"
-    if num == 2:
-        question = "do you want a second one ?"
-    #    APP = QApplication(sys.argv)
-    widg = QWidget()
-    wave, ok_pressed = QInputDialog.getItem(widg, "select", question, waves, 0, False)
-    if ok_pressed and wave:
-        selection = wave
-    else:
-        selection = None
-    return selection
+#     if items is None:
+#         items = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
+#     if question is None:
+#         question = "choose kind of file"
+#     global APP
+#     #    APP = QApplication(sys.argv)
+#     widg = QWidget()
+#     kind, ok_pressed = QInputDialog.getItem(widg, "select", question, items, num, False)
+#     if ok_pressed and kind:
+#         selection = kind
+#     else:
+#         selection = None
+#     return selection
 
 
-def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.figure:
-    """
-    choose and generate a trend plot
+# def select_wave_to_plot(waves: list, num=1) -> str:
+#     """
+#     select the wave trace to plot
 
-    Parameters
-    ----------
-    datadf : pd.DataFrame
-        recorded data (MonitorTrend.data or TaphTrend.data).
-    header : dict
-        recording parameters (MonitorTrend.header or TaphTrend.header).
-    param_dico : dict
-        plotting parameters (MonitorTrend.param or TaphTrend.param).
+#     Parameters
+#     ----------
+#     waves : list
+#         list of available waves traces
+#     num : TYPE, optional
+#         index of the waves in the plot (1 or 2)
+#     Returns
+#     -------
+#     str
+#         wave name
+#     """
 
-    Returns
-    -------
-    plt.figure
-        the builded figure
-    """
-    # clean the data for taph monitoring
-    if param_dico["source"] == "taphTrend":
-        if "co2exp" in datadf.columns.values:
-            datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
-        # test ip1m
-        if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
-            datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
-        else:
-            print("no pressure tdata recorded")
-    # plotting
-    func_list = [
-        tplot.ventil,
-        tplot.co2o2,
-        tplot.co2iso,
-        tplot.cardiovasc,
-        tplot.hist_co2_iso,
-        tplot.hist_cardio,
-    ]
-    if param_dico["source"] == "taphTrend":
-        func_list.insert(0, tplot.sat_hr)
-    # choose
-    global APP
-    question = "choose the function to use"
-    #    APP = QApplication(sys.argv)
-    widg = QWidget()
-    func_list.reverse()
-    names = [st.__name__ for st in func_list]
-    name, ok_pressed = QInputDialog.getItem(widg, "select", question, names, 0, False)
-    if not ok_pressed and name:
-        return plt.figure()
-    func = [_ for _ in func_list if _.__name__ == name][0]
-    # plot
-    fig = func(datadf, param_dico)
-    plt.show()
-    return fig, name
+#     global APP
+#     if num == 1:
+#         question = "choose first wave"
+#     if num == 2:
+#         question = "do you want a second one ?"
+#     #    APP = QApplication(sys.argv)
+#     widg = QWidget()
+#     wave, ok_pressed = QInputDialog.getItem(widg, "select", question, waves, 0, False)
+#     if ok_pressed and wave:
+#         selection = wave
+#     else:
+#         selection = None
+#     return selection
 
 
-def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict:
-    """
-    generate a series of plots for anesthesia debriefing purposes
+# def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.figure:
+#     """
+#     choose and generate a trend plot
 
-    Parameters
-    ----------
-    datadf : pd.DataFrame
-        recorded data (MonitorTrend.data or TaphTrend.data).
-    header : dict
-        recording parameters (MonitorTrend.header or TaphTrend.header).
-    param_dico : dict
-        plotting parameters (MonitorTrend.param or TaphTrend.param).
+#     Parameters
+#     ----------
+#     datadf : pd.DataFrame
+#         recorded data (MonitorTrend.data or TaphTrend.data).
+#     header : dict
+#         recording parameters (MonitorTrend.header or TaphTrend.header).
+#     param_dico : dict
+#         plotting parameters (MonitorTrend.param or TaphTrend.param).
 
-    Returns
-    -------
-    dict
-        afig_dico : {names:fig_obj} of displayed figures
+#     Returns
+#     -------
+#     plt.figure
+#         the builded figure
+#     """
+#     # clean the data for taph monitoring
+#     if param_dico["source"] == "taphTrend":
+#         if "co2exp" in datadf.columns.values:
+#             datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
+#         # test ip1m
+#         if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
+#             datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
+#         else:
+#             print("no pressure tdata recorded")
+#     # plotting
+#     func_list = [
+#         tplot.ventil,
+#         tplot.co2o2,
+#         tplot.co2iso,
+#         tplot.cardiovasc,
+#         tplot.hist_co2_iso,
+#         tplot.hist_cardio,
+#     ]
+#     if param_dico["source"] == "taphTrend":
+#         func_list.insert(0, tplot.sat_hr)
+#     # choose
+#     global APP
+#     question = "choose the function to use"
+#     #    APP = QApplication(sys.argv)
+#     widg = QWidget()
+#     func_list.reverse()
+#     names = [st.__name__ for st in func_list]
+#     name, ok_pressed = QInputDialog.getItem(widg, "select", question, names, 0, False)
+#     if not ok_pressed and name:
+#         return plt.figure()
+#     func = [_ for _ in func_list if _.__name__ == name][0]
+#     # plot
+#     fig = func(datadf, param_dico)
+#     plt.show()
+#     return fig, name
 
-    """
 
-    # clean the data for taph monitoring
-    if param_dico["source"] == "taphTrend":
-        if "co2exp" in datadf.columns.values:
-            datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
-        # test ip1m
-        if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
-            datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
-        else:
-            print("no pressure tdata recorded")
-    afig_list = []
-    # plotting
-    plot_func_list = [
-        tplot.ventil,
-        tplot.co2o2,
-        tplot.co2iso,
-        tplot.cardiovasc,
-        tplot.hist_co2_iso,
-        tplot.hist_cardio,
-    ]
-    if param_dico["source"] == "taphTrend":
-        plot_func_list.insert(0, tplot.sat_hr)
-    print("building figures")
-    for func in plot_func_list:
-        afig_list.append(func(datadf, param_dico))
-    if header:
-        afig_list.append(tplot.plot_header(header, param_dico))
-    # print("plt.show")
-    plt.show()
-    names = [st.__name__ for st in plot_func_list]
-    if header:
-        names.append("header")
-    fig_dico = dict(zip(names, afig_list))
-    return fig_dico
+# def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict:
+#     """
+#     generate a series of plots for anesthesia debriefing purposes
+
+#     Parameters
+#     ----------
+#     datadf : pd.DataFrame
+#         recorded data (MonitorTrend.data or TaphTrend.data).
+#     header : dict
+#         recording parameters (MonitorTrend.header or TaphTrend.header).
+#     param_dico : dict
+#         plotting parameters (MonitorTrend.param or TaphTrend.param).
+
+#     Returns
+#     -------
+#     dict
+#         afig_dico : {names:fig_obj} of displayed figures
+
+#     """
+
+#     # clean the data for taph monitoring
+#     if param_dico["source"] == "taphTrend":
+#         if "co2exp" in datadf.columns.values:
+#             datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
+#         # test ip1m
+#         if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
+#             datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
+#         else:
+#             print("no pressure tdata recorded")
+#     afig_list = []
+#     # plotting
+#     plot_func_list = [
+#         tplot.ventil,
+#         tplot.co2o2,
+#         tplot.co2iso,
+#         tplot.cardiovasc,
+#         tplot.hist_co2_iso,
+#         tplot.hist_cardio,
+#     ]
+#     if param_dico["source"] == "taphTrend":
+#         plot_func_list.insert(0, tplot.sat_hr)
+#     print("building figures")
+#     for func in plot_func_list:
+#         afig_list.append(func(datadf, param_dico))
+#     if header:
+#         afig_list.append(tplot.plot_header(header, param_dico))
+#     # print("plt.show")
+#     plt.show()
+#     names = [st.__name__ for st in plot_func_list]
+#     if header:
+#         names.append("header")
+#     fig_dico = dict(zip(names, afig_list))
+#     return fig_dico
 
 
 class _Waves:
@@ -369,7 +340,7 @@ class _SlowWave(_Waves):
             print("recording is empty : no data to plot")
             fig_dico = {}
         else:
-            fig_dico = plot_trenddata(self.data, self.header, self.param)
+            fig_dico = tagg.plot_trenddata(self.data, self.header, self.param)
         return fig_dico
 
     def plot_trend(self):
@@ -382,7 +353,7 @@ class _SlowWave(_Waves):
         else:
             print(f"{'-' * 20} started trends plot_trend)")
             print(f"{'-' * 10}> choose the trace")
-            fig, name = plot_a_trend(self.data, self.header, self.param)
+            fig, name = tagg.plot_a_trend(self.data, self.header, self.param)
             print(f"{'-' * 20} ended trends plot_trend")
             self.fig = fig
             self.name = name
@@ -458,7 +429,8 @@ class MonitorTrend(_SlowWave):
     def __init__(self, filename: str = None, load: bool = True):
         super().__init__()
         if filename is None:
-            filename = lmt.choosefile_gui(paths["mon_data"])
+            # filename = lmt.choosefile_gui(paths["mon_data"])
+            filename = loadagg.choosefile_gui(paths["mon_data"])
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
@@ -678,9 +650,9 @@ class _FastWave(_Waves):
             cols = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
             if traces_list is None:
                 traces_list = []
-                # trace = select_type(question='choose wave', items=cols)
+                # trace = loadagg.select_type(question='choose wave', items=cols)
                 for num in [1, 2]:
-                    trace = select_wave_to_plot(waves=cols, num=num)
+                    trace = wagg.select_wave_to_plot(waves=cols, num=num)
                     if trace is not None:
                         traces_list.append(trace)
             if traces_list:
@@ -815,7 +787,8 @@ class TelevetWave(_FastWave):
         super().__init__()
         if filename is None:
             dir_path = paths.get("telv_data")
-            filename = ltv.choosefile_gui(dir_path)
+            # filename = ltv.choosefile_gui(dir_path)
+            filename = loadagg.choosefile_gui(dir_path)
         self.filename = filename
         data = ltv.loadtelevet(filename)
         self.data = data
@@ -843,7 +816,8 @@ class MonitorWave(_FastWave):
         super().__init__()
         if filename is None:
             dir_path = paths.get("mon_data")
-            filename = lmw.choosefile_gui(dir_path)
+            # filename = lmw.choosefile_gui(dir_path)
+            filename = loadagg.choosefile_gui(dir_path)
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
@@ -887,7 +861,7 @@ def main(file_name: str = None):
     print("select the file containing the data")
     print(f"file_name is {file_name}")
     if file_name is None:
-        file_name = choosefile_gui(paths["data"])
+        file_name = loadagg.choosefile_gui(paths["data"])
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     # select base index in the scroll down
     num = 0
@@ -895,7 +869,7 @@ def main(file_name: str = None):
         num = 1
     if not os.path.basename(file_name).startswith("M"):
         num = 2
-    source = select_type(question="choose kind of file", items=kinds, num=num)
+    source = loadagg.select_type(question="choose kind of file", items=kinds, num=num)
 
     if not os.path.isfile(file_name):
         print("this is not a file")

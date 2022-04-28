@@ -8,7 +8,8 @@ Created on Wed Apr 27 15:46:14 2022
 list of function to choose, manipulate and combine the plot functions
 """
 
-from bisect import bisect
+
+from PyQt5.QtWidgets import QInputDialog, QWidget
 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -16,7 +17,6 @@ import numpy as np
 import pandas as pd
 
 import anesplot.plot.trend_plot as tplot
-import anesplot.plot.wave_plot as wplot
 
 
 # %%
@@ -179,6 +179,116 @@ def build_half_white(
     ax.axvline(lims[1], color="tab:grey")
 
     return nfig, nlims, nnfig
+
+
+def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.figure:
+    """
+    choose and generate a trend plot
+
+    Parameters
+    ----------
+    datadf : pd.DataFrame
+        recorded data (MonitorTrend.data or TaphTrend.data).
+    header : dict
+        recording parameters (MonitorTrend.header or TaphTrend.header).
+    param_dico : dict
+        plotting parameters (MonitorTrend.param or TaphTrend.param).
+
+    Returns
+    -------
+    plt.figure
+        the builded figure
+    """
+    # clean the data for taph monitoring
+    if param_dico["source"] == "taphTrend":
+        if "co2exp" in datadf.columns.values:
+            datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
+        # test ip1m
+        if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
+            datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
+        else:
+            print("no pressure tdata recorded")
+    # plotting
+    func_list = [
+        tplot.ventil,
+        tplot.co2o2,
+        tplot.co2iso,
+        tplot.cardiovasc,
+        tplot.hist_co2_iso,
+        tplot.hist_cardio,
+    ]
+    if param_dico["source"] == "taphTrend":
+        func_list.insert(0, tplot.sat_hr)
+    # choose
+    global APP
+    question = "choose the function to use"
+    #    APP = QApplication(sys.argv)
+    widg = QWidget()
+    func_list.reverse()
+    names = [st.__name__ for st in func_list]
+    name, ok_pressed = QInputDialog.getItem(widg, "select", question, names, 0, False)
+    if not ok_pressed and name:
+        return plt.figure()
+    func = [_ for _ in func_list if _.__name__ == name][0]
+    # plot
+    fig = func(datadf, param_dico)
+    plt.show()
+    return fig, name
+
+
+def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict:
+    """
+    generate a series of plots for anesthesia debriefing purposes
+
+    Parameters
+    ----------
+    datadf : pd.DataFrame
+        recorded data (MonitorTrend.data or TaphTrend.data).
+    header : dict
+        recording parameters (MonitorTrend.header or TaphTrend.header).
+    param_dico : dict
+        plotting parameters (MonitorTrend.param or TaphTrend.param).
+
+    Returns
+    -------
+    dict
+        afig_dico : {names:fig_obj} of displayed figures
+
+    """
+
+    # clean the data for taph monitoring
+    if param_dico["source"] == "taphTrend":
+        if "co2exp" in datadf.columns.values:
+            datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
+        # test ip1m
+        if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
+            datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
+        else:
+            print("no pressure tdata recorded")
+    afig_list = []
+    # plotting
+    plot_func_list = [
+        tplot.ventil,
+        tplot.co2o2,
+        tplot.co2iso,
+        tplot.cardiovasc,
+        tplot.hist_co2_iso,
+        tplot.hist_cardio,
+    ]
+    if param_dico["source"] == "taphTrend":
+        plot_func_list.insert(0, tplot.sat_hr)
+    print("building figures")
+    for func in plot_func_list:
+        afig_list.append(func(datadf, param_dico))
+    if header:
+        afig_list.append(tplot.plot_header(header, param_dico))
+    # print("plt.show")
+    plt.show()
+    names = [st.__name__ for st in plot_func_list]
+    if header:
+        names.append("header")
+    fig_dico = dict(zip(names, afig_list))
+    return fig_dico
 
 
 # %%
