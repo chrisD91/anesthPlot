@@ -8,6 +8,7 @@ Created on Wed Apr 27 15:46:14 2022
 list of function to choose, manipulate and combine the plot functions
 """
 
+from typing import List, Callable, Union, Tuple
 
 from PyQt5.QtWidgets import QInputDialog, QWidget
 
@@ -74,7 +75,7 @@ def get_trend_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
 # %% build half white
 
 
-def retrieve_function(name):
+def retrieve_function(name: str) -> Callable:
     """get the function from it's name"""
     func_list = [
         tplot.ventil,
@@ -90,7 +91,7 @@ def retrieve_function(name):
 
 def build_half_white(
     fig: plt.figure, name: str, datadf: pd.DataFrame, param: dict, roi: dict
-):
+) -> Union[plt.Figure, Tuple, plt.Figure]:
     """
     build a half white figure for teaching
 
@@ -236,7 +237,9 @@ def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.fi
     return fig, name
 
 
-def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict:
+def plot_trenddata(
+    datadf: pd.DataFrame, header: dict, param_dico: dict
+) -> dict[str, plt.Figure]:
     """
     generate a series of plots for anesthesia debriefing purposes
 
@@ -267,7 +270,7 @@ def plot_trenddata(datadf: pd.DataFrame, header: dict, param_dico: dict) -> dict
             print("no pressure tdata recorded")
     afig_list = []
     # plotting
-    plot_func_list = [
+    plot_func_list: List[Callable] = [
         tplot.ventil,
         tplot.co2o2,
         tplot.co2iso,

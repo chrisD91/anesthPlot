@@ -74,7 +74,7 @@ def remove_outliers(datadf: pd.DataFrame, key: str, limits: dict = None) -> pd.S
     return ser
 
 
-def color_axis(ax0: plt.Axes, spine: str = "bottom", color: str = "r"):
+def color_axis(ax0: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
     """
     change the color of the label & tick & spine.
 
@@ -102,7 +102,9 @@ def color_axis(ax0: plt.Axes, spine: str = "bottom", color: str = "r"):
         ax0.tick_params(axis="y", colors=color)
 
 
-def append_loc_to_fig(ax0: plt.Axes, dt_list: list, label: str = "g") -> dict:
+def append_loc_to_fig(
+    ax0: plt.Axes, dt_list: list, label: str = "g"
+) -> dict[int, float]:
     """
     append vertical lines to indicate a time location 'for eg: arterial blood gas'
 
@@ -132,7 +134,9 @@ def append_loc_to_fig(ax0: plt.Axes, dt_list: list, label: str = "g") -> dict:
     return res
 
 
-def save_graph(path: str, ext: str = "png", close: bool = True, verbose: bool = True):
+def save_graph(
+    path: str, ext: str = "png", close: bool = True, verbose: bool = True
+) -> None:
     """
     Save a figure from pyplot
 
@@ -1258,7 +1262,7 @@ def sat_hr(datadf: pd.DataFrame, param: dict) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def save_distri(data: pd.DataFrame, path: dict):
+def save_distri(data: pd.DataFrame, path: dict) -> None:
     """
     save as 'O_..' the 4 distributions graphs for cardiovasc annd respi
 

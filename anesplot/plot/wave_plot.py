@@ -8,6 +8,7 @@ Created on Tue Apr 19 09:08:56 2016
 import os
 from bisect import bisect
 from math import ceil, floor
+from typing import Tuple, List, Union
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -31,7 +32,7 @@ plt.rcParams.update(fig_params)
 plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 
-def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r"):
+def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
     """
     change the color of the label & tick & spine.
 
@@ -59,7 +60,9 @@ def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r"):
 
 
 # %%
-def plot_wave(datadf: pd.DataFrame, keys: list, param: dict) -> plt.Figure:
+def plot_wave(
+    datadf: pd.DataFrame, keys: list, param: dict
+) -> Union[plt.Figure, List[plt.Line2D]]:
     """
     plot the waves recorded (from as5)
     (Nb plot datadf/index, but the xscale is indicated as sec)
@@ -279,7 +282,7 @@ def create_video(
     save: bool = False,
     savename: str = "example",
     savedir: str = "~",
-):
+) -> None:
     """
     create a video from a figure
 
