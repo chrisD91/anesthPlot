@@ -34,12 +34,12 @@ def choosefile_gui(dirpath: str = None) -> str:
         full name of the selected file.
 
     """
-    global APP
 
     if dirpath is None:
         dirpath = os.path.expanduser("~")
+    app = QApplication([dirpath])
+    app.setQuitOnLastWindowClosed(True)
 
-    APP = QApplication([dirpath])
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirpath, filter="csv (*.csv)"
     )
@@ -103,9 +103,9 @@ def loadtelevet(fname: str = None, all_traces: bool = False) -> pd.DataFrame:
 
 # %%
 if __name__ == "__main__":
-    import config.load_recordrc
+    import anesplot.config.load_recordrc
 
-    paths = config.load_recordrc.build_paths()
+    paths = anesplot.config.load_recordrc.build_paths()
     APP = QApplication(sys.argv)
     APP.setQuitOnLastWindowClosed(True)
 

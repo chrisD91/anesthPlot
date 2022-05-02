@@ -6,7 +6,7 @@ Created on Thu Apr 28 15:50:27 2022
 @author: cdesbois
 """
 
-from PyQt5.QtWidgets import QInputDialog, QWidget, QFileDialog
+from PyQt5.QtWidgets import QInputDialog, QWidget, QFileDialog, QApplication
 
 
 def choosefile_gui(dirname: str = None) -> str:
@@ -23,12 +23,14 @@ def choosefile_gui(dirname: str = None) -> str:
         DESCRIPTION. : full name of the selected file
 
     """
-    global APP
-
+    # global APP
+    # if 'app' not in dir():
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
+    app = QApplication([dirname])
+    app.setQuitOnLastWindowClosed(True)
     print("define QFiledialog")
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
@@ -63,8 +65,10 @@ def select_type(question: str = None, items: list = None, num: int = 0) -> str:
         items = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     if question is None:
         question = "choose kind of file"
-    global APP
-    #    APP = QApplication(sys.argv)
+    # if 'app' not in dir():
+    app = QApplication([])
+    app.setQuitOnLastWindowClosed(True)
+    # global APP
     widg = QWidget()
     kind, ok_pressed = QInputDialog.getItem(widg, "select", question, items, num, False)
     if ok_pressed and kind:

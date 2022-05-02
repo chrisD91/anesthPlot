@@ -132,7 +132,9 @@ def choose_taph_record(monitorname: str = None) -> str:
     taphdico = build_taph_decodedate_dico()
     recorddates = sorted(taphdico.keys(), reverse=True)
 
-    global APP
+    # global APP
+    app = QApplication()
+    app.setQuitOnLastWindowClosed(True)
     question = "select the recording date"
 
     day_index = 0  # first key (<-> last date)

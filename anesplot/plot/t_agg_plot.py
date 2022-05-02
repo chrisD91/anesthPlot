@@ -75,7 +75,7 @@ def get_trend_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
 
 
 def retrieve_function(name):
-    """ get the function from it's name """
+    """get the function from it's name"""
     func_list = [
         tplot.ventil,
         tplot.co2o2,

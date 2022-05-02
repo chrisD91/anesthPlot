@@ -41,16 +41,12 @@ def choosefile_gui(dirname: str = None) -> str:
 
     """
 
-    # nb these imports seems to be required to allow processing after importation
-    # import sys
-    # from PyQt5.QtWidgets import QApplication, QFileDialog
-
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
-    global APP
-    # APP = QApplication(sys.argv)
+    app = QApplication([dirname])
+    app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )

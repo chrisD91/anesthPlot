@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 # import os
 # from glob import glob
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QApplication
 
 # %%
 
@@ -19,8 +19,10 @@ from PyQt5.QtWidgets import QFileDialog
 def gui_choosefile(paths=None):
     """select a file via a dialog and return the file name."""
     if not paths:
-        paths = dict()
+        paths = {}
     apath = paths.get("data", "~")
+    app = QApplication([apath])
+    app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(
         caption="choose a file", directory=apath, filter="*.csv"
     )

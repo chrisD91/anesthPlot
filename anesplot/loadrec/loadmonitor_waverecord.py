@@ -42,8 +42,9 @@ def choosefile_gui(dirname: str = None) -> str:
 
     if dirname is None:
         dirname = os.path.expanduser("~")
-    global APP
-    #    APP = QApplication(sys.argv)
+    app = QApplication([dirname])
+    app.setQuitOnLastWindowClosed(True)
+
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
