@@ -133,7 +133,7 @@ def choose_taph_record(monitorname: str = None) -> str:
     recorddates = sorted(taphdico.keys(), reverse=True)
 
     # global APP
-    app = QApplication()
+    app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
     question = "select the recording date"
 
@@ -297,7 +297,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         datadf[["co2exp", "co2insp"]] *= 760 / 100
     except KeyError:
         print("no capnographic recording")
-    print(f"{'-' * 20} > loaded taph_datafile ({os.path.basename(filename)})")
+    print(f"{'-' * 20} loaded taph_datafile ({os.path.basename(filename)}) >")
     return datadf
 
 
@@ -340,7 +340,7 @@ def loadtaph_patientfile(filename: str) -> dict:
     # convert to a dictionary
     descr = patientdf.loc[1].to_dict()
 
-    print(f"{'-' * 20} > loaded taph_patientfile ({os.path.basename(headername)})")
+    print(f"{'-' * 20} loaded taph_patientfile ({os.path.basename(headername)}) >")
     return descr
 
 

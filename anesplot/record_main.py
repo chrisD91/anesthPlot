@@ -40,12 +40,12 @@ import matplotlib.pyplot as plt
 matplotlib.use("Qt5Agg")  # NB required for the dialogs
 import pandas as pd
 
-from config.load_recordrc import build_paths
+from anesplot.config.load_recordrc import build_paths
 from PyQt5.QtWidgets import QApplication
 
 paths = build_paths()
 
-import loadrec.agg_load as loadagg
+import anesplot.loadrec.agg_load as loadagg
 
 # import plot.t_agg_plot as tagg
 # import plot.w_agg_plot as wagg
@@ -71,11 +71,11 @@ rcParams["axes.xmargin"] = 0
 rcParams["axes.ymargin"] = 0
 
 faulthandler.enable()
-APP = QApplication(sys.argv)
+# APP = QApplication(sys.argv)
 
 
-from slow_waves import MonitorTrend, TaphTrend
-from fast_waves import MonitorWave, TelevetWave
+from anesplot.slow_waves import MonitorTrend, TaphTrend
+from anesplot.fast_waves import MonitorWave, TelevetWave
 
 
 def get_basic_debrief_commands():
@@ -114,9 +114,10 @@ def main(file_name: str = None):
     # os.chdir(paths.get("recordMain", os.path.expanduser('~')))
     print(f"backEnd= {plt.get_backend()}")  # required ?
     print("start QtApp")
-    global APP
-    # APP = QApplication(sys.argv)
-    APP.setQuitOnLastWindowClosed(True)
+    # global APP
+    if "app" not in dir():
+        app = QApplication(sys.argv)
+        app.setQuitOnLastWindowClosed(True)
 
     # choose file and indicate the source
     print("select the file containing the data")
@@ -151,6 +152,7 @@ def main(file_name: str = None):
 
     pyperclip.copy(file_name)
     plt.show()
+    # app.quit()
 
 
 # %%

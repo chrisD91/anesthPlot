@@ -114,7 +114,7 @@ def loadmonitor_trendheader(filename: str) -> dict:
             headerdf[col] = headerdf[col].astype(float)
         # convert to a dictionary
         descr = headerdf.loc[1].to_dict()
-    print(f"{'-' * 20} > loaded trendheader")
+    print(f"{'-' * 20} loaded trendheader >")
     return descr
 
 
@@ -257,7 +257,7 @@ def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
         datadf.datetime = datetime_series
     # remove irrelevant measures
     # df.co2exp.loc[data.co2exp < 30] = np.nan
-    print(f"{'-' * 20} > loaded trenddata")
+    print(f"{'-' * 20} loaded trenddata >")
     return datadf
 
 

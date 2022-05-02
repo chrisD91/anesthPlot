@@ -5,7 +5,9 @@ Created on Thu Apr 28 14:41:15 2022
 
 @author: cdesbois
 """
-from PyQt5.QtWidgets import QInputDialog, QWidget
+import sys
+
+from PyQt5.QtWidgets import QInputDialog, QWidget, QApplication
 
 
 def select_wave_to_plot(waves: list, num=1) -> str:
@@ -23,8 +25,9 @@ def select_wave_to_plot(waves: list, num=1) -> str:
     str
         wave name
     """
-
-    global APP
+    if not "app" in dir():
+        app = QApplication(sys.argv)
+        app.setQuitOnLastWindowClosed(True)
     if num == 1:
         question = "choose first wave"
     if num == 2:

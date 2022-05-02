@@ -99,7 +99,7 @@ def loadmonitor_waveheader(filename: str = None) -> dict:
     except FileNotFoundError:
         print("canceled by the user")
         header = {}
-    print(f"{'-' * 20} > loaded waveheader")
+    print(f"{'-' * 20} loaded waveheader >")
     return header
 
 
@@ -203,7 +203,7 @@ def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
     if "wco2" in datadf.columns:
         datadf.loc[datadf.wco2 < 0, "wco2"] = 0
 
-    print(f"{'-' * 20} > loaded wavedata")
+    print(f"{'-' * 20} loaded wavedata >")
     return datadf
 
 
