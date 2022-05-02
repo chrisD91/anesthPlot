@@ -22,9 +22,9 @@ def export_data_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
     """
     export the recordings in an hdf file
     keys are
-        mtrends_data, mtrends_header, mtrends_param
-        ttrends_data, ttrends_header, ttrends_param
-        mwaves_data, mwaves_header, mwaves_param
+    - mtrends_data, mtrends_header, mtrends_param
+    - ttrends_data, ttrends_header, ttrends_param
+    - mwaves_data, mwaves_header, mwaves_param
 
     Parameters
     ----------

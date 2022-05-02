@@ -8,17 +8,22 @@ Created on Thu Apr 28 16:20:28 2022
 import os
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import pandas as pd
 
-from config.load_recordrc import build_paths
+from anesplot.config.load_recordrc import build_paths
+
+import anesplot.treatrec.clean_data as clean
+from anesplot.base import _Waves
+import loadrec.agg_load as loadagg
+from anesplot.loadrec import loadmonitor_trendrecord as lmt
+import anesplot.plot.t_agg_plot as tagg
+from anesplot.loadrec import loadtaph_trendrecord as ltt
+from anesplot import treatrec
+
 
 paths = build_paths()
-from base import _Waves
-import loadrec.agg_load as loadagg
-from loadrec import loadmonitor_trendrecord as lmt
-import plot.t_agg_plot as tagg
-from loadrec import loadtaph_trendrecord as ltt
-import treatrec
+
 
 # +++++++
 class _SlowWave(_Waves):

@@ -16,7 +16,7 @@ import yaml  # type: ignore
 # TODO : move the configuration file to the home dir as .anesplotrc
 
 
-def build_paths():
+def build_paths() -> dict:
     """read the yaml configuration file."""
     # print("in build_path, __file__ is {}".format(__file__))
     # print("in build_path,argv= {}".format(sys.argv))
@@ -58,7 +58,7 @@ def build_paths():
     return rcdico
 
 
-def adapt_with_syspath(path_dico):
+def adapt_with_syspath(path_dico) -> None:
     """add the folder location to the system path."""
     if path_dico["recordMain"] not in sys.path:
         sys.path.append(path_dico["recordMain"])

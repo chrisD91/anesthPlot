@@ -14,7 +14,7 @@ nb = 4 files per recording :
     - .xml -> taphonius technical record -> to be extracted
     - Patient.csv -> patient id and specifications
     - SD...csv -> anesthesia record
-____
+
 """
 
 import os

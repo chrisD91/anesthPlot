@@ -5,6 +5,7 @@
 main script/module to load and display an anesthesia record
 
 can be runned as a script::
+
     "python record_main.py" or "python -m anesplot"
 
 or imported as a package::
@@ -21,9 +22,6 @@ or imported as a package::
     mtrends.show_graphs() -> clinical debrief selection
     waves.plot_wave() -> select one or two waves to plot
 
-    ...
-
-----
 nb to work within spyder : move inside anestplot (>> cd anesplot)
 
 """

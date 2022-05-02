@@ -11,7 +11,7 @@ to extract the events from the taphonius files
 import os
 from datetime import datetime, timedelta
 from math import ceil
-from typing import Any, Tuple
+from typing import Any, Tuple, Dict
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -489,7 +489,9 @@ if __name__ == "__main__":
     )
     AFILE = "before2020/BELAMIDUBOCAGE_A15-8244/Patients2015JUN25/Record15_48_30/SD2015JUN25-15_48_30.csv"
 
-    file_name = os.path.join(rec.paths["taph_data"], AFILE)
+    paths = rec.build_paths()
+    file_name = os.path.join(paths["taph_data"], AFILE)
+
     # see the taphClass
     ttrend = rec.TaphTrend(file_name)
     ttrend.extract_events()

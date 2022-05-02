@@ -3,8 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+#####################################
 Welcome to anesplot's documentation!
-====================================
+#####################################
 
 anesthPlot is a python package developped to extract, manipulate and plots **anesthesia data 
 recorded during equine anesthesia**. 
@@ -25,8 +26,8 @@ but this package can also facilite recording manipulation for other purposes.
       * (some ekg .csv data extracted using a Televet holter system)
 
 
-Features
----------
+usage
+=====
 
 - you can **load** recordings from a trend or a wave file
 
@@ -50,6 +51,9 @@ Features
       - or will build a user selected **plot for wave** recording 
   
          - one or two waves on the same plot (script usage, pop_up menu to choose)
+
+   .. note::
+      after the plots have been displayed, you can use the graphical interface to scale and save the plots
 
    - or by using the code as a **python package** ('import mode'):
       .. code-block::  python
@@ -82,11 +86,11 @@ Features
    **'rec.get_guide()'** allow the filling of the clipboard with standard approaches
 
 
+contents
+=========
 
-
-main script : anesplot/__main__.py
-==================================
-
+main script : record_main
+--------------------------
 .. note::
   
   - it is the entry point to the program ('record_main.py')
@@ -102,6 +106,58 @@ main script : anesplot/__main__.py
    :caption: main_script:
 
    anesplot.record_main
+
+record_objects
+--------------
+
+the recorded data and associated methods are loaded in "wave classes".
+
+four classes are builded to store and display the data and manipulate them, two for slowWaves ('trends'), two for fastWaves:
+
+  - MonitorTrend
+  - MonitorWave 
+  - TaphTrend
+  - TelevetWave
+
+loading is possible from an ipython terminal: 
+
+   .. code-block:: python
+
+      mtrends = rec.MonitorTrend()
+      mwaves = rec.MonitorWave()
+      ttrends = rec.TaphTrend()
+      telwaves = rec.TelevetWave()  <- this has to be improved quite a lot 
+
+the methods provided allows to choose plotting and treatment actions
+for example ::
+
+   mtrends, ttrends:      
+      # attributes =  'data', 'fig', 'filename', 'header', 'param', ...
+      # methods = 'show_graphs', 'clean_trend', 'plot_trend', 'save_roi', ...
+
+   mwaves:
+      # attributes = 'data', 'fig', 'filename', 'header', 'param' ... 
+      # methods : 'animate_fig', 'filter_ekg', 'plot_sample_ekgbeat_overlap', 'plot_sample_systolic_variation', 'plot_wave', ...
+
+
+.. autoclass:: anesplot.slow_waves.MonitorTrend
+
+.. autoclass:: anesplot.slow_waves.TaphTrend
+
+.. autoclass:: anesplot.fast_waves.MonitorWave
+
+.. autoclass:: anesplot.fast_waves.TelevetWave
+
+
+
+.. toctree:: 
+   :caption: monitor slow wave
+
+   MonitorTrend.rst
+   MonitorWave.rst
+   TaphTrend.rst
+   TelevetWave.rst
+
 
 
 modules

@@ -1264,7 +1264,7 @@ def sat_hr(datadf: pd.DataFrame, param: dict) -> plt.Figure:
 # ------------------------------------------------------
 def save_distri(data: pd.DataFrame, path: dict) -> None:
     """
-    save as 'O_..' the 4 distributions graphs for cardiovasc annd respi
+    save the 4 distributions graphs for cardiovasc annd respi
 
     Parameters
     ----------

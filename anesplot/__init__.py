@@ -51,7 +51,7 @@ paths = rec.paths
 paths['save'] = os.path.expanduser('~/toPlay/temp/')
 os.chdir(paths['save'])
 
-## globals
+# globals
 def save_plot(name):
     filename = os.path.join(paths['save'], 'fig', name)
     saveGraph(filename, ext='png', close=False, verbose=True)
@@ -89,7 +89,6 @@ waves = rec.MonitorWave(waveName, load=True
 del waveName, trendName
 
 # now you are ready to work with loaded trends and waves
-
 
 """
 
