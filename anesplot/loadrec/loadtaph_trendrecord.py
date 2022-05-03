@@ -136,6 +136,9 @@ def choose_taph_record(monitorname: str = None) -> str:
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
     question = "select the recording date"
+    if monitorname is not None:
+        mname = os.path.basename(monitorname)
+        question = f"{question} \n ({mname=})"
 
     day_index = 0  # first key (<-> last date)
     if monitorname is not None:
