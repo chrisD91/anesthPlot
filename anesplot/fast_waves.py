@@ -201,9 +201,10 @@ class _FastWave(_Waves):
 
     def plot_sample_ekgbeat_overlap(self, threshold=-1, lims=None):
         "overlap a sample ekg R centered traces"
-        treatrec.ekg_func.plot_sample_ekgbeat_overlap(
+        fig = treatrec.ekg_func.plot_sample_ekgbeat_overlap(
             self, lims=lims, threshold=threshold
         )
+        return fig
 
 
 class TelevetWave(_FastWave):
