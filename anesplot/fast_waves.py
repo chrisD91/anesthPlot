@@ -11,18 +11,23 @@ from typing import Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from config.load_recordrc import build_paths
+
+import anesplot
+import anesplot.plot.w_agg_plot as wagg
+import anesplot.plot.wave_plot as wplot
+
+# import anesplot.treatrec
+import anesplot.treatrec.wave_func as wf
+from anesplot.base import _Waves
+from anesplot.config.load_recordrc import build_paths
+from anesplot.loadrec.agg_load import choosefile_gui
+from anesplot.loadrec.loadmonitor_waverecord import (
+    loadmonitor_wavedata,
+    loadmonitor_waveheader,
+)
+from anesplot.loadrec.loadtelevet import loadtelevet
 
 paths = build_paths()
-
-import loadrec.agg_load as loadagg
-import plot.w_agg_plot as wagg
-import plot.wave_plot as wplot
-import treatrec
-import treatrec.wave_func as wf
-from base import _Waves
-from loadrec import loadmonitor_waverecord as lmw
-from loadrec import loadtelevet as ltv
 
 
 # ++++++++
@@ -188,7 +193,7 @@ class _FastWave(_Waves):
     ):
         "plot the systolic variation"
         if self.roi:
-            treatrec.arterial_func.plot_sample_systolic_pressure_variation(
+            anesplot.treatrec.arterial_func.plot_sample_systolic_pressure_variation(
                 self, lims, teach, annotations
             )
             # wplot.plot_systolic_pressure_variation(self)
@@ -197,11 +202,11 @@ class _FastWave(_Waves):
 
     def plot_record_systolic_variation(self):
         "plot the systolic variation"
-        treatrec.arterial_func.plot_record_systolic_variation(self)
+        anesplot.treatrec.arterial_func.plot_record_systolic_variation(self)
 
     def plot_sample_ekgbeat_overlap(self, threshold=-1, lims=None):
         "overlap a sample ekg R centered traces"
-        fig = treatrec.ekg_func.plot_sample_ekgbeat_overlap(
+        fig = anesplot.treatrec.ekg_func.plot_sample_ekgbeat_overlap(
             self, lims=lims, threshold=threshold
         )
         return fig
@@ -220,10 +225,9 @@ class TelevetWave(_FastWave):
         super().__init__()
         if filename is None:
             dir_path = paths.get("telv_data")
-            # filename = ltv.choosefile_gui(dir_path)
-            filename = loadagg.choosefile_gui(dir_path)
+            filename = choosefile_gui(dir_path)
         self.filename = filename
-        data = ltv.loadtelevet(filename)
+        data = loadtelevet(filename)
         self.data = data
         # self.source = "teleVet"
         self.param["source"] = "televet"
@@ -249,15 +253,14 @@ class MonitorWave(_FastWave):
         super().__init__()
         if filename is None:
             dir_path = paths.get("mon_data")
-            # filename = lmw.choosefile_gui(dir_path)
-            filename = loadagg.choosefile_gui(dir_path)
+            filename = choosefile_gui(dir_path)
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
-        header = lmw.loadmonitor_waveheader(filename)
+        header = loadmonitor_waveheader(filename)
         self.header = header
         if load and bool(header):
-            self.data = lmw.loadmonitor_wavedata(filename)
+            self.data = loadmonitor_wavedata(filename)
         else:
             print(f"{'-'*5} MonitorWave: didn't load the data ({load=})")
             self.data = pd.DataFrame()

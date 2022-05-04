@@ -18,14 +18,6 @@ import yaml  # type: ignore
 
 def build_paths() -> dict:
     """read the yaml configuration file."""
-    # print("in build_path, __file__ is {}".format(__file__))
-    # print("in build_path,argv= {}".format(sys.argv))
-    # rc_file -> dico
-    # print('loc={}'.format(os.path.dirname(__file__)))
-    # rc_filename = os.path.expanduser("~/.anesplotrc")
-    # if os.path.isfile(rc_filename):
-    #     with open(rc_filename, "r") as ymlfile:
-    #         rcdico = yaml.safe_load(ymlfile)
 
     rc_filename = os.path.expanduser("~/.anesplotrc")
     if os.path.isfile(os.path.join(os.path.dirname(__file__), ".anesplotrc")):
@@ -54,7 +46,7 @@ def build_paths() -> dict:
             print("exception !!!")
             dirname = os.path.expanduser("~")
         rcdico = dict.fromkeys(["data"], dirname)
-    print("data location is {}".format(rcdico["data"]))
+    # print("data location is {}".format(rcdico["data"]))
     return rcdico
 
 

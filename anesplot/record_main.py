@@ -34,46 +34,20 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pyperclip
 from matplotlib import rcParams
-
-matplotlib.use("Qt5Agg")  # NB required for the dialogs
-import pandas as pd
 from PyQt5.QtWidgets import QApplication
 
+import anesplot.loadrec.agg_load as loadagg
 from anesplot.config.load_recordrc import build_paths
+from anesplot.fast_waves import MonitorWave, TelevetWave
+from anesplot.slow_waves import MonitorTrend, TaphTrend
 
 paths = build_paths()
-
-import anesplot.loadrec.agg_load as loadagg
-
-# import plot.t_agg_plot as tagg
-# import plot.w_agg_plot as wagg
-
-# import plot.trend_plot as tplot
-# import plot.wave_plot as wplot
-# import treatrec
-# import treatrec.clean_data as clean
-# import treatrec.wave_func as wf
-# from guides.choose_guide import get_guide
-
-# requires to have '.../anesthPlot' in the path
-# import loadrec
-# from loadrec import loadmonitor_trendrecord as lmt
-# from loadrec import loadmonitor_waverecord as lmw
-# from loadrec import loadtaph_trendrecord as ltt
-# from loadrec import loadtelevet as ltv
-
-# import anesplot.treatrec as treat
-
+matplotlib.use("Qt5Agg")  # NB required for the dialogs
 # to have the display beginning from 0
 rcParams["axes.xmargin"] = 0
 rcParams["axes.ymargin"] = 0
 
 faulthandler.enable()
-# APP = QApplication(sys.argv)
-
-
-from anesplot.fast_waves import MonitorWave, TelevetWave
-from anesplot.slow_waves import MonitorTrend, TaphTrend
 
 
 def get_basic_debrief_commands():
@@ -141,7 +115,7 @@ def main(file_name: str = None):
         monitor_trend.show_graphs()
     elif source == "monitorWave":
         monitor_wave = MonitorWave(file_name)
-        fig, *_ = monitor_wave.plot_wave()
+        monitor_wave.plot_wave()
     elif source == "taphTrend":
         taph_trend = TaphTrend(file_name)
         taph_trend.show_graphs()
@@ -150,19 +124,3 @@ def main(file_name: str = None):
 
     pyperclip.copy(file_name)
     plt.show()
-    # app.quit()
-
-
-# %%
-# if __name__ == "__main__":
-#     IN_NAME = None
-#     # check if a filename was provided from terminal call
-#     print(sys.argv)
-
-#     if len(sys.argv) > 1:
-#         provided_name = sys.argv[1]
-#         if os.path.isfile(provided_name):
-#             IN_NAME = provided_name
-#         else:
-#             print("the provided filename is not valid")
-#     main(IN_NAME)
