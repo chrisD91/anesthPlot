@@ -13,11 +13,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 import anesplot
-import anesplot.plot.w_agg_plot as wagg
+import anesplot.loadrec.loadtelevet
+import anesplot.plot.w_agg_plot
 import anesplot.plot.wave_plot as wplot
-
-# import anesplot.treatrec
-import anesplot.treatrec.wave_func as wf
+import anesplot.treatrec.wave_func
 from anesplot.base import _Waves
 from anesplot.config.load_recordrc import build_paths
 from anesplot.loadrec.agg_load import choosefile_gui
@@ -25,7 +24,6 @@ from anesplot.loadrec.loadmonitor_waverecord import (
     loadmonitor_wavedata,
     loadmonitor_waveheader,
 )
-from anesplot.loadrec.loadtelevet import loadtelevet
 
 paths = build_paths()
 
@@ -54,10 +52,10 @@ class _FastWave(_Waves):
         else:
             print("no ekg trace in the data")
             return
-        # print("-" * 10, "filtering : builded 'ekgMovAvg' ")
-        # df["ekgMovAvg"] = wf.rol_mean(df[item], fs)
         print(f"{'-' * 10} filtering : builded 'ekgLowPass' ")
-        datadf["ekgLowPass"] = wf.fix_baseline_wander(datadf[item], samplingfreq)
+        datadf["ekgLowPass"] = anesplot.treatrec.wave_func.fix_baseline_wander(
+            datadf[item], samplingfreq
+        )
 
     def plot_wave(self, traces_list: list = None):
         """
@@ -89,7 +87,9 @@ class _FastWave(_Waves):
                 traces_list = []
                 # trace = loadagg.select_type(question='choose wave', items=cols)
                 for num in [1, 2]:
-                    trace = wagg.select_wave_to_plot(waves=cols, num=num)
+                    trace = anesplot.plot.w_agg_plot.select_wave_to_plot(
+                        waves=cols, num=num
+                    )
                     if trace is not None:
                         traces_list.append(trace)
             if traces_list:
@@ -227,7 +227,7 @@ class TelevetWave(_FastWave):
             dir_path = paths.get("telv_data")
             filename = choosefile_gui(dir_path)
         self.filename = filename
-        data = loadtelevet(filename)
+        data = anesplot.loadrec.loadtelevet.loadtelevet(filename)
         self.data = data
         # self.source = "teleVet"
         self.param["source"] = "televet"

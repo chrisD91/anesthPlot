@@ -141,11 +141,15 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 
         batch = pd.Series(dico, dtype="object", name="events")
         #        if batch.index.values in events_ser.index.values:
-        if set(batch.index.values) < set(events_ser.index.values):
-            # two events at the same index
+        if set(batch.index.values) & set(events_ser.index.values):
+            # two events at the same index -> index has to be shifted
+            newtimes = []
             for dt in batch.index:
                 if dt in events_ser:
-                    batch = batch.drop(index=dt)
+                    dt = dt + timedelta(milliseconds=1)
+                newtimes.append(dt)
+                print(f"{newtimes}")
+            batch = batch.set_axis(newtimes)
         events_ser = pd.concat([events_ser, batch])
     dteventsdf = pd.DataFrame(events_ser)
     dteventsdf = dteventsdf.sort_index()

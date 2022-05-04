@@ -6,7 +6,7 @@ Created on Thu Apr 28 16:20:07 2022
 @author: cdesbois
 """
 
-from config.load_recordrc import build_paths
+from anesplot.config.load_recordrc import build_paths
 
 paths = build_paths()
 

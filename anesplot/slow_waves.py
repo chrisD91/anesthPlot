@@ -8,17 +8,21 @@ Created on Thu Apr 28 16:20:28 2022
 import os
 from datetime import datetime, timedelta
 
-import loadrec.agg_load as loadagg
 import matplotlib.pyplot as plt
 import pandas as pd
 
+import anesplot
+import anesplot.loadrec.loadtaph_trendrecord as ltt
 import anesplot.plot.t_agg_plot as tagg
-import anesplot.treatrec.clean_data as clean
-from anesplot import treatrec
 from anesplot.base import _Waves
 from anesplot.config.load_recordrc import build_paths
-from anesplot.loadrec import loadmonitor_trendrecord as lmt
-from anesplot.loadrec import loadtaph_trendrecord as ltt
+from anesplot.loadrec.agg_load import choosefile_gui
+from anesplot.loadrec.loadmonitor_trendrecord import (
+    loadmonitor_trenddata,
+    loadmonitor_trendheader,
+)
+from anesplot.treatrec import manage_events
+from anesplot.treatrec.clean_data import clean_trenddata
 
 paths = build_paths()
 
@@ -54,7 +58,7 @@ class _SlowWave(_Waves):
         output = pandas dataFrame
         nb doesnt change the obj.data in place
         """
-        datadf = clean.clean_trenddata(self.data)
+        datadf = clean_trenddata(self.data)
         return datadf
 
     def show_graphs(self):
@@ -114,6 +118,7 @@ class _SlowWave(_Waves):
         return roidict
 
     def build_half_white(self):
+        """take self.fig and build a figure with a, empty 50% time expansion"""
         if self.fig is None or self.name is None:
             print("please build a figure to start with -> .plot_trend()")
             return
@@ -152,16 +157,15 @@ class MonitorTrend(_SlowWave):
     def __init__(self, filename: str = None, load: bool = True):
         super().__init__()
         if filename is None:
-            # filename = lmt.choosefile_gui(paths["mon_data"])
-            filename = loadagg.choosefile_gui(paths["mon_data"])
+            filename = choosefile_gui(paths["mon_data"])
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
 
-        header = lmt.loadmonitor_trendheader(filename)
+        header = loadmonitor_trendheader(filename)
         self.header = header
         if header and load:
-            data = lmt.loadmonitor_trenddata(filename, header)
+            data = loadmonitor_trenddata(filename, header)
             self.data = data
             self.param["sampling_freq"] = header.get("60/Sampling Rate", None)
             self.param["source"] = "monitorTrend"
@@ -220,31 +224,31 @@ class TaphTrend(_SlowWave):
 
     def extract_events(self, shift_min=None):
         """decode the taph messages, build events, actions and ventil_drive"""
-        dt_events_df = treatrec.manage_events.build_event_dataframe(self.data)
+        dt_events_df = manage_events.build_event_dataframe(self.data)
         if shift_min is not None:
             shift = timedelta(minutes=shift_min)
             dt_events_df.index = dt_events_df.index + shift
 
         self.dt_events_df = dt_events_df
 
-        actions, events = treatrec.manage_events.extract_taphmessages(self.dt_events_df)
+        actions, events = manage_events.extract_taphmessages(self.dt_events_df)
         self.actions = actions
         self.events = events
         # removed actions to be able to plot everything that arrives
         # (not only actions ie include the preset values)
-        ventil_drive_df = treatrec.manage_events.extract_ventilation_drive(dt_events_df)
+        ventil_drive_df = manage_events.extract_ventilation_drive(dt_events_df)
         self.ventil_drive_df = ventil_drive_df
 
     def plot_ventil_drive(self, all_traces: bool = False):
         """plot the ventilation commands that have been used"""
-        fig = treatrec.manage_events.plot_ventilation_drive(
+        fig = manage_events.plot_ventilation_drive(
             self.ventil_drive_df, self.param, all_traces
         )
         fig.show()
 
     def plot_events(self, todrop: list = None, dtime: bool = False):
         """plot the events as a time display, dtime allow dtime use"""
-        treatrec.manage_events.plot_events(self.dt_events_df, self.param, todrop, dtime)
+        manage_events.plot_events(self.dt_events_df, self.param, todrop, dtime)
 
     # TODO : add exclusion list
 
