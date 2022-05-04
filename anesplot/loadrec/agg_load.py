@@ -8,7 +8,7 @@ Created on Thu Apr 28 15:50:27 2022
 
 import sys
 
-from PyQt5.QtWidgets import QInputDialog, QWidget, QFileDialog, QApplication
+from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
 
 def choosefile_gui(dirname: str = None) -> str:

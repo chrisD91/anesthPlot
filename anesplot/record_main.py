@@ -29,17 +29,17 @@ nb to work within spyder : move inside anestplot (>> cd anesplot)
 import faulthandler
 import os
 import sys
-import pyperclip
 
 import matplotlib
-from matplotlib import rcParams
 import matplotlib.pyplot as plt
+import pyperclip
+from matplotlib import rcParams
 
 matplotlib.use("Qt5Agg")  # NB required for the dialogs
 import pandas as pd
+from PyQt5.QtWidgets import QApplication
 
 from anesplot.config.load_recordrc import build_paths
-from PyQt5.QtWidgets import QApplication
 
 paths = build_paths()
 
@@ -72,8 +72,8 @@ faulthandler.enable()
 # APP = QApplication(sys.argv)
 
 
-from anesplot.slow_waves import MonitorTrend, TaphTrend
 from anesplot.fast_waves import MonitorWave, TelevetWave
+from anesplot.slow_waves import MonitorTrend, TaphTrend
 
 
 def get_basic_debrief_commands():

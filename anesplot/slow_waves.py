@@ -8,19 +8,17 @@ Created on Thu Apr 28 16:20:28 2022
 import os
 from datetime import datetime, timedelta
 
+import loadrec.agg_load as loadagg
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from anesplot.config.load_recordrc import build_paths
-
-import anesplot.treatrec.clean_data as clean
-from anesplot.base import _Waves
-import loadrec.agg_load as loadagg
-from anesplot.loadrec import loadmonitor_trendrecord as lmt
 import anesplot.plot.t_agg_plot as tagg
-from anesplot.loadrec import loadtaph_trendrecord as ltt
+import anesplot.treatrec.clean_data as clean
 from anesplot import treatrec
-
+from anesplot.base import _Waves
+from anesplot.config.load_recordrc import build_paths
+from anesplot.loadrec import loadmonitor_trendrecord as lmt
+from anesplot.loadrec import loadtaph_trendrecord as ltt
 
 paths = build_paths()
 

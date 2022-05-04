@@ -15,7 +15,6 @@ import scipy.signal as sg
 from anesplot.treatrec.ekg_to_hr import detect_beats
 from anesplot.treatrec.wave_func import fix_baseline_wander
 
-
 # %%
 
 

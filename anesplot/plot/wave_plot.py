@@ -8,7 +8,7 @@ Created on Tue Apr 19 09:08:56 2016
 import os
 from bisect import bisect
 from math import ceil, floor
-from typing import Tuple, List, Union
+from typing import List, Tuple, Union
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt

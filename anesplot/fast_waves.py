@@ -11,19 +11,19 @@ from typing import Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
-
 from config.load_recordrc import build_paths
 
 paths = build_paths()
 
-from base import _Waves
-import treatrec.wave_func as wf
+import loadrec.agg_load as loadagg
 import plot.w_agg_plot as wagg
 import plot.wave_plot as wplot
-import loadrec.agg_load as loadagg
-from loadrec import loadmonitor_waverecord as lmw
 import treatrec
+import treatrec.wave_func as wf
+from base import _Waves
+from loadrec import loadmonitor_waverecord as lmw
 from loadrec import loadtelevet as ltv
+
 
 # ++++++++
 class _FastWave(_Waves):

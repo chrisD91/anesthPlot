@@ -11,7 +11,7 @@ to extract the events from the taphonius files
 import os
 from datetime import datetime, timedelta
 from math import ceil
-from typing import Any, Tuple, Dict
+from typing import Any, Dict, Tuple
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt

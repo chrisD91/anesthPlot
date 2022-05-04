@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 # import os
 # from glob import glob
-from PyQt5.QtWidgets import QFileDialog, QApplication
+from PyQt5.QtWidgets import QApplication, QFileDialog
 
 # %%
 

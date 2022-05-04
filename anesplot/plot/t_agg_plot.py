@@ -8,14 +8,13 @@ Created on Wed Apr 27 15:46:14 2022
 list of function to choose, manipulate and combine the plot functions
 """
 
-from typing import List, Callable, Union, Tuple
+from typing import Callable, List, Tuple, Union
 
-from PyQt5.QtWidgets import QInputDialog, QWidget
-
-import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from PyQt5.QtWidgets import QInputDialog, QWidget
 
 import anesplot.plot.trend_plot as tplot
 

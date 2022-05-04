@@ -7,7 +7,7 @@ Created on Thu Apr 28 14:41:15 2022
 """
 import sys
 
-from PyQt5.QtWidgets import QInputDialog, QWidget, QApplication
+from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
 
 
 def select_wave_to_plot(waves: list, num=1) -> str:
