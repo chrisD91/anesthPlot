@@ -25,7 +25,7 @@ def select_wave_to_plot(waves: list, num=1) -> str:
     str
         wave name
     """
-    if not "app" in dir():
+    if "app" not in dir():
         app = QApplication(sys.argv)
         app.setQuitOnLastWindowClosed(True)
     if num == 1:
