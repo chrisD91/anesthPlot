@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import pandas as pd
 
-import anesplot
+# import anesplot
 import anesplot.loadrec.loadtaph_trendrecord as ltt
 import anesplot.plot.t_agg_plot as tagg
 from anesplot.base import _Waves
