@@ -135,7 +135,7 @@ def build_half_white(
     halfax = halffig.get_axes()[0]
     fulllims = (lims[0], lims[1] + (lims[1] - lims[0]))
     halfax.set_xlim(fulllims)
-    halfax.axvline(lims[1], color="tab:grey")
+    # halfax.axvline(lims[1], color="tab:grey")
     texts = [
         "1: que se passe-t-il ?",
         "2: que va-t-il se passer ?",
@@ -149,23 +149,22 @@ def build_half_white(
             pos[1],
             txt,
             horizontalalignment="left",
-            fontsize=18,
+            fontsize=16,
             verticalalignment="center",
             transform=halfax.transAxes,
         )
     fullfig = func(datadf, param)
     fullfig.get_axes()[0].set_xlim(fulllims)
-    # for ax, lims in zip(fig.get_axes(), roi.get("ylims")):
-    #     ax.set_ylim(lims)
-    for iniax, halfax, fullax, lims in zip(
-        inifig.get_axes(), halffig.get_axes(), fullfig.get_axes(), roi.get("ylims")
-    ):
-        iniax.set_ylim(lims)
-        iniax.axvline(lims[1], color="tab:grey")
-        halfax.set_ylim(lims)
-        halfax.axvline(lims[1], color="tab:grey")
-        fullax.set_ylim(lims)
-        fullax.axvline(lims[1], color="tab:grey")
+
+    size = inifig.get_size_inches()
+    for fig in [halffig, fullfig]:
+        for i, ylim in enumerate(roi.get("ylims")):
+            ax = fig.get_axes()[i]
+            ax.set_ylim(ylim)
+            ax.axvline(lims[1], color="tab:grey")
+        fig.set_size_inches(size)
+        fig.tight_layout()
+        fig.show()
 
     return halffig, fulllims, fullfig
 
@@ -214,7 +213,7 @@ def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.fi
         app.setQuitOnLastWindowClosed(True)
     question = "choose the function to use"
     widg = QWidget()
-    func_list = [_ for _ in func_list[::-1]]
+    func_list = func_list[::-1]
     names = [st.__name__ for st in func_list]
     name, ok_pressed = QInputDialog.getItem(widg, "select", question, names, 0, False)
     if not ok_pressed and name:
