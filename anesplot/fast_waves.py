@@ -12,11 +12,9 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 import pandas as pd
 
-import anesplot
-import anesplot.loadrec.loadtelevet
-import anesplot.plot.w_agg_plot
 import anesplot.plot.wave_plot as wplot
-import anesplot.treatrec.wave_func
+import anesplot.treatrec.arterial_func
+import anesplot.treatrec.ekg_func
 from anesplot.base import _Waves
 from anesplot.config.load_recordrc import build_paths
 from anesplot.loadrec.agg_load import choosefile_gui
@@ -24,6 +22,9 @@ from anesplot.loadrec.loadmonitor_waverecord import (
     loadmonitor_wavedata,
     loadmonitor_waveheader,
 )
+from anesplot.loadrec.loadtelevet import loadtelevet
+from anesplot.plot.w_agg_plot import select_wave_to_plot
+from anesplot.treatrec.wave_func import fix_baseline_wander
 
 paths = build_paths()
 
@@ -53,9 +54,7 @@ class _FastWave(_Waves):
             print("no ekg trace in the data")
             return
         print(f"{'-' * 10} filtering : builded 'ekgLowPass' ")
-        datadf["ekgLowPass"] = anesplot.treatrec.wave_func.fix_baseline_wander(
-            datadf[item], samplingfreq
-        )
+        datadf["ekgLowPass"] = fix_baseline_wander(datadf[item], samplingfreq)
 
     def plot_wave(self, traces_list: list = None):
         """
@@ -87,9 +86,7 @@ class _FastWave(_Waves):
                 traces_list = []
                 # trace = loadagg.select_type(question='choose wave', items=cols)
                 for num in [1, 2]:
-                    trace = anesplot.plot.w_agg_plot.select_wave_to_plot(
-                        waves=cols, num=num
-                    )
+                    trace = select_wave_to_plot(waves=cols, num=num)
                     if trace is not None:
                         traces_list.append(trace)
             if traces_list:
@@ -227,7 +224,7 @@ class TelevetWave(_FastWave):
             dir_path = paths.get("telv_data")
             filename = choosefile_gui(dir_path)
         self.filename = filename
-        data = anesplot.loadrec.loadtelevet.loadtelevet(filename)
+        data = loadtelevet(filename)
         self.data = data
         # self.source = "teleVet"
         self.param["source"] = "televet"
