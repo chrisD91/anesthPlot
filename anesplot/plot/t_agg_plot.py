@@ -214,7 +214,7 @@ def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.fi
         app.setQuitOnLastWindowClosed(True)
     question = "choose the function to use"
     widg = QWidget()
-    func_list.reverse()
+    func_list = [_ for _ in func_list[::-1]]
     names = [st.__name__ for st in func_list]
     name, ok_pressed = QInputDialog.getItem(widg, "select", question, names, 0, False)
     if not ok_pressed and name:
