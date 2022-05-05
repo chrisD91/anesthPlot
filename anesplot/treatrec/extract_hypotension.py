@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.patches import Rectangle
 
-from anesplot.record_main import MonitorTrend
+from anesplot.slow_waves import MonitorTrend
 
 # import utils
 FONT_SIZE = "medium"  # large, medium

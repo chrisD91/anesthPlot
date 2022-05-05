@@ -128,10 +128,10 @@ if __name__ == "__main__":
 
     mtrends.data.hr = mtrends.data.ihr
 
-    fig, *_ = mwaves.plot_wave(["wekg"])
-    lims = (19101.08725772946, 19101.087809159864)
-    ax = fig.get_axes()[0]
-    ax.set_xlim(lims)
+    figure, *_ = mwaves.plot_wave(["wekg"])
+    limits = (19101.08725772946, 19101.087809159864)
+    ax = figure.get_axes()[0]
+    ax.set_xlim(limits)
     ax.set_ylim(-2, 1)
     # adjust the scale
     mwaves.save_roi()

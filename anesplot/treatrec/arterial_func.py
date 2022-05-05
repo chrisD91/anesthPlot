@@ -14,10 +14,10 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.signal import find_peaks
 
 from anesplot.plot.wave_plot import color_axis
 from anesplot.treatrec.wave_func import fix_baseline_wander
+from scipy.signal import find_peaks
 
 # from .wave_func import fix_baseline_wander
 # from ..plot.wave_plot import color_axis
@@ -49,22 +49,22 @@ def get_peaks(
         'local_max' & 'local_min' : boolean for local maxima and minima
 
     """
-    QUANTILE = 0.9
-    DISTANCE = 300
-    WIDTH = 1  # just to have a width measure in the output
-    LOW_WIDTH = 45  # to remove the artefacts (narrow peaks)
+    quantile = 0.9
+    distance = 300
+    width = 1  # just to have a width measure in the output
+    low_width = 45  # to remove the artefacts (narrow peaks)
 
     ser_detrended = fix_baseline_wander(ser, 300)
-    height = ser_detrended.quantile(q=QUANTILE)
+    height = ser_detrended.quantile(q=quantile)
     # find the (up) peaks
     peaksdf = pd.DataFrame()
     if up:
         peaksdf["ploc"], properties = find_peaks(
-            ser_detrended, height=height, distance=DISTANCE, width=WIDTH
+            ser_detrended, height=height, distance=distance, width=width
         )
     else:
         peaksdf["ploc"], properties = find_peaks(
-            -ser_detrended, height=-height, distance=DISTANCE, width=WIDTH
+            -ser_detrended, height=-height, distance=distance, width=width
         )
     peaksdf["sloc"] = ser.index[peaksdf.ploc]
     for k, v in properties.items():
@@ -86,9 +86,9 @@ def get_peaks(
         # txt values
         ax1 = fig.add_subplot(212)
         ax1.text(
-            0, 0.8, f"{QUANTILE=}", transform=ax1.transAxes, color="tab:blue", ha="left"
+            0, 0.8, f"{quantile=}", transform=ax1.transAxes, color="tab:blue", ha="left"
         )
-        ax1.text(0, 0.6, f"{DISTANCE=}", transform=ax1.transAxes, ha="left")
+        ax1.text(0, 0.6, f"{distance=}", transform=ax1.transAxes, ha="left")
 
         for i, (k, v) in enumerate(properties.items()):
             txt = f"{k}: {np.median(v):.2f}"
@@ -97,7 +97,7 @@ def get_peaks(
                 ax1.text(0.2, i / 5, txt, transform=ax1.transAxes, ha="left")
             else:
                 ax1.text(0.4, i / 5 - 1, txt, transform=ax1.transAxes, ha="left")
-        ax1.text(0.6, 0.4, f"{LOW_WIDTH=}", transform=ax1.transAxes, ha="left")
+        ax1.text(0.6, 0.4, f"{low_width=}", transform=ax1.transAxes, ha="left")
         for spine in ["left", "top", "right", "bottom"]:
             ax1.spines[spine].set_visible(False)
         ax1.xaxis.set_visible(False)
@@ -106,7 +106,7 @@ def get_peaks(
         fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
         fig.tight_layout()
     # remove artefact:
-    artefact = np.where(peaksdf.widths < LOW_WIDTH)[0]
+    artefact = np.where(peaksdf.widths < low_width)[0]
     if annotations:
         ax0.plot(artefact, ser_detrended.iloc[artefact], "or")
         ax1.text(0.7, 0.2, f"{artefact=}", transform=ax1.transAxes, ha="left")
@@ -260,6 +260,8 @@ def plot_sample_systolic_pressure_variation(
 
 
 def median_filter(num_std=3):
+    """basic median filter"""
+
     def _median_filter(x):
         _median = np.median(x)
         _std = np.std(x)
@@ -361,7 +363,7 @@ def get_xlims():
 
 if __name__ == "__main__":
 
-    import anesplot.record_main as rec
+    # import anesplot.record_main as rec
     from anesplot.loadrec.export_reload import build_obj_from_hdf
 
     DIRNAME = "/Users/cdesbois/enva/clinique/recordings/casClin/220315/data"
@@ -376,20 +378,20 @@ if __name__ == "__main__":
     record_figure, peaks_df = plot_record_systolic_variation(mwaves, annotations=False)
 
     def hampel_filter_pandas(input_series, window_size, n_sigmas=3):
-        # https://towardsdatascience.com/outlier-detection-with-hampel-filter-85ddf523c73d
+        """https://towardsdatascience.com/outlier-detection-with-hampel-filter-85ddf523c73d"""
 
         k = 1.4826  # scale factor for Gaussian distribution
         new_series = input_series.copy()
 
         # helper lambda function
-        MAD = lambda x: np.median(np.abs(x - np.median(x)))
+        mad_f = lambda x: np.median(np.abs(x - np.median(x)))
 
         rolling_median = input_series.rolling(
             window=2 * window_size, center=True
         ).median()
         rolling_mad = k * input_series.rolling(
             window=2 * window_size, center=True
-        ).apply(MAD)
+        ).apply(mad_f)
         diff = np.abs(input_series - rolling_median)
 
         indices = list(np.argwhere(diff > (n_sigmas * rolling_mad)).flatten())
