@@ -7,16 +7,15 @@ Created on Wed Apr 27 15:46:14 2022
 
 list of function to choose, manipulate and combine the plot functions
 """
-
+import sys
 from typing import Callable, List, Tuple, Union
 
+import anesplot.plot.trend_plot as tplot
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PyQt5.QtWidgets import QInputDialog, QWidget
-
-import anesplot.plot.trend_plot as tplot
+from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
 
 
 # %%
@@ -37,14 +36,13 @@ def get_trend_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     dict :
         containing ylims, xlims(point, dtime and sec)
     """
-    # TODO add exception for hist and header in the call process
     ylims = tuple([_.get_ylim() for _ in fig.get_axes()])
     # xlims
     ax = fig.get_axes()[0]
     if params["dtime"]:  # datetime in the x axis
         dtime_lims = [pd.to_datetime(mdates.num2date(_)) for _ in ax.get_xlim()]
         dtime_lims = [_.tz_localize(None) for _ in dtime_lims]
-        # i_lims = [bisect(datadf.datetime, _) for _ in dtime_lims]
+        # i_lims = [bisect(datadf.datetime, _) for _ in dtime_lims]fig
         i_lims = [
             datadf.set_index("datetime").index.get_indexer([_], method="nearest")
             for _ in dtime_lims
@@ -58,13 +56,13 @@ def get_trend_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     if "point" not in datadf.columns:
         datadf["point"] = datadf.index
     roidict = {}
-    for k, v in {"dt": "datetime", "pt": "point", "sec": "eTime"}.items():
-        if v in datadf.reset_index().columns:
-            lims = tuple([datadf.iloc[_][[v]].values[0] for _ in i_lims])
+    for abbr, col in {"dt": "datetime", "pt": "point", "sec": "eTime"}.items():
+        if col in datadf.reset_index().columns:
+            lims = tuple([datadf.iloc[_][[col]].values[0] for _ in i_lims])
         else:
             # no dt values for televet
             lims = (np.nan, np.nan)
-        roidict[k] = lims
+        roidict[abbr] = lims
     print(f"{'-' * 10} defined a trend_roi")
     # append ylims and traces
     roidict["ylims"] = ylims
@@ -89,14 +87,14 @@ def retrieve_function(name: str) -> Callable:
 
 
 def build_half_white(
-    fig: plt.figure, name: str, datadf: pd.DataFrame, param: dict, roi: dict
+    inifig: plt.figure, name: str, datadf: pd.DataFrame, param: dict, roi: dict
 ) -> Union[plt.Figure, Tuple, plt.Figure]:
     """
     build a half white figure for teaching
 
     Parameters
     ----------
-    fig : plt.figure
+    inifig : plt.figure
         the figure to begin with.
     name : str
         the function used to build the figure.
@@ -107,78 +105,69 @@ def build_half_white(
 
     Returns
     -------
-    nfig : plt.Figure
+    halffig : plt.Figure
         the half-white figure.
-    nlims : the limits
+    fulllims : the limits
         the xscale.
-
+    fullfig : plt.Figure
+        the full scale (previous + next xscale)
     """
-    # TODO use the ROI function
-    axes = fig.get_axes()
-    ax = axes[0]
-    lims = ax.get_xlim()
-    if ax.lines[0].get_xdata().dtype == "<M8[ns]":
-        # datetime scale
-        t_loc0 = mdates.num2date(lims[0]).replace(tzinfo=None)
-        t_loc1 = mdates.num2date(lims[1]).replace(tzinfo=None)
-        df = datadf.set_index("datetime").loc[t_loc0:t_loc1].reset_index().copy()
-    else:
-        # etime scale
-        df = datadf.set_index("eTimeMin").loc[lims[0] : lims[1]].reset_index().copy()
-    # half white figure
-    func = retrieve_function(name)
-    nfig = func(df, param)
-    nax = nfig.get_axes()[0]
-    nlims = (lims[0], lims[1] + lims[1] - lims[0])
-    nax.set_xlim(nlims)
-    nax.axvline(lims[1], color="tab:grey")
-    txt1 = "1: que se passe-t-il ?"
-    txt2 = "2: que va-t-il se passer ?"
-    txt3 = "3: c'est grave docteur ?"
-    txt4 = "4: vous faites quoi ?"
-    nax.text(
-        0.25,
-        0.9,
-        txt1,
-        horizontalalignment="center",
-        fontsize=18,
-        verticalalignment="center",
-        transform=ax.transAxes,
-    )
-    nax.text(
-        0.6,
-        0.9,
-        txt2,
-        horizontalalignment="left",
-        fontsize=18,
-        verticalalignment="center",
-        transform=ax.transAxes,
-    )
-    nax.text(
-        0.6,
-        0.7,
-        txt3,
-        horizontalalignment="left",
-        fontsize=18,
-        verticalalignment="center",
-        transform=ax.transAxes,
-    )
-    nax.text(
-        0.6,
-        0.5,
-        txt4,
-        horizontalalignment="left",
-        fontsize=18,
-        verticalalignment="center",
-        transform=ax.transAxes,
-    )
-    nnfig = func(datadf, param)
-    nnfig.get_axes()[0].set_xlim(nax.set_xlim(nlims))
-    for ax, lims in zip(fig.get_axes(), roi.get("ylims")):
-        ax.set_ylim(lims)
-    ax.axvline(lims[1], color="tab:grey")
+    if roi is None:
+        print("please build a roi using the .save_roi method")
+        return plt.Figure(), (), plt.Figure()
 
-    return nfig, nlims, nnfig
+    # iniax = inifig.get_axes()[0]
+    if param["dtime"]:
+        # xcale <-> datetime
+        lims = roi["dt"]
+        shortdf = (
+            datadf.set_index("datetime").loc[lims[0] : lims[1]].reset_index().copy()
+        )
+    else:
+        # xscale <-> elapsed time
+        lims = roi["sec"]
+        shortdf = (
+            datadf.set_index("eTimeMin").loc[lims[0] : lims[1]].reset_index().copy()
+        )
+    # build half white figure
+    func = retrieve_function(name)
+    halffig = func(shortdf, param)
+    halfax = halffig.get_axes()[0]
+    fulllims = (lims[0], lims[1] + (lims[1] - lims[0]))
+    halfax.set_xlim(fulllims)
+    halfax.axvline(lims[1], color="tab:grey")
+    texts = [
+        "1: que se passe-t-il ?",
+        "2: que va-t-il se passer ?",
+        "3: c'est grave docteur ?",
+        "4: que feriez vous ?",
+    ]
+    positions = [(0.15, 0.9), (0.6, 0.9), (0.6, 0.7), (0.6, 0.5)]
+    for pos, txt in zip(positions, texts):
+        halfax.text(
+            pos[0],
+            pos[1],
+            txt,
+            horizontalalignment="left",
+            fontsize=18,
+            verticalalignment="center",
+            transform=halfax.transAxes,
+        )
+    fullfig = func(datadf, param)
+    fullfig.get_axes()[0].set_xlim(fulllims)
+    # for ax, lims in zip(fig.get_axes(), roi.get("ylims")):
+    #     ax.set_ylim(lims)
+    for iniax, halfax, fullax, lims in zip(
+        inifig.get_axes(), halffig.get_axes(), fullfig.get_axes(), roi.get("ylims")
+    ):
+        iniax.set_ylim(lims)
+        iniax.axvline(lims[1], color="tab:grey")
+        halfax.set_ylim(lims)
+        halfax.axvline(lims[1], color="tab:grey")
+        fullax.set_ylim(lims)
+        fullax.axvline(lims[1], color="tab:grey")
+
+    return halffig, fulllims, fullfig
 
 
 def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.figure:
@@ -220,9 +209,10 @@ def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.fi
     if param_dico["source"] == "taphTrend":
         func_list.insert(0, tplot.sat_hr)
     # choose
-    global APP
+    if "app" not in dir():
+        app = QApplication(sys.argv)
+        app.setQuitOnLastWindowClosed(True)
     question = "choose the function to use"
-    #    APP = QApplication(sys.argv)
     widg = QWidget()
     func_list.reverse()
     names = [st.__name__ for st in func_list]
@@ -296,14 +286,21 @@ def plot_trenddata(
 # %%
 
 if __name__ == "__main__":
-    import anesplot.record_main as rec
+    # import anesplot.record_main as rec
+    from anesplot.slow_waves import MonitorTrend
 
-    mtrends = rec.MonitorTrend()
-    fig, name = mtrends.plot_trend()
+    mtrends = MonitorTrend()
+    figure, tracename = mtrends.plot_trend()
     print("now scale the figure please")
+    #%%
+    mtrends.save_roi()
     # scale the figure
-    n_fig, n_lims = build_half_white(
-        fig, name, mtrends, param=mtrends.param, roi=mtrends.roi
+    half_fig, new_lims, full_fig = build_half_white(
+        figure,
+        name=tracename,
+        datadf=mtrends.data,
+        param=mtrends.param,
+        roi=mtrends.roi,
     )
     # change the scale for third
-    fig.get_axes()[0].set_xlim(n_lims)
+    figure.get_axes()[0].set_xlim(new_lims)
