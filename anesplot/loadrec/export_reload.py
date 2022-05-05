@@ -13,8 +13,10 @@ export to hdf the records objects, and load them back
 # import os
 
 import pandas as pd
+from anesplot.fast_waves import MonitorWave
 
-import anesplot.record_main as rec
+# import anesplot.record_main as rec
+from anesplot.slow_waves import MonitorTrend, TaphTrend
 
 
 # def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
@@ -111,7 +113,7 @@ def build_obj_from_hdf(savename: str):
     messages = []
     with pd.HDFStore(savename) as store:
         keys = store.keys(include="pandas")
-        new_mtrends = rec.MonitorTrend(filename="", load=False)
+        new_mtrends = MonitorTrend(filename="", load=False)
         if "/" + "mtrends_data" in keys:
             new_mtrends.data = store.get("mtrends_data")
             new_mtrends.header = df_to_dico_with_none(store.get("mtrends_header").T)
@@ -119,7 +121,7 @@ def build_obj_from_hdf(savename: str):
             new_mtrends.filename = new_mtrends.param["filename"]
             messages.append(f"{'-'*10} loaded mtrends from hdf {'-'*10}")
 
-        new_ttrends = rec.TaphTrend(filename="", load=False)
+        new_ttrends = TaphTrend(filename="", load=False)
         if "/" + "ttrends_data" in keys:
             new_ttrends.data = store.get("ttrends_data")
             new_ttrends.header = df_to_dico_with_none(store.get("ttrends_header").T)
@@ -128,7 +130,7 @@ def build_obj_from_hdf(savename: str):
             new_ttrends.extract_events()
             messages.append(f"{'-'*10} loaded ttrends from hdf {'-'*10}")
 
-        new_mwaves = rec.MonitorWave(filename="", load=False)
+        new_mwaves = MonitorWave(filename="", load=False)
         if "/" + "mwaves_data" in keys:
             new_mwaves.data = store.get("mwaves_data")
             new_mwaves.header = df_to_dico_with_none(store.get("mwaves_header").T)

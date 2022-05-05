@@ -29,7 +29,7 @@ import pandas as pd
 # import numpy as np
 from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
 
-if not "paths" in dir():
+if "paths" not in dir():
     paths = {}
 paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
 
@@ -194,7 +194,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
 
     # check
     # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/'+
-    #'before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
+    # 'before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
 
     try:
         # df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
