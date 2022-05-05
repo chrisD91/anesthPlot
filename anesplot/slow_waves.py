@@ -125,7 +125,12 @@ class _SlowWave(_Waves):
         if self.roi is None:
             print("please define a roi -> .save_roi()")
             return
-        tagg.build_half_white(self.fig, self.name, self.data, self.param, self.roi)
+        halffig, lims, fullfig = tagg.build_half_white(
+            self.fig, self.name, self.data, self.param, self.roi
+        )
+        halffig.show()
+        fullfig.show()
+        return halffig, fullfig
 
 
 class MonitorTrend(_SlowWave):
