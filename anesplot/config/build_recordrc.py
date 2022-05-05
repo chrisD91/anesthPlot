@@ -19,15 +19,35 @@ import yaml  # type: ignore
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 
-# TODO add to path: mon_data, taph_data, telv_data
-
 # %%
 
 
 def filedialog(
-    kind="", directory=os.path.dirname(__file__), for_open=True, fmt="", is_folder=False
-):
-    """general dialog function."""
+    kind: str = "",
+    directory: str = os.path.dirname(__file__),
+    for_open: bool = True,
+    fmt: str = "",
+    is_folder: bool = False,
+) -> str:
+    """
+    general dialog functiuon
+
+    Parameters
+    ----------
+    kind : str, optional (default is "")
+        displayed in the dialog title
+    directory : str, optional (default is os.path.dirname(__file__))
+        the directory to start with
+    for_open : bool, optional (default is True)
+    fmt : str, optional (default is "")
+    is_folder : bool, optional (default is False)
+
+    Returns
+    -------
+    str
+        the selected path.
+
+    """
     label = "select the folder for " + kind
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
@@ -65,7 +85,7 @@ def filedialog(
     return path
 
 
-def read_config():
+def read_config() -> dict:
     """locate & load the yaml file."""
     # locate
     try:
@@ -82,20 +102,21 @@ def read_config():
     # load onfiguration dico
     print(filename)
     if os.path.isfile(filename):
-        with open(filename, "r") as ymlfile:
+        with open(filename, "r", encoding="utf-8") as ymlfile:
             cfg = yaml.safe_load(ymlfile)
         ymlfile.close()
-        return cfg
-    print("no config file founded")
-    print("please build one -> cf buildConfig.py")
-    return {}
+    else:
+        cfg = {}
+        print("no config file founded")
+        print("please build one -> cf buildConfig.py")
+    return cfg
 
 
-def write_configfile(path):
+def write_configfile(path: dict) -> None:
     """record the yaml file."""
     config_loc = os.path.join(path["recordMain"], "config")
     os.chdir(path[config_loc])
-    with open("recordRc.yaml", "w") as ymlfile:
+    with open("recordRc.yaml", "w", encoding="utf-8") as ymlfile:
         yaml.dump(path, ymlfile, default_flow_style=False)
 
 
