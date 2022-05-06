@@ -10,12 +10,13 @@ list of function to choose, manipulate and combine the plot functions
 import sys
 from typing import Callable, List, Tuple, Union
 
-import anesplot.plot.trend_plot as tplot
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
+
+import anesplot.plot.trend_plot as tplot
 
 
 # %%

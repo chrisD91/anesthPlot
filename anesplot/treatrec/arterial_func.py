@@ -14,10 +14,10 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy.signal import find_peaks
 
 from anesplot.plot.wave_plot import color_axis
 from anesplot.treatrec.wave_func import fix_baseline_wander
-from scipy.signal import find_peaks
 
 # from .wave_func import fix_baseline_wander
 # from ..plot.wave_plot import color_axis
