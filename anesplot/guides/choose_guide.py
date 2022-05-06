@@ -4,13 +4,14 @@
 Created on Thu Mar 10 08:37:18 2022
 
 @author: cdesbois
+
+a simple terminal dialog to choose the template and copy it to the clipboard
+
 """
 
 import os
 
 import pyperclip
-
-# from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
 
 def get_guide(pathsdict: dict) -> str:
