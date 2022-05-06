@@ -94,11 +94,11 @@ del waveName, trendName
 
 
 # For relative imports to work in Python 3.6
-import os
-import sys
+# import os
+# import sys
 
 # see https://stackoverflow.com/questions/16981921/relative-imports-in-python-3
-from pathlib import Path
+# from pathlib import Path
 
 # import pyperclip
 
@@ -107,9 +107,9 @@ from pathlib import Path
 # from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
-print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resolve())
-if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
-    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+# print("Running" if __name__ == "__main__" else "Importing", Path(__file__).resolve())
+# if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
+#     sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 
 # build a QApplication to be able to use a Qt GUi to choose files or waves

@@ -239,15 +239,28 @@ class TelevetWave(_FastWave):
 
 
 class MonitorWave(_FastWave):
-    """class to organise monitorWave recordings.
+    """class to organise monitorWave recordings, gather data, provide methods
 
         input : filename = path to file
         load = boolean to load data (default is True)
 
-    attibutes ... FILLME
+        attibutes:
+            filename : str (fullname)
+            header : pd.DataFrame
+            data : pd.DataFram
+            param ; dict
+            fig : plt.Figure
+            trace_list list of trancename in the fig
+            roi : dict RegionOfInterest (related to fig)
 
-
-    methods ... FILLME
+        methods:
+            plot_wave -> choose trace(s) and plot
+            save_roi -> update fig, trace_list and roi
+            animate_fig -> build animation
+            filter_ekg -> filter the ekg
+            plot_sample_ekgbeat_overlap -> overlap detected ekg beats
+            plot_record_systolic_variation -> blood pressure variation
+            plot_sample_systolic_variation -> blood pressure variation
     """
 
     def __init__(self, filename: str = None, load: bool = True):

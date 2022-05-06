@@ -147,21 +147,20 @@ class MonitorTrend(_SlowWave):
 
     attibutes:
     ----------
-        file : str
-            short name
-        filename : str
-            long name
-        header : dict
-            record parameters
-        param : dict
-            parameters
+        filename : str = fullname,
+        header : dict = header data
+        data : pd.DataFrame = the recorded data
+        param : dict = description of data loaded and manipulated
+        fig : plt.Figure = the current fig
+        roi : dict = RegionOfINterest related to the actual figure
 
     methods (inherited)
     -------------------
-        clean_trend : external
-            clean the data
-        show_graphs : external
-            plot clinical main plots
+        show_graphs : plot debriefing plots
+        plot_trend : plot after a selection dialog
+        save_roi : update the roi from the current plot
+        build_half_white : build and helf_right empty plot (teaching purposes)
+        clean_trend : (to be improved)
     """
 
     def __init__(self, filename: str = None, load: bool = True):
@@ -194,18 +193,32 @@ class TaphTrend(_SlowWave):
 
     attibutes:
     ----------
-        data : pd.DataFrame = recorded data
+        filename : str = the fullname
         header : dictionary = recorded info (patient, ...)
+        data : pd.DataFrame = recorded data
         param : dictionary  = usage information (file, scales, ...)
-        actions : pd.DataFrame
+        actions : dictionary = list of operator actions
+        events : set = the detected events
+        dt_events_df : pd.DataFrame = the detected events over time
+        ventil_drive_df : pd.DataFrame = user interaction with the ventilator
+        fig : plt.Figure = the current figure
+        roi : dict = RegionOfInterest parameters for the current fig
 
     methods:
     --------
         show_graphs (inherited) : plot the clinical debrief 'suite'
+        plot_trend : plot a trend after dialog
+        shift_datetime = allow to add minutes to the data.datetime (to adjust with monitor trend/wave)
+        shift_etime = allow to add minutes to the elapsed time
+        sync_etime = same as shift, but using a reference datetime
+        save_roi : update the fig and roi
+        build_half_white' : build and helf_right empty plot (teaching purposes)
         extract_events : decode the taph messages, build events, actions and ventil_drive
+        export_taph_events : build a .txt containing all the events (paths:~/temp/events.txt)
         plot_ventil_drive : plot the ventilation commands that have been used"
         plot_events : plot the events as a time display, dtime allow dtime use
-        export_taph_events : build a .txt containing all the events (paths:~/temp/events.txt)
+        plot_ventil_drive : plot the user interaction with the ventilator
+        clean_trend : to be improved,
     """
 
     def __init__(
@@ -232,7 +245,7 @@ class TaphTrend(_SlowWave):
         self.param["sampling_freq"] = None
         self.extract_events()
 
-    def extract_events(self, shift_min=None):
+    def extract_events(self, shift_min=None) -> None:
         """decode the taph messages, build events, actions and ventil_drive"""
         dt_events_df = manage_events.build_event_dataframe(self.data)
         if shift_min is not None:
@@ -249,12 +262,13 @@ class TaphTrend(_SlowWave):
         ventil_drive_df = manage_events.extract_ventilation_drive(dt_events_df)
         self.ventil_drive_df = ventil_drive_df
 
-    def plot_ventil_drive(self, all_traces: bool = False):
+    def plot_ventil_drive(self, all_traces: bool = False) -> plt.Figure:
         """plot the ventilation commands that have been used"""
         fig = manage_events.plot_ventilation_drive(
             self.ventil_drive_df, self.param, all_traces
         )
         fig.show()
+        return fig
 
     def plot_events(self, todrop: list = None, dtime: bool = False):
         """plot the events as a time display, dtime allow dtime use"""
@@ -262,13 +276,13 @@ class TaphTrend(_SlowWave):
 
     # TODO : add exclusion list
 
-    def export_taph_events(self, save_to_file=False):
+    def export_taph_events(self, save_to_file=False) -> None:
         "export in a txt files all the events (paths:~/temp/events.txt)"
         if save_to_file:
             filename = os.path.expanduser(os.path.join("~", "temp", "events.txt"))
             with open(filename, "w", encoding="utf-8") as file:
                 for i, line in enumerate(self.data.events.dropna()):
-                    file.write("-" * 10, "\n")
+                    file.write(f"{'-'*10} \n")
                     for item in line.split("\r\n"):
                         file.write(f"{i} {item}, \n")
             print(f"saved taph events to {filename}")
@@ -278,7 +292,7 @@ class TaphTrend(_SlowWave):
                 for item in line.split("\r\n"):
                     print(i, item)
 
-    def shift_datetime(self, minutes: int):
+    def shift_datetime(self, minutes: int) -> None:
         """
         shift the recording datetime
 
@@ -296,7 +310,7 @@ class TaphTrend(_SlowWave):
         # recompute events extractions, ventildrive, ...
         self.extract_events(minutes)
 
-    def shift_etime(self, minutes: int):
+    def shift_etime(self, minutes: int) -> None:
         """
         shift the elapsed time
 
@@ -312,7 +326,7 @@ class TaphTrend(_SlowWave):
         """
         ltt.shift_elapsed_time(self.data, minutes)
 
-    def sync_etime(self, datetime0: datetime):
+    def sync_etime(self, datetime0: datetime) -> None:
         """
         shift the elapsed time based a 'zero' datetime.datetime
 
