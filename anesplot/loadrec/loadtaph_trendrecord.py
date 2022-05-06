@@ -5,13 +5,13 @@ Created on Wed Jul 24 15:30:07 2019
 @author: cdesbois
 
 load a taphonius data recording:
-    - choose a file
-    - load the patient datafile to a dictionary
-    - load the physiological date into a pandas dataframe
+    - choose a file gui -> filename (! choose the SD...csv file !)
+    - load the patient datafile -> dictionary
+    - load the recorded date -> pandas.DataFrame
 
-nb = 4 files per recording :
-    - .pdf -> anesthesia record 'manual style'
-    - .xml -> taphonius technical record -> to be extracted
+nb = 4 files are present in a Taphonius recording :
+    - .pdf -> anesthesia 'manual style' rebuild record
+    - .xml -> taphonius technical record
     - Patient.csv -> patient id and specifications
     - SD...csv -> anesthesia record
 

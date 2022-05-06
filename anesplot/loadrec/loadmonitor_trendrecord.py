@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-----
-
 Created on Wed Jul 24 13:43:26 2019
 @author: cdesbois
 
 load a monitor trend recording:
-    - choose a file
-    - load the header to a dictionary
-    - load the date into a pandas dataframe
-
-____
+    - choose a file GUI -> filename
+    - load the header -> dictionary
+    - load the data -> pandas.DataFrame
 """
 
 import os

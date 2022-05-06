@@ -5,11 +5,10 @@ Created on Wed Jul 24 14:56:58 2019
 @author: cdesbois
 
 load a monitor wave recording:
-    - choose a file
-    - load the header to a pandas dataframe
-    - load the date into a pandas dataframe
+    - choose a file GUI -> filename
+    - load the header -> pandas.DataFrame
+    - load the data i-> pandasDataFrame
 
-____
 """
 
 import os
