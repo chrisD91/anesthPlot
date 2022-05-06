@@ -140,23 +140,28 @@ for example ::
       # methods : 'animate_fig', 'filter_ekg', 'plot_sample_ekgbeat_overlap', 'plot_sample_systolic_variation', 'plot_wave', ...
 
 
+MonitorTrend object
+....................
+
 .. autoclass:: anesplot.slow_waves.MonitorTrend
+
+
+TaphTrend object
+....................
 
 .. autoclass:: anesplot.slow_waves.TaphTrend
 
+
+MonitorWave object
+....................
+
 .. autoclass:: anesplot.fast_waves.MonitorWave
 
+
+TelevetWave object
+....................
+
 .. autoclass:: anesplot.fast_waves.TelevetWave
-
-
-
-.. toctree:: 
-   :caption: monitor slow wave
-
-   MonitorTrend.rst
-   MonitorWave.rst
-   TaphTrend.rst
-   TelevetWave.rst
 
 
 

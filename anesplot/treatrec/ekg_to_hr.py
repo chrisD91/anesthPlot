@@ -9,88 +9,85 @@ typically (copy, paste and execute line by line)
 (
  NB templates are available in the anesplot/guide folder
 
-you can execute line by line in a file the following process:
->>
-import anesplot.record_main as rec
-paths = rec.paths
-rec.get_guide(paths)
--> fill the choice in the ipython terminal
--> paste the template in the file
-<<
-)
+you can execute line by line in a file the following process
 
+.. code-block:: python
+
+    import anesplot.record_main as rec
+    paths = rec.paths
+    rec.get_guide(paths)
+    -> fill the choice in the ipython terminal
+    -> paste the template in the file
+
+)
 
 0. after
 --------
-::
+.. code-block:: python
+
     import pandas as pd
 
     import anesplot.record_main as rec
     from anesplot.treatrec import ekg_to_hr as tohr
 
 1. load the data in a pandas dataframe:
----------------------------------------
-
-(through classes rec.MonitorTrend & rec.MonitorWave)
-
-::
+-----------------------------------------
+# through classes rec.MonitorTrend & rec.MonitorWave
+# get filename::
 
     trendname = ''  # fullname
     or
     trendname = rec.choosefile_gui()
 
-::
-
     wavename = rec.trendname_to_wavename(trendname)
-    -
-    # load the data
+
+# load the data::
+
     trends = rec.MonitorTrend(trendname)
     waves = rec.MonitorWave(wavename)
-    -
-    # format the name
+
+# format the name ::
+
     name = trends.header['Patient Name'].title().replace(' ', '')
     name = name[0].lower() + name[1:]
 
 2. treat the ekg wave:
 ----------------------
+# get parameters build a dataframe to work with (waves)
+# low pass filtering
+# build the beat locations (beat based dataFrame)::
 
-    - get parameters
-    - build a dataframe to work with (waves)
-    - low pass filtering
-    - build the beat locations (beat based dataFrame)::
-
-        params = waves.param
-        ekg_df = pd.DataFrame(waves.data.wekg)
-        ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg,
-                                                waves.param['sampling_freq'])
-        beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, threshold=1)
+    params = waves.param
+    ekg_df = pd.DataFrame(waves.data.wekg)
+    ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg,
+                                                        waves.param['sampling_freq'])
+    beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, threshold=1)
 
 3. perform the manual adjustments required:
 -------------------------------------------
+# based on a graphical display of beat locations, an rr values
+# build a container for the manual corrections::
 
-    - based on a graphical display of beat locations, an rr values
-    - build a container for the manual corrections::
+    figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
+    to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
 
-        figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
-        to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
+# remove or add peaks : zoom on the figure to observe only one peak, then::
 
-    - remove or add peaks : zoom on the figure to observe only one peak, then::
-
-        to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
-        or
-        to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure,
+    to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
+    or
+    to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure,
                                         yscale=1)
 
-    - combine to update the beat_df with the manual changes::
+# combine to update the beat_df with the manual changes::
 
-        beat_df = tohr.update_beat_df(beat_df, to_change_df,
+    beat_df = tohr.update_beat_df(beat_df, to_change_df,
                                       path_to_file="", from_file=False)
 
-    - save the peaks locations::
+# save the peaks locations::
 
-        tohr.save_beats(beat_df, to_change_df, savename='', dirpath=None)
-        (# or reload
-        beat_df = pd.read_hdf('beatloc_df.hdf', key='beatlocdf') )
+    tohr.save_beats(beat_df, to_change_df, savename='', dirpath=None)
+    (# or reload
+    beat_df = pd.read_hdf('beatloc_df.hdf', key='beatlocdf') )
 
 4. go from points values to continuous time:
 --------------------------------------------
@@ -110,14 +107,12 @@ rec.get_guide(paths)
 
 6. save:
 --------
+
 ::
 
     tohr.save_trends_data(trends.data, savename=name, dirpath='data')
     tohr.save_waves_data(waves.data, savename=name, dirpath='data')
-
-____
 """
-
 import os
 from typing import Tuple
 
@@ -267,7 +262,7 @@ def append_beat(
         incremented changedf (pt location).
 
 
-    methods :
+    methods::
 
         locate the beat in the figure, append to a dataframe['toAppend']
         0.: if not present : build a dataframe:
@@ -284,6 +279,7 @@ def append_beat(
               - first : save beat_df and to_change_df
               - second : run:
                   >>> beat_df = update_beat_df())
+
     """
 
     # find the limits of the figure
