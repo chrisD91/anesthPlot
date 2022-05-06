@@ -4,7 +4,9 @@
 """
 Created on Tue Apr 19 09:08:56 2016
 
-functions to plot the trend data
+collections of functions to plot data:
+    - trends files (plot and aggreate) <- trends
+    - waves files (plot and aggregate) <- waves
 
 @author: cdesbois
 

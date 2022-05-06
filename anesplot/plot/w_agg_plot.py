@@ -4,6 +4,9 @@
 Created on Thu Apr 28 14:41:15 2022
 
 @author: cdesbois
+
+list of function to choose, manipulate and combine the wave plot functions
+
 """
 import sys
 

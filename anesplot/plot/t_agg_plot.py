@@ -5,7 +5,8 @@ Created on Wed Apr 27 15:46:14 2022
 
 @author: cdesbois
 
-list of function to choose, manipulate and combine the plot functions
+list of function to choose, manipulate and combine the trends plot functions
+
 """
 import sys
 from typing import Callable, List, Tuple, Union

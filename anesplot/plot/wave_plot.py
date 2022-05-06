@@ -3,6 +3,9 @@
 Created on Tue Apr 19 09:08:56 2016
 
 @author: cdesbois
+
+collection of functions to plot the wave data
+
 """
 
 import os
