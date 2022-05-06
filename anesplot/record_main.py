@@ -124,3 +124,8 @@ def main(file_name: str = None):
 
     pyperclip.copy(file_name)
     plt.show()
+
+
+# %%
+if __name__ == "__main__":
+    main()
