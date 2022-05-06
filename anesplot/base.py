@@ -4,6 +4,8 @@
 Created on Thu Apr 28 16:20:07 2022
 
 @author: cdesbois
+
+the base wave for slow and fast waves
 """
 
 from anesplot.config.load_recordrc import build_paths

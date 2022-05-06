@@ -5,6 +5,10 @@ Created on Thu Apr 28 16:20:50 2022
 
 @author: cdesbois
 
+build the objects or the fast_waves ('waves'):
+    -> MonitorWave
+    -> TeleVet (basic)
+
 """
 import os
 from typing import Tuple

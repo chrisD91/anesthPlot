@@ -4,6 +4,11 @@
 Created on Thu Apr 28 16:20:28 2022
 
 @author: cdesbois
+
+build the objects or the slow_waves ('trends'):
+    -> MonitorTrend
+    -> TaphTrend
+
 """
 import os
 from datetime import datetime, timedelta
