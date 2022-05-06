@@ -5,13 +5,13 @@ Created on Sat Dec 18 10:30:54 2021
 
 @author: cdesbois
 
-to extract the events from the taphonius files
+functions ued to extract the events from the taphonius files
 
 """
 import os
 from datetime import datetime, timedelta
 from math import ceil
-from typing import Any, Dict, Tuple
+from typing import Any, Tuple
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt

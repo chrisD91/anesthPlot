@@ -4,6 +4,9 @@
 Created on Tue Mar 29 13:00:08 2022
 
 @author: cdesbois
+
+a collection of functions to work with arterial pressure waves
+
 """
 
 

@@ -4,6 +4,9 @@
 Created on Wed Jul 31 16:05:29 2019
 
 @author: cdesbois
+
+filtering process ot the traces : actually not used, to be improved
+
 """
 import numpy as np
 

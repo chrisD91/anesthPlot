@@ -4,6 +4,9 @@
 Created on Thu Mar 10 08:37:18 2022
 
 @author: cdesbois
+
+functions to deal with ekg traces
+
 """
 import os
 from typing import Tuple

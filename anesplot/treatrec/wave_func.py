@@ -3,6 +3,9 @@
 Created on Fri Dec  8 12:46:41 2017
 
 @author: cdesbois
+
+functions to be used with the waves recording
+
 """
 import matplotlib.pyplot as plt
 
