@@ -244,7 +244,7 @@ class MonitorWave(_FastWave):
         input : filename = path to file
         load = boolean to load data (default is True)
 
-        attibutes:
+        attibutes::
             filename : str (fullname)
             header : pd.DataFrame
             data : pd.DataFram
@@ -253,14 +253,14 @@ class MonitorWave(_FastWave):
             trace_list list of trancename in the fig
             roi : dict RegionOfInterest (related to fig)
 
-        methods:
-            plot_wave -> choose trace(s) and plot
-            save_roi -> update fig, trace_list and roi
-            animate_fig -> build animation
-            filter_ekg -> filter the ekg
-            plot_sample_ekgbeat_overlap -> overlap detected ekg beats
-            plot_record_systolic_variation -> blood pressure variation
-            plot_sample_systolic_variation -> blood pressure variation
+        methods::
+            plot_wave : choose trace(s) and plot
+            save_roi : update fig, trace_list and roi
+            animate_fig : build animation
+            filter_ekg : filter the ekg
+            plot_sample_ekgbeat_overlap : overlap detected ekg beats
+            plot_record_systolic_variation : blood pressure variation
+            plot_sample_systolic_variation : blood pressure variation
     """
 
     def __init__(self, filename: str = None, load: bool = True):

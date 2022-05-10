@@ -1,9 +1,17 @@
 anesplot package
 ================
 
+Submodules
+----------
+.. toctree::
+   :maxdepth: 2
+   
+   anesplot.record_main
+   slow_waves
+   fast_waves
+
 Subpackages
 -----------
-
 .. toctree::
    :maxdepth: 4
 
@@ -12,21 +20,3 @@ Subpackages
    anesplot.plot
    anesplot.treatrec
 
-Submodules
-----------
-
-anesplot.record\_main module
-----------------------------
-
-.. automodule:: anesplot.record_main
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: anesplot
-   :members:
-   :undoc-members:
-   :show-inheritance:

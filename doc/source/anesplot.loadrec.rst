@@ -1,6 +1,13 @@
 anesplot.loadrec package
 ========================
+Module contents
+---------------
 
+.. automodule:: anesplot.loadrec
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   
 Submodules
 ----------
 
@@ -52,10 +59,4 @@ anesplot.loadrec.loadtelevet module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
 
-.. automodule:: anesplot.loadrec
-   :members:
-   :undoc-members:
-   :show-inheritance:

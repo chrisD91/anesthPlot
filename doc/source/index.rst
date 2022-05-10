@@ -26,57 +26,64 @@ but this package can also facilite recording manipulation for other purposes.
       * (some ekg .csv data extracted using a Televet holter system)
 
 
-usage
-=====
+use anesplot as a script or as package
+=======================================
 
-- you can **load** recordings from a trend or a wave file
+run from a terminal (script usage)
+-----------------------------------------
 
-   - from command line ('script mode'):
-      .. code-block:: bash
+- you can **choose** a recordings, load it and plot the data from a terminal
 
-         python anesthPlot/anesplot/__main__.py
-         or
-         python -m anesplot
-         -> this will open an GUI choose menu to choose the recording 
-         (MonitorTrend, TaphoniusTrend, MonitorWave, TelevetWave)
+   .. code-block:: bash
+
+      python anesthPlot/anesplot/__main__.py
+      or
+      python -m anesplot
+      -> this will open an GUI choose menu to choose the recording 
+      (MonitorTrend, TaphoniusTrend, MonitorWave, TelevetWave)
 
 
-      - this script approach will build a **standard plot series** for debriefing purposes:
+   - this script approach will build a **standard plot series** for debriefing purposes:
          
-         - global histograms (cardiovascular and anesthesia summary)
-         - cardiovascular time based trends plots
-         - respiratory time based trends plots
-         - anesthesia time based trends plots
+      - global histograms (cardiovascular and anesthesia summary)
+      - cardiovascular time based trends plots
+      - respiratory time based trends plots
+      - anesthesia time based trends plots
 
-      - or will build a user selected **plot for wave** recording 
+   - or will build a user selected **plot for wave** recording 
   
-         - one or two waves on the same plot (script usage, pop_up menu to choose)
+      - one or two waves on the same plot (script usage, pop_up menu to choose)
 
-   .. note::
-      after the plots have been displayed, you can use the graphical interface to scale and save the plots
+.. note::
+   after the plots have been displayed, you can use the graphical interface to scale and save the plots
 
-   - or by using the code as a **python package** ('import mode'):
-      .. code-block::  python
+
+import anesplot in a python environment
+-------------------------------------------------------
+
+- you can use this code as a **python package** ('import mode'):
+      
+   .. code-block::  python
  
-         import anesplot.record_main as rec
-         trendname = 'a_full_path_to_csv_file'
-         # nb if no filename is provided, a chooseFile Gui will be called to choose the file
-         trends = rec.MonitorTrend(trendname)
-         #(you can also use trends = rec.taphTrend()
-         wavename = rec.trendname_to_wavename(trendname)
-         waves = rec.MonitorWave(wavename)
+      import anesplot.record_main as rec
+      trendname = 'a_full_path_to_csv_file'
+      # nb if no filename is provided, a chooseFile Gui will be called to choose the file
+      trends = rec.MonitorTrend(trendname)
+      #(you can also use trends = rec.taphTrend()
+      wavename = rec.trendname_to_wavename(trendname)
+      waves = rec.MonitorWave(wavename)
         
-         trends.show_graphs() # -> set of plots for 'clinical' debriefing purposes
+      trends.show_graphs() # -> set of plots for 'clinical' debriefing purposes
 
-         waves.plot_waves() # -> one or two traces
-         # ... adjust manually the scales of the display
-         waves.define_a_roi() # -> to register the plotting scales
-         waves.animate_fig() #-> to build an animation using these parameters
+      waves.plot_waves() # -> one or two traces
+      # ... adjust manually the scales of the display
+      waves.define_a_roi() # -> to register the plotting scales
+      waves.animate_fig() #-> to build an animation using these parameters
 
-      .. hint::   
-         after **'import anesplot.record_main as rec'**
+   .. hint::   
+      after **'import anesplot.record_main as rec'**
 
-         **'rec.get_basic_debrief_commands()**' will prefill the clipboard with this standard code
+      **'rec.get_basic_debrief_commands()**' will prefill the clipboard with this standard code
 
    - additional functions are available to extract instaneous heart rate
 
@@ -86,87 +93,19 @@ usage
    **'rec.get_guide()'** allow the filling of the clipboard with standard approaches
 
 
-contents
-=========
 
-main script : record_main
---------------------------
-.. note::
-  
-  - it is the entry point to the program ('record_main.py')
-  - it can be called directly from a terminal :
-  
-   .. code-block:: bash
-  
-      "python -m anesplot" or "python anesplot/__main__.py"
-
+the objects
+===========
 
 .. toctree::
-   :maxdepth: 1
-   :caption: main_script:
+   :caption: objects
 
    anesplot.record_main
-
-record_objects
---------------
-
-the recorded data and associated methods are loaded in "wave classes".
-
-four classes are builded to store and display the data and manipulate them, two for slowWaves ('trends'), two for fastWaves:
-
-  - MonitorTrend
-  - MonitorWave 
-  - TaphTrend
-  - TelevetWave
-
-loading is possible from an ipython terminal: 
-
-   .. code-block:: python
-
-      mtrends = rec.MonitorTrend()
-      mwaves = rec.MonitorWave()
-      ttrends = rec.TaphTrend()
-      telwaves = rec.TelevetWave()  <- this has to be improved quite a lot 
-
-the methods provided allows to choose plotting and treatment actions
-for example ::
-
-   mtrends, ttrends:      
-      # attributes =  'data', 'fig', 'filename', 'header', 'param', ...
-      # methods = 'show_graphs', 'clean_trend', 'plot_trend', 'save_roi', ...
-
-   mwaves:
-      # attributes = 'data', 'fig', 'filename', 'header', 'param' ... 
-      # methods : 'animate_fig', 'filter_ekg', 'plot_sample_ekgbeat_overlap', 'plot_sample_systolic_variation', 'plot_wave', ...
+   record_objects
 
 
-MonitorTrend object
-....................
-
-.. autoclass:: anesplot.slow_waves.MonitorTrend
-
-
-TaphTrend object
-....................
-
-.. autoclass:: anesplot.slow_waves.TaphTrend
-
-
-MonitorWave object
-....................
-
-.. autoclass:: anesplot.fast_waves.MonitorWave
-
-
-TelevetWave object
-....................
-
-.. autoclass:: anesplot.fast_waves.TelevetWave
-
-
-
-modules
-========
+sub_modules
+===========
 .. toctree::
    :maxdepth: 4
    :caption: Contents:

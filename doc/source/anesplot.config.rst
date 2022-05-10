@@ -1,5 +1,12 @@
 anesplot.config package
 =======================
+Module contents
+---------------
+
+.. automodule:: anesplot.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -20,10 +27,3 @@ anesplot.config.load\_recordrc module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: anesplot.config
-   :members:
-   :undoc-members:
-   :show-inheritance:

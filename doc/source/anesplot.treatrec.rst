@@ -1,5 +1,13 @@
 anesplot.treatrec package
 =========================
+Module contents
+---------------
+
+.. automodule:: anesplot.treatrec
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Submodules
 ----------
@@ -60,10 +68,3 @@ anesplot.treatrec.wave\_func module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: anesplot.treatrec
-   :members:
-   :undoc-members:
-   :show-inheritance:

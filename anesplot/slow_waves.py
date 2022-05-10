@@ -141,26 +141,25 @@ class _SlowWave(_Waves):
 class MonitorTrend(_SlowWave):
     """
     monitor trends recordings:
+    input = filename : path to file
+    load = boolean to load data (default is True)
 
-        input = filename : path to file
-        load = boolean to load data (default is True)
+    attributes::
+    ------------
+    filename : str = fullname,
+    header : dict = header data
+    data : pd.DataFrame = the recorded data
+    param : dict = description of data loaded and manipulated
+    fig : plt.Figure = the current fig
+    roi : dict = RegionOfInterest related to the actual figure
 
-    attibutes:
-    ----------
-        filename : str = fullname,
-        header : dict = header data
-        data : pd.DataFrame = the recorded data
-        param : dict = description of data loaded and manipulated
-        fig : plt.Figure = the current fig
-        roi : dict = RegionOfINterest related to the actual figure
-
-    methods (inherited)
-    -------------------
-        show_graphs : plot debriefing plots
-        plot_trend : plot after a selection dialog
-        save_roi : update the roi from the current plot
-        build_half_white : build and helf_right empty plot (teaching purposes)
-        clean_trend : (to be improved)
+    methods::
+    ---------
+    show_graphs : plot debriefing plots
+    plot_trend : plot after a selection dialog
+    save_roi : update the roi from the current plot
+    build_half_white : build and helf_right empty plot (teaching purposes)
+    clean_trend : (to be improved)
     """
 
     def __init__(self, filename: str = None, load: bool = True):
@@ -191,8 +190,8 @@ class TaphTrend(_SlowWave):
     """
     taphonius trends recordings
 
-    attibutes:
-    ----------
+    attributes::
+    ------------
         filename : str = the fullname
         header : dictionary = recorded info (patient, ...)
         data : pd.DataFrame = recorded data
@@ -204,21 +203,13 @@ class TaphTrend(_SlowWave):
         fig : plt.Figure = the current figure
         roi : dict = RegionOfInterest parameters for the current fig
 
-    methods:
-    --------
-        show_graphs (inherited) : plot the clinical debrief 'suite'
-        plot_trend : plot a trend after dialog
-        shift_datetime = allow to add minutes to the data.datetime (to adjust with monitor trend/wave)
-        shift_etime = allow to add minutes to the elapsed time
-        sync_etime = same as shift, but using a reference datetime
-        save_roi : update the fig and roi
-        build_half_white' : build and helf_right empty plot (teaching purposes)
-        extract_events : decode the taph messages, build events, actions and ventil_drive
-        export_taph_events : build a .txt containing all the events (paths:~/temp/events.txt)
-        plot_ventil_drive : plot the ventilation commands that have been used"
-        plot_events : plot the events as a time display, dtime allow dtime use
-        plot_ventil_drive : plot the user interaction with the ventilator
-        clean_trend : to be improved,
+    methods::
+    ---------
+        show_graphs : plot debriefing plots
+        plot_trend : plot after a selection dialog
+        save_roi : update the roi from the current plot
+        build_half_white : build and helf_right empty plot (teaching purposes)
+        clean_trend : (to be improved)
     """
 
     def __init__(

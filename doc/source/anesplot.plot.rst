@@ -1,6 +1,15 @@
 anesplot.plot package
 =====================
 
+Module contents
+---------------
+
+.. automodule:: anesplot.plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 Submodules
 ----------
 
@@ -20,10 +29,3 @@ anesplot.plot.wave\_plot module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: anesplot.plot
-   :members:
-   :undoc-members:
-   :show-inheritance:
