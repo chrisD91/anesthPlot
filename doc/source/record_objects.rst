@@ -1,9 +1,5 @@
-record_objects
----------------
-
-
-record_objects
---------------
+import mode : use the record_objects
+--------------------------------------
 
 the recorded data and associated methods are loaded in "wave classes".
 
@@ -38,22 +34,22 @@ for example ::
 MonitorTrend object
 ....................
    
-   .. automodule:: anesplot.slow_waves.MonitorTrend
+   .. autoclass:: anesplot.slow_waves.MonitorTrend
 
 
 TaphTrend object
 ....................
 
-   .. automodule:: anesplot.slow_waves.TaphTrend
+   .. autoclass:: anesplot.slow_waves.TaphTrend
 
 
 MonitorWave object
 ....................
 
-   .. automodule:: anesplot.fast_waves.MonitorWave
+   .. autoclass:: anesplot.fast_waves.MonitorWave
 
 
 TelevetWave object
 ....................
 
-   .. automodule:: anesplot.fast_waves.TelevetWave
+   .. autoclass:: anesplot.fast_waves.TelevetWave

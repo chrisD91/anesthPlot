@@ -26,43 +26,44 @@ but this package can also facilite recording manipulation for other purposes.
       * (some ekg .csv data extracted using a Televet holter system)
 
 
-use anesplot as a script or as package
-=======================================
+use anesplot as a script : call from a terminal 
+================================================
 
-run from a terminal (script usage)
------------------------------------------
-
-- you can **choose** a recordings, load it and plot the data from a terminal
+- you can **choose** a recordings, **load** it and **plot** the data from a terminal:
+   
 
    .. code-block:: bash
 
       python anesthPlot/anesplot/__main__.py
       or
       python -m anesplot
-      -> this will open an GUI choose menu to choose the recording 
+
+- the command  will open an GUI choose menu to choose the recording 
       (MonitorTrend, TaphoniusTrend, MonitorWave, TelevetWave)
 
-
-   - this script approach will build a **standard plot series** for debriefing purposes:
+- this script approach will build a **standard plot series** for debriefing purposes:
          
-      - global histograms (cardiovascular and anesthesia summary)
-      - cardiovascular time based trends plots
-      - respiratory time based trends plots
-      - anesthesia time based trends plots
+   - global histograms (cardiovascular and anesthesia summary)
+   - cardiovascular time based trends plots
+   - respiratory time based trends plots
+   - anesthesia time based trends plots
 
-   - or will build a user selected **plot for wave** recording 
+- or will build a **plot for wave** recording 
+  (the user will be asked to choose the wave to be displayed) 
   
-      - one or two waves on the same plot (script usage, pop_up menu to choose)
+   - one or two waves on the same plot (script usage, pop_up menu to choose)
 
 .. note::
    after the plots have been displayed, you can use the graphical interface to scale and save the plots
 
 
-import anesplot in a python environment
--------------------------------------------------------
+use anesplot as a package : import anesplot in a python environment
+====================================================================
 
 - you can use this code as a **python package** ('import mode'):
       
+   here is an example python code
+
    .. code-block::  python
  
       import anesplot.record_main as rec
@@ -83,14 +84,14 @@ import anesplot in a python environment
    .. hint::   
       after **'import anesplot.record_main as rec'**
 
-      **'rec.get_basic_debrief_commands()**' will prefill the clipboard with this standard code
+      **'rec.get_basic_debrief_commands()**' will prefill the clipboard with 'a standard' code template
 
-   - additional functions are available to extract instaneous heart rate
+   - additional functions are available to extract instaneous heart rate, overlap ekg beats, extract blood pressure systolic variation, ...
 
-      - see anesplot/treatrec/ekg_to_hr.py
+      - see for example anesplot/treatrec/ekg_to_hr.py
 
 .. hint:: 
-   **'rec.get_guide()'** allow the filling of the clipboard with standard approaches
+   **'rec.get_guide()'** will fill the clipboard with code templates of standard approaches
 
 
 
@@ -98,7 +99,6 @@ the objects
 ===========
 
 .. toctree::
-   :caption: objects
 
    anesplot.record_main
    record_objects

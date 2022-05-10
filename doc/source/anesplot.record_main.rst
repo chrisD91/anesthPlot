@@ -1,7 +1,7 @@
-script use : anesplot.record_main
-----------------------------------
+script mode : use anesplot.record_main
+----------------------------------------
 
-idea = choose a record and plot a standard series of plots for debriefing purposes.
+idea = **choose** a record and **plot** a standard series of plots for debriefing purposes.
 
 .. note::
   
@@ -14,8 +14,8 @@ idea = choose a record and plot a standard series of plots for debriefing purpos
 
 (nb the filename will be stored in the clipboard)
 
-script content
-...............
+content
+.......
 
 .. automodule:: anesplot.record_main
    :show-inheritance:
