@@ -75,7 +75,6 @@ class _FastWave(_Waves):
             fig : pyplot.figure
             lines : [line2D object]
             traces_list : [name of the traces]
-
         """
         if self.data.empty:
             fig = None
@@ -216,8 +215,16 @@ class TelevetWave(_FastWave):
     """
     Class to organise teleVet recordings transformed to csv files.
 
-    Input:
-        filename : str (fullpath, default:None)
+    Attributes
+    ----------
+    filename : str
+        the fullname of the file
+    header : dict
+        the header data
+    data : pd.DataFrame
+        the recorded data
+    param : dict
+        description of data loaded and manipulated
     """
 
     # def __init__(self, filename=None):
@@ -245,23 +252,37 @@ class MonitorWave(_FastWave):
 
     Attributes
     ----------
-    filename : str (fullname)
-    header : pd.DataFrame
-    data : pd.DataFram
-    param ; dict
+    filename : str
+        the fullname of the file
+    header : dict
+        the header data
+    data : pd.DataFrame
+        the recorded data
+    param : dict
+        description of data loaded and manipulated
     fig : plt.Figure
-    trace_list list of trancename in the fig
-    roi : dict RegionOfInterest (related to fig)
+        the current fig
+    trace_list :  list
+        all tracenames in the fig
+    roi : dict
+        the memorized RegionOfInterest (related to the actual figure)
 
     Methods
     -------
-    plot_wave : choose trace(s) and plot
-    save_roi : update fig, trace_list and roi
-    animate_fig : build animation
-    filter_ekg : filter the ekg
-    plot_sample_ekgbeat_overlap : overlap detected ekg beats
-    plot_record_systolic_variation : blood pressure variation
-    plot_sample_systolic_variation : blood pressure variation
+    plot_wave
+        choose trace(s) and plot
+    save_roi
+        update fig, trace_list and roi
+    animate_fig
+        build an animation
+    filter_ekg
+        filter the ekg
+    plot_sample_ekgbeat_overlap
+        overlap detected ekg beats
+    plot_record_systolic_variation
+        blood pressure variation
+    plot_sample_systolic_variation
+        blood pressure variation
     """
 
     def __init__(self, filename: str = None, load: bool = True):

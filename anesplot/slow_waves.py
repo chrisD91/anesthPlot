@@ -39,17 +39,17 @@ class _SlowWave(_Waves):
 
     Attributes
     ----------
-        file : str
-            shortname
-        filename : str
-            longname
+    file : str
+        shortname
+    filename : str
+        longname
 
     Methods
     -------
-        clean_trend : external
-            clean the data
-        show_graphs : external
-            plot clinical main plots
+    clean_trend : external
+        clean the data
+    show_graphs : external
+        plot clinical main plots
     """
 
     def __init__(self):
@@ -98,7 +98,7 @@ class _SlowWave(_Waves):
         Parameters
         ----------
         erase : bool, optional (default is False)
-            takes the figure attribute
+            use the figure attribute
 
         Returns
         -------
@@ -122,14 +122,23 @@ class _SlowWave(_Waves):
         self.roi = roidict
         return roidict
 
-    def build_half_white(self):
-        """Take self.fig and build a figure with a, empty 50% time expansion."""
+    def build_half_white(self) -> tuple[plt.Figure, plt.Figure]:
+        """
+        Take self.fig and build a figure with a, empty 50% time expansion.
+
+        Return
+        ------
+        halffig: plt.Figure
+            the builded (half) plot
+        fullfig: plt.Figure
+            a fullscale plot
+        """
         if self.fig is None or self.name is None:
             print("please build a figure to start with -> .plot_trend()")
-            return
+            return plt.Figure(), plt.Figure()
         if self.roi is None:
             print("please define a roi -> .save_roi()")
-            return
+            return plt.Figure(), plt.Figure()
         halffig, lims, fullfig = tagg.build_half_white(
             self.fig, self.name, self.data, self.param, self.roi
         )
@@ -144,20 +153,31 @@ class MonitorTrend(_SlowWave):
 
     Attributes::
     ------------
-    filename : str = fullname,
-    header : dict = header data
-    data : pd.DataFrame = the recorded data
-    param : dict = description of data loaded and manipulated
-    fig : plt.Figure = the current fig
-    roi : dict = RegionOfInterest related to the actual figure
+    filename : str
+        the fullname of the file
+    header : dict
+        the header data
+    data : pd.DataFrame
+        the recorded data
+    param : dict
+        description of data loaded and manipulated
+    fig : plt.Figure
+        the current fig
+    roi : dict
+        the memorized RegionOfInterest (related to the actual figure)
 
     Methods::
     ---------
-    show_graphs : plot debriefing plots
-    plot_trend : plot after a selection dialog
-    save_roi : update the roi from the current plot
-    build_half_white : build and helf_right empty plot (teaching purposes)
-    clean_trend : (to be improved)
+    show_graphs
+        plot debriefing plots
+    plot_trend
+        plot after a selection dialog
+    save_roi
+        update the roi from the current plot
+    build_half_white
+        build and helf_right empty plot (teaching purposes)
+    clean_trend
+        (to be improved)
     """
 
     def __init__(self, filename: str = None, load: bool = True):
@@ -170,11 +190,6 @@ class MonitorTrend(_SlowWave):
             the fullname to the file.
         load : bool, optional (default is True)
             indication to load the data (the header is always loaded)
-
-        Returns
-        -------
-        None
-
         """
         super().__init__()
         if filename is None:
@@ -203,31 +218,58 @@ class TaphTrend(_SlowWave):
     """
     taphonius trends recordings.
 
-    Attributes::
-    ------------
-        filename : str = the fullname
-        header : dictionary = recorded info (patient, ...)
-        data : pd.DataFrame = recorded data
-        param : dictionary  = usage information (file, scales, ...)
-        actions : dictionary = list of operator actions
-        events : set = the detected events
-        dt_events_df : pd.DataFrame = the detected events over time
-        ventil_drive_df : pd.DataFrame = user interaction with the ventilator
-        fig : plt.Figure = the current figure
-        roi : dict = RegionOfInterest parameters for the current fig
+    Attributes
+    ----------
+        filename : str
+            the fullname
+        header : dictionary
+            the recorded info (patient, ...)
+        data : pd.DataFrame
+            the recorded data
+        param : dictionary
+            the informations about the record (file, scales, ...)
+        actions : dictionary
+            a summary of the operator actions
+        events : set
+            the detected events
+        dt_events_df : pd.DataFrame
+            the detected events over time
+        ventil_drive_df : pd.DataFrame
+            a summary of the user interaction with the ventilator
+        fig : plt.Figure
+            the current figure
+        roi : dict
+            the RegionOfInterest parameters for the current fig
 
-    Methods::
-    ---------
-        show_graphs : plot debriefing plots
-        plot_trend : plot after a selection dialog
-        save_roi : update the roi from the current plot
-        build_half_white : build and helf_right empty plot (teaching purposes)
-        clean_trend : (to be improved)
+    Methods
+    -------
+        show_graphs
+            plot debriefing plots
+        plot_trend
+            plot after a selection dialog
+        save_roi
+            update the roi from the current plot
+        build_half_white
+            build and helf_right empty plot (teaching purposes)
+        clean_trend
+            (to be improved)
     """
 
     def __init__(
         self, filename: str = None, monitorname: str = None, load: bool = True
     ):
+        """
+        Initilisation routine.
+
+        Parameters
+        ----------
+        filename : str, optional (default is None)
+            the fullname to the file.
+        monitorname : str, optional (default is None)
+            the fullname of the monitor file to get a matching based on recorded date
+        load : bool, optional (default is True)
+            indication to load the data
+        """
         super().__init__()
         if filename is None:
             filename = ltt.choose_taph_record(monitorname)
@@ -249,8 +291,15 @@ class TaphTrend(_SlowWave):
         self.param["sampling_freq"] = None
         self.extract_events()
 
-    def extract_events(self, shift_min=None) -> None:
-        """Decode the taph messages, build events, actions and ventil_drive."""
+    def extract_events(self, shift_min: int = None) -> None:
+        """
+        Decode the taph messages, build events, actions and ventil_drive.
+
+        Attributes
+        ----------
+        shift_min : int
+            the minute to shift the record to fit with monitor dates
+        """
         dt_events_df = manage_events.build_event_dataframe(self.data)
         if shift_min is not None:
             shift = timedelta(minutes=shift_min)
@@ -267,21 +316,52 @@ class TaphTrend(_SlowWave):
         self.ventil_drive_df = ventil_drive_df
 
     def plot_ventil_drive(self, all_traces: bool = False) -> plt.Figure:
-        """Plot the ventilation commands that have been used."""
+        """Plot the ventilation commands that have been used.
+
+        Attributes
+        ----------
+        all_traces : bool
+            plot all actions
+        """
         fig = manage_events.plot_ventilation_drive(
             self.ventil_drive_df, self.param, all_traces
         )
         fig.show()
         return fig
 
-    def plot_events(self, todrop: list = None, dtime: bool = False):
-        """Plot the events as a time display, dtime allow dtime use."""
-        manage_events.plot_events(self.dt_events_df, self.param, todrop, dtime)
+    def plot_events(self, todrop: list = None, dtime: bool = False) -> plt.Figure:
+        """
+        Plot the events as a time display, dtime allow dtime use.
 
-    # TODO : add exclusion list
+        Parameters
+        ----------
+        todrop : list, optional (default is None)
+            a list of events to drop
+        dtime : bool, optional (default is False)
+            plot using datetime (instead of elapsed time)
 
-    def export_taph_events(self, save_to_file=False) -> None:
-        """Export in a txt files all the events (paths:~/temp/events.txt)."""
+        Returns
+        -------
+        plt.Figure
+
+        """
+        # TODO : add exclusion list
+        fig = manage_events.plot_events(self.dt_events_df, self.param, todrop, dtime)
+        return fig
+
+    def export_taph_events(self, save_to_file: bool = False) -> None:
+        """
+        Export in a txt files all the events (paths:~/temp/events.txt).
+
+        Parameters
+        ----------
+        save_to_file : bool, optional (default is False)
+            save the txt file
+
+        Returns
+        -------
+        None
+        """
         if save_to_file:
             filename = os.path.expanduser(os.path.join("~", "temp", "events.txt"))
             with open(filename, "w", encoding="utf-8") as file:
