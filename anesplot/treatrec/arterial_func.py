@@ -33,7 +33,7 @@ def get_peaks(
     ser: pd.Series, up: bool = True, annotations: bool = False
 ) -> pd.DataFrame:
     """
-    extract a peak location from an arterial time series
+    Extract a peak location from an arterial time series.
 
     Parameters
     ----------
@@ -50,7 +50,6 @@ def get_peaks(
         'ploc' & 'sloc' : point and second based beat location
         'wap' & 'peak_heights' : the arterials values
         'local_max' & 'local_min' : boolean for local maxima and minima
-
     """
     quantile = 0.9
     distance = 300
@@ -134,8 +133,7 @@ def get_peaks(
 
 
 def compute_systolic_variation(ser: pd.Series) -> float:
-    """return the systolic variation : (maxi - mini) / mean"""
-
+    """Return the systolic variation : (maxi - mini) / mean."""
     maxi, mini, mean = ser.agg(["max", "min", "mean"])
     return (maxi - mini) / mean
 
@@ -144,7 +142,7 @@ def plot_sample_systolic_pressure_variation(
     mwave, lims: Tuple = None, teach: bool = False, annotations: bool = False
 ):
     """
-    extract and plot the systolic pressure variation"
+    Extract and plot the systolic pressure variation.
 
     Parameters
     ----------
@@ -161,9 +159,7 @@ def plot_sample_systolic_pressure_variation(
     -------
     fig : plt.Figure
         the matplotlib figure.
-
     """
-
     datadf = mwave.data[["sec", "wap"]].dropna().copy()
     if lims is None:
         lims = mwave.roi["sec"]
@@ -263,7 +259,7 @@ def plot_sample_systolic_pressure_variation(
 
 
 def median_filter(num_std=3):
-    """basic median filter"""
+    """Basic median filter."""
 
     def _median_filter(x):
         _median = np.median(x)
@@ -280,7 +276,7 @@ def median_filter(num_std=3):
 
 def plot_record_systolic_variation(mwave, annotations=False):
     """
-    plot systolic variation over the whole record
+    Plot systolic variation over the whole record.
 
     Parameters
     ----------
@@ -294,7 +290,6 @@ def plot_record_systolic_variation(mwave, annotations=False):
         pressure, sys_var and hr plot
     df : pandas.DataFrame
         peaks locations and description.
-
     """
     if "wap" not in mwave.data.columns:
         print("please provide a MonitorWave object that contains an arterial record")
@@ -382,7 +377,6 @@ if __name__ == "__main__":
 
     def hampel_filter_pandas(input_series, window_size, n_sigmas=3):
         """https://towardsdatascience.com/outlier-detection-with-hampel-filter-85ddf523c73d"""
-
         k = 1.4826  # scale factor for Gaussian distribution
         new_series = input_series.copy()
 

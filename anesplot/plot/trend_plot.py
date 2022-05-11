@@ -37,7 +37,7 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 # ------------------------------------------------------
 def remove_outliers(datadf: pd.DataFrame, key: str, limits: dict = None) -> pd.Series:
     """
-    remove outliers
+    Remove outliers.
 
     Parameters
     ----------
@@ -53,7 +53,6 @@ def remove_outliers(datadf: pd.DataFrame, key: str, limits: dict = None) -> pd.S
     ser : pandas.Series
         data without the outliers.
     """
-
     if limits is None:
         limits = {
             "co2exp": (20, 80),
@@ -76,7 +75,7 @@ def remove_outliers(datadf: pd.DataFrame, key: str, limits: dict = None) -> pd.S
 
 def color_axis(ax0: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
     """
-    change the color of the label & tick & spine.
+    Change the color of the label & tick & spine.
 
     Parameters
     ----------
@@ -90,9 +89,7 @@ def color_axis(ax0: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
     Returns
     -------
     None.
-
     """
-
     ax0.spines[spine].set_color(color)
     if spine == "bottom":
         ax0.xaxis.label.set_color(color)
@@ -106,7 +103,7 @@ def append_loc_to_fig(
     ax0: plt.Axes, dt_list: list, label: str = "g"
 ) -> dict[int, float]:
     """
-    append vertical lines to indicate a time location 'for eg: arterial blood gas'
+    Append vertical lines to indicate a time location 'for eg: arterial blood gas'.
 
     Parameters
     ----------
@@ -121,9 +118,7 @@ def append_loc_to_fig(
     -------
     dict
         a dictionary containing the locations.
-
     """
-
     num_times = mdates.date2num(dt_list)
     res = {}
     for i, num_time in enumerate(num_times):
@@ -138,7 +133,7 @@ def save_graph(
     path: str, ext: str = "png", close: bool = True, verbose: bool = True
 ) -> None:
     """
-    Save a figure from pyplot
+    Save a figure from pyplot.
 
     Parameters
     ----------
@@ -157,12 +152,11 @@ def save_graph(
     verbose : bool, optional (default=True)
         Whether to print information about when and where the image
         has been saved.
+
     Returns
     -------
     None.
-
     """
-
     # Extract the directory and filename from the given path
     directory = os.path.split(path)[0]
     # filename = "%s.%s" % (os.path.split(path)[1], ext)
@@ -188,7 +182,7 @@ def save_graph(
 # %%
 def plot_header(descr: dict, param: dict = None) -> plt.Figure:
     """
-    plot the header of the file.
+    Plot the header of the file.
 
     Parameters
     ----------
@@ -201,9 +195,7 @@ def plot_header(descr: dict, param: dict = None) -> plt.Figure:
     -------
     fig : pyplot.Figure
         plot of the header.
-
     """
-
     if param is None:
         param = {"save": False}
 
@@ -242,7 +234,7 @@ def plot_header(descr: dict, param: dict = None) -> plt.Figure:
 # ------------------------------------------------------
 def hist_cardio(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     """
-    mean arterial pressure histogramme using matplotlib.
+    Mean arterial pressure histogramme using matplotlib.
 
     Parameters
     ----------
@@ -254,10 +246,8 @@ def hist_cardio(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     Returns
     -------
     TYPE
-        matplotlib.pyplot.figure.
-
+       plt.Figure
     """
-
     if param is None:
         param = {}
 
@@ -340,7 +330,7 @@ def hist_cardio(data: pd.DataFrame, param: dict = None) -> plt.Figure:
 # ------------------------------------------------------
 def plot_one_over_time(x, y, colour: str) -> plt.Figure:
     """
-    plot y over x using colour
+    Plot y over x using colour.
 
     Parameters
     ----------
@@ -351,10 +341,8 @@ def plot_one_over_time(x, y, colour: str) -> plt.Figure:
 
     Returns
     -------
-    fig : pyplot.figure()
-
+    fig : plt.figure
     """
-
     fig = plt.figure()
     axe = fig.add_subplot(111)
     axe.plot(x, y, color=colour)
@@ -369,7 +357,9 @@ def plot_one_over_time(x, y, colour: str) -> plt.Figure:
 
 # ------------------------------------------------------
 def hist_co2_iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
-    """plot CO2 and iso histogramme
+    """
+    Plot CO2 and iso histogram.
+
     (NB CO2 should have been converted from % to mmHg)
 
     Parameters
@@ -383,9 +373,7 @@ def hist_co2_iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     -------
     TYPE
         matplotlib.pyplot.Figure.
-
     """
-
     if param is None:
         param = {}
     if "co2exp" not in data.columns:
@@ -469,7 +457,7 @@ def hist_co2_iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
 # ------------------------------------------------------
 def cardiovasc(datadf: pd.DataFrame, param: dict = None) -> plt.Figure:
     """
-    cardiovascular plot
+    Cardiovascular plot.
 
     Parameters
     ----------
@@ -482,9 +470,7 @@ def cardiovasc(datadf: pd.DataFrame, param: dict = None) -> plt.Figure:
     Returns
     -------
     matplotlib.pyplot.Figure
-
     """
-
     if param is None:
         param = {}
     if "hr" not in datadf.columns:
@@ -574,7 +560,7 @@ def cardiovasc(datadf: pd.DataFrame, param: dict = None) -> plt.Figure:
 # ------------------------------------------------------
 def cardiovasc_p1p2(datadf: pd.DataFrame, param: dict = None) -> pd.DataFrame:
     """
-    cardiovascular plot with central venous pressure (p2)
+    Cardiovascular plot with central venous pressure (p2).
 
     Parameters
     ----------
@@ -589,9 +575,7 @@ def cardiovasc_p1p2(datadf: pd.DataFrame, param: dict = None) -> pd.DataFrame:
     -------
     TYPE
         matplotlib.pyplot.Figure.
-
     """
-
     if param is None:
         param = {}
     if "hr" not in datadf.columns:
@@ -698,7 +682,7 @@ def cardiovasc_p1p2(datadf: pd.DataFrame, param: dict = None) -> pd.DataFrame:
 # ------------------------------------------------------
 def co2iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     """
-    plot CO2/iso over time
+    Plot CO2/iso over time.
 
     Parameters
     ----------
@@ -711,9 +695,7 @@ def co2iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
     Returns
     -------
     matplotlib.pyplot.Figure
-
     """
-
     if param is None:
         param = {}
     if "co2exp" not in data.columns:
@@ -803,7 +785,7 @@ def func(ax, x, y1, y2, color="tab:blue", x0=38):
 # ------------------------------------------------------
 def co2o2(data: pd.DataFrame, param: dict) -> plt.Figure:
     """
-    respiratory plot : CO2 and Iso
+    Respiratory plot : CO2 and Iso.
 
     Parameters
     ----------
@@ -817,9 +799,7 @@ def co2o2(data: pd.DataFrame, param: dict) -> plt.Figure:
     -------
     TYPE
         maplotlib.pyplot.Figure
-
     """
-
     try:
         data.co2exp
     except KeyError:
@@ -891,7 +871,7 @@ def co2o2(data: pd.DataFrame, param: dict) -> plt.Figure:
 # ------------------------------------------------------
 def ventil(data: pd.DataFrame, param=dict) -> plt.Figure:
     """
-    plot ventilation
+    Plot ventilation.
 
     Parameters
     ----------
@@ -905,9 +885,7 @@ def ventil(data: pd.DataFrame, param=dict) -> plt.Figure:
     Returns
     -------
     fig : matplotlib.pyplot.Figure
-
     """
-
     path = param.get("path", "")
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -1026,7 +1004,7 @@ def ventil(data: pd.DataFrame, param=dict) -> plt.Figure:
 # ------------------------------------------------------
 def recrut(data: pd.DataFrame, param: dict) -> plt.Figure:
     """
-    display a recrut manoeuver
+    Display a recrut manoeuver.
 
     Parameters
     ----------
@@ -1039,9 +1017,7 @@ def recrut(data: pd.DataFrame, param: dict) -> plt.Figure:
     Returns
     -------
     fig : matplotlib.pyplot.Figure
-
     """
-
     path = param.get("path", "")
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -1103,7 +1079,7 @@ def recrut(data: pd.DataFrame, param: dict) -> plt.Figure:
 
 def ventil_cardio(datadf: pd.DataFrame, param: dict) -> plt.Figure:
     """
-    build ventilation and cardiovascular plot
+    Build ventilation and cardiovascular plot.
 
     Parameters
     ----------
@@ -1116,9 +1092,7 @@ def ventil_cardio(datadf: pd.DataFrame, param: dict) -> plt.Figure:
     Returns
     -------
     fig : matplotlib.pyplot.Figure
-
     """
-
     # path = param.get("path", "")
     # xmin = param.get("xmin", None)
     # xmax = param.get("xmax", None)
@@ -1194,7 +1168,7 @@ def ventil_cardio(datadf: pd.DataFrame, param: dict) -> plt.Figure:
 
 def sat_hr(datadf: pd.DataFrame, param: dict) -> plt.Figure:
     """
-    plot a sat and sat_hr over time
+    Plot a sat and sat_hr over time.
 
     Parameters
     ----------
@@ -1205,11 +1179,8 @@ def sat_hr(datadf: pd.DataFrame, param: dict) -> plt.Figure:
 
     Returns
     -------
-    fig : TYPE
-        DESCRIPTION.
-
+    fig : plt.Figure
     """
-
     if param is None:
         param = {}
     if "sat" not in datadf.columns:
@@ -1264,7 +1235,7 @@ def sat_hr(datadf: pd.DataFrame, param: dict) -> plt.Figure:
 # ------------------------------------------------------
 def save_distri(data: pd.DataFrame, path: dict) -> None:
     """
-    save the 4 distributions graphs for cardiovasc annd respi
+    Save the 4 distributions graphs for cardiovasc and respi.
 
     Parameters
     ----------
@@ -1277,9 +1248,7 @@ def save_distri(data: pd.DataFrame, path: dict) -> None:
     Returns
     -------
     None.
-
     """
-
     #    bpgas(data).savefig((path["sFig"] + "O_bpgas.png"), bbox_inches="tight")
     hist_co2_iso(data).savefig(
         (path["sFig"] + "O_hist_co2_iso.png"), bbox_inches="tight"
@@ -1290,7 +1259,8 @@ def save_distri(data: pd.DataFrame, path: dict) -> None:
 
 def fig_memo(apath: str, fig_name: str):
     """
-    append latex frame command in a txt file inside the fig folder
+    Append latex frame command in a txt file inside the fig folder.
+
     create the file if it doesn't exist
 
     Parameters
@@ -1303,9 +1273,7 @@ def fig_memo(apath: str, fig_name: str):
     Returns
     -------
     None.
-
     """
-
     include_text = (
         "\\begin{frame}{fileName}\n\t\\includegraphics[width = \\textwidth]{bg/"
         + fig_name

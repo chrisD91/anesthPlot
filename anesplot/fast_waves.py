@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Thu Apr 28 16:20:50 2022
@@ -35,7 +35,7 @@ paths = build_paths()
 
 # ++++++++
 class _FastWave(_Waves):
-    """class for Fastwaves = continuous recordings."""
+    """Class for Fastwaves = continuous recordings."""
 
     # def __init__(self, filename=None):
     #     super().__init__(filename)
@@ -47,7 +47,7 @@ class _FastWave(_Waves):
         self.roi = None
 
     def filter_ekg(self):
-        """filter the ekg trace -> build 'ekgMovAvg' & 'ekgLowPass'"""
+        """Filter the ekg trace -> build 'ekgMovAvg' & 'ekgLowPass'."""
         datadf = self.data
         samplingfreq = self.param["sampling_freq"]
         if "wekg" in datadf.columns:
@@ -62,7 +62,7 @@ class _FastWave(_Waves):
 
     def plot_wave(self, traces_list: list = None):
         """
-        simple choose and plot for a wave
+        Choose and plot for a wave.
 
         Parameters
         ----------
@@ -111,7 +111,7 @@ class _FastWave(_Waves):
 
     def save_roi(self, erase: bool = False) -> dict:
         """
-        memorize a Region Of Interest (roi).
+        Memorize a Region Of Interest (roi).
 
         Parameters
         ----------
@@ -129,7 +129,6 @@ class _FastWave(_Waves):
             fig : the related figure
 
         """
-
         if erase:
             roidict = {}
         elif self.fig:
@@ -151,7 +150,8 @@ class _FastWave(_Waves):
         savedir: str = "~",
     ):
         """
-        build a video the previous builded figure
+        Build a video the previous builded figure.
+
         NB requires :
             the .fig attribute (builded through .plot_wave())
             and the .roi attribute (builded through .define_a_roi())
@@ -172,7 +172,6 @@ class _FastWave(_Waves):
         None.
 
         """
-
         if self.roi:
             wplot.create_video(
                 self.data,
@@ -192,7 +191,7 @@ class _FastWave(_Waves):
     def plot_sample_systolic_variation(
         self, lims: Tuple = None, teach: bool = False, annotations: bool = False
     ):
-        "plot the systolic variation"
+        """Plot the systolic variations (sample of a record based on ROI)."""
         if self.roi:
             anesplot.treatrec.arterial_func.plot_sample_systolic_pressure_variation(
                 self, lims, teach, annotations
@@ -202,11 +201,11 @@ class _FastWave(_Waves):
             print("please define a ROI using mwave.save_a_roi")
 
     def plot_record_systolic_variation(self):
-        "plot the systolic variation"
+        """Plot the systolic variation (whole record)."""
         anesplot.treatrec.arterial_func.plot_record_systolic_variation(self)
 
     def plot_sample_ekgbeat_overlap(self, threshold=-1, lims=None):
-        "overlap a sample ekg R centered traces"
+        """Overlap a sample ekg R centered traces."""
         fig = anesplot.treatrec.ekg_func.plot_sample_ekgbeat_overlap(
             self, lims=lims, threshold=threshold
         )
@@ -215,9 +214,9 @@ class _FastWave(_Waves):
 
 class TelevetWave(_FastWave):
     """
-    class to organise teleVet recordings transformed to csv files.
+    Class to organise teleVet recordings transformed to csv files.
 
-    input:
+    Input:
         filename : str (fullpath, default:None)
     """
 
@@ -239,28 +238,30 @@ class TelevetWave(_FastWave):
 
 
 class MonitorWave(_FastWave):
-    """class to organise monitorWave recordings, gather data, provide methods
+    """Class to organise monitorWave recordings, gather data, provide methods.
 
-        input : filename = path to file
-        load = boolean to load data (default is True)
+    input : filename = path to file
+    load = boolean to load data (default is True)
 
-        attibutes::
-            filename : str (fullname)
-            header : pd.DataFrame
-            data : pd.DataFram
-            param ; dict
-            fig : plt.Figure
-            trace_list list of trancename in the fig
-            roi : dict RegionOfInterest (related to fig)
+    Attributes
+    ----------
+    filename : str (fullname)
+    header : pd.DataFrame
+    data : pd.DataFram
+    param ; dict
+    fig : plt.Figure
+    trace_list list of trancename in the fig
+    roi : dict RegionOfInterest (related to fig)
 
-        methods::
-            plot_wave : choose trace(s) and plot
-            save_roi : update fig, trace_list and roi
-            animate_fig : build animation
-            filter_ekg : filter the ekg
-            plot_sample_ekgbeat_overlap : overlap detected ekg beats
-            plot_record_systolic_variation : blood pressure variation
-            plot_sample_systolic_variation : blood pressure variation
+    Methods
+    -------
+    plot_wave : choose trace(s) and plot
+    save_roi : update fig, trace_list and roi
+    animate_fig : build animation
+    filter_ekg : filter the ekg
+    plot_sample_ekgbeat_overlap : overlap detected ekg beats
+    plot_record_systolic_variation : blood pressure variation
+    plot_sample_systolic_variation : blood pressure variation
     """
 
     def __init__(self, filename: str = None, load: bool = True):

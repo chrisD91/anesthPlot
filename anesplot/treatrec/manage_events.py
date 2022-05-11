@@ -25,7 +25,7 @@ pd.set_option("display.max_columns", 500)
 
 
 def convert_day(txt: str) -> str:
-    """get a day YYYYmonthD an convert it to YYY-month-D"""
+    """Convert YYYYmonthD to YYY-month-D."""
     previous = txt[0]
     new = txt[0]
     for m in txt[1:]:
@@ -39,7 +39,7 @@ def convert_day(txt: str) -> str:
 
 def extract_taphmessages(df: pd.DataFrame, display: bool = False) -> Tuple[Any, Any]:
     """
-    extract the messages
+    Extract the messages.
 
     Parameters
     ----------
@@ -77,7 +77,7 @@ def extract_taphmessages(df: pd.DataFrame, display: bool = False) -> Tuple[Any, 
 
 def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     """
-    build a pandas datafame with a countinuous datetime:event pairs
+    Build a pandas datafame with a countinuous datetime:event pairs.
 
     Parameters
     ----------
@@ -89,7 +89,6 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     dteventsdf : pd.DataFrame
         dataframe with index=datetime.
     """
-
     dteventsdf = pd.DataFrame(columns=["events"])
     if datadf.empty:
         print("empty dataframe")
@@ -160,7 +159,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 def extract_ventilation_drive(
     dteventsdf: pd.DataFrame, acts: set = None
 ) -> pd.DataFrame:
-    """extract a dataframe containing the ventilatory management
+    """Extract a dataframe containing the ventilatory management.
 
     Parameters
     ----------
@@ -172,7 +171,6 @@ def extract_ventilation_drive(
     Returns
     -------
     pd.DataFrame with datetime index and one column per action (ex 'rr changed')
-
     """
     if dteventsdf.empty:
         print("extract_ventilation_drive: dt_event_df is empty")
@@ -201,7 +199,7 @@ def extract_ventilation_drive(
     runs = {"ventilate": True, "standby": False}
 
     def end_of_line_to_float(line: str):
-        """return float value else none"""
+        """Return float value else none."""
         line = line.split(" ")[-1].replace("s", "")
         try:
             val = float(line)
@@ -270,7 +268,7 @@ def plot_ventilation_drive(
     df: pd.DataFrame, param: dict, all_traces: bool = False
 ) -> plt.Figure:
     """
-    plot the ventilatory drive ie the data that were changed
+    Plot the ventilatory drive ie the data that were changed.
 
     Parameters
     ----------
@@ -284,7 +282,6 @@ def plot_ventilation_drive(
     Returns
     -------
     fig : plt.Figure
-
     """
     df.columns = [_.split(" ")[0] for _ in df.columns]
     cols = df.columns[2:]
@@ -344,7 +341,7 @@ plt.close("all")
 def plot_events(
     dteventsdf: pd.DataFrame, param: dict, todrop: list = None, dtime: bool = False
 ) -> plt.figure:
-    """plot all events
+    """Plot all events.
 
     Parameters
     ----------
@@ -360,9 +357,7 @@ def plot_events(
     Returns
     -------
     fig : plt.Figure
-
     """
-
     if todrop is None:
         todrop = []
     # drop events
@@ -426,7 +421,7 @@ def plot_events(
 
 def extract_event(eventdf: pd.DataFrame) -> dict:
     """
-    extract timestamp of the messages
+    Extract timestamp of the messages.
 
     Parameters
     ----------
@@ -437,9 +432,7 @@ def extract_event(eventdf: pd.DataFrame) -> dict:
     -------
     dict
         {message : [timestamp]}.
-
     """
-
     messages = ["Init Complete", "Ventilate", "standby", "data finalised"]
     messages = [_.lower() for _ in messages]
 
@@ -455,8 +448,7 @@ def extract_event(eventdf: pd.DataFrame) -> dict:
 
 
 def build_dataframe(acts) -> pd.DataFrame:
-    """build a dataframe containing all the actions, one per column"""
-
+    """Build a dataframe containing all the actions, one per column."""
     names = {
         "Inspiratory pause value changed": "pause",
         "CPAP value changed": "peep",

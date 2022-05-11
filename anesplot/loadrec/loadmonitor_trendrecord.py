@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jul 24 13:43:26 2019
@@ -36,7 +36,6 @@ def choosefile_gui(dirname: str = None) -> str:
         the choosed file fullname.
 
     """
-
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
@@ -55,7 +54,7 @@ def choosefile_gui(dirname: str = None) -> str:
 # Monitor trend
 def loadmonitor_trendheader(filename: str) -> dict:
     """
-    load the file header.
+    Load the file header.
 
     Parameters
     ----------
@@ -116,7 +115,7 @@ def loadmonitor_trendheader(filename: str) -> dict:
 
 def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
     """
-    load the monitor trend data
+    Load the monitor trend data.
 
     Parameters
     ----------
@@ -131,7 +130,6 @@ def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
         the recorded data.
 
     """
-
     print(f"{'-' * 20} < loadmonitor_trenddata")
     if not os.path.isfile(filename):
         print(f"{'!' * 10} datafile not found")

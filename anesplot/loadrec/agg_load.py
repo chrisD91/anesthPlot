@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Thu Apr 28 15:50:27 2022
@@ -49,7 +49,7 @@ def choosefile_gui(dirname: str = None) -> str:
 
 def select_type(question: str = None, items: list = None, num: int = 0) -> str:
     """
-    display a pulldown menu to choose the kind of recording
+    Display a pulldown menu to choose the kind of recording.
 
     Parameters
     ----------
@@ -64,9 +64,7 @@ def select_type(question: str = None, items: list = None, num: int = 0) -> str:
     -------
     str
         kind of recording in [monitorTrend, monitorWave, taphTrend, telvet].
-
     """
-
     if items is None:
         items = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     if question is None:

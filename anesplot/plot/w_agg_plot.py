@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Thu Apr 28 14:41:15 2022
@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
 
 def select_wave_to_plot(waves: list, num=1) -> str:
     """
-    select the wave trace to plot
+    Select the wave trace to plot.
 
     Parameters
     ----------
@@ -23,6 +23,7 @@ def select_wave_to_plot(waves: list, num=1) -> str:
         list of available waves traces
     num : TYPE, optional
         index of the waves in the plot (1 or 2)
+
     Returns
     -------
     str

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jul 31 16:22:06 2019
@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 def choosefile_gui(dirpath: str = None) -> str:
     """
-    select a file using a dialog
+    Select a file using a dialog.
 
     Parameters
     ----------
@@ -32,9 +32,7 @@ def choosefile_gui(dirpath: str = None) -> str:
     -------
     str
         full name of the selected file.
-
     """
-
     if dirpath is None:
         dirpath = os.path.expanduser("~")
     app = QApplication([dirpath])
@@ -53,7 +51,7 @@ def choosefile_gui(dirpath: str = None) -> str:
 
 def loadtelevet(fname: str = None, all_traces: bool = False) -> pd.DataFrame:
     """
-    load the televetCsvExportedFile
+    Load the televetCsvExportedFile.
 
     Parameters
     ----------
@@ -66,9 +64,7 @@ def loadtelevet(fname: str = None, all_traces: bool = False) -> pd.DataFrame:
     -------
     pandas.DataFrame
         the recorded traces.
-
     """
-
     filepath = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTelVetRecorded"
     if fname is None:
         fname = "STEF_0031_00114_20171205_121305.csv"

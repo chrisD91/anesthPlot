@@ -135,7 +135,7 @@ def detect_beats(
     ser: pd.Series, fs: int = 300, species: str = "horse", threshold: float = -1
 ) -> pd.DataFrame:
     """
-    detect the peak locations of the beats
+    Detect the peak locations of the beats.
 
     Parameters
     ----------
@@ -151,9 +151,7 @@ def detect_beats(
     Returns
     -------
     df : pandas.DataFrame
-
     """
-
     beatlocdf = pd.DataFrame()
     # fs = param.get('fs', 300)
     if species == "horse":
@@ -187,7 +185,7 @@ def detect_beats(
 # ekg_df.wekg_lowpass, beat_df)
 def plot_beats(ekgdf: pd.DataFrame, beatlocdf: pd.DataFrame) -> plt.Figure:
     """
-    plot beat location on ekg display and rr values over time
+    Plot beat location on ekg display and rr values over time.
 
     Parameters
     ----------
@@ -199,9 +197,7 @@ def plot_beats(ekgdf: pd.DataFrame, beatlocdf: pd.DataFrame) -> plt.Figure:
     Returns
     -------
     fig : matplotlib.pyplot.Figure
-
     """
-
     fig = plt.figure(figsize=(13, 5))
     fig.suptitle("verify the accuracy of the beat detection")
     ax0 = fig.add_subplot(211)
@@ -239,7 +235,7 @@ def append_beat(
     yscale: float = 1,
 ) -> pd.DataFrame:
     """
-    append a beat coordonate from the figure to the tochangedf['toAppend']
+    Append a beat coordonate from the figure to the tochangedf['toAppend'].
 
     Parameters
     ----------
@@ -262,8 +258,8 @@ def append_beat(
         incremented changedf (pt location).
 
 
-    methods::
-
+    Methods::
+    ---------
         locate the beat in the figure, append to a dataframe['toAppend']
         0.: if not present : build a dataframe:
             >>> to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
@@ -319,7 +315,7 @@ def remove_beat(
     lim: Tuple = None,
 ) -> pd.DataFrame:
     """
-    remove a beat coordinate from the figure to the tochangedf['toRemove']
+    Remove a beat coordinate from the figure to the tochangedf['toRemove'].
 
     Parameters
     ----------
@@ -360,7 +356,6 @@ def remove_beat(
         - second : run
             >>> beat_df = update_beat_df())
     """
-
     # find the limits of the figure
     if lim is None:
         lims = fig.get_axes()[0].get_xlim()
@@ -399,9 +394,9 @@ def save_beats(
     csv: bool = False,
 ):
     """
-    save the beats locations as csv and hd5 file
+    Save the beats locations as csv and hd5 file.
 
-    parameters
+    Parameters
     ----------
     beatlocdf : pd.dataframes
     tochangedf : pandas.dataframe
@@ -440,7 +435,7 @@ def update_beatloc_df(
     from_file: bool = False,
 ):
     """
-    implement in the beat location the manual corrections
+    Implement in the beat location the manual corrections.
 
     Parameters
     ----------
@@ -457,9 +452,7 @@ def update_beatloc_df(
     -------
     beatlocdf : pd.DataFrame
         updated beat position
-
     """
-
     if from_file:
         name = os.path.join(path_to_file, "beatlocdf.csv")
         try:
@@ -489,7 +482,7 @@ def update_beatloc_df(
 # %% =========================================
 def point_to_time_rr(beatlocdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
     """
-    compute rr intervals (from pt to time)
+    Compute rr intervals (from pt to time).
 
     Parameters
     ----------
@@ -506,7 +499,6 @@ def point_to_time_rr(beatlocdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
         'rrDiff' = rrVariation
         'rrSqDiff' = rrVariation^2
     """
-
     if fs is None:
         fs = 300
     # compute rr intervals
@@ -527,7 +519,7 @@ def point_to_time_rr(beatlocdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
 
 def interpolate_rr(beatlocdf: pd.DataFrame, kind: str = None) -> pd.DataFrame:
     """
-    interpolate the beat_df (pt -> time values)
+    Interpolate the beat_df (pt -> time values).
 
     Parameters
     ----------
@@ -540,9 +532,7 @@ def interpolate_rr(beatlocdf: pd.DataFrame, kind: str = None) -> pd.DataFrame:
     -------
     ahr_df : pd.DataFrame
         evenly spaced data with 'espts' = evenly spaced points & 'rrInterpol' = interpolated rr
-
     """
-
     if kind is None:
         kind = "cubic"
     ahr_df = pd.DataFrame()
@@ -575,7 +565,7 @@ def interpolate_rr(beatlocdf: pd.DataFrame, kind: str = None) -> pd.DataFrame:
 
 def plot_rr(ahr_df: pd.DataFrame, param: dict, HR: bool = False) -> plt.Figure:
     """
-    plot RR vs pt values + rrSqDiff
+    Plot RR vs pt values + rrSqDiff.
 
     Parameters
     ----------
@@ -588,9 +578,7 @@ def plot_rr(ahr_df: pd.DataFrame, param: dict, HR: bool = False) -> plt.Figure:
     Returns
     -------
     fig : plt.Figure
-
     """
-
     fs = param["sampling_freq"]
 
     fig = plt.figure(figsize=(8, 4))
@@ -635,7 +623,7 @@ def plot_rr(ahr_df: pd.DataFrame, param: dict, HR: bool = False) -> plt.Figure:
 
 def append_rr_and_ihr_to_wave(ekgdf: pd.DataFrame, ahrdf: pd.DataFrame) -> pd.DataFrame:
     """
-    append rr and ihr to the waves based on pt value (ie index)
+    Append rr and ihr to the waves based on pt value (ie index).
 
     Parameters
     ----------
@@ -648,9 +636,7 @@ def append_rr_and_ihr_to_wave(ekgdf: pd.DataFrame, ahrdf: pd.DataFrame) -> pd.Da
     -------
     df : pd.DataFrame
         added iHR to ekgdf.
-
     """
-
     df = pd.concat([ekgdf, ahrdf.set_index("espts")], axis=1)
     df["ihr"] = 1 / df.rrInterpol * 60 * 1000
     print("added instantaneous heart rate to a Wave dataframe")
@@ -658,8 +644,7 @@ def append_rr_and_ihr_to_wave(ekgdf: pd.DataFrame, ahrdf: pd.DataFrame) -> pd.Da
 
 
 def plot_agreement(trenddf: pd.DataFrame):
-    """plot ip1HR & ihr to check agreement"""
-
+    """Plot ip1HR & ihr to check agreement."""
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(trenddf.hr)
@@ -673,7 +658,7 @@ def append_ihr_to_trend(
     trenddf: pd.DataFrame, wavedf: pd.DataFrame, ekgdf: pd.DataFrame
 ) -> pd.DataFrame:
     """
-    append 'ihr' (instataneous heart rate) to the trends
+    Append 'ihr' (instataneous heart rate) to the trends.
 
     Parameters
     ----------
@@ -688,9 +673,7 @@ def append_ihr_to_trend(
     -------
     trenddf : TYPE
         DESCRIPTION.
-
     """
-
     # build a new index
     ratio = len(wavedf) / len(trenddf)
     ser = (wavedf.index.to_series() / ratio).astype(int)
@@ -709,7 +692,7 @@ def append_ihr_to_trend(
 
 def save_trends_data(trenddf: pd.DataFrame, savename: str = "", dirpath: str = "data"):
     """
-    save the trends data to a hd5 file, including an ihr column (key='trends_data')
+    Save the trends data to a hd5 file, including an ihr column (key='trends_data').
 
     Parameters
     ----------
@@ -723,9 +706,7 @@ def save_trends_data(trenddf: pd.DataFrame, savename: str = "", dirpath: str = "
     Returns
     -------
     None.
-
     """
-
     if dirpath is None:
         dirpath = os.getcwd()
     if not os.path.isdir(dirpath):
@@ -742,7 +723,7 @@ def save_trends_data(trenddf: pd.DataFrame, savename: str = "", dirpath: str = "
 
 def save_waves_data(wavedf: pd.DataFrame, savename: str = "", dirpath: str = "data"):
     """
-    save the waves data to a csv and hd5 file, including an ihr column (key='waves_data')
+    Save the waves data to a csv and hd5 file, including an ihr column (key='waves_data').
 
     Parameters
     ----------
@@ -756,9 +737,7 @@ def save_waves_data(wavedf: pd.DataFrame, savename: str = "", dirpath: str = "da
     Returns
     -------
     None.
-
     """
-
     if dirpath is None:
         dirpath = os.getcwd()
     if not os.path.isdir(dirpath):

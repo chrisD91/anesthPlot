@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -30,7 +30,7 @@ def filedialog(
     is_folder: bool = False,
 ) -> str:
     """
-    general dialog functiuon
+    General dialog function.
 
     Parameters
     ----------
@@ -46,7 +46,6 @@ def filedialog(
     -------
     str
         the selected path.
-
     """
     label = "select the folder for " + kind
     options = QFileDialog.Options()
@@ -86,7 +85,7 @@ def filedialog(
 
 
 def read_config() -> dict:
-    """locate & load the yaml file."""
+    """Locate & load the yaml file."""
     # locate
     try:
         # for external call
@@ -113,7 +112,7 @@ def read_config() -> dict:
 
 
 def write_configfile(path: dict) -> None:
-    """record the yaml file."""
+    """Record the yaml file."""
     config_loc = os.path.join(path["recordMain"], "config")
     os.chdir(path[config_loc])
     with open("recordRc.yaml", "w", encoding="utf-8") as ymlfile:
@@ -121,7 +120,7 @@ def write_configfile(path: dict) -> None:
 
 
 def main():
-    """main function for script execution."""
+    """Script execution entry point."""
     try:
         app
     except NameError:

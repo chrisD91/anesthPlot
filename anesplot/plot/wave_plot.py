@@ -1,3 +1,4 @@
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Tue Apr 19 09:08:56 2016
@@ -11,7 +12,7 @@ collection of functions to plot the wave data
 import os
 from bisect import bisect
 from math import ceil, floor
-from typing import List, Tuple, Union
+from typing import List, Union
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -37,7 +38,7 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
     """
-    change the color of the label & tick & spine.
+    Change the color of the label & tick & spine.
 
     Parameters
     ----------
@@ -51,7 +52,6 @@ def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
     Returns
     -------
     None.
-
     """
     ax.spines[spine].set_color(color)
     if spine == "bottom":
@@ -67,7 +67,8 @@ def plot_wave(
     datadf: pd.DataFrame, keys: list, param: dict
 ) -> Union[plt.Figure, List[plt.Line2D]]:
     """
-    plot the waves recorded (from as5)
+    Plot the waves recorded (from as5).
+
     (Nb plot datadf/index, but the xscale is indicated as sec)
 
     Parameters
@@ -82,9 +83,7 @@ def plot_wave(
     Returns
     -------
     matplotlib.pyplot.Figure
-
     """
-
     # test wave in dataframe
     if not set(keys) < set(datadf.columns):
         print(f"the traces {set(keys) - set(datadf.columns)} is not in the data")
@@ -235,7 +234,7 @@ def plot_wave(
 
 def get_wave_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     """
-    use the drawn figure to extract the x and x limits
+    Use the drawn figure to extract the x and x limits.
 
     Parameters
     ----------
@@ -250,7 +249,6 @@ def get_wave_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     dict :
         containing ylims, xlims(point, dtime and sec)
     """
-
     ylims = tuple([_.get_ylim() for _ in fig.get_axes()])
     # xlims
     ax = fig.get_axes()[0]
@@ -287,7 +285,7 @@ def create_video(
     savedir: str = "~",
 ) -> None:
     """
-    create a video from a figure
+    Create a video from a figure.
 
     Parameters
     ----------
@@ -310,14 +308,13 @@ def create_video(
     -------
     .mp4 file
     .png file
-
     """
 
     def select_sub_dataframe(
         datadf: pd.DataFrame, keys: list, xlims: tuple
     ) -> pd.DataFrame:
         """
-        extract subdataframe corresponding to the roi
+        Extract subdataframe corresponding to the ROI.
 
         Parameters
         ----------
@@ -331,9 +328,7 @@ def create_video(
         Returns
         -------
         sub_df : pandas.DataFrame
-
         """
-
         sub_df = datadf[xlims[0] < datadf.sec]
         sub_df = sub_df[sub_df.sec < xlims[1]]
         sub_df = sub_df.set_index("sec")
@@ -341,7 +336,7 @@ def create_video(
         return sub_df
 
     def init(data: pd.DataFrame, param: dict, keys: list, xlims: tuple, ylims: list):
-        """build a new figure and associated line2D objects"""
+        """Build a new figure and associated line2D objects."""
         plt.close("all")
         dtime = param["dtime"]
         param["dtime"] = False
@@ -355,7 +350,7 @@ def create_video(
 
     def animate(i: int, df: pd.DataFrame, keys: list, nbpoint: int) -> tuple:
         """
-        animate the plot
+        Animate the plot.
 
         Parameters
         ----------
@@ -372,9 +367,7 @@ def create_video(
         -------
         tuple
             the two lines2D objects.
-
         """
-
         if len(keys) == 1:
             trace_name = keys[0]
             line0.set_data(

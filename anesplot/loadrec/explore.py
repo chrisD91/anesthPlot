@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 def gui_choosefile(paths=None):
-    """select a file via a dialog and return the file name."""
+    """Select a file via a dialog and return the file name."""
     if not paths:
         paths = {}
     apath = paths.get("data", "~")

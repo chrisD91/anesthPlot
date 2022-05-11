@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -51,7 +51,7 @@ faulthandler.enable()
 
 
 def get_basic_debrief_commands():
-    """copy in clipboard the usual commands to build a debrief"""
+    """Copy in clipboard the usual commands to build a debrief."""
     lines = [
         "mtrends = rec.MonitorTrend()",
         "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))",
@@ -62,13 +62,14 @@ def get_basic_debrief_commands():
 
 
 def trendname_to_wavename(name: str) -> str:
-    """just compute the supposed (full)name"""
+    """Compute the supposed (full)name."""
     return name.split(".")[0] + "Wave.csv"
 
 
 def main(file_name: str = None):
     """
-    main script called from command line
+    Script called from command line.
+
     call : "python record_main.py"
     call a GUI, load recording and display a series of plt.figure
     NB filename will be placed in the clipboard
@@ -81,7 +82,6 @@ def main(file_name: str = None):
     Returns
     -------
     None.
-
     """
     # os.chdir(paths.get("recordMain", os.path.expanduser('~')))
     print(f"backEnd= {plt.get_backend()}")  # required ?

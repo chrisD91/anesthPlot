@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Thu Apr 28 16:20:07 2022
@@ -18,6 +18,8 @@ class _Waves:
 
     def __init__(self):
         """
+        Initialise.
+
         :param filename: DESCRIPTION, defaults to None
         :type filename: str, optional
         :return: basic class for the records

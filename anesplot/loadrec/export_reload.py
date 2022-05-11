@@ -24,7 +24,8 @@ from anesplot.slow_waves import MonitorTrend, TaphTrend
 # def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
 def export_data_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
     """
-    export the recordings in an hdf file
+    Export the recordings in an hdf file.
+
     keys are
     - mtrends_data, mtrends_header, mtrends_param
     - ttrends_data, ttrends_header, ttrends_param
@@ -44,11 +45,10 @@ def export_data_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
     Returns
     -------
     None.
-
     """
 
     def fix_dtypes(dataframe: pd.DataFrame) -> pd.DataFrame:
-        """fix the dtype of a dataframe"""
+        """Fix the dtype of a dataframe."""
         for col in dataframe.columns:
             try:
                 dataframe[col] = pd.to_numeric(dataframe[col])
@@ -92,7 +92,8 @@ def export_data_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
 # def load_from_hdf(savename: str):
 def build_obj_from_hdf(savename: str):
     """
-    build MonitorTrend, TaphTrenbd and MonitorWave objects
+    Build MonitorTrend, TaphTrenbd and MonitorWave objects.
+
     fill them from hdf file
 
     Parameters
@@ -107,7 +108,7 @@ def build_obj_from_hdf(savename: str):
     """
 
     def df_to_dico_with_none(itemdf: pd.DataFrame) -> dict:
-        """df to dico, and replace nan with none"""
+        """Df to dico, and replace nan with none."""
         if itemdf.empty:
             return {}
         return itemdf.mask(itemdf.isna(), other=None).to_dict()[0]

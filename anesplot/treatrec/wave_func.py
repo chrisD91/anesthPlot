@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Fri Dec  8 12:46:41 2017
@@ -17,7 +18,10 @@ from scipy.signal import medfilt
 
 # //////////////////////////////////////////////// cardio
 def fix_baseline_wander(ekg_ser: pd.Series, fs: int = 300) -> pd.Series:
-    """BaselineWanderRemovalMedian.m from ecg-kit.  Given a list of amplitude values
+    """
+    BaselineWanderRemovalMedian from ecg-kit.
+
+    Given a list of amplitude values
     (ekg_ser) and sample rate (sr), it applies two median filters to data to
     compute the baseline.  The returned result is the original data minus this
     computed baseline.
@@ -31,11 +35,9 @@ def fix_baseline_wander(ekg_ser: pd.Series, fs: int = 300) -> pd.Series:
 
     Returns
     -------
-    list
-        DESCRIPTION.
-
+    pd.Series
+        the ekg filtered series
     """
-
     # source : https://pypi.python.org/pypi/BaselineWanderRemoval/2017.10.25
     print("\n fix baseline_wander")
     print("source = Python port of BaselineWanderRemovalMedian.m from ECG-kit")
@@ -61,18 +63,16 @@ def fix_baseline_wander(ekg_ser: pd.Series, fs: int = 300) -> pd.Series:
 
 def rol_mean(ser: pd.Series, win_lengh: int = 1, fs: int = 500) -> list:
     """
-    returns a rolling mean of a RR serie
+    Return a rolling mean of a RR serie.
 
-    parameters
+    Parameters
     ----------
     ser= pd.Serie
     win_lengh: integer
         window lenght for averaging (in sec),
     fs: int
         sampling frequency
-
     """
-
     # moving average
     mov_avg = ser.rolling(window=int(win_lengh * fs), center=False).mean()
     # replace the initial values by the mean
@@ -83,7 +83,7 @@ def rol_mean(ser: pd.Series, win_lengh: int = 1, fs: int = 500) -> list:
 
 def return_points(wavedf: pd.DataFrame, fig: plt.Figure) -> dict:
     """
-    return a tupple containing the point values of ROI
+    Return a tupple containing the point values of ROI.
 
     Parameters
     ----------
@@ -96,9 +96,7 @@ def return_points(wavedf: pd.DataFrame, fig: plt.Figure) -> dict:
     -------
     dict
         the Region Of Interest.
-
     """
-
     ax = fig.get_axes()[0]
     # point Value
     lims = ax.get_xlim()
@@ -124,9 +122,9 @@ def restrict_time_area(
     df1: pd.DataFrame, mini: int = None, maxi: int = None
 ) -> pd.DataFrame:
     """
-    return a new dataframe with reindexation
+    Return a new dataframe with reindexation.
 
-    parameters
+    Parameters
     ----------
     df1: pandas.DataFrame
     mini: integer
@@ -134,11 +132,10 @@ def restrict_time_area(
     maxi: integer
         maxiPointValue
 
-    returns
+    Returns
     -------
     pandas.DataFrame
     """
-
     try:
         "sec" in df1.columns
     except KeyError:

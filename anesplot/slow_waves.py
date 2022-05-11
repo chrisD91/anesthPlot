@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Thu Apr 28 16:20:28 2022
 
 @author: cdesbois
 
-build the objects or the slow_waves ('trends'):
+build the objects for the slow_waves ('trends'):
     -> MonitorTrend
     -> TaphTrend
 
@@ -34,18 +34,17 @@ paths = build_paths()
 
 # +++++++
 class _SlowWave(_Waves):
-
     """
-    class for slowWaves = trends
+    Class for slow_waves = trends.
 
-    attributes:
-    -----------
+    Attributes
+    ----------
         file : str
-            short name
+            shortname
         filename : str
-            long name
+            longname
 
-    methods
+    Methods
     -------
         clean_trend : external
             clean the data
@@ -58,7 +57,8 @@ class _SlowWave(_Waves):
 
     def clean_trend(self):
         """
-        clean the data, remove irrelevant,
+        Clean the data, remove irrelevant.
+
         input = self.data,
         output = pandas dataFrame
         nb doesnt change the obj.data in place
@@ -67,7 +67,7 @@ class _SlowWave(_Waves):
         return datadf
 
     def show_graphs(self):
-        """basic clinical plots"""
+        """Build and display classical clinical plots."""
         if self.data.empty:
             print("recording is empty : no data to plot")
             fig_dico = {}
@@ -76,7 +76,7 @@ class _SlowWave(_Waves):
         return fig_dico
 
     def plot_trend(self):
-        """choose the graph to use from a pulldown menu"""
+        """Choose the graph to use from a pulldown menu."""
         # TODO add a preset if self.name is defined
         if self.data.empty:
             print("recording is empty : no data to plot")
@@ -93,7 +93,7 @@ class _SlowWave(_Waves):
 
     def save_roi(self, erase: bool = False) -> dict:
         """
-        memorize a Region Of Interest (roi).
+        Memorize a Region Of Interest (roi).
 
         Parameters
         ----------
@@ -123,7 +123,7 @@ class _SlowWave(_Waves):
         return roidict
 
     def build_half_white(self):
-        """take self.fig and build a figure with a, empty 50% time expansion"""
+        """Take self.fig and build a figure with a, empty 50% time expansion."""
         if self.fig is None or self.name is None:
             print("please build a figure to start with -> .plot_trend()")
             return
@@ -140,11 +140,9 @@ class _SlowWave(_Waves):
 
 class MonitorTrend(_SlowWave):
     """
-    monitor trends recordings:
-    input = filename : path to file
-    load = boolean to load data (default is True)
+    Monitor trends recordings class.
 
-    attributes::
+    Attributes::
     ------------
     filename : str = fullname,
     header : dict = header data
@@ -153,7 +151,7 @@ class MonitorTrend(_SlowWave):
     fig : plt.Figure = the current fig
     roi : dict = RegionOfInterest related to the actual figure
 
-    methods::
+    Methods::
     ---------
     show_graphs : plot debriefing plots
     plot_trend : plot after a selection dialog
@@ -163,6 +161,21 @@ class MonitorTrend(_SlowWave):
     """
 
     def __init__(self, filename: str = None, load: bool = True):
+        """
+        Initilisation routine.
+
+        Parameters
+        ----------
+        filename : str, optional (default is None)
+            the fullname to the file.
+        load : bool, optional (default is True)
+            indication to load the data (the header is always loaded)
+
+        Returns
+        -------
+        None
+
+        """
         super().__init__()
         if filename is None:
             filename = choosefile_gui(paths["mon_data"])
@@ -188,9 +201,9 @@ class MonitorTrend(_SlowWave):
 
 class TaphTrend(_SlowWave):
     """
-    taphonius trends recordings
+    taphonius trends recordings.
 
-    attributes::
+    Attributes::
     ------------
         filename : str = the fullname
         header : dictionary = recorded info (patient, ...)
@@ -203,7 +216,7 @@ class TaphTrend(_SlowWave):
         fig : plt.Figure = the current figure
         roi : dict = RegionOfInterest parameters for the current fig
 
-    methods::
+    Methods::
     ---------
         show_graphs : plot debriefing plots
         plot_trend : plot after a selection dialog
@@ -237,7 +250,7 @@ class TaphTrend(_SlowWave):
         self.extract_events()
 
     def extract_events(self, shift_min=None) -> None:
-        """decode the taph messages, build events, actions and ventil_drive"""
+        """Decode the taph messages, build events, actions and ventil_drive."""
         dt_events_df = manage_events.build_event_dataframe(self.data)
         if shift_min is not None:
             shift = timedelta(minutes=shift_min)
@@ -254,7 +267,7 @@ class TaphTrend(_SlowWave):
         self.ventil_drive_df = ventil_drive_df
 
     def plot_ventil_drive(self, all_traces: bool = False) -> plt.Figure:
-        """plot the ventilation commands that have been used"""
+        """Plot the ventilation commands that have been used."""
         fig = manage_events.plot_ventilation_drive(
             self.ventil_drive_df, self.param, all_traces
         )
@@ -262,13 +275,13 @@ class TaphTrend(_SlowWave):
         return fig
 
     def plot_events(self, todrop: list = None, dtime: bool = False):
-        """plot the events as a time display, dtime allow dtime use"""
+        """Plot the events as a time display, dtime allow dtime use."""
         manage_events.plot_events(self.dt_events_df, self.param, todrop, dtime)
 
     # TODO : add exclusion list
 
     def export_taph_events(self, save_to_file=False) -> None:
-        "export in a txt files all the events (paths:~/temp/events.txt)"
+        """Export in a txt files all the events (paths:~/temp/events.txt)."""
         if save_to_file:
             filename = os.path.expanduser(os.path.join("~", "temp", "events.txt"))
             with open(filename, "w", encoding="utf-8") as file:
@@ -285,7 +298,7 @@ class TaphTrend(_SlowWave):
 
     def shift_datetime(self, minutes: int) -> None:
         """
-        shift the recording datetime
+        Shift the recording datetime.
 
         Parameters
         ----------
@@ -303,7 +316,7 @@ class TaphTrend(_SlowWave):
 
     def shift_etime(self, minutes: int) -> None:
         """
-        shift the elapsed time
+        Shift the elapsed time.
 
         Parameters
         ----------
@@ -319,7 +332,7 @@ class TaphTrend(_SlowWave):
 
     def sync_etime(self, datetime0: datetime) -> None:
         """
-        shift the elapsed time based a 'zero' datetime.datetime
+        Shift the elapsed time based a 'zero' datetime.datetime.
 
         Parameters
         ----------

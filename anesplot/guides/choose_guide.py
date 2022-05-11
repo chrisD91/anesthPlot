@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Thu Mar 10 08:37:18 2022
@@ -16,7 +16,7 @@ import pyperclip
 
 def get_guide(pathsdict: dict) -> str:
     """
-    load the specified template file and copy it to the clipboard
+    Load the specified template file and copy it to the clipboard.
 
     Parameters
     ----------

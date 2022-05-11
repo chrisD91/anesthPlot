@@ -14,7 +14,7 @@ import numpy as np
 
 
 def clean_trenddata(datadf):
-    """remove artifacts in the recorded trends"""
+    """Remove artifacts in the recorded trends."""
     param_list = [
         "ip1s",
         "ip1d",

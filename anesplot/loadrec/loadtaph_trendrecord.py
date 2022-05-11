@@ -37,7 +37,7 @@ paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRe
 # list taph recordings
 def build_taph_decodedate_dico(pathdict: dict = None) -> dict:
     """
-    list all the taph recordings and the paths to the record
+    List all the taph recordings and the paths to the record.
 
     Parameters
     ----------
@@ -50,7 +50,6 @@ def build_taph_decodedate_dico(pathdict: dict = None) -> dict:
         get all the recorded files expressed as {date : filename}.
 
     """
-
     if pathdict is None:
         pathdict = paths
     months = {
@@ -90,7 +89,7 @@ def build_taph_decodedate_dico(pathdict: dict = None) -> dict:
 
 def extract_record_day(monitor_file_name: str) -> str:
     """
-    extract the date as 'YYYY_MM_DD' from a monitor_filename
+    Extract the date as 'YYYY_MM_DD' from a monitor_filename.
 
     Parameters
     ----------
@@ -103,7 +102,6 @@ def extract_record_day(monitor_file_name: str) -> str:
         same date expressed as YYYY_MM_DD.
 
     """
-
     record_date = os.path.basename(monitor_file_name.lower())
     for txt in ["sd", "m", ".csv", "wave"]:
         record_date = record_date.strip(txt)
@@ -114,7 +112,7 @@ def extract_record_day(monitor_file_name: str) -> str:
 
 def choose_taph_record(monitorname: str = None) -> str:
     """
-    explore the recording folders and proposes to selct one
+    Explore the recording folders and proposes to select one.
 
     Parameters
     ----------
@@ -127,7 +125,6 @@ def choose_taph_record(monitorname: str = None) -> str:
         selected file (full) name.
 
     """
-
     print(f"{' ' * 20} + choose taph_record")
     taphdico = build_taph_decodedate_dico()
     recorddates = sorted(taphdico.keys(), reverse=True)
@@ -166,7 +163,7 @@ def choose_taph_record(monitorname: str = None) -> str:
 
 def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     """
-    load the taphoniusData trends data.
+    Load the taphoniusData trends data.
 
     Parameters
     ----------
@@ -177,9 +174,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     -------
     pandas.DataFrame
         the recorded data.
-
     """
-
     if filename is None:
         print(f"{'!' * 10} no name provided")
         return pd.DataFrame()
@@ -306,7 +301,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
 
 def loadtaph_patientfile(filename: str) -> dict:
     """
-    load the taphonius patient.csv file ('header' in monitor files, description)
+    Load the taphonius patient.csv file ('header' in monitor files, description).
 
     Parameters
     ----------
@@ -320,7 +315,6 @@ def loadtaph_patientfile(filename: str) -> dict:
         the patient description data.
 
     """
-
     headername = os.path.join(os.path.dirname(filename), "Patient.csv")
 
     print(f"{'.' * 20} < loading taph_patientfile")
@@ -349,7 +343,7 @@ def loadtaph_patientfile(filename: str) -> dict:
 
 def shift_datetime(datadf: pd.DataFrame, minutes_to_add: int = None) -> pd.DataFrame:
     """
-    add a datetime shift to the dataframe to compensate computer time shift (usually one hour)
+    Add a shift to the dataframe to compensate computer time shift (usually one hour).
 
     Parameters
     ----------
@@ -362,7 +356,6 @@ def shift_datetime(datadf: pd.DataFrame, minutes_to_add: int = None) -> pd.DataF
     -------
     datadf : pd.DataFrame
         the recording with shifted datetime and time columns.
-
     """
     if minutes_to_add:
         shift = timedelta(minutes=minutes_to_add)
@@ -378,7 +371,7 @@ def shift_elapsed_time(
     datadf: pd.DataFrame, minutes_to_add: int = None
 ) -> pd.DataFrame:
     """
-    add a elapsedtime shift to the dataframe to compensate recording start
+    Add a elapsedtime shift to the dataframe to compensate recording start.
 
     Parameters
     ----------
@@ -390,7 +383,6 @@ def shift_elapsed_time(
     -------
     datadf : pd.DataFrame
         the recording with shifted eTime and eTimeMin columns.
-
     """
     if minutes_to_add:
         shift = minutes_to_add
@@ -404,7 +396,8 @@ def shift_elapsed_time(
 
 def sync_elapsed_time(datetime_0: datetime, taphdatadf: pd.DataFrame) -> pd.DataFrame:
     """
-    use the first point of monitor recording to sync the taph elapsed time (s and min)
+    Use the first point of monitor recording to sync the taph elapsed time (s and min).
+
     !!! beware, datetime should be the same one the two devices ... or corrected !!!
 
     Parameters

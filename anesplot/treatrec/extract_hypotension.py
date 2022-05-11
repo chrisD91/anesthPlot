@@ -42,13 +42,14 @@ plt.close("all")
 
 def extract_hypotension(atrend, pamin: int = 70) -> pd.DataFrame:
     """
-    return a dataframe with the beginning and ending phases of hypotension
+    Return a dataframe with the beginning and ending phases of hypotension.
 
     Parameters
     ----------
     atrend : MonitorTrend object
     pamin : float= threshold de define hypotension on mean arterial pressure
     (default is 70)
+
     Returns
     -------
     durdf : pandas DataFrame containing
@@ -89,7 +90,7 @@ def plot_hypotension(
     atrend, durdf: pd.DataFrame, durmin: int = 15, pamin: int = 70
 ) -> plt.Figure:
     """
-    plot the hypotentions phases
+    Plot the hypotentions phases.
 
     Parameters
     ----------
@@ -103,7 +104,6 @@ def plot_hypotension(
     Returns
     -------
     fig : plt.Figure
-
     """
     param = atrend.param
     datadf = atrend.data.copy()
@@ -188,7 +188,7 @@ def plot_hypotension(
 
 def scatter_length_meanhypo(atrend, durdf: pd.DataFrame) -> plt.Figure:
     """
-    draw a scatter plot (hypotensive arterial value vs duration of hypotension)
+    Draw a scatter plot (hypotensive arterial value vs duration of hypotension).
 
     Parameters
     ----------
@@ -201,9 +201,7 @@ def scatter_length_meanhypo(atrend, durdf: pd.DataFrame) -> plt.Figure:
     -------
     plt.Figure
         scatter plot.
-
     """
-
     param = atrend.param
     if "hypo_duration" not in durdf:
         return plt.figure()
@@ -253,7 +251,7 @@ def scatter_length_meanhypo(atrend, durdf: pd.DataFrame) -> plt.Figure:
 
 def plot_all_dir_hypo(dirname: str = None, scatter: bool = False) -> str:
     """
-    walk throught the folder and plot the values
+    Walk throught the folder and plot the values.
 
     Parameters
     ----------
@@ -265,9 +263,7 @@ def plot_all_dir_hypo(dirname: str = None, scatter: bool = False) -> str:
     Returns
     -------
     filename : str
-
     """
-
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
@@ -311,10 +307,9 @@ if __name__ == "__main__":
         # analyse just a file
         file_name = None
         trends = MonitorTrend(file_name)
-        if not trends.data is None:
+        if trends.data is not None:
             duration_df = extract_hypotension(trends, pamin=70)
             figure = plot_hypotension(trends, duration_df)
             # fig = scatter_length_meanhypo(trends, dur_df)
-
         else:
             print("no data")

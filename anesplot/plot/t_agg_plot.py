@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Wed Apr 27 15:46:14 2022
@@ -23,7 +23,7 @@ import anesplot.plot.trend_plot as tplot
 # %%
 def get_trend_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     """
-    use the drawn figure to extract the x and x limits
+    Use the drawn figure to extract the x and x limits.
 
     Parameters
     ----------
@@ -75,7 +75,7 @@ def get_trend_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
 
 
 def retrieve_function(name: str) -> Callable:
-    """get the function from it's name"""
+    """Get the function from it's name."""
     func_list = [
         tplot.ventil,
         tplot.co2o2,
@@ -92,7 +92,7 @@ def build_half_white(
     inifig: plt.figure, name: str, datadf: pd.DataFrame, param: dict, roi: dict
 ) -> Union[plt.Figure, Tuple, plt.Figure]:
     """
-    build a half white figure for teaching
+    Build a half white figure for teaching.
 
     Parameters
     ----------
@@ -173,7 +173,7 @@ def build_half_white(
 
 def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.figure:
     """
-    choose and generate a trend plot
+    Choose and generate a trend plot.
 
     Parameters
     ----------
@@ -230,7 +230,7 @@ def plot_trenddata(
     datadf: pd.DataFrame, header: dict, param_dico: dict
 ) -> dict[str, plt.Figure]:
     """
-    generate a series of plots for anesthesia debriefing purposes
+    Generate a series of plots for anesthesia debriefing purposes.
 
     Parameters
     ----------
@@ -247,7 +247,6 @@ def plot_trenddata(
         afig_dico : {names:fig_obj} of displayed figures
 
     """
-
     # clean the data for taph monitoring
     if param_dico["source"] == "taphTrend":
         if "co2exp" in datadf.columns.values:
@@ -292,7 +291,7 @@ if __name__ == "__main__":
     mtrends = MonitorTrend()
     figure, tracename = mtrends.plot_trend()
     print("now scale the figure please")
-    #%%
+    # %%
     mtrends.save_roi()
     # scale the figure
     half_fig, new_lims, full_fig = build_half_white(

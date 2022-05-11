@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """load an already generated 'recordRc.yaml' configuration file
@@ -17,19 +17,16 @@ import yaml  # type: ignore
 
 
 def build_paths() -> dict:
-    """read the yaml configuration file."""
-
+    """Read the yaml configuration file."""
     rc_filename = os.path.expanduser("~/.anesplotrc")
     if os.path.isfile(os.path.join(os.path.dirname(__file__), ".anesplotrc")):
         with open(rc_filename, "r", encoding="utf-8") as ymlfile:
             rcdico = yaml.safe_load(ymlfile)
-
     elif os.path.isfile(os.path.join(os.path.dirname(__file__), "recordRc.yaml")):
         rc_filename = os.path.join(os.path.dirname(__file__), "recordRc.yaml")
         # print("configuration file will be moved the the home folder in future versions")
         with open(rc_filename, "r", encoding="utf-8") as ymlfile:
             rcdico = yaml.safe_load(ymlfile)
-
     else:
         # absent -> default
         print(f"didn't find -> {rc_filename}, using default values")
@@ -51,7 +48,7 @@ def build_paths() -> dict:
 
 
 def adapt_with_syspath(path_dico: dict) -> None:
-    """add the folder location to the system path."""
+    """Add the folder location to the system path."""
     if path_dico["recordMain"] not in sys.path:
         sys.path.append(path_dico["recordMain"])
         print("added", path_dico["recordMain"], " to the path")

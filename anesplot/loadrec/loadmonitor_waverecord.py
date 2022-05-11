@@ -34,11 +34,9 @@ def choosefile_gui(dirname: str = None) -> str:
     str : the choosed file full name
 
     """
-
     # nb these imports seems to be required to allow processing after importation
     # import sys
     # from PyQt5.QtWidgets import QApplication, QFileDialog
-
     if dirname is None:
         dirname = os.path.expanduser("~")
     app = QApplication([dirname])
@@ -55,7 +53,7 @@ def choosefile_gui(dirname: str = None) -> str:
 
 def loadmonitor_waveheader(filename: str = None) -> dict:
     """
-    load the wave file header.
+    Load the wave file header.
 
     Parameters
     ----------
@@ -104,7 +102,7 @@ def loadmonitor_waveheader(filename: str = None) -> dict:
 
 def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
     """
-    load the monitor wave csvDataFile.
+    Load the monitor wave csvDataFile.
 
     Parameters
     ----------
@@ -115,9 +113,7 @@ def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
     -------
     pandas.Dataframe
         the recorded wave data
-
     """
-
     print(f"{'-' * 20} < loadmonitor_wavedata")
     if not os.path.isfile(filename):
         print(f"{'!' * 10} file not found")
