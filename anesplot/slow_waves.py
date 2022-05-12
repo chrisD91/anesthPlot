@@ -151,8 +151,8 @@ class MonitorTrend(_SlowWave):
     """
     Monitor trends recordings class.
 
-    Attributes::
-    ------------
+    Attributes
+    ----------
     filename : str
         the fullname of the file
     header : dict
@@ -166,8 +166,8 @@ class MonitorTrend(_SlowWave):
     roi : dict
         the memorized RegionOfInterest (related to the actual figure)
 
-    Methods::
-    ---------
+    Methods
+    -------
     show_graphs
         plot debriefing plots
     plot_trend

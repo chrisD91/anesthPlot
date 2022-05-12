@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath("../anesplot"))
 
 # -- Project information -----------------------------------------------------
 
-project = "anesthPlot"
+project = "anesplot"
 copyright = "2021, Christophe Desbois"
 author = "Christophe Desbois"
 

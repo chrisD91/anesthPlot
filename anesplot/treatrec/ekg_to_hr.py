@@ -257,27 +257,26 @@ def append_beat(
     tochangedf : pd.DataFrame
         incremented changedf (pt location).
 
-
-    Methods::
+    Methods
     ---------
-        locate the beat in the figure, append to a dataframe['toAppend']
-        0.: if not present : build a dataframe:
-            >>> to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
+    locate the beat in the figure, append to a dataframe['toAppend']
+    0. if not present : build a dataframe:
+        >>> to_change_df = pd.DataFrame(columns=['toAppend', 'toRemove'])
 
-        1.: locate the extra beat in the figure (cf plot_beats())
-            and zoom to observe only a negative peak
+    1. locate the extra beat in the figure (cf plot_beats())
+        and zoom to observe only a negative peak
 
-        2.: call the function:
-            >>> to_change_df = remove_beat(beatlocdf, ekgdf, tochangedf, fig)
-            -> the beat parameters will be added the dataFrame
+    2. call the function:
+        >>> to_change_df = remove_beat(beatlocdf, ekgdf, tochangedf, fig)
+        -> the beat parameters will be added the dataFrame
 
-        .in the end of the manual check, update the beat_df
-              - first : save beat_df and to_change_df
-              - second : run:
-                  >>> beat_df = update_beat_df())
+    3. in the end of the manual check, update the beat_df
+        - first : save beat_df and to_change_df
+        - second : run:
+        
+        >>> beat_df = update_beat_df())
 
     """
-
     # find the limits of the figure
     if lim is None:
         lims = fig.get_axes()[0].get_xlim()

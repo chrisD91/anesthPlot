@@ -1,21 +1,18 @@
 guides
-======
+------
 
-the guides to proceed
+a collection of **templates** to proceed actions.
 
-Module contents
----------------
+to use it : perform the following:
 
-.. automodule:: anesplot.guides
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   - call ``rec.guides.choose_guide()``
+   - fill the terminal with you choice
+   - paste the content in a python file and 
+   - execute the file line by line
 
-Submodules
-----------
 
 anesplot.guides.choose_guide module
--------------------------------
+___________________________________
 
 .. automodule:: anesplot.guides.choose_guide
    :members:

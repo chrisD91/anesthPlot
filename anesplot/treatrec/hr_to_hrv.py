@@ -14,8 +14,8 @@ def build_hrv_limits(spec="horse"):
     """
     Return a dico containing HRV limits (VLF, LF, HF).
 
-    Input
-    -----
+    Parameters
+    ----------
     spec in ['horse', 'man']
     """
     dico = {}
