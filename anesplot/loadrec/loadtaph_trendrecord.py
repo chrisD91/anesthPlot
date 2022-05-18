@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# !/usr/bin/env python3
 """
 Created on Wed Jul 24 15:30:07 2019
 @author: cdesbois
@@ -22,6 +21,7 @@ import sys
 import time
 from collections import defaultdict
 from datetime import datetime, timedelta
+from typing import Union, Any
 
 import numpy as np
 import pandas as pd
@@ -35,7 +35,7 @@ paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRe
 
 
 # list taph recordings
-def build_taph_decodedate_dico(pathdict: dict = None) -> dict:
+def build_taph_decodedate_dico(pathdict: dict[str, str] = None) -> dict[str, list[str]]:
     """
     List all the taph recordings and the paths to the record.
 
@@ -110,7 +110,7 @@ def extract_record_day(monitor_file_name: str) -> str:
     return day
 
 
-def choose_taph_record(monitorname: str = None) -> str:
+def choose_taph_record(monitorname: str = None) -> Union[str, None]:
     """
     Explore the recording folders and proposes to select one.
 
@@ -197,7 +197,11 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         # row 1 -> header
         # row 2 -> units
         datadf = pd.read_csv(
-            filename, sep=",", header=1, skiprows=[2], index_col=False,
+            filename,
+            sep=",",
+            header=1,
+            skiprows=[2],
+            index_col=False,
         )
     except pd.errors.ParserError:
         print(f"corrupted file ({os.path.basename(filename)})")
@@ -299,7 +303,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     return datadf
 
 
-def loadtaph_patientfile(filename: str) -> dict:
+def loadtaph_patientfile(filename: str) -> dict[Any, Any]:
     """
     Load the taphonius patient.csv file ('header' in monitor files, description).
 
@@ -315,6 +319,8 @@ def loadtaph_patientfile(filename: str) -> dict:
         the patient description data.
 
     """
+    if filename is None:
+        return {}  # dict[str, Any]
     headername = os.path.join(os.path.dirname(filename), "Patient.csv")
 
     print(f"{'.' * 20} < loading taph_patientfile")
@@ -335,8 +341,8 @@ def loadtaph_patientfile(filename: str) -> dict:
     # convert to num
     patientdf["Body weight"] = patientdf["Body weight"].astype(float)
     # convert to a dictionary
-    descr = patientdf.loc[1].to_dict()
-
+    descr = patientdf.loc[1].to_dict()  # dict
+    descr = dict(descr)
     print(f"{'-' * 20} loaded taph_patientfile ({os.path.basename(headername)}) >")
     return descr
 

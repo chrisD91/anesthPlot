@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """load an already generated 'recordRc.yaml' configuration file
 
@@ -16,17 +15,17 @@ import yaml  # type: ignore
 # TODO : move the configuration file to the home dir as .anesplotrc
 
 
-def build_paths() -> dict:
+def build_paths() -> dict[str, str]:
     """Read the yaml configuration file."""
     rc_filename = os.path.expanduser("~/.anesplotrc")
     if os.path.isfile(os.path.join(os.path.dirname(__file__), ".anesplotrc")):
-        with open(rc_filename, "r", encoding="utf-8") as ymlfile:
-            rcdico = yaml.safe_load(ymlfile)
+        with open(rc_filename, encoding="utf-8") as ymlfile:
+            rcdico = dict(yaml.safe_load(ymlfile))
     elif os.path.isfile(os.path.join(os.path.dirname(__file__), "recordRc.yaml")):
         rc_filename = os.path.join(os.path.dirname(__file__), "recordRc.yaml")
         # print("configuration file will be moved the the home folder in future versions")
-        with open(rc_filename, "r", encoding="utf-8") as ymlfile:
-            rcdico = yaml.safe_load(ymlfile)
+        with open(rc_filename, encoding="utf-8") as ymlfile:
+            rcdico = dict(yaml.safe_load(ymlfile))
     else:
         # absent -> default
         print(f"didn't find -> {rc_filename}, using default values")
@@ -47,7 +46,7 @@ def build_paths() -> dict:
     return rcdico
 
 
-def adapt_with_syspath(path_dico: dict) -> None:
+def adapt_with_syspath(path_dico: dict[str, str]) -> None:
     """Add the folder location to the system path."""
     if path_dico["recordMain"] not in sys.path:
         sys.path.append(path_dico["recordMain"])
