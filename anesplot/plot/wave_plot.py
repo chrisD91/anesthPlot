@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Tue Apr 19 09:08:56 2016
 
@@ -12,7 +11,7 @@ collection of functions to plot the wave data
 import os
 from bisect import bisect
 from math import ceil, floor
-from typing import List, Union
+from typing import Union, Any
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -64,8 +63,8 @@ def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
 
 # %%
 def plot_wave(
-    datadf: pd.DataFrame, keys: list, param: dict
-) -> Union[plt.Figure, List[plt.Line2D]]:
+    datadf: pd.DataFrame, keys: list[str], param: dict[str, Any]
+) -> Union[plt.Figure, list[plt.Line2D]]:
     """
     Plot the waves recorded (from as5).
 
@@ -210,7 +209,9 @@ def plot_wave(
                     linestyle="dashed",
                     alpha=0.5,
                 )
-                ax.set_ylim(40, 1.10 * plotdf["wap"].quantile(0.99))
+                lims = 40, 1.10 * plotdf["wap"].quantile(0.99)
+                if not (pd.isna(lims[0]) or pd.isna(lims[1])):
+                    ax.set_ylim(40, 1.10 * plotdf["wap"].quantile(0.99))
             ax.get_xaxis().tick_bottom()
             if i > 0:
                 if not dtime:
@@ -232,7 +233,9 @@ def plot_wave(
 # %%
 
 
-def get_wave_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
+def get_wave_roi(
+    fig: plt.Figure, datadf: pd.DataFrame, params: dict[str, Any]
+) -> dict[str, Any]:
     """
     Use the drawn figure to extract the x and x limits.
 
@@ -249,7 +252,7 @@ def get_wave_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     dict :
         containing ylims, xlims(point, dtime and sec)
     """
-    ylims = tuple([_.get_ylim() for _ in fig.get_axes()])
+    ylims = tuple(_.get_ylim() for _ in fig.get_axes())
     # xlims
     ax = fig.get_axes()[0]
     if params["dtime"]:  # datetime in the x axis
@@ -261,7 +264,7 @@ def get_wave_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
     roidict = {}
     for k, v in {"dt": "datetime", "pt": "point", "sec": "sec"}.items():
         if v in datadf.columns:
-            lims = tuple([datadf.iloc[_][[v]].values[0] for _ in i_lims])
+            lims = tuple(datadf.iloc[_][[v]].values[0] for _ in i_lims)
         else:
             # no dt values for televet
             lims = (np.nan, np.nan)
@@ -277,8 +280,8 @@ def get_wave_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
 
 def create_video(
     data: pd.DataFrame,
-    param: dict,
-    roi: dict,
+    param: dict[str, Any],
+    roi: dict[str, Any],
     speed: int = 1,
     save: bool = False,
     savename: str = "example",
@@ -311,7 +314,7 @@ def create_video(
     """
 
     def select_sub_dataframe(
-        datadf: pd.DataFrame, keys: list, xlims: tuple
+        datadf: pd.DataFrame, keys: list[str], xlims: tuple[int, ...]
     ) -> pd.DataFrame:
         """
         Extract subdataframe corresponding to the ROI.
@@ -335,7 +338,13 @@ def create_video(
         sub_df = sub_df[keys].copy()
         return sub_df
 
-    def init(data: pd.DataFrame, param: dict, keys: list, xlims: tuple, ylims: list):
+    def init(
+        data: pd.DataFrame,
+        param: dict[str, Any],
+        keys: list[str],
+        xlims: tuple[int, ...],
+        ylims: list[tuple[int, int]],
+    ) -> Union[plt.figure, plt.line2D]:
         """Build a new figure and associated line2D objects."""
         plt.close("all")
         dtime = param["dtime"]
@@ -348,7 +357,9 @@ def create_video(
         param["dtime"] = dtime
         return fig, lines
 
-    def animate(i: int, df: pd.DataFrame, keys: list, nbpoint: int) -> tuple:
+    def animate(
+        i: int, df: pd.DataFrame, keys: list[str], nbpoint: int
+    ) -> Any[tuple[plt.Line2D], tuple[plt.Line2D, plt.Line2D]]:
         """
         Animate the plot.
 
@@ -386,7 +397,8 @@ def create_video(
         return (line0, line1)
 
     traces = roi["traces"]
-    x_lims = tuple([int(_) for _ in roi["sec"]])
+    # x_lims = tuple(int(_) for _ in roi["sec"])
+    x_lims = tuple(int(_) for _ in roi["sec"])  # tuple(float, float)
     y_lims = [(floor(a), ceil(b)) for a, b in roi["ylims"]]
     fs = param.get("sampling_freq", 1)
     interval = 100
