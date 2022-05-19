@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Apr 28 14:41:15 2022
 
@@ -9,11 +8,12 @@ list of function to choose, manipulate and combine the wave plot functions
 
 """
 import sys
+from typing import Union
 
 from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
 
 
-def select_wave_to_plot(waves: list, num=1) -> str:
+def select_wave_to_plot(waves: list[str], num: int = 1) -> Union[str, None]:
     """
     Select the wave trace to plot.
 
@@ -40,7 +40,7 @@ def select_wave_to_plot(waves: list, num=1) -> str:
     widg = QWidget()
     wave, ok_pressed = QInputDialog.getItem(widg, "select", question, waves, 0, False)
     if ok_pressed and wave:
-        selection = wave
+        selection = str(wave)
     else:
         selection = None
     return selection

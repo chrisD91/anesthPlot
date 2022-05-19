@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Jul 31 16:05:29 2019
 
@@ -8,9 +7,10 @@ Created on Wed Jul 31 16:05:29 2019
 rr to hrv ... to be continued (see Yann work)
 
 """
+from typing import Any
 
 
-def build_hrv_limits(spec="horse"):
+def build_hrv_limits(spec: str = "horse") -> dict[str, Any]:
     """
     Return a dico containing HRV limits (VLF, LF, HF).
 
@@ -18,7 +18,7 @@ def build_hrv_limits(spec="horse"):
     ----------
     spec in ['horse', 'man']
     """
-    dico = {}
+    dico: dict[str, tuple[float, float]] = {}
     if spec == "man":
         # Guidelines. Circulation, 93(5):1043–65, mar 1996.
         vals = [0.001, 0.04, 0.15, 0.4]

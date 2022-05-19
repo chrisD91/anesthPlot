@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Mar 10 08:37:18 2022
 
@@ -13,8 +12,10 @@ import os
 
 import pyperclip
 
+from anesplot.config.load_recordrc import build_paths
 
-def get_guide(pathsdict: dict) -> str:
+
+def get_guide(pathsdict: dict = None) -> str:
     """
     Load the specified template file and copy it to the clipboard.
 
@@ -29,6 +30,9 @@ def get_guide(pathsdict: dict) -> str:
         guide filename.
 
     """
+    if pathsdict is None:
+        pathsdict = build_paths()
+
     guides_dir = os.path.join(pathsdict["recordMain"], "guides")
     guides = sorted(os.listdir(guides_dir))
     guides = [_ for _ in guides if _.endswith(".txt")]
@@ -47,7 +51,7 @@ def get_guide(pathsdict: dict) -> str:
     guide = guides[num]
     #    print(f"you have choised {guide}")
     guidename = os.path.join(guides_dir, guide)
-    with open(guidename, "r", encoding="utf8") as file:
+    with open(guidename, encoding="utf8") as file:
         pyperclip.copy(file.read())
     print(f"the content of '{guide}' is in your clipboard")
     return guidename
@@ -56,6 +60,4 @@ def get_guide(pathsdict: dict) -> str:
 # %%
 
 if __name__ == "__main__":
-    import anesplot.record_main as rec
-
-    get_guide(rec.paths)
+    get_guide(build_paths())

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Mar 10 08:37:18 2022
 
@@ -9,7 +8,7 @@ functions to deal with ekg traces
 
 """
 import os
-from typing import Tuple
+from typing import Optional, Any
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -21,7 +20,9 @@ from anesplot.treatrec.wave_func import fix_baseline_wander
 # %%
 
 
-def plot_sample_ekgbeat_overlap(mwave, lims: Tuple = None, threshold=-1) -> plt.Figure:
+def plot_sample_ekgbeat_overlap(
+    mwave: Any, lims: Optional[tuple[float, float]] = None, threshold: float = -1
+) -> plt.Figure:
     """
     Extract and plot an overlap of ekg beats.
 
@@ -37,11 +38,11 @@ def plot_sample_ekgbeat_overlap(mwave, lims: Tuple = None, threshold=-1) -> plt.
     fig : plt.Figure
         the matplotlib figure.
     """
-    ekgdf = mwave.data[["sec", "wekg"]].dropna().copy()
+    ekgdf = mwave.data[["sec", "wekg"]].dropna().copy()  # pd.DataFrame
     if lims is None:
         lims = mwave.roi["sec"]
         # lims = (df.iloc[0].sec, df.iloc[0].sec + 60)
-    ekgdf = ekgdf.set_index("sec").loc[lims[0] : lims[1]]
+    ekgdf = ekgdf.set_index("sec").loc[lims[0] : lims[1]]  # type: ignore
 
     # find the R peaks
     ekgser = fix_baseline_wander(ekgdf.wekg, mwave.param["sampling_freq"])

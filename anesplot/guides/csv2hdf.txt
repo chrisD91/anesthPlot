@@ -16,7 +16,7 @@ paths = rec.paths
 paths["save"] = "~"
 
 # %% load and save to hdf
-m_name = ""
+m_name = None
 mtrends = rec.MonitorTrend(m_name)
 mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))
 ttrends = rec.TaphTrend(monitorname=mtrends.filename)

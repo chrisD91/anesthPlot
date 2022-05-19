@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Tue Mar 29 13:00:08 2022
 
@@ -12,7 +11,7 @@ a collection of functions to work with arterial pressure waves
 
 import os
 from math import ceil, floor
-from typing import Tuple
+from typing import Tuple, Union, Optional, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -135,12 +134,16 @@ def get_peaks(
 def compute_systolic_variation(ser: pd.Series) -> float:
     """Return the systolic variation : (maxi - mini) / mean."""
     maxi, mini, mean = ser.agg(["max", "min", "mean"])
-    return (maxi - mini) / mean
+    var = (maxi - mini) / mean
+    return float(var)
 
 
 def plot_sample_systolic_pressure_variation(
-    mwave, lims: Tuple = None, teach: bool = False, annotations: bool = False
-):
+    mwave: Any,
+    lims: Optional[Tuple[int, int]] = None,
+    teach: bool = False,
+    annotations: bool = False,
+) -> tuple[plt.Figure, pd.DataFrame]:
     """
     Extract and plot the systolic pressure variation.
 
@@ -258,10 +261,10 @@ def plot_sample_systolic_pressure_variation(
     return fig, pp_df
 
 
-def median_filter(num_std=3):
+def median_filter(num_std: int = 3) -> Union[float, np.nan]:
     """Basic median filter."""
 
-    def _median_filter(x):
+    def _median_filter(x: pd.Series) -> Union[float, np.nan]:
         _median = np.median(x)
         _std = np.std(x)
         s = x[-1]
@@ -274,7 +277,9 @@ def median_filter(num_std=3):
     return _median_filter
 
 
-def plot_record_systolic_variation(mwave, annotations=False):
+def plot_record_systolic_variation(
+    mwave: Any, annotations: bool = False
+) -> Union[plt.Figure, pd.DataFrame]:
     """
     Plot systolic variation over the whole record.
 
@@ -349,8 +354,9 @@ def plot_record_systolic_variation(mwave, annotations=False):
     return fig, df
 
 
-def get_xlims():
-    fig = plt.gcf()
+def get_xlims() -> Any:
+    """return the xlim of the top figure"""
+    fig = plt.gcf()  # plt.figure
     ax = fig.get_axes()[0]
     return ax.get_xlim()
 
@@ -375,7 +381,9 @@ if __name__ == "__main__":
     )
     record_figure, peaks_df = plot_record_systolic_variation(mwaves, annotations=False)
 
-    def hampel_filter_pandas(input_series, window_size, n_sigmas=3):
+    def hampel_filter_pandas(
+        input_series: pd.Series, window_size: float, n_sigmas: int = 3
+    ) -> tuple[pd.Series, list[float]]:
         """https://towardsdatascience.com/outlier-detection-with-hampel-filter-85ddf523c73d"""
         k = 1.4826  # scale factor for Gaussian distribution
         new_series = input_series.copy()

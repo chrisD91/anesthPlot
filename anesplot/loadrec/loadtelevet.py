@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Jul 31 16:22:06 2019
 @author: cdesbois
@@ -12,6 +11,7 @@ ____
 
 import os
 import sys
+from typing import Optional
 
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 # %%
 
 
-def choosefile_gui(dirpath: str = None) -> str:
+def choosefile_gui(dirpath: Optional[str] = None) -> str:
     """
     Select a file using a dialog.
 
@@ -49,7 +49,7 @@ def choosefile_gui(dirpath: str = None) -> str:
     return filename
 
 
-def loadtelevet(fname: str = None, all_traces: bool = False) -> pd.DataFrame:
+def loadtelevet(fname: Optional[str] = None, all_traces: bool = False) -> pd.DataFrame:
     """
     Load the televetCsvExportedFile.
 

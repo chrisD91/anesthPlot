@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Jul 24 14:56:58 2019
 @author: cdesbois
@@ -14,13 +13,14 @@ load a monitor wave recording:
 import os
 import sys
 from datetime import timedelta
+from typing import Optional
 
 import numpy as np
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
-def choosefile_gui(dirname: str = None) -> str:
+def choosefile_gui(dirname: Optional[str] = None) -> str:
     """
     Select a file via a dialog and return the (full) filename.
 
@@ -47,11 +47,13 @@ def choosefile_gui(dirname: str = None) -> str:
     )
 
     if isinstance(fname, tuple):
-        return fname[0]
-    return str(fname)
+        file = fname[0]
+    else:
+        file = fname
+    return str(file)
 
 
-def loadmonitor_waveheader(filename: str = None) -> dict:
+def loadmonitor_waveheader(filename: Optional[str] = None) -> dict:
     """
     Load the wave file header.
 
@@ -100,7 +102,7 @@ def loadmonitor_waveheader(filename: str = None) -> dict:
     return header
 
 
-def loadmonitor_wavedata(filename: str = None) -> pd.DataFrame:
+def loadmonitor_wavedata(filename: Optional[str] = None) -> pd.DataFrame:
     """
     Load the monitor wave csvDataFile.
 

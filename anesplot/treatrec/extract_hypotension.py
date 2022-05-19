@@ -9,6 +9,7 @@ scan folders and check for hypotension
 
 """
 import os
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 
@@ -40,7 +41,7 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 plt.close("all")
 
 
-def extract_hypotension(atrend, pamin: int = 70) -> pd.DataFrame:
+def extract_hypotension(atrend: Any, pamin: int = 70) -> pd.DataFrame:
     """
     Return a dataframe with the beginning and ending phases of hypotension.
 
@@ -87,7 +88,7 @@ def extract_hypotension(atrend, pamin: int = 70) -> pd.DataFrame:
 
 
 def plot_hypotension(
-    atrend, durdf: pd.DataFrame, durmin: int = 15, pamin: int = 70
+    atrend: Any, durdf: pd.DataFrame, durmin: int = 15, pamin: int = 70
 ) -> plt.Figure:
     """
     Plot the hypotentions phases.
@@ -186,7 +187,7 @@ def plot_hypotension(
     return fig
 
 
-def scatter_length_meanhypo(atrend, durdf: pd.DataFrame) -> plt.Figure:
+def scatter_length_meanhypo(atrend: Any, durdf: pd.DataFrame) -> plt.Figure:
     """
     Draw a scatter plot (hypotensive arterial value vs duration of hypotension).
 
@@ -305,8 +306,8 @@ if __name__ == "__main__":
         file_name = plot_all_dir_hypo(dir_name, scatter=False)
     else:
         # analyse just a file
-        file_name = None
-        trends = MonitorTrend(file_name)
+        trends = MonitorTrend()
+        file_name = trends.filename
         if trends.data is not None:
             duration_df = extract_hypotension(trends, pamin=70)
             figure = plot_hypotension(trends, duration_df)

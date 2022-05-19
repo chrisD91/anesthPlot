@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Created on Thu Mar 12 16:52:13 2020
 
 @author: cdesbois
 """
+from typing import Optional
 
 import matplotlib.pyplot as plt
 
@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 # %%
 
 
-def gui_choosefile(paths=None):
+def gui_choosefile(paths: Optional[dict[str, str]] = None) -> str:
     """Select a file via a dialog and return the file name."""
     if not paths:
         paths = {}
@@ -26,7 +26,7 @@ def gui_choosefile(paths=None):
     fname = QFileDialog.getOpenFileName(
         caption="choose a file", directory=apath, filter="*.csv"
     )
-    return fname[0]
+    return str(fname[0])
 
 
 # %% list a folder

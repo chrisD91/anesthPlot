@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Apr 28 16:20:07 2022
 
@@ -16,7 +15,7 @@ paths = build_paths()
 class _Waves:
     """the base object to store the records."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialise.
 

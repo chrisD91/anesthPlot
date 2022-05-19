@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Created on Wed Feb 12 16:52:00 2020
 @author: cdesbois
 
@@ -114,7 +113,7 @@ you can execute line by line in a file the following process
     tohr.save_waves_data(waves.data, savename=name, dirpath='data')
 """
 import os
-from typing import Tuple
+from typing import Tuple, Any, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -231,7 +230,7 @@ def append_beat(
     ekgdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     fig: plt.Figure,
-    lim: Tuple = None,
+    lim: Optional[Tuple[int, int]] = None,
     yscale: float = 1,
 ) -> pd.DataFrame:
     """
@@ -273,7 +272,7 @@ def append_beat(
     3. in the end of the manual check, update the beat_df
         - first : save beat_df and to_change_df
         - second : run:
-        
+
         >>> beat_df = update_beat_df())
 
     """
@@ -311,7 +310,7 @@ def remove_beat(
     ekgdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     fig: plt.figure,
-    lim: Tuple = None,
+    lim: Optional[Tuple[int, int]] = None,
 ) -> pd.DataFrame:
     """
     Remove a beat coordinate from the figure to the tochangedf['toRemove'].
@@ -389,9 +388,9 @@ def save_beats(
     beatlocdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     savename: str = "",
-    dirpath: str = None,
+    dirpath: Optional[str] = None,
     csv: bool = False,
-):
+) -> None:
     """
     Save the beats locations as csv and hd5 file.
 
@@ -432,7 +431,7 @@ def update_beatloc_df(
     tochangedf: pd.DataFrame,
     path_to_file: str = "",
     from_file: bool = False,
-):
+) -> pd.DataFrame:
     """
     Implement in the beat location the manual corrections.
 
@@ -479,7 +478,7 @@ def update_beatloc_df(
 # beat_df = update_beat_df(beat_df, to_change_df)
 
 # %% =========================================
-def point_to_time_rr(beatlocdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
+def point_to_time_rr(beatlocdf: pd.DataFrame, fs: Optional[int] = None) -> pd.DataFrame:
     """
     Compute rr intervals (from pt to time).
 
@@ -516,7 +515,7 @@ def point_to_time_rr(beatlocdf: pd.DataFrame, fs: int = None) -> pd.DataFrame:
     return beatlocdf
 
 
-def interpolate_rr(beatlocdf: pd.DataFrame, kind: str = None) -> pd.DataFrame:
+def interpolate_rr(beatlocdf: pd.DataFrame, kind: Optional[str] = None) -> pd.DataFrame:
     """
     Interpolate the beat_df (pt -> time values).
 
@@ -562,7 +561,9 @@ def interpolate_rr(beatlocdf: pd.DataFrame, kind: str = None) -> pd.DataFrame:
     return ahr_df
 
 
-def plot_rr(ahr_df: pd.DataFrame, param: dict, HR: bool = False) -> plt.Figure:
+def plot_rr(
+    ahr_df: pd.DataFrame, param: dict[str, Any], HR: bool = False
+) -> plt.Figure:
     """
     Plot RR vs pt values + rrSqDiff.
 
@@ -642,7 +643,7 @@ def append_rr_and_ihr_to_wave(ekgdf: pd.DataFrame, ahrdf: pd.DataFrame) -> pd.Da
     return df
 
 
-def plot_agreement(trenddf: pd.DataFrame):
+def plot_agreement(trenddf: pd.DataFrame) -> plt.Figure:
     """Plot ip1HR & ihr to check agreement."""
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -689,7 +690,9 @@ def append_ihr_to_trend(
     return trenddf
 
 
-def save_trends_data(trenddf: pd.DataFrame, savename: str = "", dirpath: str = "data"):
+def save_trends_data(
+    trenddf: pd.DataFrame, savename: str = "", dirpath: str = "data"
+) -> None:
     """
     Save the trends data to a hd5 file, including an ihr column (key='trends_data').
 
@@ -720,7 +723,9 @@ def save_trends_data(trenddf: pd.DataFrame, savename: str = "", dirpath: str = "
     print(f"saved trendDataframe to '{filename + '.hdf'}', key='trends_data'")
 
 
-def save_waves_data(wavedf: pd.DataFrame, savename: str = "", dirpath: str = "data"):
+def save_waves_data(
+    wavedf: pd.DataFrame, savename: str = "", dirpath: str = "data"
+) -> None:
     """
     Save the waves data to a csv and hd5 file, including an ihr column (key='waves_data').
 

@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Jul 24 13:43:26 2019
 @author: cdesbois
@@ -13,6 +12,7 @@ load a monitor trend recording:
 import os
 import sys
 from datetime import timedelta
+from typing import Optional
 
 import pandas as pd
 
@@ -20,7 +20,7 @@ import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
-def choosefile_gui(dirname: str = None) -> str:
+def choosefile_gui(dirname: Optional[str] = None) -> str:
     """
     Select a file via a dialog and return the (full) filename.
 

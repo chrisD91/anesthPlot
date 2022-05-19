@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 main script/module to load and display an anesthesia record
@@ -29,6 +28,7 @@ nb to work within spyder : move inside anestplot (>> cd anesplot)
 import faulthandler
 import os
 import sys
+from typing import Optional
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -40,6 +40,7 @@ import anesplot.loadrec.agg_load as loadagg
 from anesplot.config.load_recordrc import build_paths
 from anesplot.fast_waves import MonitorWave, TelevetWave
 from anesplot.slow_waves import MonitorTrend, TaphTrend
+from anesplot.guides.choose_guide import get_guide
 
 paths = build_paths()
 matplotlib.use("Qt5Agg")  # NB required for the dialogs
@@ -50,7 +51,7 @@ rcParams["axes.ymargin"] = 0
 faulthandler.enable()
 
 
-def get_basic_debrief_commands():
+def get_basic_debrief_commands() -> str:
     """Copy in clipboard the usual commands to build a debrief."""
     lines = [
         "mtrends = rec.MonitorTrend()",
@@ -58,7 +59,9 @@ def get_basic_debrief_commands():
         "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
     ]
     print("basic debrief commands are in the clipboard")
-    return pyperclip.copy(" \n".join(lines))
+    splitlines = " \n".join(lines)
+    pyperclip.copy(splitlines)
+    return splitlines
 
 
 def trendname_to_wavename(name: str) -> str:
@@ -66,7 +69,7 @@ def trendname_to_wavename(name: str) -> str:
     return name.split(".")[0] + "Wave.csv"
 
 
-def main(file_name: str = None):
+def main(file_name: Optional[str] = None) -> None:
     """
     Script called from command line.
 

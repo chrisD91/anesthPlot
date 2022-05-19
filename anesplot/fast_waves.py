@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Apr 28 16:20:50 2022
 
@@ -39,7 +38,7 @@ class _FastWave(_Waves):
 
     # def __init__(self, filename=None):
     #     super().__init__(filename)
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.filename = None
         self.trace_list = None
@@ -60,7 +59,9 @@ class _FastWave(_Waves):
         print(f"{'-' * 10} filtering : builded 'ekgLowPass' ")
         datadf["ekgLowPass"] = fix_baseline_wander(datadf[item], samplingfreq)
 
-    def plot_wave(self, traces_list: list = None):
+    def plot_wave(
+        self, traces_list: list = None
+    ) -> tuple(plt.figure, plt.Line2D, list(str)):
         """
         Choose and plot for a wave.
 

@@ -9,7 +9,7 @@ list of function to choose, manipulate and combine the trends plot functions
 
 """
 import sys
-from typing import Callable, List, Tuple, Union
+from typing import Callable, List, Tuple, Union, Any
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -21,7 +21,9 @@ import anesplot.plot.trend_plot as tplot
 
 
 # %%
-def get_trend_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
+def get_trend_roi(
+    fig: plt.Figure, datadf: pd.DataFrame, params: dict[str, Any]
+) -> dict:
     """
     Use the drawn figure to extract the x and x limits.
 
@@ -74,7 +76,7 @@ def get_trend_roi(fig: plt.Figure, datadf: pd.DataFrame, params: dict) -> dict:
 # %% build half white
 
 
-def retrieve_function(name: str) -> Callable:
+def retrieve_function(name: str) -> Any:
     """Get the function from it's name."""
     func_list = [
         tplot.ventil,
@@ -89,7 +91,11 @@ def retrieve_function(name: str) -> Callable:
 
 
 def build_half_white(
-    inifig: plt.figure, name: str, datadf: pd.DataFrame, param: dict, roi: dict
+    inifig: plt.figure,
+    name: str,
+    datadf: pd.DataFrame,
+    param: dict[str, Any],
+    roi: dict[str, Any],
 ) -> Union[plt.Figure, Tuple, plt.Figure]:
     """
     Build a half white figure for teaching.
@@ -171,7 +177,9 @@ def build_half_white(
     return halffig, fulllims, fullfig
 
 
-def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.figure:
+def plot_a_trend(
+    datadf: pd.DataFrame, header: dict[str, Any], param_dico: dict[str, Any]
+) -> plt.figure:
     """
     Choose and generate a trend plot.
 
@@ -227,7 +235,7 @@ def plot_a_trend(datadf: pd.DataFrame, header: dict, param_dico: dict) -> plt.fi
 
 
 def plot_trenddata(
-    datadf: pd.DataFrame, header: dict, param_dico: dict
+    datadf: pd.DataFrame, header: dict[str, Any], param_dico: dict[str, Any]
 ) -> dict[str, plt.Figure]:
     """
     Generate a series of plots for anesthesia debriefing purposes.
@@ -258,7 +266,7 @@ def plot_trenddata(
             print("no pressure tdata recorded")
     afig_list = []
     # plotting
-    plot_func_list: List[Callable] = [
+    plot_func_list: List[Callable[Any]] = [
         tplot.ventil,
         tplot.co2o2,
         tplot.co2iso,

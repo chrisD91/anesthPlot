@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 build a 'recordRc.yaml' configuration file to adapt to a specific computer
@@ -14,6 +13,7 @@ location at the root of anesplot
 
 import os
 import sys
+from typing import Union, Any, Optional
 
 import yaml  # type: ignore
 from PyQt5 import QtCore
@@ -24,11 +24,11 @@ from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 
 def filedialog(
     kind: str = "",
-    directory: str = os.path.dirname(__file__),
+    directory: Optional[str] = None,
     for_open: bool = True,
     fmt: str = "",
     is_folder: bool = False,
-) -> str:
+) -> Union[str, list[str]]:
     """
     General dialog function.
 
@@ -75,16 +75,20 @@ def filedialog(
     if directory != "":
         dialog.setDirectory(str(directory))
     else:
-        dialog.setDirectory(os.getcwd())
+        try:
+            __file__
+            dialog.setDirectory(os.path.dirname(__file__))
+        except NameError:
+            dialog.setDirectory(os.getcwd())
 
     if dialog.exec_() == QDialog.Accepted:
         path = dialog.selectedFiles()[0]  # returns a list
     else:
         path = ""
-    return path
+    return str(path)
 
 
-def read_config() -> dict:
+def read_config() -> dict[str, Any]:
     """Locate & load the yaml file."""
     # locate
     try:
@@ -101,17 +105,17 @@ def read_config() -> dict:
     # load onfiguration dico
     print(filename)
     if os.path.isfile(filename):
-        with open(filename, "r", encoding="utf-8") as ymlfile:
+        with open(filename, encoding="utf-8") as ymlfile:
             cfg = yaml.safe_load(ymlfile)
         ymlfile.close()
     else:
         cfg = {}
         print("no config file founded")
         print("please build one -> cf buildConfig.py")
-    return cfg
+    return dict(cfg)
 
 
-def write_configfile(path: dict) -> None:
+def write_configfile(path: dict[str, Any]) -> None:
     """Record the yaml file."""
     config_loc = os.path.join(path["recordMain"], "config")
     os.chdir(path[config_loc])
@@ -119,21 +123,23 @@ def write_configfile(path: dict) -> None:
         yaml.dump(path, ymlfile, default_flow_style=False)
 
 
-def main():
+def main() -> None:
     """Script execution entry point."""
-    try:
-        app
-    except NameError:
+    # try:
+    #     app
+    # except NameError:
+    #     app = QApplication(sys.argv)
+    if not "app" in dir():
         app = QApplication(sys.argv)
+
     # test if paths exists (ie config present)
-    try:
-        paths
-    except NameError:
+    if not "paths" in dir():
         # print('no paths dico defined')
         # package location
         key = "record_main.py"
         # record_main_path = filedialog(kind=key, directory= os.getcwd(), is_folder=True)
         record_main_path = filedialog(kind=key, directory=os.getcwd())
+        record_main_path = str(record_main_path)
         if os.path.isfile(record_main_path):
             record_main_path = os.path.dirname(record_main_path)
         config_name = os.path.join(record_main_path, "config", "recordRc.yaml")

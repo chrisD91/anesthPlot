@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Apr 28 15:50:27 2022
 
@@ -7,11 +6,12 @@ Created on Thu Apr 28 15:50:27 2022
 """
 
 import sys
+from typing import Union, Optional
 
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
 
-def choosefile_gui(dirname: str = None) -> str:
+def choosefile_gui(dirname: Optional[str] = None) -> str:
     """Select a file via a dialog and return the (full) filename.
 
     Parameters
@@ -43,11 +43,15 @@ def choosefile_gui(dirname: str = None) -> str:
     print("return")
     # app.quit()
     if isinstance(fname, tuple):
-        return fname[0]
-    return str(fname)
+        fullname = fname[0]
+    else:
+        fullname = fname
+    return str(fullname)
 
 
-def select_type(question: str = None, items: list = None, num: int = 0) -> str:
+def select_type(
+    question: Optional[str] = None, items: Optional[list[str]] = None, num: int = 0
+) -> Union[str, None]:
     """
     Display a pulldown menu to choose the kind of recording.
 
@@ -76,7 +80,7 @@ def select_type(question: str = None, items: list = None, num: int = 0) -> str:
     widg = QWidget()
     kind, ok_pressed = QInputDialog.getItem(widg, "select", question, items, num, False)
     if ok_pressed and kind:
-        selection = kind
+        selection = str(kind)
     else:
         selection = None
     return selection

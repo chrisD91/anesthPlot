@@ -21,7 +21,7 @@ import sys
 import time
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Union, Any
+from typing import Union, Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -35,7 +35,9 @@ paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRe
 
 
 # list taph recordings
-def build_taph_decodedate_dico(pathdict: dict[str, str] = None) -> dict[str, list[str]]:
+def build_taph_decodedate_dico(
+    pathdict: Optional[dict[str, str]] = None
+) -> dict[str, list[str]]:
     """
     List all the taph recordings and the paths to the record.
 
@@ -197,11 +199,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         # row 1 -> header
         # row 2 -> units
         datadf = pd.read_csv(
-            filename,
-            sep=",",
-            header=1,
-            skiprows=[2],
-            index_col=False,
+            filename, sep=",", header=1, skiprows=[2], index_col=False,
         )
     except pd.errors.ParserError:
         print(f"corrupted file ({os.path.basename(filename)})")
@@ -347,7 +345,9 @@ def loadtaph_patientfile(filename: str) -> dict[Any, Any]:
     return descr
 
 
-def shift_datetime(datadf: pd.DataFrame, minutes_to_add: int = None) -> pd.DataFrame:
+def shift_datetime(
+    datadf: pd.DataFrame, minutes_to_add: Optional[int] = None
+) -> pd.DataFrame:
     """
     Add a shift to the dataframe to compensate computer time shift (usually one hour).
 
@@ -374,7 +374,7 @@ def shift_datetime(datadf: pd.DataFrame, minutes_to_add: int = None) -> pd.DataF
 
 
 def shift_elapsed_time(
-    datadf: pd.DataFrame, minutes_to_add: int = None
+    datadf: pd.DataFrame, minutes_to_add: Optional[int] = None
 ) -> pd.DataFrame:
     """
     Add a elapsedtime shift to the dataframe to compensate recording start.

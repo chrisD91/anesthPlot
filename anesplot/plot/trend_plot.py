@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Created on Tue Apr 19 09:08:56 2016
@@ -11,6 +10,7 @@ ____
 """
 
 import os
+from typing import Any, Optional
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -35,7 +35,9 @@ plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 
 # ------------------------------------------------------
-def remove_outliers(datadf: pd.DataFrame, key: str, limits: dict = None) -> pd.Series:
+def remove_outliers(
+    datadf: pd.DataFrame, key: str, limits: Optional[dict[str, tuple[Any, Any]]] = None
+) -> pd.Series:
     """
     Remove outliers.
 
@@ -100,7 +102,7 @@ def color_axis(ax0: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
 
 
 def append_loc_to_fig(
-    ax0: plt.Axes, dt_list: list, label: str = "g"
+    ax0: plt.Axes, dt_list: list[Any], label: str = "g"
 ) -> dict[int, float]:
     """
     Append vertical lines to indicate a time location 'for eg: arterial blood gas'.
@@ -180,7 +182,9 @@ def save_graph(
 
 
 # %%
-def plot_header(descr: dict, param: dict = None) -> plt.Figure:
+def plot_header(
+    descr: dict[str, Any], param: Optional[dict[str, Any]] = None
+) -> plt.Figure:
     """
     Plot the header of the file.
 
@@ -232,7 +236,9 @@ def plot_header(descr: dict, param: dict = None) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def hist_cardio(data: pd.DataFrame, param: dict = None) -> plt.Figure:
+def hist_cardio(
+    data: pd.DataFrame, param: Optional[dict[str, Any]] = None
+) -> plt.Figure:
     """
     Mean arterial pressure histogramme using matplotlib.
 
@@ -328,7 +334,7 @@ def hist_cardio(data: pd.DataFrame, param: dict = None) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def plot_one_over_time(x, y, colour: str) -> plt.Figure:
+def plot_one_over_time(x: float, y: float, colour: str) -> plt.Figure:
     """
     Plot y over x using colour.
 
@@ -356,7 +362,9 @@ def plot_one_over_time(x, y, colour: str) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def hist_co2_iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
+def hist_co2_iso(
+    data: pd.DataFrame, param: Optional[dict[str, Any]] = None
+) -> plt.Figure:
     """
     Plot CO2 and iso histogram.
 
@@ -455,7 +463,9 @@ def hist_co2_iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def cardiovasc(datadf: pd.DataFrame, param: dict = None) -> plt.Figure:
+def cardiovasc(
+    datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
+) -> plt.Figure:
     """
     Cardiovascular plot.
 
@@ -558,7 +568,9 @@ def cardiovasc(datadf: pd.DataFrame, param: dict = None) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def cardiovasc_p1p2(datadf: pd.DataFrame, param: dict = None) -> pd.DataFrame:
+def cardiovasc_p1p2(
+    datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
+) -> pd.DataFrame:
     """
     Cardiovascular plot with central venous pressure (p2).
 
@@ -680,7 +692,7 @@ def cardiovasc_p1p2(datadf: pd.DataFrame, param: dict = None) -> pd.DataFrame:
 
 
 # ------------------------------------------------------
-def co2iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
+def co2iso(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
     """
     Plot CO2/iso over time.
 
@@ -775,15 +787,15 @@ def co2iso(data: pd.DataFrame, param: dict = None) -> plt.Figure:
 
 
 # proposition de yann pour simplifier le code (à implémenter)
-def func(ax, x, y1, y2, color="tab:blue", x0=38):
-    ax.plot(x, y1, color=color)
-    ax.plot(x, y2, color=color)
-    ax.fill_between(x, y1, y2, color=color, alpha=0.1)
-    ax.axhline(x0, linewidth=1, linestyle="dashed", color=color)
+# def func(ax, x, y1, y2, color="tab:blue", x0=38):
+#     ax.plot(x, y1, color=color)
+#     ax.plot(x, y2, color=color)
+#     ax.fill_between(x, y1, y2, color=color, alpha=0.1)
+#     ax.axhline(x0, linewidth=1, linestyle="dashed", color=color)
 
 
 # ------------------------------------------------------
-def co2o2(data: pd.DataFrame, param: dict) -> plt.Figure:
+def co2o2(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     """
     Respiratory plot : CO2 and Iso.
 
@@ -869,7 +881,7 @@ def co2o2(data: pd.DataFrame, param: dict) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def ventil(data: pd.DataFrame, param=dict) -> plt.Figure:
+def ventil(data: pd.DataFrame, param: dict["str", Any]) -> plt.Figure:
     """
     Plot ventilation.
 
@@ -1002,7 +1014,7 @@ def ventil(data: pd.DataFrame, param=dict) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def recrut(data: pd.DataFrame, param: dict) -> plt.Figure:
+def recrut(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     """
     Display a recrut manoeuver.
 
@@ -1077,7 +1089,7 @@ def recrut(data: pd.DataFrame, param: dict) -> plt.Figure:
     return fig
 
 
-def ventil_cardio(datadf: pd.DataFrame, param: dict) -> plt.Figure:
+def ventil_cardio(datadf: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     """
     Build ventilation and cardiovascular plot.
 
@@ -1166,7 +1178,7 @@ def ventil_cardio(datadf: pd.DataFrame, param: dict) -> plt.Figure:
     return fig
 
 
-def sat_hr(datadf: pd.DataFrame, param: dict) -> plt.Figure:
+def sat_hr(datadf: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     """
     Plot a sat and sat_hr over time.
 
@@ -1233,7 +1245,7 @@ def sat_hr(datadf: pd.DataFrame, param: dict) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def save_distri(data: pd.DataFrame, path: dict) -> None:
+def save_distri(data: pd.DataFrame, path: dict[str, Any]) -> None:
     """
     Save the 4 distributions graphs for cardiovasc and respi.
 
@@ -1257,7 +1269,7 @@ def save_distri(data: pd.DataFrame, path: dict) -> None:
     hist_cardio(data).savefig((path["sFig"] + "O_hist_cardio.png"), bbox_inches="tight")
 
 
-def fig_memo(apath: str, fig_name: str):
+def fig_memo(apath: str, fig_name: str) -> None:
     """
     Append latex frame command in a txt file inside the fig folder.
 
@@ -1277,7 +1289,7 @@ def fig_memo(apath: str, fig_name: str):
     include_text = (
         "\\begin{frame}{fileName}\n\t\\includegraphics[width = \\textwidth]{bg/"
         + fig_name
-        + "} \n\end{frame} \n %----------------- \n \\n"
+        + "} \n\\end{frame} \n %----------------- \n \\n"
     )
 
     fig_insert = os.path.join(apath, "figIncl.txt")

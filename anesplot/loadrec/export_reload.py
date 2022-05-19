@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Tue Mar  8 11:09:29 2022
 
@@ -12,6 +11,7 @@ and load them back
 
 
 # import os
+from typing import Any
 
 import pandas as pd
 
@@ -22,7 +22,9 @@ from anesplot.slow_waves import MonitorTrend, TaphTrend
 
 
 # def export_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
-def export_data_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
+def export_data_to_hdf(
+    savename: str, mtrend: Any = None, ttrend: Any = None, mwave: Any = None
+) -> None:
     """
     Export the recordings in an hdf file.
 
@@ -90,7 +92,7 @@ def export_data_to_hdf(savename, mtrend=None, ttrend=None, mwave=None):
 
 
 # def load_from_hdf(savename: str):
-def build_obj_from_hdf(savename: str):
+def build_obj_from_hdf(savename: str) -> tuple[Any, Any, Any]:
     """
     Build MonitorTrend, TaphTrenbd and MonitorWave objects.
 
@@ -107,11 +109,13 @@ def build_obj_from_hdf(savename: str):
     (empty objects if the corresponding keys are not present in the file)
     """
 
-    def df_to_dico_with_none(itemdf: pd.DataFrame) -> dict:
+    def df_to_dico_with_none(itemdf: pd.DataFrame) -> dict[str, Any]:
         """Df to dico, and replace nan with none."""
         if itemdf.empty:
-            return {}
-        return itemdf.mask(itemdf.isna(), other=None).to_dict()[0]
+            dico = {}
+        else:
+            dico = itemdf.mask(itemdf.isna(), other=None).to_dict()[0]
+        return dict(dico)
 
     messages = []
     with pd.HDFStore(savename) as store:

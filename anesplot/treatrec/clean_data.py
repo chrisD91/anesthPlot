@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Jul 31 16:05:29 2019
 
@@ -9,11 +8,10 @@ filtering process ot the traces : actually not used, to be improved
 
 """
 import numpy as np
+import pandas as pd
 
-# import pandas as pd
 
-
-def clean_trenddata(datadf):
+def clean_trenddata(datadf: pd.DataFrame) -> pd.DataFrame:
     """Remove artifacts in the recorded trends."""
     param_list = [
         "ip1s",

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Fri Dec  8 12:46:41 2017
 
@@ -8,6 +7,8 @@ Created on Fri Dec  8 12:46:41 2017
 functions to be used with the waves recording
 
 """
+from typing import Any, Union, Optional
+
 import matplotlib.pyplot as plt
 
 # import os
@@ -61,7 +62,7 @@ def fix_baseline_wander(ekg_ser: pd.Series, fs: int = 300) -> pd.Series:
     return pd.Series(data=ekg_filtered, index=ekg_ser.index)
 
 
-def rol_mean(ser: pd.Series, win_lengh: int = 1, fs: int = 500) -> list:
+def rol_mean(ser: pd.Series, win_lengh: int = 1, fs: int = 500) -> pd.Series:
     """
     Return a rolling mean of a RR serie.
 
@@ -78,10 +79,11 @@ def rol_mean(ser: pd.Series, win_lengh: int = 1, fs: int = 500) -> list:
     # replace the initial values by the mean
     avg_hr = np.mean(ser)
     mov_avg = [avg_hr if np.isnan(x) else x for x in mov_avg]
+    mov_avg = pd.Series(mov_avg)
     return mov_avg
 
 
-def return_points(wavedf: pd.DataFrame, fig: plt.Figure) -> dict:
+def return_points(wavedf: pd.DataFrame, fig: plt.Figure) -> dict[str, Any]:
     """
     Return a tupple containing the point values of ROI.
 
@@ -119,7 +121,7 @@ def return_points(wavedf: pd.DataFrame, fig: plt.Figure) -> dict:
 
 
 def restrict_time_area(
-    df1: pd.DataFrame, mini: int = None, maxi: int = None
+    df1: pd.DataFrame, mini: Optional[int] = None, maxi: Optional[int] = None
 ) -> pd.DataFrame:
     """
     Return a new dataframe with reindexation.

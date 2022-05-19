@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Apr 28 16:20:28 2022
 
@@ -12,6 +11,7 @@ build the objects for the slow_waves ('trends'):
 """
 import os
 from datetime import datetime, timedelta
+from typing import Any, Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -52,10 +52,10 @@ class _SlowWave(_Waves):
         plot clinical main plots
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
-    def clean_trend(self):
+    def clean_trend(self) -> pd.DataFrame:
         """
         Clean the data, remove irrelevant.
 
@@ -66,7 +66,7 @@ class _SlowWave(_Waves):
         datadf = clean_trenddata(self.data)
         return datadf
 
-    def show_graphs(self):
+    def show_graphs(self) -> dict[Any, Any]:
         """Build and display classical clinical plots."""
         if self.data.empty:
             print("recording is empty : no data to plot")
@@ -75,7 +75,7 @@ class _SlowWave(_Waves):
             fig_dico = tagg.plot_trenddata(self.data, self.header, self.param)
         return fig_dico
 
-    def plot_trend(self):
+    def plot_trend(self) -> tuple[plt.Figure, str]:
         """Choose the graph to use from a pulldown menu."""
         # TODO add a preset if self.name is defined
         if self.data.empty:
