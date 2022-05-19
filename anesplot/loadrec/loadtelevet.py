@@ -45,8 +45,8 @@ def choosefile_gui(dirpath: Optional[str] = None) -> str:
     if isinstance(fname, tuple):
         filename = fname[0]
     else:
-        filename = str(fname)
-    return filename
+        filename = fname
+    return str(filename)
 
 
 def loadtelevet(fname: Optional[str] = None, all_traces: bool = False) -> pd.DataFrame:
@@ -105,5 +105,5 @@ if __name__ == "__main__":
     APP = QApplication(sys.argv)
     APP.setQuitOnLastWindowClosed(True)
 
-    file_name = choosefile_gui(paths.get("telv_data"))
-    ekg_data = loadtelevet(file_name, all_traces=False)
+    FILE_NAME = choosefile_gui(paths.get("telv_data"))
+    ekg_data = loadtelevet(FILE_NAME, all_traces=False)

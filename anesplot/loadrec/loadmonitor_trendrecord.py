@@ -12,7 +12,7 @@ load a monitor trend recording:
 import os
 import sys
 from datetime import timedelta
-from typing import Optional
+from typing import Optional, Any
 
 import pandas as pd
 
@@ -47,12 +47,14 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
     )
 
     if isinstance(fname, tuple):
-        return fname[0]
+        name = fname[0]
+    else:
+        name = fname
     return str(fname)
 
 
 # Monitor trend
-def loadmonitor_trendheader(filename: str) -> dict:
+def loadmonitor_trendheader(filename: str) -> dict["str", Any]:
     """
     Load the file header.
 
@@ -94,10 +96,10 @@ def loadmonitor_trendheader(filename: str) -> dict:
     except pd.errors.EmptyDataError:
         print(f"{os.path.basename(filename)} as an empty header")
         # descr = {"empty": filename}
-        descr = {}  # type: dict
+        descr = {}  # type: dict[str, Any]
     except FileNotFoundError:
         print("header not found")
-        descr = {}
+        descr = {}  # type: dict[str, Any]
         # print(error)
     # NB encoding needed for accentuated letters
     else:
@@ -113,7 +115,7 @@ def loadmonitor_trendheader(filename: str) -> dict:
     return descr
 
 
-def loadmonitor_trenddata(filename: str, headerdico: dict) -> pd.DataFrame:
+def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataFrame:
     """
     Load the monitor trend data.
 

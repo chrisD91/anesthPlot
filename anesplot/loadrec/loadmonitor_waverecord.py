@@ -13,7 +13,7 @@ load a monitor wave recording:
 import os
 import sys
 from datetime import timedelta
-from typing import Optional
+from typing import Optional, Any
 
 import numpy as np
 import pandas as pd
@@ -47,13 +47,13 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
     )
 
     if isinstance(fname, tuple):
-        file = fname[0]
+        name = fname[0]
     else:
-        file = fname
-    return str(file)
+        name = fname
+    return str(name)
 
 
-def loadmonitor_waveheader(filename: Optional[str] = None) -> dict:
+def loadmonitor_waveheader(filename: Optional[str] = None) -> dict[str, Any]:
     """
     Load the wave file header.
 
@@ -68,23 +68,25 @@ def loadmonitor_waveheader(filename: Optional[str] = None) -> dict:
         content of the header.
 
     """
-    if filename == "":
-        # to build and empty header
-        return {}
-
-    print(f"{'-' * 20} < loadmonitor_waveheader")
-    if not os.path.isfile(filename):
-        print(f"{'!' * 10} file not found)")
-        print(f"{filename}")
-        print(f"{'!' * 10} file not found)")
-        print()
-        return {}
-
-    print(f"{'.' * 10} loading header {os.path.basename(filename)}")
-
     if filename is None:
         filename = choosefile_gui()
         print(f"called returned= {filename}")
+
+    else:
+        if filename == "":
+            # to build and empty header
+            return {}
+        print(f"{'-' * 20} < loadmonitor_waveheader")
+        if not os.path.isfile(filename):
+            # wrong name
+            print(f"{'!' * 10} file not found)")
+            print(f"{filename}")
+            print(f"{'!' * 10} file not found)")
+            print()
+            return {}
+
+    print(f"{'.' * 10} loading header {os.path.basename(filename)}")
+
     try:
         headerdf = pd.read_csv(
             filename,
@@ -102,7 +104,7 @@ def loadmonitor_waveheader(filename: Optional[str] = None) -> dict:
     return header
 
 
-def loadmonitor_wavedata(filename: Optional[str] = None) -> pd.DataFrame:
+def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
     """
     Load the monitor wave csvDataFile.
 
@@ -123,8 +125,8 @@ def loadmonitor_wavedata(filename: Optional[str] = None) -> pd.DataFrame:
         print(f"{'!' * 10} file not found")
         print()
         return pd.DataFrame()
-
-    print(f"{'.' * 10} loading wavedata {os.path.basename(filename)}")
+    if filename:
+        print(f"{'.' * 10} loading wavedata {os.path.basename(filename)}")
     sampling_fr = 300  # sampling rate
     try:
         date = pd.read_csv(filename, nrows=1, header=None).iloc[0][1]
@@ -211,15 +213,15 @@ if __name__ == "__main__":
     DIR_NAME = (
         "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
     )
-    file_name = choosefile_gui(DIR_NAME)
-    file = os.path.basename(file_name)
+    FILE_NAME = choosefile_gui(DIR_NAME)
+    file = os.path.basename(FILE_NAME)
     if not file:
         print("canceled by the user")
     else:
         if file[0] == "M":
             if "Wave" in file:
-                wheader_df = loadmonitor_waveheader(file_name)
-                wdata_df = loadmonitor_wavedata(file_name)
+                wheader_df = loadmonitor_waveheader(FILE_NAME)
+                wdata_df = loadmonitor_wavedata(FILE_NAME)
                 print(f"loaded {file} in wheader_df & wdata_df")
             else:
                 print(f"{'!' * 5} {file} is not a MonitorWave recording {'!' * 5}")

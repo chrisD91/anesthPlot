@@ -9,13 +9,14 @@ a simple terminal dialog to choose the template and copy it to the clipboard
 """
 
 import os
+from typing import Any, Optional
 
 import pyperclip
 
 from anesplot.config.load_recordrc import build_paths
 
 
-def get_guide(pathsdict: dict = None) -> str:
+def get_guide(pathsdict: Optional[dict[str, Any]] = None) -> str:
     """
     Load the specified template file and copy it to the clipboard.
 

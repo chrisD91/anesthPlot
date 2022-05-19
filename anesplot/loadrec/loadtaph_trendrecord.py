@@ -112,7 +112,7 @@ def extract_record_day(monitor_file_name: str) -> str:
     return day
 
 
-def choose_taph_record(monitorname: str = None) -> Union[str, None]:
+def choose_taph_record(monitorname: Optional[str] = None) -> Union[str, None]:
     """
     Explore the recording folders and proposes to select one.
 
@@ -199,7 +199,11 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         # row 1 -> header
         # row 2 -> units
         datadf = pd.read_csv(
-            filename, sep=",", header=1, skiprows=[2], index_col=False,
+            filename,
+            sep=",",
+            header=1,
+            skiprows=[2],
+            index_col=False,
         )
     except pd.errors.ParserError:
         print(f"corrupted file ({os.path.basename(filename)})")
@@ -301,7 +305,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     return datadf
 
 
-def loadtaph_patientfile(filename: str) -> dict[Any, Any]:
+def loadtaph_patientfile(filename: str) -> dict[str, Any]:
     """
     Load the taphonius patient.csv file ('header' in monitor files, description).
 
@@ -340,9 +344,8 @@ def loadtaph_patientfile(filename: str) -> dict[Any, Any]:
     patientdf["Body weight"] = patientdf["Body weight"].astype(float)
     # convert to a dictionary
     descr = patientdf.loc[1].to_dict()  # dict
-    descr = dict(descr)
     print(f"{'-' * 20} loaded taph_patientfile ({os.path.basename(headername)}) >")
-    return descr
+    return dict(descr)
 
 
 def shift_datetime(

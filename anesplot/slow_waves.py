@@ -11,7 +11,7 @@ build the objects for the slow_waves ('trends'):
 """
 import os
 from datetime import datetime, timedelta
-from typing import Any, Union
+from typing import Any, Union, Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -180,7 +180,7 @@ class MonitorTrend(_SlowWave):
         (to be improved)
     """
 
-    def __init__(self, filename: str = None, load: bool = True):
+    def __init__(self, filename: Optional[str] = None, load: bool = True):
         """
         Initilisation routine.
 
@@ -256,7 +256,10 @@ class TaphTrend(_SlowWave):
     """
 
     def __init__(
-        self, filename: str = None, monitorname: str = None, load: bool = True
+        self,
+        filename: Optional[str] = None,
+        monitorname: Optional[str] = None,
+        load: bool = True,
     ):
         """
         Initilisation routine.
@@ -291,7 +294,7 @@ class TaphTrend(_SlowWave):
         self.param["sampling_freq"] = None
         self.extract_events()
 
-    def extract_events(self, shift_min: int = None) -> None:
+    def extract_events(self, shift_min: Optional[int] = None) -> None:
         """
         Decode the taph messages, build events, actions and ventil_drive.
 
@@ -329,7 +332,9 @@ class TaphTrend(_SlowWave):
         fig.show()
         return fig
 
-    def plot_events(self, todrop: list = None, dtime: bool = False) -> plt.Figure:
+    def plot_events(
+        self, todrop: Optional[list] = None, dtime: bool = False
+    ) -> plt.Figure:
         """
         Plot the events as a time display, dtime allow dtime use.
 
