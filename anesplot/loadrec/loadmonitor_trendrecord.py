@@ -50,7 +50,7 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
         name = fname[0]
     else:
         name = fname
-    return str(fname)
+    return str(name)
 
 
 # Monitor trend
@@ -69,9 +69,11 @@ def loadmonitor_trendheader(filename: str) -> dict["str", Any]:
         the content of the header.
 
     """
+    descr = {}  # type: dict[str, Any]
     if filename == "":
         # to build and empty header
-        return {}
+        # return {}
+        return descr
 
     print(f"{'-' * 20} < loadmonitor_trendheader")
     if not os.path.isfile(filename):
@@ -79,7 +81,7 @@ def loadmonitor_trendheader(filename: str) -> dict["str", Any]:
         print(f"{filename}")
         print(f"{'!'* 10} file not found")
         print()
-        return {}
+        return descr
     print(f"{'.' * 10} loading header {os.path.basename(filename)}")
 
     try:
@@ -96,10 +98,10 @@ def loadmonitor_trendheader(filename: str) -> dict["str", Any]:
     except pd.errors.EmptyDataError:
         print(f"{os.path.basename(filename)} as an empty header")
         # descr = {"empty": filename}
-        descr = {}  # type: dict[str, Any]
+        # descr = {}  # type: dict[str, Any]
     except FileNotFoundError:
         print("header not found")
-        descr = {}  # type: dict[str, Any]
+        # descr = {}  # type: dict[str, Any]
         # print(error)
     # NB encoding needed for accentuated letters
     else:
@@ -153,9 +155,7 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
 
     datadf = pd.DataFrame(datadf)
     # drop waves time indicators(column name beginning with a '~')
-    for col in datadf.columns:
-        if col[0] == "~":
-            datadf.pop(col)
+    datadf = datadf.drop([_ for _ in datadf.columns if _.startswith("~")], axis=1)
     # is empty (ie only a few lines of waves data)
     if datadf.set_index("Time").dropna(how="all").empty:
         print(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
@@ -264,19 +264,19 @@ if __name__ == "__main__":
     DIR_NAME = (
         "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
     )
-    file_name = choosefile_gui(DIR_NAME)
-    file = os.path.basename(file_name)
+    FILE_NAME = choosefile_gui(DIR_NAME)
+    file = os.path.basename(FILE_NAME)
     if not file:
         print("canceled by the user")
     elif file[0] == "M":
         if "Wave" not in file:
-            header_dict = loadmonitor_trendheader(file_name)
+            header_dict = loadmonitor_trendheader(FILE_NAME)
             if header_dict:
-                mdata_df = loadmonitor_trenddata(file_name, header_dict)
+                MDATA_DF = loadmonitor_trenddata(FILE_NAME, header_dict)
                 print(f"{'>' * 10} loaded recording of {file} in mdata_df")
                 # mdata= cleanMonitorTrendData(mdata)
             else:
-                mdata_df = None
+                MDATA_DF = None
                 print(f"{'!' * 5}  {file} file is empty  {'!' * 5}")
         else:
             print(f"{'!' * 5} {file} is not a MonitorTrend recording {'!' * 5}")
