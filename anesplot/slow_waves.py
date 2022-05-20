@@ -66,7 +66,7 @@ class _SlowWave(_Waves):
         datadf = clean_trenddata(self.data)
         return datadf
 
-    def show_graphs(self) -> dict[Any, Any]:
+    def show_graphs(self) -> dict[str, Any]:
         """Build and display classical clinical plots."""
         if self.data.empty:
             print("recording is empty : no data to plot")
@@ -257,9 +257,9 @@ class TaphTrend(_SlowWave):
 
     def __init__(
         self,
-        filename: Optional[str] = None,
+        filename: str,
         monitorname: Optional[str] = None,
-        load: bool = True,
+        load: Optional[bool] = True,
     ):
         """
         Initilisation routine.

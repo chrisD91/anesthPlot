@@ -9,7 +9,7 @@ list of function to choose, manipulate and combine the trends plot functions
 
 """
 import sys
-from typing import Callable, List, Tuple, Union, Any
+from typing import Callable, List, Tuple, Union, Any, Optional
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -235,7 +235,7 @@ def plot_a_trend(
 
 
 def plot_trenddata(
-    datadf: pd.DataFrame, header: dict[str, Any], param_dico: dict[str, Any]
+    datadf: pd.DataFrame, header: Optional[dict[str, Any]], param_dico: dict[str, Any]
 ) -> dict[str, plt.Figure]:
     """
     Generate a series of plots for anesthesia debriefing purposes.

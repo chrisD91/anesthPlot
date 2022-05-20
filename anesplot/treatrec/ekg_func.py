@@ -21,7 +21,7 @@ from anesplot.treatrec.wave_func import fix_baseline_wander
 
 
 def plot_sample_ekgbeat_overlap(
-    mwave: Any, lims: Optional[tuple[float, float]] = None, threshold: float = -1
+    mwave: Any, lims: Optional[tuple[float, float]]=None, threshold: float = -1
 ) -> plt.Figure:
     """
     Extract and plot an overlap of ekg beats.

@@ -10,7 +10,7 @@ build the objects or the fast_waves ('waves'):
 
 """
 import os
-from typing import Tuple
+from typing import Tuple, Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -40,12 +40,12 @@ class _FastWave(_Waves):
     #     super().__init__(filename)
     def __init__(self) -> None:
         super().__init__()
-        self.filename = None
-        self.trace_list = None
-        self.fig = None
-        self.roi = None
+        self.filename
+        self.trace_list
+        self.fig
+        self.roi
 
-    def filter_ekg(self):
+    def filter_ekg(self) -> None:
         """Filter the ekg trace -> build 'ekgMovAvg' & 'ekgLowPass'."""
         datadf = self.data
         samplingfreq = self.param["sampling_freq"]
@@ -60,8 +60,8 @@ class _FastWave(_Waves):
         datadf["ekgLowPass"] = fix_baseline_wander(datadf[item], samplingfreq)
 
     def plot_wave(
-        self, traces_list: list = None
-    ) -> tuple(plt.figure, plt.Line2D, list(str)):
+        self, traces_list: Optional[list] = None
+    ) -> tuple[plt.figure, list[plt.Line2D], list[str]]:
         """
         Choose and plot for a wave.
 
@@ -78,9 +78,9 @@ class _FastWave(_Waves):
             traces_list : [name of the traces]
         """
         if self.data.empty:
-            fig = None
-            lines = None
-            traces_list = None
+            fig = plt.Figure()
+            lines = []
+            traces_list = []
             print("there are no data to plot")
         else:
             print(f"{'-' * 20} started FastWave plot_wave)")
@@ -102,9 +102,9 @@ class _FastWave(_Waves):
                 self.trace_list = traces_list
                 plt.show()  # required to display the plot before exiting
             else:
-                self.trace_list = None
-                fig = None
-                lines = None
+                self.trace_list = []
+                fig = plt.figure()
+                lines = [plt.line2D]
             self.fig = fig
             print(f"{'-' * 20} ended FastWave plot_wave")
         return fig, lines, traces_list
@@ -148,7 +148,7 @@ class _FastWave(_Waves):
         save: bool = False,
         savename: str = "video",
         savedir: str = "~",
-    ):
+    ) -> None:
         """
         Build a video the previous builded figure.
 
@@ -189,8 +189,8 @@ class _FastWave(_Waves):
             print("no roi attribute, please use record_roi() to build one")
 
     def plot_sample_systolic_variation(
-        self, lims: Tuple = None, teach: bool = False, annotations: bool = False
-    ):
+        self, lims: Tuple[int, int], teach: bool = False, annotations: bool = False,
+    ) -> None:
         """Plot the systolic variations (sample of a record based on ROI)."""
         if self.roi:
             anesplot.treatrec.arterial_func.plot_sample_systolic_pressure_variation(
@@ -200,11 +200,13 @@ class _FastWave(_Waves):
         else:
             print("please define a ROI using mwave.save_a_roi")
 
-    def plot_record_systolic_variation(self):
+    def plot_record_systolic_variation(self) -> None:
         """Plot the systolic variation (whole record)."""
         anesplot.treatrec.arterial_func.plot_record_systolic_variation(self)
 
-    def plot_sample_ekgbeat_overlap(self, threshold=-1, lims=None):
+    def plot_sample_ekgbeat_overlap(
+        self, lims: Optional[Tuple[float, float]], threshold: float = -1
+    ) -> plt.Figure:
         """Overlap a sample ekg R centered traces."""
         fig = anesplot.treatrec.ekg_func.plot_sample_ekgbeat_overlap(
             self, lims=lims, threshold=threshold
@@ -229,9 +231,9 @@ class TelevetWave(_FastWave):
     """
 
     # def __init__(self, filename=None):
-    def __init__(self, filename=None):
+    def __init__(self, filename:str):
         super().__init__()
-        if filename is None:
+        if filename:
             dir_path = paths.get("telv_data")
             filename = choosefile_gui(dir_path)
         self.filename = filename

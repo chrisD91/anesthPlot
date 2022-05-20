@@ -7,12 +7,18 @@ Created on Thu Apr 28 16:20:07 2022
 the base wave for slow and fast waves
 """
 
+from typing import Any
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
 from anesplot.config.load_recordrc import build_paths
 
 paths = build_paths()
 
 
-class _Waves:
+class _Waves:   #pylint: disable=too-few-public-methods
     """the base object to store the records."""
 
     def __init__(self) -> None:
@@ -25,11 +31,12 @@ class _Waves:
         :rtype: wave object
 
         """
-        self.data = None
-        self.fig = None
-        self.roi = None
-        self.header = None
-        self.param = dict(
+        self.filename: str
+        self.data: pd.DataFrame
+        self.fig: plt.Figure
+        self.roi: dict[str, Any]
+        self.header: dict[str, Any]
+        self.param: dict[str, Any] = dict(
             xmin=None,
             xmax=None,
             ymin=0,

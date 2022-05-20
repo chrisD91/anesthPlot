@@ -10,175 +10,21 @@ ____
 """
 
 import os
-from typing import Any, Optional
+from typing import Any, Optional, Callable
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-# import utils
-FONTSIZE = "medium"  # large, medium
-params = {
-    "font.sans-serif": ["Arial"],
-    "font.size": 12,
-    "legend.fontsize": FONTSIZE,
-    "figure.figsize": (12, 3.1),
-    "axes.labelsize": FONTSIZE,
-    "axes.titlesize": FONTSIZE,
-    "xtick.labelsize": FONTSIZE,
-    "ytick.labelsize": FONTSIZE,
-    "axes.xmargin": 0,
-}
-plt.rcParams.update(params)
-plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
+from anesplot.plot.plot_func import (
+    remove_outliers,
+    save_graph,
+    color_axis,
+    update_pltparams,
+)
 
-
-# ------------------------------------------------------
-def remove_outliers(
-    datadf: pd.DataFrame, key: str, limits: Optional[dict[str, tuple[Any, Any]]] = None
-) -> pd.Series:
-    """
-    Remove outliers.
-
-    Parameters
-    ----------
-    datadf : pd.DataFrame
-        the data.
-    key : str
-        a column label to extract the trace.
-    limits : dict, optional
-        {limLow: val, limHigh:val} (default is None).
-
-    Returns
-    -------
-    ser : pandas.Series
-        data without the outliers.
-    """
-    if limits is None:
-        limits = {
-            "co2exp": (20, 80),
-            "aaExp": (0.2, 3.5),
-            "ip1m": (15, 160),
-            "hr": (10, 100),
-        }
-
-    if key not in datadf.columns:
-        return pd.Series()
-
-    if key not in limits:
-        print(f"{key} limits are not defined")
-    ser = datadf[key].copy()
-    ser[ser < limits[key][0]] = np.nan
-    ser[ser > limits[key][1]] = np.nan
-    ser = ser.dropna()
-    return ser
-
-
-def color_axis(ax0: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
-    """
-    Change the color of the label & tick & spine.
-
-    Parameters
-    ----------
-    ax : plt.Axes
-        the axis to work on.
-    spine : str, optional (default is "bottom")
-        optional location in ['bottom', 'left', 'top', 'right'] .
-    color : str, optional (default is "r")
-        the color to use.
-
-    Returns
-    -------
-    None.
-    """
-    ax0.spines[spine].set_color(color)
-    if spine == "bottom":
-        ax0.xaxis.label.set_color(color)
-        ax0.tick_params(axis="x", colors=color)
-    elif spine in ["left", "right"]:
-        ax0.yaxis.label.set_color(color)
-        ax0.tick_params(axis="y", colors=color)
-
-
-def append_loc_to_fig(
-    ax0: plt.Axes, dt_list: list[Any], label: str = "g"
-) -> dict[int, float]:
-    """
-    Append vertical lines to indicate a time location 'for eg: arterial blood gas'.
-
-    Parameters
-    ----------
-    ax0 : plt.Axes
-        the axis to add on.
-    dt_list : list
-        list of datetime values.
-    label : str, optional (default is 'g')
-        a key to add to the label.
-
-    Returns
-    -------
-    dict
-        a dictionary containing the locations.
-    """
-    num_times = mdates.date2num(dt_list)
-    res = {}
-    for i, num_time in enumerate(num_times):
-        txt = label + str(i + 1)
-        ax0.axvline(num_time, color="tab:blue")
-        ax0.text(num_time, ax0.get_ylim()[1], txt, color="tab:blue")
-        res[i] = num_time
-    return res
-
-
-def save_graph(
-    path: str, ext: str = "png", close: bool = True, verbose: bool = True
-) -> None:
-    """
-    Save a figure from pyplot.
-
-    Parameters
-    ----------
-    path : str
-        The path (and filename, without the extension) to save the
-        figure to.
-    ext : str, optional (default='png')
-        The file extension. This must be supported by the active
-        matplotlib backend (see matplotlib.backends module).  Most
-        backends support 'png', 'pdf', 'ps', 'eps', and 'svg'.
-    close : bool, optional (default=True)
-        Whether to close the figure after saving.  If you want to save
-        the figure multiple times (e.g., to multiple formats), you
-        should NOT close it in between saves or you will have to
-        re-plot it.
-    verbose : bool, optional (default=True)
-        Whether to print information about when and where the image
-        has been saved.
-
-    Returns
-    -------
-    None.
-    """
-    # Extract the directory and filename from the given path
-    directory = os.path.split(path)[0]
-    # filename = "%s.%s" % (os.path.split(path)[1], ext)
-    filename = ".".join([os.path.split(path)[1], ext])
-    if directory == "":
-        directory = "."
-    # If the directory does not exist, create it
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    # The final path to save to
-    savepath = os.path.join(directory, filename)
-    if verbose:
-        print(f"Saving figure to {savepath}")
-    # Actually save the figure
-    plt.savefig(savepath)
-    # Close it
-    if close:
-        plt.close()
-    if verbose:
-        print("Done")
+update_pltparams()
 
 
 # %%
@@ -314,7 +160,7 @@ def hist_cardio(
 
     for axe in axes:
         # call
-        color_axis(axe, "bottom", "tab:grey")
+        color_axis(axe, "bottom", "tab:grey")  # call
         axe.get_yaxis().set_visible(False)
         axe.get_xaxis().tick_bottom()
         for locs in ["top", "right", "left"]:
@@ -327,37 +173,8 @@ def hist_cardio(
         fig_name = "hist_cardio" + str(param["item"])
         name = os.path.join(param["path"], fig_name)
         save_graph(name, ext="png", close=False, verbose=True)
-        # saveGraph(name, ext='png', close=False, verbose=True)
         if param["memo"]:
             fig_memo(param["path"], fig_name)
-    return fig
-
-
-# ------------------------------------------------------
-def plot_one_over_time(x: float, y: float, colour: str) -> plt.Figure:
-    """
-    Plot y over x using colour.
-
-    Parameters
-    ----------
-    x : float
-    y : float
-    colour : str
-        matplotlib.pyplot color
-
-    Returns
-    -------
-    fig : plt.figure
-    """
-    fig = plt.figure()
-    axe = fig.add_subplot(111)
-    axe.plot(x, y, color=colour)
-    axe.spines["top"].set_visible(False)
-    axe.spines["right"].set_visible(False)
-    fig.tight_layout()
-    # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    # fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     return fig
 
 
@@ -455,7 +272,6 @@ def hist_co2_iso(
         fig_name = "hist_co2_iso" + str(param["item"])
         name = os.path.join(param["path"], fig_name)
         save_graph(name, ext="png", close=False, verbose=True)
-        #        saveGraph(name, ext='png', close=False, verbose=True)
         if param["memo"]:
             fig_memo(param["path"], fig_name)
 
@@ -482,85 +298,60 @@ def cardiovasc(
     matplotlib.pyplot.Figure
     """
     if param is None:
-        param = {}
-    if "hr" not in datadf.columns:
-        print("no pulseRate in the recording")
-        return plt.figure()
-    if "ip1m" not in datadf.columns:
-        print("no arterial pressure in the recording")
-        return plt.figure()
-    # global timeUnit
-    dtime = param.get("dtime", False)
-    if dtime:
-        pressuredf = datadf.set_index("datetime")[["ip1m", "ip1d", "ip1s", "hr"]]
-    else:
-        pressuredf = datadf.set_index("eTimeMin")[["ip1m", "ip1d", "ip1s", "hr"]]
+        param = {}  # type : dict[str, Any]
 
-    xmin = param.get("xmin", None)
-    xmax = param.get("xmax", None)
-    # unit = param.get("unit", "")
-    save = param.get("save", False)
-    file = param.get("file", "")
+    cardiac_items = {"ip1m", "ip1d", "ip1s", "hr"}
+    if not cardiac_items.issubset(set(datadf.columns)):
+        diff = cardiac_items - set(datadf.columns)
+        print("unable to perform the cardiovacular plot")
+        print(f"{diff} are not present in the data")
+        return plt.figure()
+
+    # global timeUnit
+    timebase = "datetime" if param.get("dtime", False) else "eTimeMin"
+    pressuredf = datadf.set_index(timebase)[list(cardiac_items)]
 
     fig = plt.figure()
     ax_l = fig.add_subplot(111)
-    # ax_l.set_xlabel('time (' + unit +')')
-    ax_l.set_ylabel("arterial Pressure", color="tab:red")
-    # call
-    color_axis(ax_l, "left", "tab:red")
-    # for spine in ["top", "right"]:
-    #     ax_l.spines[spine].set_visible(False)
     ax_l.plot(pressuredf.ip1m, "-", color="red", label="arterial pressure", linewidth=2)
     ax_l.fill_between(
         pressuredf.index, pressuredf.ip1d, pressuredf.ip1s, color="tab:red", alpha=0.5
     )
+    color_axis(ax_l, "left", "tab:red")  # call
+    ax_l.set_ylabel("arterial Pressure", color="tab:red")
     ax_l.set_ylim(30, 150)
     ax_l.axhline(70, linewidth=1, linestyle="dashed", color="tab:red")
 
     ax_r = ax_l.twinx()
+    ax_r.plot(pressuredf.hr, color="tab:grey", label="heart rate", linewidth=2)
     ax_r.set_ylabel("heart Rate")
     ax_r.set_ylim(20, 100)
-    ax_r.plot(pressuredf.hr, color="tab:grey", label="heart rate", linewidth=2)
-    # call
-    color_axis(ax_r, "right", "tab:grey")
-    # ax_r.yaxis.label.set_color("black")
-    # for spine in ["top", "left"]:
-    #     ax_r.spines[spine].set_visible(False)
+    color_axis(ax_r, "right", "tab:grey")  # call
 
-    if dtime:
-        my_fmt = mdates.DateFormatter("%H:%M")
-        ax_l.xaxis.set_major_formatter(my_fmt)
-        xlims = ax_l.get_xlim()
-        ax_l.set_xlim(datadf.iloc[0].datetime, xlims[1])
+    ax_l.set_xlim(datadf.iloc[0][timebase], ax_l.get_xlim()[1])
+    ax_l.spines["right"].set_visible(False)
+    ax_r.spines["left"].set_visible(False)
+    if timebase == "datetime":
+        ax_l.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     else:
         ax_l.set_xlabel("etime (min)")
-        xlims = ax_l.get_xlim()
-        ax_l.set_xlim(datadf.iloc[0].eTimeMin, xlims[1])
 
-    for i, axe in enumerate(fig.get_axes()):
-        # call
-        color_axis(axe, "bottom", "tab:grey")
-        # color_axis(ax, "right", "tab:grey")
-        for spine in ["top"]:
-            axe.spines[spine].set_visible(False)
-        if i == 0:
-            axe.spines["right"].set_visible(False)
-        else:
-            ax_r.spines["left"].set_visible(False)
+    for ax in fig.get_axes():
+        color_axis(ax, "bottom", "tab:grey")  # call
+        ax.spines["top"].set_visible(False)
 
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, file, ha="left", va="bottom", alpha=0.4)
+    fig.text(0.01, 0.01, param.get("file", ""), ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
-    if xmin and xmax:
-        ax_r.set_xlim(xmin, xmax)
+    if param.get("xmin", None) and param.get("xmax", None):
+        ax_r.set_xlim(param.get("xmin"), param.get("xmax"))
 
-    if save:
+    if param.get("save", False):
         path = param["path"]
         fig_name = "cardiovasc" + str(param["item"])
         name = os.path.join(path, fig_name)
         save_graph(name, ext="png", close=False, verbose=True)
-        #        saveGraph(name, ext='png', close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
 
@@ -589,26 +380,19 @@ def cardiovasc_p1p2(
         matplotlib.pyplot.Figure.
     """
     if param is None:
-        param = {}
-    if "hr" not in datadf.columns:
-        print("no pulseRate in the recording")
+        param = {}  # type : dict[str, Any]
+
+    cardiac_items = {"ip1m", "ip1d", "ip1s", "hr", "ip2s", "ip2d", "ip2m"}
+    if not cardiac_items.issubset(set(datadf.columns)):
+        diff = cardiac_items - set(datadf.columns)
+        print("unable to perform the cardiovac_p1p2 plot")
+        print(f"{diff} are not present in the data")
         return plt.figure()
-    if "ip1m" not in datadf.columns:
-        print("no arterial pressure in the recording")
-        return plt.figure()
-    if "ip2m" not in datadf.columns:
-        print("no venous pressure in the recording")
-        return plt.figure()
+
     # global timeUnit
-    dtime = param.get("dtime", False)
-    if dtime:
-        pressuredf = datadf.set_index("datetime")[
-            ["ip1m", "ip1d", "ip1s", "hr", "ip2s", "ip2d", "ip2m"]
-        ]
-    else:
-        pressuredf = datadf.set_index("eTimeMin")[
-            ["ip1m", "ip1d", "ip1s", "hr", "ip2s", "ip2d", "ip2m"]
-        ]
+    timebase = "datetime" if param.get("dtime", False) else "eTimeMin"
+    pressuredf = datadf.set_index(timebase)[list(cardiac_items)]
+
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
     # unit = param.get("unit", "")
@@ -636,18 +420,11 @@ def cardiovasc_p1p2(
     ax_r.set_ylabel("heart Rate")
     ax_r.set_ylim(20, 100)
     ax_r.plot(pressuredf.hr, color="tab:grey", label="heart rate", linewidth=2)
-    # call
-    color_axis(ax_r, "right", "tab:grey")
-    # ax_r.yaxis.label.set_color("black")
-    # for spine in ["top", "left"]:
-    #     ax_r.spines[spine].set_visible(False)
+    color_axis(ax_r, "right", "tab:grey")  # call
 
     ax1 = axes[1]
     ax1.set_ylabel("venous Pressure", color="tab:blue")
-    # call
-    color_axis(ax1, "left", "tab:blue")
-    # for spine in ["top", "right"]:
-    #     ax_l.spines[spine].set_visible(False)
+    color_axis(ax1, "left", "tab:blue")  # call
     ax1.plot(pressuredf.ip2m, "-", color="blue", label="venous pressure", linewidth=2)
     ax1.fill_between(
         pressuredf.index, pressuredf.ip2d, pressuredf.ip2s, color="tab:blue", alpha=0.5
@@ -655,20 +432,20 @@ def cardiovasc_p1p2(
     ax1.set_ylim(-5, 15)
     ax1.axhline(0, linewidth=1, linestyle="-", color="tab:gray")
 
-    if dtime:
-        my_fmt = mdates.DateFormatter("%H:%M")
-        ax_l.xaxis.set_major_formatter(my_fmt)
+    if timebase == "datetime":
+        ax_l.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     else:
         ax_l.set_xlabel("etime (min)")
 
-    for i, axe in enumerate(fig.get_axes()):
-        # call
-        color_axis(axe, "bottom", "tab:grey")
-        # color_axis(ax, "right", "tab:grey")
-        for spine in ["top"]:
-            axe.spines[spine].set_visible(False)
+    for ax in fig.get_axes():
+        color_axis(ax, "bottom", "tab:grey")  # call
+        ax.spines["top"].set_visible(False)
+
+    for i, ax in enumerate(fig.get_axes()):
+        color_axis(ax, "bottom", "tab:grey")  # call
+        ax.spines["top"].set_visible(False)
         if i == 0:
-            axe.spines["right"].set_visible(False)
+            ax.spines["right"].set_visible(False)
         else:
             ax_r.spines["left"].set_visible(False)
 
@@ -684,7 +461,6 @@ def cardiovasc_p1p2(
         fig_name = "cardiovasc" + str(param["item"])
         name = os.path.join(path, fig_name)
         save_graph(name, ext="png", close=False, verbose=True)
-        #        saveGraph(name, ext='png', close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
 
@@ -692,7 +468,7 @@ def cardiovasc_p1p2(
 
 
 # ------------------------------------------------------
-def co2iso(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
+def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
     """
     Plot CO2/iso over time.
 
@@ -709,77 +485,69 @@ def co2iso(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fi
     matplotlib.pyplot.Figure
     """
     if param is None:
-        param = {}
-    if "co2exp" not in data.columns:
-        print("no co2exp in the recording")
-        return plt.figure()
-    if "aaExp" not in data.columns:
-        print("no aaExp in the recording")
+        param = {}  # type : dict[str, Any]
+
+    plot_items = {"co2insp", "co2exp", "aaInsp", "aaExp"}
+    if not plot_items.issubset(set(datadf.columns)):
+        diff = plot_items - set(datadf.columns)
+        print("unable to perform the cardiovacular plot")
+        print(f"{diff} are not present in the data")
         return plt.figure()
 
-    dtime = param.get("dtime", False)
-    if dtime:
-        df = data.set_index("datetime")[["co2insp", "co2exp", "aaInsp", "aaExp"]]
-    else:
-        df = data.set_index("eTimeMin")[["co2insp", "co2exp", "aaInsp", "aaExp"]]
-    # x = data.index
-    # etCO2 = data.co2exp
-    # inspCO2 = data.co2insp
-    path = param.get("path", "")
-    xmin = param.get("xmin", None)
-    xmax = param.get("xmax", None)
-    # unit = param.get("unit", "")
-    save = param.get("save", False)
-    # rr = data['CO2 RR‘]
-    # inspO2 = data.o2insp
-    # etO2 = data.o2exp
-    # inspIso = data.aaInsp
-    # etIso = data.aaExp
+    # global timeUnit
+    timebase = "datetime" if param.get("dtime", False) else "eTimeMin"
+    plot_df = datadf.set_index(timebase)[list(plot_items)]
 
     fig = plt.figure()
-    # fig.suptitle('$CO_2$ isoflurane')
     ax_l = fig.add_subplot(111)
-    #    ax_l.set_xlabel('time (' + unit +')')
 
     ax_l.set_ylabel("$CO_2$")
     # call
     color_axis(ax_l, "left", "tab:blue")
 
-    ax_l.plot(df.co2exp, color="tab:blue")
-    ax_l.plot(df.co2insp, color="tab:blue")
-    ax_l.fill_between(df.index, df.co2exp, df.co2insp, color="tab:blue", alpha=0.5)
+    ax_l.plot(plot_df.co2exp, color="tab:blue")
+    ax_l.plot(plot_df.co2insp, color="tab:blue")
+    ax_l.fill_between(
+        plot_df.index, plot_df.co2exp, plot_df.co2insp, color="tab:blue", alpha=0.5
+    )
     ax_l.axhline(38, linewidth=2, linestyle="dashed", color="tab:blue")
 
     ax_r = ax_l.twinx()
     ax_r.set_ylabel("isoflurane")
     color_axis(ax_r, "right", "tab:purple")
     # func(ax_r, x, etIso, inspIs, color='m', x0=38)
-    ax_r.plot(df.aaExp, color="tab:purple")
-    ax_r.plot(df.aaInsp, color="tab:purple")
-    ax_r.fill_between(df.index, df.aaExp, df.aaInsp, color="tab:purple", alpha=0.5)
+    ax_r.plot(plot_df.aaExp, color="tab:purple")
+    ax_r.plot(plot_df.aaInsp, color="tab:purple")
+    ax_r.fill_between(
+        plot_df.index, plot_df.aaExp, plot_df.aaInsp, color="tab:purple", alpha=0.5
+    )
     ax_r.set_ylim(0, 3)
 
-    if dtime:
-        my_fmt = mdates.DateFormatter("%H:%M")
-        ax_r.xaxis.set_major_formatter(my_fmt)
+    ax_l.set_xlim(datadf.iloc[0][timebase], ax_l.get_xlim()[1])
+    ax_l.spines["right"].set_visible(False)
+    ax_r.spines["left"].set_visible(False)
+    if timebase == "datetime":
+        ax_l.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     else:
         ax_l.set_xlabel("etime (min)")
 
-    for ax in [ax_l, ax_r]:
-        color_axis(ax, "bottom", "tab:grey")
+    for ax in fig.get_axes():
+        color_axis(ax, "bottom", "tab:grey")  # call
         ax.spines["top"].set_visible(False)
-        ax.get_xaxis().tick_bottom()
-        ax.set_xlim(xmin, xmax)
-        # annotations
+
+    if param.get("xmin", None) and param.get("xmax", None):
+        ax_r.set_xlim(param.get("xmin"), param.get("xmax"))
+
+    # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    fig.text(0.01, 0.01, param.get("file", ""), ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
 
-    if save:
+    if param.get("save", False):
+        path = param.get("path", "")
         fig_name = "co2iso" + str(param["item"])
         name = os.path.join(path, fig_name)
         save_graph(name, ext="png", close=False, verbose=True)
-        #        saveGraph(name, ext='png', close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
 
@@ -874,7 +642,6 @@ def co2o2(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
         fig_name = "co2o2" + str(param["item"])
         name = os.path.join(path, fig_name)
         save_graph(name, ext="png", close=False, verbose=True)
-        #        saveGraph(name, ext='png', close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
     return fig
@@ -951,10 +718,14 @@ def ventil(data: pd.DataFrame, param: dict["str", Any]) -> plt.Figure:
         print("no spirometry data in the recording")
 
     if toplot:
-        style = ["-", "-", ":"]
-        for k, s in zip(toplot, style):
+        styles = ["-", "-", ":"]
+        for label, style in zip(toplot, styles):
             ax1_r.plot(
-                df[toplot[k]], color="tab:red", linewidth=1, linestyle=s, label=k
+                df[toplot[label]],
+                color="tab:red",
+                linewidth=1,
+                linestyle=style,
+                label=label,
             )
         ax1_r.fill_between(
             df.index, df[toplot["peak"]], df[toplot["peep"]], color="tab:red", alpha=0.1
@@ -1007,7 +778,6 @@ def ventil(data: pd.DataFrame, param: dict["str", Any]) -> plt.Figure:
         fig_name = "ventil" + str(param["item"])
         name = os.path.join(path, fig_name)
         save_graph(name, ext="png", close=False, verbose=True)
-        #        saveGraph(name, ext='png', close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
     return fig
@@ -1083,7 +853,6 @@ def recrut(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
         fig_name = "recrut" + str(param["item"])
         name = os.path.join(path, fig_name)
         save_graph(name, ext="png", close=False, verbose=True)
-        #        saveGraph(name, ext='png', close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
     return fig
@@ -1296,3 +1065,54 @@ def fig_memo(apath: str, fig_name: str) -> None:
     with open(fig_insert, "a", encoding="utf-8") as file:
         file.write(include_text + "\n")
         file.close()
+
+
+# %%
+if __name__ == "__main__":
+
+    def test_header_plot(header: pd.DataFrame, param: dict[str, Any]) -> None:
+        """Test the plotting for header."""
+        headerfunc_list :list[Callable] = [plot_header,]
+
+        print(f"{'...'*5} test_header_plot < ")
+        for func in headerfunc_list:
+            # plt.close('all')
+            fig = func(header, param)
+            fig.show()
+            print(func.__name__)
+            plt.close(fig)
+        plt.close("all")
+        print(f"{'...'*5} > test_header_plot")
+
+    def test_data_plot(data: pd.DataFrame, param: dict[str, Any]) -> None:
+        """Test the plotting for data."""
+        print(f"{'...'*5} test_data_plot < ")
+        datafunc_list :list[Callable] = [
+            cardiovasc,
+            cardiovasc_p1p2,
+            co2iso,
+            co2o2,
+            hist_cardio,
+            hist_co2_iso,
+            recrut,
+            sat_hr,
+            ventil,
+            ventil_cardio,
+        ]
+
+        for func in datafunc_list:
+            # plt.close('all')
+            print(func.__name__)
+            fig = func(data, param)
+            fig.show()
+            plt.close(fig)
+        plt.close("all")
+        print(f"{'...'*5} > test_data_plot")
+
+    from anesplot.slow_waves import MonitorTrend
+    print(f"{'='* 20} ")
+    mtrends = MonitorTrend()
+    print(f"{'='* 20} ")
+    test_header_plot(mtrends.header, mtrends.param)
+    test_data_plot(mtrends.data, mtrends.param)
+    print(f"{'='* 20} ")
