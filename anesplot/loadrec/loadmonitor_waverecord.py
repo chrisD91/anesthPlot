@@ -34,9 +34,6 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
     str : the choosed file full name
 
     """
-    # nb these imports seems to be required to allow processing after importation
-    # import sys
-    # from PyQt5.QtWidgets import QApplication, QFileDialog
     if dirname is None:
         dirname = os.path.expanduser("~")
     app = QApplication([dirname])
