@@ -7,11 +7,8 @@ Created on Thu Mar 12 16:52:13 2020
 """
 from typing import Optional
 
-import matplotlib.pyplot as plt
-
-# import os
-# from glob import glob
 from PyQt5.QtWidgets import QApplication, QFileDialog
+import matplotlib.pyplot as plt
 
 # %%
 
