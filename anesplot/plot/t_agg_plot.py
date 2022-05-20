@@ -166,7 +166,7 @@ def build_half_white(
 
     size = inifig.get_size_inches()
     for fig in [halffig, fullfig]:
-        for i, ylim in enumerate(roi.get("ylims")):
+        for i, ylim in enumerate(roi.get("ylims")): # type: ignore
             ax = fig.get_axes()[i]
             ax.set_ylim(ylim)
             ax.axvline(lims[1], color="tab:grey")
@@ -266,7 +266,7 @@ def plot_trenddata(
             print("no pressure tdata recorded")
     afig_list = []
     # plotting
-    plot_func_list: List[Callable[Any]] = [
+    plot_func_list: List[Callable] = [
         tplot.ventil,
         tplot.co2o2,
         tplot.co2iso,
