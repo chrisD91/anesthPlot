@@ -72,7 +72,6 @@ def build_taph_decodedate_dico(
     apath = pathdict.get("taph_data", taphdata)
 
     dct = defaultdict(list)
-    # records = []
     for root, _, files in os.walk(apath):
         found = [_ for _ in files if _.startswith("SD") and _.endswith(".csv")]
         if found:
@@ -189,10 +188,6 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         return pd.DataFrame()
     print(f"{'-' * 10} loading taph_datafile {os.path.basename(filename)}")
 
-    # check
-    # filename = '/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded/'+
-    # 'before2020/REDDY_A13-99999/Patients2013DEC16/Record08_19_11/SD2013DEC16-8_19_11.csv'
-
     try:
         # df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
         # row 0 -> groups
@@ -278,11 +273,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         for col in ["datetime", "time", "eTime", "eTimeMin"]:
             datadf[col] = np.nan
         return datadf
-    # # >>
-    # import pdb
 
-    # pdb.set_trace()
-    # # >>
     datadf["datetime"] = pd.to_datetime(datadf.Date + ";" + datadf.Time, dayfirst=True)
     datadf["time"] = datadf.Date + "-" + datadf.Time
     datadf["time"] = pd.to_datetime(datadf["time"], dayfirst=True)
