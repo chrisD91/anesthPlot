@@ -25,8 +25,8 @@ def choosefile_gui(dirpath: Optional[str] = None) -> str:
 
     Parameters
     ----------
-    dirpath : str, optional
-       location of the data, ex : paths['data']. (The default is None -> '~'.
+    dirpath : str, optional (The default is None -> '~')
+       location of the data, ex : paths['data']. .
 
     Returns
     -------
@@ -55,10 +55,10 @@ def loadtelevet(fname: Optional[str] = None, all_traces: bool = False) -> pd.Dat
 
     Parameters
     ----------
-    fname : str, optional
-        (full) name of the file (default is None).
-    all_traces : bool, optional
-        load all the derivations (default is False).
+    fname : str, optional (default is None)
+        (full) name of the file.
+    all_traces : bool, optional (default is False)
+        load all the derivations.
 
     Returns
     -------
