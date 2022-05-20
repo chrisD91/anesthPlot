@@ -11,7 +11,7 @@ functions ued to extract the events from the taphonius files
 import os
 from datetime import datetime, timedelta
 from math import ceil
-from typing import Any, Tuple
+from typing import Any, Tuple, Union
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -198,7 +198,7 @@ def extract_ventilation_drive(
     }
     runs = {"ventilate": True, "standby": False}
 
-    def end_of_line_to_float(line: str):
+    def end_of_line_to_float(line: str) -> Union[float, None]:
         """Return float value else none."""
         line = line.split(" ")[-1].replace("s", "")
         try:
@@ -447,31 +447,31 @@ def extract_event(eventdf: pd.DataFrame) -> dict:
 # %%
 
 
-def build_dataframe(acts) -> pd.DataFrame:
-    """Build a dataframe containing all the actions, one per column."""
-    names = {
-        "Inspiratory pause value changed": "pause",
-        "CPAP value changed": "peep",
-        "Tidal Volume changed": "vol",
-        "RR changed": "rr",
-        "MWPL value changed": "mwpl",
-        "Buffer Vol changed": "bufferVol",
-        "O2 expired high alarm value changed": "highO2ExpAlarm",
-        "O2 inspired high alarm value changed": "highO2InspAlarm",
-        "O2 inspired low alarm value changed": "lowO2InspAlarm",
-        "IP changed": "IP",
-        "IT changed": "IT",
-    }
-    dflist = []
-    for act, event in acts.items():
-        colname = names.get(act, "notdefined")
-        actdf = pd.DataFrame(event, columns=["dt", colname]).set_index("dt")
-        dflist.append(actdf)
-        if colname == "notdefined":
-            print(f"manage_events.build_dataframe : names should be updated for {act}")
-    acts_df = pd.concat(dflist).sort_index()
+# def build_dataframe(acts) -> pd.DataFrame:
+#     """Build a dataframe containing all the actions, one per column."""
+#     names = {
+#         "Inspiratory pause value changed": "pause",
+#         "CPAP value changed": "peep",
+#         "Tidal Volume changed": "vol",
+#         "RR changed": "rr",
+#         "MWPL value changed": "mwpl",
+#         "Buffer Vol changed": "bufferVol",
+#         "O2 expired high alarm value changed": "highO2ExpAlarm",
+#         "O2 inspired high alarm value changed": "highO2InspAlarm",
+#         "O2 inspired low alarm value changed": "lowO2InspAlarm",
+#         "IP changed": "IP",
+#         "IT changed": "IT",
+#     }
+#     dflist = []
+#     for act, event in acts.items():
+#         colname = names.get(act, "notdefined")
+#         actdf = pd.DataFrame(event, columns=["dt", colname]).set_index("dt")
+#         dflist.append(actdf)
+#         if colname == "notdefined":
+#             print(f"manage_events.build_dataframe : names should be updated for {act}")
+#     acts_df = pd.concat(dflist).sort_index()
 
-    return acts_df
+#     return acts_df
 
 
 # %%

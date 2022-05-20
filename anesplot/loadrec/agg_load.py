@@ -25,18 +25,13 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
         DESCRIPTION. : full name of the selected file
 
     """
-    # global APP
-    # if 'app' not in dir():
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
-    # from PyQt5.QtGui import QGuiApplication
-    # app = QGuiApplication([dirname])
     if "app" not in dir():
         app = QApplication(sys.argv)
         app.setQuitOnLastWindowClosed(True)
-    # print("define QFiledialog")
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
@@ -76,7 +71,6 @@ def select_type(
     # if 'app' not in dir():
     app = QApplication([])
     app.setQuitOnLastWindowClosed(True)
-    # global APP
     widg = QWidget()
     kind, ok_pressed = QInputDialog.getItem(widg, "select", question, items, num, False)
     if ok_pressed and kind:
