@@ -142,7 +142,11 @@ def hist_cardio(
     ser = remove_outliers(data, "hr")
     if len(ser) > 0:
         ax1.hist(
-            ser, bins=30, color="tab:grey", edgecolor="tab:grey", alpha=0.8,
+            ser,
+            bins=30,
+            color="tab:grey",
+            edgecolor="tab:grey",
+            alpha=0.8,
         )
         ax1.set_xlabel("bpm", alpha=0.5)
         q50 = np.percentile(ser, [50])
@@ -986,7 +990,10 @@ def sat_hr(datadf: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     ):
 
         axe.plot(
-            satdf[trace], color=color, linestyle=style, linewidth=2,
+            satdf[trace],
+            color=color,
+            linestyle=style,
+            linewidth=2,
         )
         if dtime:
             my_fmt = mdates.DateFormatter("%H:%M")
@@ -1072,7 +1079,9 @@ if __name__ == "__main__":
 
     def test_header_plot(header: pd.DataFrame, param: dict[str, Any]) -> None:
         """Test the plotting for header."""
-        headerfunc_list :list[Callable] = [plot_header,]
+        headerfunc_list: list[Callable] = [
+            plot_header,
+        ]
 
         print(f"{'...'*5} test_header_plot < ")
         for func in headerfunc_list:
@@ -1087,7 +1096,7 @@ if __name__ == "__main__":
     def test_data_plot(data: pd.DataFrame, param: dict[str, Any]) -> None:
         """Test the plotting for data."""
         print(f"{'...'*5} test_data_plot < ")
-        datafunc_list :list[Callable] = [
+        datafunc_list: list[Callable] = [
             cardiovasc,
             cardiovasc_p1p2,
             co2iso,
@@ -1110,6 +1119,7 @@ if __name__ == "__main__":
         print(f"{'...'*5} > test_data_plot")
 
     from anesplot.slow_waves import MonitorTrend
+
     print(f"{'='* 20} ")
     mtrends = MonitorTrend()
     print(f"{'='* 20} ")

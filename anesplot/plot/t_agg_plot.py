@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Apr 27 15:46:14 2022
 
@@ -40,7 +39,7 @@ def get_trend_roi(
     dict :
         containing ylims, xlims(point, dtime and sec)
     """
-    ylims = tuple([_.get_ylim() for _ in fig.get_axes()])
+    ylims = tuple(_.get_ylim() for _ in fig.get_axes())
     # xlims
     ax = fig.get_axes()[0]
     if params["dtime"]:  # datetime in the x axis
@@ -62,7 +61,7 @@ def get_trend_roi(
     roidict = {}
     for abbr, col in {"dt": "datetime", "pt": "point", "sec": "eTime"}.items():
         if col in datadf.reset_index().columns:
-            lims = tuple([datadf.iloc[_][[col]].values[0] for _ in i_lims])
+            lims = tuple(datadf.iloc[_][[col]].values[0] for _ in i_lims)
         else:
             # no dt values for televet
             lims = (np.nan, np.nan)
@@ -166,7 +165,7 @@ def build_half_white(
 
     size = inifig.get_size_inches()
     for fig in [halffig, fullfig]:
-        for i, ylim in enumerate(roi.get("ylims")): # type: ignore
+        for i, ylim in enumerate(roi.get("ylims")):  # type: ignore
             ax = fig.get_axes()[i]
             ax.set_ylim(ylim)
             ax.axvline(lims[1], color="tab:grey")

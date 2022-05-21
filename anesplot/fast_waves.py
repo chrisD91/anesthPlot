@@ -189,7 +189,10 @@ class _FastWave(_Waves):
             print("no roi attribute, please use record_roi() to build one")
 
     def plot_sample_systolic_variation(
-        self, lims: Tuple[int, int], teach: bool = False, annotations: bool = False,
+        self,
+        lims: Tuple[int, int],
+        teach: bool = False,
+        annotations: bool = False,
     ) -> None:
         """Plot the systolic variations (sample of a record based on ROI)."""
         if self.roi:
@@ -231,7 +234,7 @@ class TelevetWave(_FastWave):
     """
 
     # def __init__(self, filename=None):
-    def __init__(self, filename:str):
+    def __init__(self, filename: str):
         super().__init__()
         if filename:
             dir_path = paths.get("telv_data")
