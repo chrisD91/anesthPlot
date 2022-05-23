@@ -36,14 +36,9 @@ paths = build_paths()
 class _FastWave(_Waves):
     """Class for Fastwaves = continuous recordings."""
 
-    # def __init__(self, filename=None):
-    #     super().__init__(filename)
     def __init__(self) -> None:
         super().__init__()
-        self.filename
-        self.trace_list
-        self.fig
-        self.roi
+        self.trace_list: list[plt.Line2D]
 
     def filter_ekg(self) -> None:
         """Filter the ekg trace -> build 'ekgMovAvg' & 'ekgLowPass'."""
@@ -104,7 +99,7 @@ class _FastWave(_Waves):
             else:
                 self.trace_list = []
                 fig = plt.figure()
-                lines = [plt.line2D]
+                lines = [plt.Line2D]
             self.fig = fig
             print(f"{'-' * 20} ended FastWave plot_wave")
         return fig, lines, traces_list

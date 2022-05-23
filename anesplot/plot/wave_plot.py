@@ -344,7 +344,7 @@ def create_video(
         keys: list[str],
         xlims: tuple[int, ...],
         ylims: list[tuple[int, int]],
-    ) -> Union[plt.figure, plt.line2D]:
+    ) -> Union[plt.figure, plt.Line2D]:
         """Build a new figure and associated line2D objects."""
         plt.close("all")
         dtime = param["dtime"]

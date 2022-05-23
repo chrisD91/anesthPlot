@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Sat Dec 18 10:30:54 2021
 
@@ -28,12 +27,12 @@ def convert_day(txt: str) -> str:
     """Convert YYYYmonthD to YYY-month-D."""
     previous = txt[0]
     new = txt[0]
-    for m in txt[1:]:
-        if m.isalpha() == previous.isalpha():
-            new += m
+    for mm in txt[1:]:
+        if mm.isalpha() == previous.isalpha():
+            new += mm
         else:
-            new += "-" + m
-        previous = m
+            new += "-" + mm
+        previous = mm
     return new
 
 
@@ -143,10 +142,10 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
         if set(batch.index.values) & set(events_ser.index.values):
             # two events at the same index -> index has to be shifted
             newtimes = []
-            for dt in batch.index:
-                if dt in events_ser:
-                    dt = dt + timedelta(milliseconds=1)
-                newtimes.append(dt)
+            for datet in batch.index:
+                if datet in events_ser:
+                    datet = datet + timedelta(milliseconds=1)
+                newtimes.append(datet)
                 print(f"{newtimes}")
             batch = batch.set_axis(newtimes)
         events_ser = pd.concat([events_ser, batch])
@@ -157,7 +156,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 
 
 def extract_ventilation_drive(
-    dteventsdf: pd.DataFrame, acts: set = None
+    dteventsdf: pd.DataFrame, acts: set[Any] = None
 ) -> pd.DataFrame:
     """Extract a dataframe containing the ventilatory management.
 
@@ -222,9 +221,9 @@ def extract_ventilation_drive(
     dteventsdf.iloc[0, dteventsdf.columns.get_loc("ventil")] = False
     runs = {"ventilate": True, "standby": False}
     for k, bol in runs.items():
-        for dt, event in dteventsdf.events.iteritems():
+        for datet, event in dteventsdf.events.iteritems():
             if k in event:
-                dteventsdf.loc[dt, ["ventil"]] = bol
+                dteventsdf.loc[datet, ["ventil"]] = bol
     dteventsdf.ventil = dteventsdf.ventil.ffill()
 
     for act in acts:
@@ -339,7 +338,7 @@ plt.close("all")
 
 
 def plot_events(
-    dteventsdf: pd.DataFrame, param: dict, todrop: list = None, dtime: bool = False
+    dteventsdf: pd.DataFrame, param: dict[str, Any], todrop: list[str] = [], dtime: bool = False
 ) -> plt.figure:
     """Plot all events.
 
@@ -397,7 +396,12 @@ def plot_events(
         # pos = (mdates.date2num(dt), 1)
         pos = (dt, 1)
         ax.annotate(
-            event, pos, rotation=45, va="bottom", ha="left", color=color,
+            event,
+            pos,
+            rotation=45,
+            va="bottom",
+            ha="left",
+            color=color,
         )
     if dtime:
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))

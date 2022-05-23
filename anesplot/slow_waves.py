@@ -11,7 +11,7 @@ build the objects for the slow_waves ('trends'):
 """
 import os
 from datetime import datetime, timedelta
-from typing import Any, Union, Optional
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -54,6 +54,7 @@ class _SlowWave(_Waves):
 
     def __init__(self) -> None:
         super().__init__()
+        self.name: str
 
     def clean_trend(self) -> pd.DataFrame:
         """
@@ -139,7 +140,7 @@ class _SlowWave(_Waves):
         if self.roi is None:
             print("please define a roi -> .save_roi()")
             return plt.Figure(), plt.Figure()
-        halffig, lims, fullfig = tagg.build_half_white(
+        halffig, _, fullfig = tagg.build_half_white(
             self.fig, self.name, self.data, self.param, self.roi
         )
         halffig.show()
@@ -282,6 +283,7 @@ class TaphTrend(_SlowWave):
             self.param["file"] = os.path.basename(filename)
         if load:
             data = ltt.loadtaph_trenddata(filename)
+            data = pd.DataFrame(data)
             header = ltt.loadtaph_patientfile(filename)
         else:
             print(f"{'-'*5} TaphTrend: didn't load the data ({load=})")
@@ -333,7 +335,7 @@ class TaphTrend(_SlowWave):
         return fig
 
     def plot_events(
-        self, todrop: Optional[list] = None, dtime: bool = False
+        self, todrop: Optional[list[str]], dtime: bool = False
     ) -> plt.Figure:
         """
         Plot the events as a time display, dtime allow dtime use.

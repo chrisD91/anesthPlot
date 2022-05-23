@@ -264,10 +264,10 @@ def plot_sample_systolic_pressure_variation(
 def median_filter(num_std: int = 3) -> Union[float, np.nan]:
     """Basic median filter."""
 
-    def _median_filter(x: pd.Series) -> Union[float, np.nan]:
-        _median = np.median(x)
-        _std = np.std(x)
-        s = x[-1]
+    def _median_filter(ser: pd.Series) -> Union[float, np.nan]:
+        _median = np.median(ser)
+        _std = np.std(ser)
+        s = ser[-1]
         return (
             s
             if (_median - num_std * _std) <= s <= (_median + num_std * _std)
@@ -310,7 +310,16 @@ def plot_record_systolic_variation(
     # start = df.index.min()
     end = df.index.max()
     indexes = list(df.loc[df.local_max].index)
-    for b1, b2 in zip([0,] + indexes, indexes + [end,],):
+    for b1, b2 in zip(
+        [
+            0,
+        ]
+        + indexes,
+        indexes
+        + [
+            end,
+        ],
+    ):
         df.loc[b1:b2, "sys_var"] = compute_systolic_variation(df.loc[b1:b2, "wap"])
     df["i_pr"] = (1 / (df.sloc - df.sloc.shift(1))) * 60
 
