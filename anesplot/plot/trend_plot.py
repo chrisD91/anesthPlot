@@ -1079,7 +1079,9 @@ if __name__ == "__main__":
 
     def test_header_plot(header: pd.DataFrame, param: dict[str, Any]) -> None:
         """Test the plotting for header."""
-        headerfunc_list: list[Callable] = [
+        headerfunc_list: list[
+            Callable[[dict[str, Any], Optional[dict[str, Any]]], plt.Figure]
+        ] = [
             plot_header,
         ]
 
@@ -1096,20 +1098,38 @@ if __name__ == "__main__":
     def test_data_plot(data: pd.DataFrame, param: dict[str, Any]) -> None:
         """Test the plotting for data."""
         print(f"{'...'*5} test_data_plot < ")
-        datafunc_list: list[Callable] = [
+        datafunc_list1: list[
+            Callable[[pd.DataFrame, Optional[dict[str, Any]]], plt.Figure]
+            # Callable[[pd.DataFrame, Optional[dict["str", Any]], Any], plt.Figure]
+        ] = [
             cardiovasc,
             cardiovasc_p1p2,
             co2iso,
-            co2o2,
+            # co2o2,
             hist_cardio,
             hist_co2_iso,
+            # recrut,
+            # sat_hr,
+            # ventil,
+            # ventil_cardio,
+        ]
+        datafunc_list2: list[
+            Callable[[pd.DataFrame, Optional[dict[str, Any]], Any], plt.Figure]
+            # Callable[[pd.DataFrame, Optional[dict["str", Any]], Any], plt.Figure]
+        ] = [
+            # cardiovasc,
+            # cardiovasc_p1p2,
+            # co2iso,
+            co2o2,
+            # hist_cardio,
+            # hist_co2_iso,
             recrut,
             sat_hr,
             ventil,
             ventil_cardio,
         ]
 
-        for func in datafunc_list:
+        for func in datafunc_list1 + datafunc_list2:
             # plt.close('all')
             print(func.__name__)
             fig = func(data, param)

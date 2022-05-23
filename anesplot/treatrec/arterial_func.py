@@ -261,10 +261,10 @@ def plot_sample_systolic_pressure_variation(
     return fig, pp_df
 
 
-def median_filter(num_std: int = 3) -> Union[float, np.nan]:
+def median_filter(num_std: int = 3) -> float:
     """Basic median filter."""
 
-    def _median_filter(ser: pd.Series) -> Union[float, np.nan]:
+    def _median_filter(ser: pd.Series) -> float:
         _median = np.median(ser)
         _std = np.std(ser)
         s = ser[-1]
@@ -274,7 +274,7 @@ def median_filter(num_std: int = 3) -> Union[float, np.nan]:
             else np.nan
         )
 
-    return _median_filter
+    return float(_median_filter)
 
 
 def plot_record_systolic_variation(

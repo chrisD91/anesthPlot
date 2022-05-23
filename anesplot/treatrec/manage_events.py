@@ -10,7 +10,7 @@ functions ued to extract the events from the taphonius files
 import os
 from datetime import datetime, timedelta
 from math import ceil
-from typing import Any, Tuple, Union
+from typing import Any, Tuple, Union, Optional
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -156,7 +156,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 
 
 def extract_ventilation_drive(
-    dteventsdf: pd.DataFrame, acts: set[Any] = None
+    dteventsdf: pd.DataFrame, acts: Optional[set[Any]] = set()
 ) -> pd.DataFrame:
     """Extract a dataframe containing the ventilatory management.
 
@@ -175,7 +175,7 @@ def extract_ventilation_drive(
         print("extract_ventilation_drive: dt_event_df is empty")
         return pd.DataFrame()
 
-    if acts is None:
+    if not acts:
         acts = {
             "cpap value changed",
             "mwpl value changed",
@@ -264,7 +264,7 @@ def extract_ventilation_drive(
 
 
 def plot_ventilation_drive(
-    df: pd.DataFrame, param: dict, all_traces: bool = False
+    df: pd.DataFrame, param: dict[str, Any], all_traces: bool = False
 ) -> plt.Figure:
     """
     Plot the ventilatory drive ie the data that were changed.
@@ -338,7 +338,10 @@ plt.close("all")
 
 
 def plot_events(
-    dteventsdf: pd.DataFrame, param: dict[str, Any], todrop: list[str] = [], dtime: bool = False
+    dteventsdf: pd.DataFrame,
+    param: dict[str, Any],
+    todrop: Optional[list[str]] = None,
+    dtime: bool = False,
 ) -> plt.figure:
     """Plot all events.
 
@@ -423,7 +426,7 @@ def plot_events(
 # %%
 
 
-def extract_event(eventdf: pd.DataFrame) -> dict:
+def extract_event(eventdf: pd.DataFrame) -> dict[str, pd.Timestamp]:
     """
     Extract timestamp of the messages.
 
@@ -445,7 +448,8 @@ def extract_event(eventdf: pd.DataFrame) -> dict:
         for message in messages:
             if message in event:
                 ser.loc[index] = event
-    return ser.to_dict()
+    dico = ser.to_dict()
+    return dict(dico)
 
 
 # %%
@@ -482,6 +486,9 @@ def extract_event(eventdf: pd.DataFrame) -> dict:
 if __name__ == "__main__":
     import anesplot.record_main as rec
 
+    from anesplot.slow_waves import MonitorTrend, TaphTrend
+    from anesplot.config.load_recordrc import build_paths
+
     AFILE = "before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
     AFILE = "Anonymous/Patients2021AUG10/Record13_36_34/SD2021AUG10-13_36_34.csv"
     AFILE = (
@@ -489,11 +496,11 @@ if __name__ == "__main__":
     )
     AFILE = "before2020/BELAMIDUBOCAGE_A15-8244/Patients2015JUN25/Record15_48_30/SD2015JUN25-15_48_30.csv"
 
-    paths = rec.build_paths()
+    paths = build_paths()
     file_name = os.path.join(paths["taph_data"], AFILE)
 
     # see the taphClass
-    ttrend = rec.TaphTrend(file_name)
+    ttrend = TaphTrend(file_name)
     ttrend.extract_events()
     ttrend.show_graphs()
     ttrend.plot_events()

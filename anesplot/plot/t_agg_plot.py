@@ -22,7 +22,7 @@ import anesplot.plot.trend_plot as tplot
 # %%
 def get_trend_roi(
     fig: plt.Figure, datadf: pd.DataFrame, params: dict[str, Any]
-) -> dict:
+) -> dict[str, Any]:
     """
     Use the drawn figure to extract the x and x limits.
 
@@ -95,7 +95,7 @@ def build_half_white(
     datadf: pd.DataFrame,
     param: dict[str, Any],
     roi: dict[str, Any],
-) -> Union[plt.Figure, Tuple, plt.Figure]:
+) -> Union[plt.Figure, Tuple[float, float], plt.Figure]:
     """
     Build a half white figure for teaching.
 
@@ -265,7 +265,7 @@ def plot_trenddata(
             print("no pressure tdata recorded")
     afig_list = []
     # plotting
-    plot_func_list: List[Callable] = [
+    plot_func_list: List[Callable[[pd.DataFrame, dict[str, Any]], plt.Figure]] = [
         tplot.ventil,
         tplot.co2o2,
         tplot.co2iso,

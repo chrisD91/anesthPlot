@@ -92,7 +92,7 @@ class _SlowWave(_Waves):
             self.name = name
         return fig, name
 
-    def save_roi(self, erase: bool = False) -> dict:
+    def save_roi(self, erase: bool = False) -> dict[str, Any]:
         """
         Memorize a Region Of Interest (roi).
 
@@ -335,7 +335,7 @@ class TaphTrend(_SlowWave):
         return fig
 
     def plot_events(
-        self, todrop: Optional[list[str]], dtime: bool = False
+        self, todrop: Optional[list[str]] = None, dtime: bool = False
     ) -> plt.Figure:
         """
         Plot the events as a time display, dtime allow dtime use.

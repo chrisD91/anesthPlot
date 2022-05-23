@@ -10,7 +10,7 @@ build the objects or the fast_waves ('waves'):
 
 """
 import os
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Any
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -55,7 +55,7 @@ class _FastWave(_Waves):
         datadf["ekgLowPass"] = fix_baseline_wander(datadf[item], samplingfreq)
 
     def plot_wave(
-        self, traces_list: Optional[list] = None
+        self, traces_list: Optional[list[str]] = None
     ) -> tuple[plt.figure, list[plt.Line2D], list[str]]:
         """
         Choose and plot for a wave.
@@ -104,7 +104,7 @@ class _FastWave(_Waves):
             print(f"{'-' * 20} ended FastWave plot_wave")
         return fig, lines, traces_list
 
-    def save_roi(self, erase: bool = False) -> dict:
+    def save_roi(self, erase: bool = False) -> dict[str, Any]:
         """
         Memorize a Region Of Interest (roi).
 
@@ -286,7 +286,7 @@ class MonitorWave(_FastWave):
         blood pressure variation
     """
 
-    def __init__(self, filename: str = None, load: bool = True):
+    def __init__(self, filename: Optional[str] = None, load: bool = True):
         super().__init__()
         if filename is None:
             dir_path = paths.get("mon_data")
