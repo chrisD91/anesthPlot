@@ -140,7 +140,7 @@ class _SlowWave(_Waves):
         if self.roi is None:
             print("please define a roi -> .save_roi()")
             return plt.Figure(), plt.Figure()
-        halffig, _, fullfig = tagg.build_half_white(
+        halffig, datelims, fullfig = tagg.build_half_white(
             self.fig, self.name, self.data, self.param, self.roi
         )
         halffig.show()
@@ -433,3 +433,8 @@ class TaphTrend(_SlowWave):
 
         """
         ltt.sync_elapsed_time(datetime0, self.data)
+
+
+# %%
+if __name__ == "__main__":
+    mtrends = MonitorTrend()

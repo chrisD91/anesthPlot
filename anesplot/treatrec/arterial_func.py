@@ -11,12 +11,12 @@ a collection of functions to work with arterial pressure waves
 
 import os
 from math import ceil, floor
-from typing import Tuple, Union, Optional, Any
+from typing import Tuple, Union, Optional, Any, Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, medfilt
 
 from anesplot.plot.wave_plot import color_axis
 from anesplot.treatrec.wave_func import fix_baseline_wander
@@ -28,9 +28,7 @@ from anesplot.treatrec.wave_func import fix_baseline_wander
 plt.close("all")
 
 
-def get_peaks(
-    ser: pd.Series, up: bool = True, annotations: bool = False
-) -> pd.DataFrame:
+def get_peaks(ser: pd.Series, up: bool = True, annotations: bool = False) -> pd.DataFrame:
     """
     Extract a peak location from an arterial time series.
 
@@ -140,9 +138,9 @@ def compute_systolic_variation(ser: pd.Series) -> float:
 
 def plot_sample_systolic_pressure_variation(
     mwave: Any,
-    lims: Optional[Tuple[int, int]] = None,
     teach: bool = False,
     annotations: bool = False,
+    lims: Optional[Tuple[int, int]] = None,
 ) -> tuple[plt.Figure, pd.DataFrame]:
     """
     Extract and plot the systolic pressure variation.
@@ -151,13 +149,13 @@ def plot_sample_systolic_pressure_variation(
     ----------
     mwave : monitor trend object
         the monitor recording
-    lims : tuple, (default is None)
-        the limits to use (in sec)
-        If none the mwave.roi will be used
     teach : boolean (default is False)
         if true added markers on the most relevant differences
     annotations : boolean(default False)
         if true plot all detected pulse
+    lims : tuple, optional (default is None)
+        the limits to use (in sec)
+        If none the mwave.roi will be used
     Returns
     -------
     fig : plt.Figure
@@ -261,20 +259,56 @@ def plot_sample_systolic_pressure_variation(
     return fig, pp_df
 
 
-def median_filter(num_std: int = 3) -> float:
-    """Basic median filter."""
+# initial
+def median_filter(num_std: int = 3) -> Callable[[Any], Any]:
+    """median filtering"""
 
-    def _median_filter(ser: pd.Series) -> float:
-        _median = np.median(ser)
-        _std = np.std(ser)
-        s = ser[-1]
+    def _median_filter(x: np.ndarray) -> float:
+        _median = np.median(x)
+        _std = np.std(x)
+        s = x[-1]
         return (
             s
-            if (_median - num_std * _std) <= s <= (_median + num_std * _std)
+            if s >= _median - num_std * _std and s <= _median + num_std * _std
             else np.nan
         )
 
-    return float(_median_filter)
+    return _median_filter
+
+
+# def median_filter(num_std: int = 3) -> float:
+#     """Basic median filter."""
+
+#     def _median_filter(ser: pd.Windows) -> float:
+#         _median = np.median(ser)
+#         _std = np.std(ser)
+#         s = ser[-1]
+#         fval = (
+#             s if (_median - num_std * _std) <= s <= (_median + num_std * _std) else np.nan
+#         )
+#         print(float(fval))
+#         return float(fval)
+#         # return (
+#         #     s if (_median - num_std * _std) <= s <= (_median + num_std * _std) else np.nan
+#         # )
+
+#     return _median_filter
+
+
+# def median_filter2(ser: pd.Series, num_std: int = 3) -> float:
+# def median_filter2(ser: pd.Series, num_std: int = 3) -> float:
+#     _median = np.median(ser)
+#     _std = np.std(ser)
+#     s = ser[-1]
+#     fval = s if (_median - num_std * _std) <= s <= (_median + num_std * _std) else np.nan
+
+#     return fval
+
+#     # return (
+#     #     s
+#     #     if (_median - num_std * _std) <= s <= (_median + num_std * _std)
+#     #     else np.nan
+#     # )
 
 
 def plot_record_systolic_variation(
@@ -332,9 +366,7 @@ def plot_record_systolic_variation(
         ax.plot(df.set_index("sloc").wap, "og")
     axT = ax.twinx()
     # heart rate
-    ser = (
-        df.set_index("sloc").i_pr.rolling(10).apply(median_filter(num_std=3), raw=True)
-    )
+    ser = df.set_index("sloc").i_pr.rolling(10).apply(median_filter(num_std=3), raw=True)
     ser = df.set_index("sloc").i_pr
     ser = ser.fillna(method="bfill").fillna(method="ffill")
     axT.plot(ser.rolling(10, center=True).mean(), ":k", linewidth=2)
@@ -386,7 +418,7 @@ if __name__ == "__main__":
 
     limits = (4100, 4160)
     samp_figure, samp_peak_df = plot_sample_systolic_pressure_variation(
-        mwaves, limits, annotations=False
+        mwaves, lims=limits, annotations=False
     )
     record_figure, peaks_df = plot_record_systolic_variation(mwaves, annotations=False)
 
@@ -403,9 +435,9 @@ if __name__ == "__main__":
         rolling_median = input_series.rolling(
             window=2 * window_size, center=True
         ).median()
-        rolling_mad = k * input_series.rolling(
-            window=2 * window_size, center=True
-        ).apply(mad_f)
+        rolling_mad = k * input_series.rolling(window=2 * window_size, center=True).apply(
+            mad_f
+        )
         diff = np.abs(input_series - rolling_median)
 
         indices = list(np.argwhere(diff > (n_sigmas * rolling_mad)).flatten())

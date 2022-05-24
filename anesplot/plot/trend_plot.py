@@ -82,9 +82,7 @@ def plot_header(
 
 
 # ------------------------------------------------------
-def hist_cardio(
-    data: pd.DataFrame, param: Optional[dict[str, Any]] = None
-) -> plt.Figure:
+def hist_cardio(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
     """
     Mean arterial pressure histogramme using matplotlib.
 
@@ -567,7 +565,7 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
 
 
 # ------------------------------------------------------
-def co2o2(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
+def co2o2(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
     """
     Respiratory plot : CO2 and Iso.
 
@@ -575,7 +573,7 @@ def co2o2(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     ----------
     data : pd.DataFrame
         recorded trends data columns used :["co2insp", "co2exp", "o2insp", "o2exp"].
-    param : dict
+    param : dict, optional(default is None)
         dict(save: boolean, path['save'], xmin, xmax, unit,
                         dtime = boolean for time display in HH:MM format).
 
@@ -584,6 +582,8 @@ def co2o2(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     TYPE
         maplotlib.pyplot.Figure
     """
+    if param is None:
+        param = {}
     try:
         data.co2exp
     except KeyError:
@@ -652,7 +652,7 @@ def co2o2(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def ventil(data: pd.DataFrame, param: dict["str", Any]) -> plt.Figure:
+def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.Figure:
     """
     Plot ventilation.
 
@@ -661,7 +661,7 @@ def ventil(data: pd.DataFrame, param: dict["str", Any]) -> plt.Figure:
     data : pd.DataFrame
         recorded trend data
         columns used : (tvInsp, pPeak, pPlat, peep, minVexp, co2RR, co2exp )
-    param : dict, optional
+    param : dict, optional (default is None)
         param: dict(save: boolean, path['save'], xmin, xmax, unit,
                     dtime = boolean for time display in HH:MM format)
 
@@ -669,6 +669,8 @@ def ventil(data: pd.DataFrame, param: dict["str", Any]) -> plt.Figure:
     -------
     fig : matplotlib.pyplot.Figure
     """
+    if param is None:
+        param = {}
     path = param.get("path", "")
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -788,7 +790,7 @@ def ventil(data: pd.DataFrame, param: dict["str", Any]) -> plt.Figure:
 
 
 # ------------------------------------------------------
-def recrut(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
+def recrut(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
     """
     Display a recrut manoeuver.
 
@@ -804,6 +806,8 @@ def recrut(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     -------
     fig : matplotlib.pyplot.Figure
     """
+    if param is None:
+        param = {}
     path = param.get("path", "")
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -862,7 +866,9 @@ def recrut(data: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     return fig
 
 
-def ventil_cardio(datadf: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
+def ventil_cardio(
+    datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
+) -> plt.Figure:
     """
     Build ventilation and cardiovascular plot.
 
@@ -870,7 +876,7 @@ def ventil_cardio(datadf: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     ----------
     datadf : pd.DataFrame
         trend data. Columns used : ['ip1s', 'ip1m', 'ip1d', 'hr']
-    param : dict
+    param : dict Optional (default is None)
         dict(save: boolean, path['save'], xmin, xmax, unit,
                         dtime = boolean for time display in HH:MM format).
 
@@ -878,6 +884,8 @@ def ventil_cardio(datadf: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     -------
     fig : matplotlib.pyplot.Figure
     """
+    if param is None:
+        param = {}
     # path = param.get("path", "")
     # xmin = param.get("xmin", None)
     # xmax = param.get("xmax", None)
@@ -951,7 +959,7 @@ def ventil_cardio(datadf: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
     return fig
 
 
-def sat_hr(datadf: pd.DataFrame, param: dict[str, Any]) -> plt.Figure:
+def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
     """
     Plot a sat and sat_hr over time.
 
@@ -1038,9 +1046,7 @@ def save_distri(data: pd.DataFrame, path: dict[str, Any]) -> None:
     None.
     """
     #    bpgas(data).savefig((path["sFig"] + "O_bpgas.png"), bbox_inches="tight")
-    hist_co2_iso(data).savefig(
-        (path["sFig"] + "O_hist_co2_iso.png"), bbox_inches="tight"
-    )
+    hist_co2_iso(data).savefig((path["sFig"] + "O_hist_co2_iso.png"), bbox_inches="tight")
     #   bppa(data).savefig((path["sFig"] + "O_bppa.png"), bbox_inches="tight")
     hist_cardio(data).savefig((path["sFig"] + "O_hist_cardio.png"), bbox_inches="tight")
 
@@ -1098,38 +1104,21 @@ if __name__ == "__main__":
     def test_data_plot(data: pd.DataFrame, param: dict[str, Any]) -> None:
         """Test the plotting for data."""
         print(f"{'...'*5} test_data_plot < ")
-        datafunc_list1: list[
+        datafunc_list: list[
             Callable[[pd.DataFrame, Optional[dict[str, Any]]], plt.Figure]
-            # Callable[[pd.DataFrame, Optional[dict["str", Any]], Any], plt.Figure]
         ] = [
             cardiovasc,
             cardiovasc_p1p2,
             co2iso,
-            # co2o2,
+            co2o2,
             hist_cardio,
             hist_co2_iso,
-            # recrut,
-            # sat_hr,
-            # ventil,
-            # ventil_cardio,
-        ]
-        datafunc_list2: list[
-            Callable[[pd.DataFrame, Optional[dict[str, Any]], Any], plt.Figure]
-            # Callable[[pd.DataFrame, Optional[dict["str", Any]], Any], plt.Figure]
-        ] = [
-            # cardiovasc,
-            # cardiovasc_p1p2,
-            # co2iso,
-            co2o2,
-            # hist_cardio,
-            # hist_co2_iso,
             recrut,
             sat_hr,
             ventil,
             ventil_cardio,
         ]
-
-        for func in datafunc_list1 + datafunc_list2:
+        for func in datafunc_list:
             # plt.close('all')
             print(func.__name__)
             fig = func(data, param)

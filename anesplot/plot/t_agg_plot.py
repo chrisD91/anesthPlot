@@ -8,7 +8,7 @@ list of function to choose, manipulate and combine the trends plot functions
 
 """
 import sys
-from typing import Callable, List, Tuple, Union, Any, Optional
+from typing import Callable, Any, Optional
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -95,7 +95,7 @@ def build_half_white(
     datadf: pd.DataFrame,
     param: dict[str, Any],
     roi: dict[str, Any],
-) -> Union[plt.Figure, Tuple[float, float], plt.Figure]:
+) -> tuple[plt.Figure, tuple[float, float], plt.Figure]:
     """
     Build a half white figure for teaching.
 
@@ -127,15 +127,11 @@ def build_half_white(
     if param["dtime"]:
         # xcale <-> datetime
         lims = roi["dt"]
-        shortdf = (
-            datadf.set_index("datetime").loc[lims[0] : lims[1]].reset_index().copy()
-        )
+        shortdf = datadf.set_index("datetime").loc[lims[0] : lims[1]].reset_index().copy()
     else:
         # xscale <-> elapsed time
         lims = roi["sec"]
-        shortdf = (
-            datadf.set_index("eTimeMin").loc[lims[0] : lims[1]].reset_index().copy()
-        )
+        shortdf = datadf.set_index("eTimeMin").loc[lims[0] : lims[1]].reset_index().copy()
     # build half white figure
     func = retrieve_function(name)
     halffig = func(shortdf, param)
@@ -265,7 +261,7 @@ def plot_trenddata(
             print("no pressure tdata recorded")
     afig_list = []
     # plotting
-    plot_func_list: List[Callable[[pd.DataFrame, dict[str, Any]], plt.Figure]] = [
+    plot_func_list: list[Callable[[pd.DataFrame, dict[str, Any]], plt.Figure]] = [
         tplot.ventil,
         tplot.co2o2,
         tplot.co2iso,

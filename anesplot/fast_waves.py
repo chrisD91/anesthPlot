@@ -185,14 +185,17 @@ class _FastWave(_Waves):
 
     def plot_sample_systolic_variation(
         self,
-        lims: Tuple[int, int],
+        lims: Optional[Tuple[int, int]] = None,
         teach: bool = False,
         annotations: bool = False,
     ) -> None:
         """Plot the systolic variations (sample of a record based on ROI)."""
         if self.roi:
             anesplot.treatrec.arterial_func.plot_sample_systolic_pressure_variation(
-                self, lims, teach, annotations
+                self,
+                teach=teach,
+                annotations=annotations,
+                lims=lims,
             )
             # wplot.plot_systolic_pressure_variation(self)
         else:
