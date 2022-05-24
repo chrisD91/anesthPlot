@@ -16,7 +16,7 @@ from typing import Tuple, Union, Optional, Any, Callable
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.signal import find_peaks, medfilt
+from scipy.signal import find_peaks
 
 from anesplot.plot.wave_plot import color_axis
 from anesplot.treatrec.wave_func import fix_baseline_wander
@@ -28,7 +28,9 @@ from anesplot.treatrec.wave_func import fix_baseline_wander
 plt.close("all")
 
 
-def get_peaks(ser: pd.Series, up: bool = True, annotations: bool = False) -> pd.DataFrame:
+def get_peaks(
+    ser: pd.Series, upp: bool = True, annotations: bool = False
+) -> pd.DataFrame:
     """
     Extract a peak location from an arterial time series.
 
@@ -57,7 +59,7 @@ def get_peaks(ser: pd.Series, up: bool = True, annotations: bool = False) -> pd.
     height = ser_detrended.quantile(q=quantile)
     # find the (up) peaks
     peaksdf = pd.DataFrame()
-    if up:
+    if upp:
         peaksdf["ploc"], properties = find_peaks(
             ser_detrended, height=height, distance=distance, width=width
         )
@@ -122,7 +124,7 @@ def get_peaks(ser: pd.Series, up: bool = True, annotations: bool = False) -> pd.
     minis_loc, _ = find_peaks(-peaksdf.wap)
     peaksdf.loc[minis_loc, "local_min"] = True
 
-    if not up:
+    if not upp:
         peaksdf.peak_heights = -1 * peaksdf.peak_heights
         peaksdf.rename(columns={"local_max": "local_min", "local_min": "local_max"})
 
@@ -161,10 +163,17 @@ def plot_sample_systolic_pressure_variation(
     fig : plt.Figure
         the matplotlib figure.
     """
+
+    def deltavar(ser: pd.Series, median: bool = False) -> float:
+        """compute the delta variation with med or mean base"""
+        maxi, mini, mean, med = ser.agg(["max", "min", "mean", "med"])
+        if median:
+            return float((maxi - mini) / med)
+        return float((maxi - mini) / mean)
+
     datadf = mwave.data[["sec", "wap"]].dropna().copy()
     if lims is None:
         lims = mwave.roi["sec"]
-        # lims = (df.iloc[0].sec, df.iloc[0].sec + 60)
     datadf = datadf.set_index("sec").loc[lims[0] : lims[1]]
 
     # plot the arterial pressure data
@@ -177,10 +186,8 @@ def plot_sample_systolic_pressure_variation(
 
     # find the (up) peaks
     ser = datadf.wap.dropna()
-    peak_df = get_peaks(ser, up=True, annotations=annotations)
-
-    maxi, mini, med = peak_df["wap"].agg(["max", "min", "median"])
-    systolic_variation = (maxi - mini) / med
+    peak_df = get_peaks(ser, upp=True, annotations=annotations)
+    systolic_variation = deltavar(peak_df.wap, median=True)
     sys_var = f"{systolic_variation = :.2f}"
     print(sys_var)
 
@@ -197,16 +204,14 @@ def plot_sample_systolic_pressure_variation(
         )
 
     # compute delta_PP
-    peak_df_dwn = get_peaks(ser, up=False)
+    peak_df_dwn = get_peaks(ser, upp=False)
     peak_df_dwn.columns = [_ + "_dwn" for _ in peak_df_dwn.columns]
 
     pp_df = peak_df.copy()
     pp_df.columns = [_ + "_up" for _ in pp_df.columns]
     pp_df = pd.concat([pp_df, peak_df_dwn], axis=1)
     pp_df["delta"] = pp_df.peak_heights_up - pp_df.peak_heights_dwn
-
-    maxi, mini, mean = pp_df["delta"].agg(["max", "min", "mean"])
-    delta_variation = (maxi - mini) / mean
+    delta_variation = deltavar(pp_df.delta, median=False)
     delta_var = f"{delta_variation = :.2f}"
     print(delta_var)
 
@@ -263,13 +268,13 @@ def plot_sample_systolic_pressure_variation(
 def median_filter(num_std: int = 3) -> Callable[[Any], Any]:
     """median filtering"""
 
-    def _median_filter(x: np.ndarray) -> float:
-        _median = np.median(x)
-        _std = np.std(x)
-        s = x[-1]
+    def _median_filter(arr: np.ndarray) -> Any:
+        _median = np.median(arr)
+        _std = np.std(arr)
+        val = arr[-1]
         return (
-            s
-            if s >= _median - num_std * _std and s <= _median + num_std * _std
+            val
+            if _median - num_std * _std <= val <= _median + num_std * _std
             else np.nan
         )
 
@@ -344,7 +349,7 @@ def plot_record_systolic_variation(
     # start = df.index.min()
     end = df.index.max()
     indexes = list(df.loc[df.local_max].index)
-    for b1, b2 in zip(
+    for bb1, bb2 in zip(
         [
             0,
         ]
@@ -354,7 +359,7 @@ def plot_record_systolic_variation(
             end,
         ],
     ):
-        df.loc[b1:b2, "sys_var"] = compute_systolic_variation(df.loc[b1:b2, "wap"])
+        df.loc[bb1:bb2, "sys_var"] = compute_systolic_variation(df.loc[bb1:bb2, "wap"])
     df["i_pr"] = (1 / (df.sloc - df.sloc.shift(1))) * 60
 
     fig = plt.figure()
@@ -364,25 +369,27 @@ def plot_record_systolic_variation(
     # check the precise location
     if annotations:
         ax.plot(df.set_index("sloc").wap, "og")
-    axT = ax.twinx()
+    ax_t = ax.twinx()
     # heart rate
-    ser = df.set_index("sloc").i_pr.rolling(10).apply(median_filter(num_std=3), raw=True)
+    ser = (
+        df.set_index("sloc").i_pr.rolling(10).apply(median_filter(num_std=3), raw=True)
+    )
     ser = df.set_index("sloc").i_pr
     ser = ser.fillna(method="bfill").fillna(method="ffill")
-    axT.plot(ser.rolling(10, center=True).mean(), ":k", linewidth=2)
+    ax_t.plot(ser.rolling(10, center=True).mean(), ":k", linewidth=2)
     # sys_var
     ser = df.set_index("sloc").sys_var * 100
     ser = ser.rolling(50).apply(median_filter(num_std=3), raw=True)
     ser = ser.fillna(method="bfill").fillna(method="ffill")
-    axT.plot(ser.dropna().rolling(10).mean(), "-b", label="sys_var med_rolmean")
+    ax_t.plot(ser.dropna().rolling(10).mean(), "-b", label="sys_var med_rolmean")
     ax.set_ylim(50, 150)
-    axT.set_ylim(0, 40)
+    ax_t.set_ylim(0, 40)
     color_axis(ax, spine="left", color="r")
-    color_axis(axT, spine="right", color="b")
+    color_axis(ax_t, spine="right", color="b")
     color_axis(ax, spine="bottom", color="tab:grey")
     ax.set_xlabel("time (sec)")
     ax.set_ylabel("arterial pressure (mmHg)")
-    axT.set_ylabel("systolic variation (%) & hr (bpm)")
+    ax_t.set_ylabel("systolic variation (%) & hr (bpm)")
     for ax in fig.get_axes():
         for spine in ["top"]:
             ax.spines[spine].set_visible(False)
@@ -435,9 +442,9 @@ if __name__ == "__main__":
         rolling_median = input_series.rolling(
             window=2 * window_size, center=True
         ).median()
-        rolling_mad = k * input_series.rolling(window=2 * window_size, center=True).apply(
-            mad_f
-        )
+        rolling_mad = k * input_series.rolling(
+            window=2 * window_size, center=True
+        ).apply(mad_f)
         diff = np.abs(input_series - rolling_median)
 
         indices = list(np.argwhere(diff > (n_sigmas * rolling_mad)).flatten())

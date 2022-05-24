@@ -82,7 +82,9 @@ def plot_header(
 
 
 # ------------------------------------------------------
-def hist_cardio(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
+def hist_cardio(
+    data: pd.DataFrame, param: Optional[dict[str, Any]] = None
+) -> plt.Figure:
     """
     Mean arterial pressure histogramme using matplotlib.
 
@@ -1046,7 +1048,9 @@ def save_distri(data: pd.DataFrame, path: dict[str, Any]) -> None:
     None.
     """
     #    bpgas(data).savefig((path["sFig"] + "O_bpgas.png"), bbox_inches="tight")
-    hist_co2_iso(data).savefig((path["sFig"] + "O_hist_co2_iso.png"), bbox_inches="tight")
+    hist_co2_iso(data).savefig(
+        (path["sFig"] + "O_hist_co2_iso.png"), bbox_inches="tight"
+    )
     #   bppa(data).savefig((path["sFig"] + "O_bppa.png"), bbox_inches="tight")
     hist_cardio(data).savefig((path["sFig"] + "O_hist_cardio.png"), bbox_inches="tight")
 

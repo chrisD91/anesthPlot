@@ -127,11 +127,15 @@ def build_half_white(
     if param["dtime"]:
         # xcale <-> datetime
         lims = roi["dt"]
-        shortdf = datadf.set_index("datetime").loc[lims[0] : lims[1]].reset_index().copy()
+        shortdf = (
+            datadf.set_index("datetime").loc[lims[0] : lims[1]].reset_index().copy()
+        )
     else:
         # xscale <-> elapsed time
         lims = roi["sec"]
-        shortdf = datadf.set_index("eTimeMin").loc[lims[0] : lims[1]].reset_index().copy()
+        shortdf = (
+            datadf.set_index("eTimeMin").loc[lims[0] : lims[1]].reset_index().copy()
+        )
     # build half white figure
     func = retrieve_function(name)
     halffig = func(shortdf, param)
