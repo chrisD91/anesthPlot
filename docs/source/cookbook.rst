@@ -37,6 +37,7 @@ in example_file.py
     -------------------------
 
  .. code-block:: python
+
      > enter 0
      the content of 'buildPyFiles.txt' is in your clipboard
 
@@ -50,15 +51,14 @@ in example_file.py
 .. line-block:: the initialized working directory
 
     anInterestingCase
+    ├── example_file.py
     ├── csv2hdf.py
-    ├── data/
     ├── ekg2hr.py
+    ├── work_on.py
     ├── todo.md
-    └── work_on.py
+    └── data/
 
-    1 directory, 4 files
-
-2. load the data and save to hdf
+1. load the data and save to hdf
 --------------------------------
 in csv2hdf.py execute :
 
@@ -78,7 +78,7 @@ in csv2hdf.py execute :
     5 	 samplePaVariation.txt
     -------------------------
 
-.. code_block:: python
+.. code-block:: python
 
     > 1
     the content of 'csv2hdf.txt' is in your clipboard
