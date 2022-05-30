@@ -118,7 +118,8 @@ from typing import Any, Optional
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pyperclip
+
+# import pyperclip
 import scipy.signal as sg
 from scipy.interpolate import interp1d
 
@@ -226,7 +227,7 @@ def plot_beats(ekgdf: pd.DataFrame, beatlocdf: pd.DataFrame) -> plt.Figure:
 
 
 def append_beat(
-    beatlocdf: pd.DataFrame,
+    #    beatlocdf: pd.DataFrame,
     ekgdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     fig: plt.Figure,
@@ -238,8 +239,8 @@ def append_beat(
 
     Parameters
     ----------
-    beatlocdf : pd.Dataframe
-        beat position (point based location : p_locs)
+    # beatlocdf : pd.Dataframe
+    #     beat position (point based location : p_locs)
     ekgdf : pd.Dataframe
         waves data (wekg_lowpass).
     tochangedf : pd.Dataframe
@@ -307,7 +308,7 @@ def append_beat(
 
 def remove_beat(
     beatlocdf: pd.DataFrame,
-    ekgdf: pd.DataFrame,
+    # ekgdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     fig: plt.figure,
     lim: Optional[tuple[int, int]] = None,
@@ -319,8 +320,8 @@ def remove_beat(
     ----------
     beatlocdf : pd.Dataframe
         beat position (point based location : p_locs)
-    ekgdf : pd.Dataframe
-        waves data (wekg_lowpass).
+    # ekgdf : pd.Dataframe
+    #     waves data (wekg_lowpass).
     tochangedf : pd.Dataframe
         the beat to add or remove (point based toAppend & toRemove)
     fig : plt.Figure
@@ -562,7 +563,7 @@ def interpolate_rr(beatlocdf: pd.DataFrame, kind: Optional[str] = None) -> pd.Da
 
 
 def plot_rr(
-    ahr_df: pd.DataFrame, param: dict[str, Any], HR: bool = False
+    ahr_df: pd.DataFrame, param: dict[str, Any], showhr: bool = False
 ) -> plt.Figure:
     """
     Plot RR vs pt values + rrSqDiff.
@@ -573,7 +574,7 @@ def plot_rr(
         DESCRIPTION.
     param : dict
         containing 'sampling_freq' as key.
-    HR : bool, optional (default is False)
+    showhr : bool, optional (default is False)
         to display HR instead of rr
     Returns
     -------
@@ -592,7 +593,7 @@ def plot_rr(
     lims = ahr_df.rrInterpol.quantile([0.01, 0.99])
     ax.set_ylim(lims)
     ax2 = fig.add_subplot(212, sharex=ax)
-    if HR:
+    if showhr:
         ax2.set_title("heart rate")
         yvals = 1 / ahr_df.rrInterpol.values * 60 * 1000
         ax2.plot(xvals, yvals, "-g")
