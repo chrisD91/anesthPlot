@@ -113,7 +113,7 @@ you can execute line by line in a file the following process
     tohr.save_waves_data(waves.data, savename=name, dirpath='data')
 """
 import os
-from typing import Tuple, Any, Optional
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -168,10 +168,10 @@ def detect_beats(
     prominence *= abs(threshold)
     # detect
     sign = threshold / abs(threshold)  # +1 or -1 to invert the signal
-    pk, beats_params = sg.find_peaks(
+    ploc, beats_params = sg.find_peaks(
         ser * sign, height=height, distance=distance, prominence=prominence
     )
-    beatlocdf["p_loc"] = pk
+    beatlocdf["p_loc"] = ploc
     beatlocdf["x_loc"] = ser.index[beatlocdf.p_loc]
     for key in beats_params.keys():
         beatlocdf[key] = beats_params[key]
@@ -230,7 +230,7 @@ def append_beat(
     ekgdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     fig: plt.Figure,
-    lim: Optional[Tuple[int, int]] = None,
+    lim: Optional[tuple[int, int]] = None,
     yscale: float = 1,
 ) -> pd.DataFrame:
     """
@@ -246,9 +246,9 @@ def append_beat(
         the beat to add or remove (point based toAppend & toRemove)
     fig : plt.Figure
         the figure to get the location.
-    lim : TYPE, optional (default is None)
+    lim : tuple, optional (default is None)
         ptBasedLim optional to give it manually
-    yscale : TYPE, optional (default is 1)
+    yscale : float, optional (default is 1)
         amplitude mutliplication factor for detection.
 
     Returns
@@ -310,7 +310,7 @@ def remove_beat(
     ekgdf: pd.DataFrame,
     tochangedf: pd.DataFrame,
     fig: plt.figure,
-    lim: Optional[Tuple[int, int]] = None,
+    lim: Optional[tuple[int, int]] = None,
 ) -> pd.DataFrame:
     """
     Remove a beat coordinate from the figure to the tochangedf['toRemove'].

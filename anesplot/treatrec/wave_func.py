@@ -7,7 +7,7 @@ Created on Fri Dec  8 12:46:41 2017
 functions to be used with the waves recording
 
 """
-from typing import Any, Union, Optional
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 

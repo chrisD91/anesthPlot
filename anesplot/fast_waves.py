@@ -18,6 +18,7 @@ import pandas as pd
 import anesplot.plot.wave_plot as wplot
 import anesplot.treatrec.arterial_func
 import anesplot.treatrec.ekg_func
+import anesplot.plot.t_agg_plot as tagg
 from anesplot.base import _Waves
 from anesplot.config.load_recordrc import build_paths
 from anesplot.loadrec.agg_load import choosefile_gui
@@ -128,7 +129,8 @@ class _FastWave(_Waves):
             roidict = {}
         elif self.fig:
             # roidict = wplot.get_wave_roi(self)
-            roidict = wplot.get_wave_roi(self.fig, self.data, self.param)
+            # roidict = wplot.get_wave_roi(self.fig, self.data, self.param)
+            roidict = tagg.get_roi(self.fig, self.data, self.param)
             roidict.update({"traces": self.trace_list, "fig": self.fig})
         else:
             print("no fig attribute, please use plot_wave() method to build one")
@@ -142,7 +144,7 @@ class _FastWave(_Waves):
         speed: int = 1,
         save: bool = False,
         savename: str = "video",
-        savedir: str = "~",
+        # savedir: str = "~",
     ) -> None:
         """
         Build a video the previous builded figure.

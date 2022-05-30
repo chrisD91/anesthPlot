@@ -40,7 +40,7 @@ import anesplot.loadrec.agg_load as loadagg
 from anesplot.config.load_recordrc import build_paths
 from anesplot.fast_waves import MonitorWave, TelevetWave
 from anesplot.slow_waves import MonitorTrend, TaphTrend
-from anesplot.guides.choose_guide import get_guide
+from anesplot.guides.choose_guide import get_guide  # pylint: disable=unused-import
 
 paths = build_paths()
 matplotlib.use("Qt5Agg")  # NB required for the dialogs
@@ -58,10 +58,11 @@ def get_basic_debrief_commands() -> str:
         "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))",
         "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
     ]
-    print("basic debrief commands are in the clipboard")
+    message = "basic debrief commands are in the clipboard"
+    # print(message)
     splitlines = " \n".join(lines)
     pyperclip.copy(splitlines)
-    return splitlines
+    return message
 
 
 def trendname_to_wavename(name: str) -> str:

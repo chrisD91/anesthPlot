@@ -11,8 +11,9 @@ import os
 from typing import Optional, Any
 
 import matplotlib.pyplot as plt
-import pandas as pd
-import scipy.signal as sg
+
+# import pandas as pd
+# import scipy.signal as sg
 
 from anesplot.treatrec.ekg_to_hr import detect_beats
 from anesplot.treatrec.wave_func import fix_baseline_wander
@@ -122,8 +123,8 @@ if __name__ == "__main__":
 
     paths = rec.paths
     paths["save"] = "/Users/cdesbois/enva/clinique/recordings/casClin/220419"
-    name = "unknown_220419"
-    save_name = os.path.join(paths["save"], "data", name + ".hdf")
+    NAME = "unknown_220419"
+    save_name = os.path.join(paths["save"], "data", NAME + ".hdf")
     if not os.path.isfile(save_name):
         print(f"the file '{os.path.basename(save_name)}' doesn't exists")
         print(f"check the folder '{os.path.dirname(save_name)}'")
@@ -133,9 +134,9 @@ if __name__ == "__main__":
 
     figure, *_ = mwaves.plot_wave(["wekg"])
     limits = (19101.08725772946, 19101.087809159864)
-    ax = figure.get_axes()[0]
-    ax.set_xlim(limits)
-    ax.set_ylim(-2, 1)
+    axe = figure.get_axes()[0]
+    axe.set_xlim(limits)
+    axe.set_ylim(-2, 1)
     # adjust the scale
     mwaves.save_roi()
 

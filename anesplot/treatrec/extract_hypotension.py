@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Jul 31 16:05:29 2019
 
@@ -17,31 +16,18 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.patches import Rectangle
 
-from anesplot.slow_waves import MonitorTrend
+# from anesplot.slow_waves import MonitorTrend
+import anesplot.slow_waves
 
-# import utils
-FONT_SIZE = "medium"  # large, medium
-params = {
-    "font.sans-serif": ["Arial"],
-    "font.size": 12,
-    "legend.fontsize": FONT_SIZE,
-    "figure.figsize": (12, 3.1),
-    "axes.labelsize": FONT_SIZE,
-    "axes.titlesize": FONT_SIZE,
-    "xtick.labelsize": FONT_SIZE,
-    "ytick.labelsize": FONT_SIZE,
-    "axes.xmargin": 0,
-}
-plt.rcParams.update(params)
-plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
+# from anesplot.plot.plot_func import update_pltparams
+# update_pltparams()
 
-# df = trends.data
 # %%
 
 plt.close("all")
 
 
-def extract_hypotension(atrend: Any, pamin: int = 70) -> pd.DataFrame:
+def extract_hypotension(mtrend: Any, pamin: int = 70) -> pd.DataFrame:
     """
     Return a dataframe with the beginning and ending phases of hypotension.
 
@@ -57,10 +43,10 @@ def extract_hypotension(atrend: Any, pamin: int = 70) -> pd.DataFrame:
         transitionts (up and down, in  seconds from beginning)
         and duration in the hypotension state (in seconds)
     """
-    datadf = atrend.data.copy()
+    datadf = mtrend.data.copy()
     if "ip1m" not in datadf.columns:
         print("no ip1m recording in the data")
-        return atrend.param["file"]
+        return pd.DataFrame()
     datadf = pd.DataFrame(datadf.set_index(datadf.eTime.astype(int))["ip1m"])
     datadf["low"] = datadf.ip1m < pamin
     datadf["trans"] = datadf.low - datadf.low.shift(-1)
@@ -106,11 +92,10 @@ def plot_hypotension(
     -------
     fig : plt.Figure
     """
-    param = atrend.param
     datadf = atrend.data.copy()
     if len(datadf) < 1:
-        print(f"empty data for {param['file']}")
-        return param["file"]
+        print(f"empty data for {atrend.param['file']}")
+        return pd.DataFrame()
     datadf = pd.DataFrame(datadf.set_index(datadf.eTime.astype(int))["ip1m"])
 
     fig = plt.figure()
@@ -119,13 +104,13 @@ def plot_hypotension(
     ax.plot(datadf.ip1m, "-", color="tab:red", alpha=0.8)
     ax.axhline(y=70, color="tab:grey", alpha=0.5)
     if len(durdf) > 0:
-        for a, b, t, *_ in durdf.loc[durdf.hypo_duration > 60].values:
+        for down_s, up_s, dur_s, *_ in durdf.loc[durdf.hypo_duration > 60].values:
             # ax.vlines(a, ymin=50, ymax=70, color='tab:red', alpha = 0.5)
             # ax.vlines(b, ymin=50, ymax=70, color='tab:green', alpha = 0.5)
             ax.add_patch(
                 Rectangle(
-                    xy=(a, 70),
-                    width=(b - a),
+                    xy=(down_s, 70),
+                    width=(up_s - down_s),
                     height=-30,
                     color="tab:blue",
                     fc="tab:blue",
@@ -134,15 +119,11 @@ def plot_hypotension(
                     fill=False,
                 )
             )
-            # min=a, xmax=b, ymin=0.4, ymax=0.6, color='tab:red', alpha=0.3)
-
-            if t > 15 * 60:
-                ax.axvspan(xmin=a, xmax=b, color="tab:red", alpha=0.3)
-        nb = len(durdf[durdf.hypo_duration > (durmin * 60)])
-        txt = "{} period(s) of significative hypotension \n \
-        (longer than {} min below {} mmHg)".format(
-            nb, durmin, pamin
-        )
+            if dur_s > 15 * 60:
+                ax.axvspan(xmin=down_s, xmax=up_s, color="tab:red", alpha=0.3)
+        numb = len(durdf[durdf.hypo_duration > (durmin * 60)])
+        txt = f"{numb} period(s) of significative hypotension \n \
+        (longer than {durmin} min & below {pamin} mmHg)"
         ax.text(
             0.5,
             0.1,
@@ -183,7 +164,7 @@ def plot_hypotension(
         ax.spines[spine].set_visible(False)
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    fig.text(0.01, 0.01, atrend.param["file"], ha="left", va="bottom", alpha=0.4)
     return fig
 
 
@@ -250,7 +231,7 @@ def scatter_length_meanhypo(atrend: Any, durdf: pd.DataFrame) -> plt.Figure:
     return fig
 
 
-def plot_all_dir_hypo(dirname: str = None, scatter: bool = False) -> str:
+def plot_all_dir_hypo(dirname: Optional[str] = None, scatter: bool = False) -> str:
     """
     Walk throught the folder and plot the values.
 
@@ -277,17 +258,17 @@ def plot_all_dir_hypo(dirname: str = None, scatter: bool = False) -> str:
     files = [_ for _ in files if not _.startswith(".")]
     for file in files:
         filename = os.path.join(dirname, file)
-        atrend = MonitorTrend(filename)
+        mtrend = anesplot.slow_waves.MonitorTrend(filename)
         # if not trends.data is None:
-        if atrend.data is None:
+        if mtrend.data is None:
             continue
-        if "ip1m" not in atrend.data.columns:
+        if "ip1m" not in mtrend.data.columns:
             continue
-        dur_df = extract_hypotension(atrend, pamin=70)
+        dur_df = extract_hypotension(mtrend, pamin=70)
         if scatter:
-            scatter_length_meanhypo(atrend, dur_df)
+            scatter_length_meanhypo(mtrend, dur_df)
         else:
-            plot_hypotension(atrend, dur_df)
+            plot_hypotension(mtrend, dur_df)
     # in case of pb
     return filename
 
@@ -295,22 +276,28 @@ def plot_all_dir_hypo(dirname: str = None, scatter: bool = False) -> str:
 # %%
 plt.close("all")
 # folder or file
-FOLDER = True  # folder or file ?
+FOLDER = False  # folder or file ?
 if __name__ == "__main__":
+
     # analyse all the recordings present in a folder
+    from anesplot.config.load_recordrc import build_paths
+
+    paths = build_paths()
     if FOLDER:
-        dir_name = (
-            "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
-        )
-        dir_name = os.path.join(dir_name, "2021")
+        dir_name = paths["mon_data"]
+        # (
+        #     "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
+        # )
+        YEAR = ""
+        dir_name = os.path.join(dir_name, YEAR)
         file_name = plot_all_dir_hypo(dir_name, scatter=False)
     else:
         # analyse just a file
-        trends = MonitorTrend()
-        file_name = trends.filename
-        if trends.data is not None:
-            duration_df = extract_hypotension(trends, pamin=70)
-            figure = plot_hypotension(trends, duration_df)
+        mtrends = anesplot.slow_waves.MonitorTrend()
+        file_name = mtrends.filename
+        if mtrends.data is not None:
+            duration_df = extract_hypotension(mtrends, pamin=70)
+            figure = plot_hypotension(mtrends, duration_df)
             # fig = scatter_length_meanhypo(trends, dur_df)
         else:
             print("no data")

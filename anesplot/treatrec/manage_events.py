@@ -7,7 +7,6 @@ Created on Sat Dec 18 10:30:54 2021
 functions ued to extract the events from the taphonius files
 
 """
-import os
 from datetime import datetime, timedelta
 from math import ceil
 from typing import Any, Tuple, Union, Optional
@@ -27,12 +26,12 @@ def convert_day(txt: str) -> str:
     """Convert YYYYmonthD to YYY-month-D."""
     previous = txt[0]
     new = txt[0]
-    for mm in txt[1:]:
-        if mm.isalpha() == previous.isalpha():
-            new += mm
+    for car in txt[1:]:
+        if car.isalpha() == previous.isalpha():
+            new += car
         else:
-            new += "-" + mm
-        previous = mm
+            new += "-" + car
+        previous = car
     return new
 
 
@@ -156,7 +155,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
 
 
 def extract_ventilation_drive(
-    dteventsdf: pd.DataFrame, acts: Optional[set[Any]] = set()
+    dteventsdf: pd.DataFrame, acts: Optional[set[Any]] = None
 ) -> pd.DataFrame:
     """Extract a dataframe containing the ventilatory management.
 
@@ -175,7 +174,7 @@ def extract_ventilation_drive(
         print("extract_ventilation_drive: dt_event_df is empty")
         return pd.DataFrame()
 
-    if not acts:
+    if acts is None:
         acts = {
             "cpap value changed",
             "mwpl value changed",
@@ -390,14 +389,14 @@ def plot_events(
     # ax.plot(dteventsdf.uni)
     ax.scatter(event_df.index, event_df.uni, color=event_df.color, marker=".")
     # ax.scatter(dteventsdf.index, dteventsdf.uni, color="tab:green", marker=".")
-    for dt, color in event_df.color.iteritems():
-        ax.vlines(dt, 0, 1, color=color)
+    for datet, color in event_df.color.iteritems():
+        ax.vlines(datet, 0, 1, color=color)
     # filter messages to remove the actions
 
     # plot the events - action
-    for dt, (event, color) in event_df[["events", "color"]].iterrows():
+    for datet, (event, color) in event_df[["events", "color"]].iterrows():
         # pos = (mdates.date2num(dt), 1)
-        pos = (dt, 1)
+        pos = (datet, 1)
         ax.annotate(
             event,
             pos,
@@ -484,24 +483,27 @@ def extract_event(eventdf: pd.DataFrame) -> dict[str, pd.Timestamp]:
 
 # %%
 if __name__ == "__main__":
-    import anesplot.record_main as rec
+    # import os
+    # import anesplot.record_main as rec
+    pass
+    # import anesplot.slow_waves  # MonitorTrend, TaphTrend
+    # from anesplot.config.load_recordrc import build_paths
 
-    from anesplot.slow_waves import MonitorTrend, TaphTrend
-    from anesplot.config.load_recordrc import build_paths
+    # AFILE = "before2020/ALEA_/Patients2016OCT06/Record22_31_18/\
+    #     SD2016OCT6-22_31_19.csv"
+    # AFILE = "Anonymous/Patients2021AUG10/Record13_36_34/\
+    #     SD2021AUG10-13_36_34.csv"
+    # AFILE = "before2020/Anonymous/Patients2014NOV07/Record19_34_48/S\
+    #         D2014NOV7-19_34_49.csv"
+    # AFILE = "before2020/BELAMIDUBOCAGE_A15-8244/Patients2015JUN25/\
+    #     Record15_48_30/SD2015JUN25-15_48_30.csv"
 
-    AFILE = "before2020/ALEA_/Patients2016OCT06/Record22_31_18/SD2016OCT6-22_31_19.csv"
-    AFILE = "Anonymous/Patients2021AUG10/Record13_36_34/SD2021AUG10-13_36_34.csv"
-    AFILE = (
-        "before2020/Anonymous/Patients2014NOV07/Record19_34_48/SD2014NOV7-19_34_49.csv"
-    )
-    AFILE = "before2020/BELAMIDUBOCAGE_A15-8244/Patients2015JUN25/Record15_48_30/SD2015JUN25-15_48_30.csv"
+    # paths = build_paths()
+    # file_name = os.path.join(paths["taph_data"], AFILE)
 
-    paths = build_paths()
-    file_name = os.path.join(paths["taph_data"], AFILE)
-
-    # see the taphClass
-    ttrend = TaphTrend(file_name)
-    ttrend.extract_events()
-    ttrend.show_graphs()
-    ttrend.plot_events()
-    ttrend.plot_ventil_drive()
+    # # see the taphClass
+    # ttrend = anesplot.slow_waves.TaphTrend(file_name)
+    # ttrend.extract_events()
+    # ttrend.show_graphs()
+    # ttrend.plot_events()
+    # ttrend.plot_ventil_drive()

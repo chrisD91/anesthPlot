@@ -26,7 +26,7 @@ from anesplot.loadrec.loadmonitor_trendrecord import (
     loadmonitor_trenddata,
     loadmonitor_trendheader,
 )
-from anesplot.treatrec import manage_events
+import anesplot.treatrec.manage_events
 from anesplot.treatrec.clean_data import clean_trenddata
 
 paths = build_paths()
@@ -86,7 +86,7 @@ class _SlowWave(_Waves):
         else:
             print(f"{'-' * 20} started trends plot_trend)")
             print(f"{'-' * 10}> choose the trace")
-            fig, name = tagg.plot_a_trend(self.data, self.header, self.param)
+            fig, name = tagg.plot_a_trend(self.data, self.param)
             print(f"{'-' * 20} ended trends plot_trend")
             self.fig = fig
             self.name = name
@@ -115,7 +115,8 @@ class _SlowWave(_Waves):
         if erase:
             roidict = {}
         if self.fig:
-            roidict = tagg.get_trend_roi(self.fig, self.data, self.param)
+            roidict = tagg.get_roi(self.fig, self.data, self.param)
+            # roidict = tagg.get_trend_roi(self.fig, self.data, self.param)
             roidict.update({"name": self.name, "fig": self.fig})
         else:
             print("no fig attribute, please use plot_trend() method to build one")
@@ -140,7 +141,7 @@ class _SlowWave(_Waves):
         if self.roi is None:
             print("please define a roi -> .save_roi()")
             return plt.Figure(), plt.Figure()
-        halffig, datelims, fullfig = tagg.build_half_white(
+        halffig, _, fullfig = tagg.build_half_white(
             self.fig, self.name, self.data, self.param, self.roi
         )
         halffig.show()
@@ -258,7 +259,7 @@ class TaphTrend(_SlowWave):
 
     def __init__(
         self,
-        filename: str,
+        filename: Optional[str] = None,
         monitorname: Optional[str] = None,
         load: Optional[bool] = True,
     ):
@@ -305,19 +306,23 @@ class TaphTrend(_SlowWave):
         shift_min : int
             the minute to shift the record to fit with monitor dates
         """
-        dt_events_df = manage_events.build_event_dataframe(self.data)
+        dt_events_df = anesplot.treatrec.manage_events.build_event_dataframe(self.data)
         if shift_min is not None:
             shift = timedelta(minutes=shift_min)
             dt_events_df.index = dt_events_df.index + shift
 
         self.dt_events_df = dt_events_df
 
-        actions, events = manage_events.extract_taphmessages(self.dt_events_df)
+        actions, events = anesplot.treatrec.manage_events.extract_taphmessages(
+            self.dt_events_df
+        )
         self.actions = actions
         self.events = events
         # removed actions to be able to plot everything that arrives
         # (not only actions ie include the preset values)
-        ventil_drive_df = manage_events.extract_ventilation_drive(dt_events_df)
+        ventil_drive_df = anesplot.treatrec.manage_events.extract_ventilation_drive(
+            dt_events_df
+        )
         self.ventil_drive_df = ventil_drive_df
 
     def plot_ventil_drive(self, all_traces: bool = False) -> plt.Figure:
@@ -328,7 +333,7 @@ class TaphTrend(_SlowWave):
         all_traces : bool
             plot all actions
         """
-        fig = manage_events.plot_ventilation_drive(
+        fig = anesplot.treatrec.manage_events.plot_ventilation_drive(
             self.ventil_drive_df, self.param, all_traces
         )
         fig.show()
@@ -353,7 +358,9 @@ class TaphTrend(_SlowWave):
 
         """
         # TODO : add exclusion list
-        fig = manage_events.plot_events(self.dt_events_df, self.param, todrop, dtime)
+        fig = anesplot.treatrec.manage_events.plot_events(
+            self.dt_events_df, self.param, todrop, dtime
+        )
         return fig
 
     def export_taph_events(self, save_to_file: bool = False) -> None:
@@ -437,4 +444,5 @@ class TaphTrend(_SlowWave):
 
 # %%
 if __name__ == "__main__":
-    mtrends = MonitorTrend()
+    pass
+    # mtrends = MonitorTrend()

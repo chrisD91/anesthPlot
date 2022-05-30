@@ -20,7 +20,7 @@ import anesplot.plot.trend_plot as tplot
 
 
 # %%
-def get_trend_roi(
+def get_roi(
     fig: plt.Figure, datadf: pd.DataFrame, params: dict[str, Any]
 ) -> dict[str, Any]:
     """
@@ -171,14 +171,14 @@ def build_half_white(
             ax.axvline(lims[1], color="tab:grey")
         fig.set_size_inches(size)
         fig.tight_layout()
-        fig.show()
+        # fig.show()
 
     return halffig, fulllims, fullfig
 
 
 def plot_a_trend(
-    datadf: pd.DataFrame, header: dict[str, Any], param_dico: dict[str, Any]
-) -> plt.figure:
+    datadf: pd.DataFrame, param_dico: dict[str, Any]
+) -> tuple[plt.figure, str]:
     """
     Choose and generate a trend plot.
 
@@ -225,7 +225,7 @@ def plot_a_trend(
     names = [st.__name__ for st in func_list[::-1]]
     name, ok_pressed = QInputDialog.getItem(widg, "select", question, names, 0, False)
     if not ok_pressed and name:
-        return plt.figure()
+        return plt.figure(), ""
     func = [_ for _ in func_list if _.__name__ == name][0]
     # plot
     fig = func(datadf, param_dico)

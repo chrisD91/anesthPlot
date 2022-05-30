@@ -9,30 +9,36 @@ collection of functions to plot the wave data
 """
 
 import os
-from bisect import bisect
+
+# from bisect import bisect
 from math import ceil, floor
 from typing import Union, Any
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-import numpy as np
+
+# import numpy as np
 import pandas as pd
 from matplotlib import animation
 
-FONT_SIZE = "medium"  # large, medium
-fig_params = {
-    "font.sans-serif": ["Arial"],
-    "font.size": 12,
-    "legend.fontsize": FONT_SIZE,
-    "figure.figsize": (12, 3.1),
-    "axes.labelsize": FONT_SIZE,
-    "axes.titlesize": FONT_SIZE,
-    "xtick.labelsize": FONT_SIZE,
-    "ytick.labelsize": FONT_SIZE,
-    "axes.xmargin": 0,
-}
-plt.rcParams.update(fig_params)
-plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
+from anesplot.plot.plot_func import update_pltparams
+
+update_pltparams()
+
+# FONT_SIZE = "medium"  # large, medium
+# fig_params = {
+#     "font.sans-serif": ["Arial"],
+#     "font.size": 12,
+#     "legend.fontsize": FONT_SIZE,
+#     "figure.figsize": (12, 3.1),
+#     "axes.labelsize": FONT_SIZE,
+#     "axes.titlesize": FONT_SIZE,
+#     "xtick.labelsize": FONT_SIZE,
+#     "ytick.labelsize": FONT_SIZE,
+#     "axes.xmargin": 0,
+# }
+# plt.rcParams.update(fig_params)
+# plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
 
 
 def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
@@ -233,46 +239,46 @@ def plot_wave(
 # %%
 
 
-def get_wave_roi(
-    fig: plt.Figure, datadf: pd.DataFrame, params: dict[str, Any]
-) -> dict[str, Any]:
-    """
-    Use the drawn figure to extract the x and x limits.
+# def get_wave_roi(
+#     fig: plt.Figure, datadf: pd.DataFrame, params: dict[str, Any]
+# ) -> dict[str, Any]:
+#     """
+#     Use the drawn figure to extract the x and x limits.
 
-    Parameters
-    ----------
-    fig : plt.Figure
-        the figure to get data from.
-    datadf : pd.DataFrame
-        waves recording.
-    params : dict of parameters
+#     Parameters
+#     ----------
+#     fig : plt.Figure
+#         the figure to get data from.
+#     datadf : pd.DataFrame
+#         waves recording.
+#     params : dict of parameters
 
-    Returns
-    -------
-    dict :
-        containing ylims, xlims(point, dtime and sec)
-    """
-    ylims = tuple(_.get_ylim() for _ in fig.get_axes())
-    # xlims
-    ax = fig.get_axes()[0]
-    if params["dtime"]:  # datetime in the x axis
-        dtime_lims = [pd.to_datetime(mdates.num2date(_)) for _ in ax.get_xlim()]
-        dtime_lims = [_.tz_localize(None) for _ in dtime_lims]
-        i_lims = [bisect(datadf.datetime, _) for _ in dtime_lims]
-    else:  # index = sec
-        i_lims = [bisect(datadf.sec, _) for _ in dtime_lims]
-    roidict = {}
-    for k, v in {"dt": "datetime", "pt": "point", "sec": "sec"}.items():
-        if v in datadf.columns:
-            lims = tuple(datadf.iloc[_][[v]].values[0] for _ in i_lims)
-        else:
-            # no dt values for televet
-            lims = (np.nan, np.nan)
-        roidict[k] = lims
-    print(f"{'-' * 10} defined a roi")
-    # append ylims and traces
-    roidict["ylims"] = ylims
-    return roidict
+#     Returns
+#     -------
+#     dict :
+#         containing ylims, xlims(point, dtime and sec)
+#     """
+#     ylims = tuple(_.get_ylim() for _ in fig.get_axes())
+#     # xlims
+#     ax = fig.get_axes()[0]
+#     if params["dtime"]:  # datetime in the x axis
+#         dtime_lims = [pd.to_datetime(mdates.num2date(_)) for _ in ax.get_xlim()]
+#         dtime_lims = [_.tz_localize(None) for _ in dtime_lims]
+#         i_lims = [bisect(datadf.datetime, _) for _ in dtime_lims]
+#     else:  # index = sec
+#         i_lims = [bisect(datadf.sec, _) for _ in dtime_lims]
+#     roidict = {}
+#     for k, v in {"dt": "datetime", "pt": "point", "sec": "sec"}.items():
+#         if v in datadf.columns:
+#             lims = tuple(datadf.iloc[_][[v]].values[0] for _ in i_lims)
+#         else:
+#             # no dt values for televet
+#             lims = (np.nan, np.nan)
+#         roidict[k] = lims
+#     print(f"{'-' * 10} defined a roi")
+#     # append ylims and traces
+#     roidict["ylims"] = ylims
+#     return roidict
 
 
 # %% select subdata

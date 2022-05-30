@@ -21,7 +21,7 @@ import sys
 import time
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Union, Any, Optional
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -111,7 +111,7 @@ def extract_record_day(monitor_file_name: str) -> str:
     return day
 
 
-def choose_taph_record(monitorname: Optional[str] = None) -> Union[str, None]:
+def choose_taph_record(monitorname: Optional[str] = None) -> str:
     """
     Explore the recording folders and proposes to select one.
 
@@ -157,7 +157,7 @@ def choose_taph_record(monitorname: Optional[str] = None) -> Union[str, None]:
         ]  # if bug : two dirs, the last should contain the data
         print(f"{'-' * 10} founded {os.path.basename(filename)}")
     else:
-        filename = None
+        filename = ""
         print(f"{'-' * 10} cancelled")
     return filename
 
