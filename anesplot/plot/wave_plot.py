@@ -21,50 +21,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import animation
 
-from anesplot.plot.pfunc import update_pltparams
+import anesplot.plot.pfunc
 
-update_pltparams()
-
-# FONT_SIZE = "medium"  # large, medium
-# fig_params = {
-#     "font.sans-serif": ["Arial"],
-#     "font.size": 12,
-#     "legend.fontsize": FONT_SIZE,
-#     "figure.figsize": (12, 3.1),
-#     "axes.labelsize": FONT_SIZE,
-#     "axes.titlesize": FONT_SIZE,
-#     "xtick.labelsize": FONT_SIZE,
-#     "ytick.labelsize": FONT_SIZE,
-#     "axes.xmargin": 0,
-# }
-# plt.rcParams.update(fig_params)
-# plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
-
-
-def color_axis(ax: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
-    """
-    Change the color of the label & tick & spine.
-
-    Parameters
-    ----------
-    ax : plt.Axes
-        the axis to work on.
-    spine : str, optional (default is "bottom")
-        location in ['bottom', 'left', 'top', 'right']
-    color : str, optional (default is "r")
-        color to use
-
-    Returns
-    -------
-    None.
-    """
-    ax.spines[spine].set_color(color)
-    if spine == "bottom":
-        ax.xaxis.label.set_color(color)
-        ax.tick_params(axis="x", colors=color)
-    elif spine in ["left", "right"]:
-        ax.yaxis.label.set_color(color)
-        ax.tick_params(axis="y", colors=color)
+anesplot.plot.pfunc.update_pltparams()
 
 
 # %%
@@ -163,7 +122,7 @@ def plot_wave(
                 #           color = names[key][1], alpha=0.4)
                 pass
         for spine in ["left", "bottom"]:
-            color_axis(ax, spine=spine, color="tab:grey")
+            anesplot.plot.pfunc.color_axis(ax, spine=spine, color="tab:grey")
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
         if not dtime:
@@ -226,7 +185,7 @@ def plot_wave(
             if dtime:
                 ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
             for spine in ["left", "right", "bottom"]:
-                color_axis(ax, spine=spine, color="tab:grey")
+                anesplot.plot.pfunc.color_axis(ax, spine=spine, color="tab:grey")
             for spine in ["top", "right"]:
                 ax.spines[spine].set_visible(False)
     # annotations

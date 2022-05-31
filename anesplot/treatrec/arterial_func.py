@@ -18,7 +18,10 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
 
-from anesplot.plot.wave_plot import color_axis
+
+import anesplot.plot.pfunc
+
+# from anesplot.plot.pfunc import color_axis
 from anesplot.treatrec.wave_func import fix_baseline_wander
 
 # from .wave_func import fix_baseline_wander
@@ -252,8 +255,8 @@ def plot_sample_systolic_pressure_variation(
     fig.suptitle(title)
     ax.set_ylabel("arterial pressure")
     ax.set_xlabel("time (sec)")
-    color_axis(ax, "left", "red")
-    color_axis(ax, "bottom", "grey")
+    anesplot.plot.pfunc.color_axis(ax, "left", "red")
+    anesplot.plot.pfunc.color_axis(ax, "bottom", "grey")
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
     fig.text(0.01, 0.01, mwave.param["file"], ha="left", va="bottom", alpha=0.4)
@@ -384,9 +387,9 @@ def plot_record_systolic_variation(
     ax_t.plot(ser.dropna().rolling(10).mean(), "-b", label="sys_var med_rolmean")
     ax.set_ylim(50, 150)
     ax_t.set_ylim(0, 40)
-    color_axis(ax, spine="left", color="r")
-    color_axis(ax_t, spine="right", color="b")
-    color_axis(ax, spine="bottom", color="tab:grey")
+    anesplot.plot.pfunc.color_axis(ax, spine="left", color="r")
+    anesplot.plot.pfunc.color_axis(ax_t, spine="right", color="b")
+    anesplot.plot.pfunc.color_axis(ax, spine="bottom", color="tab:grey")
     ax.set_xlabel("time (sec)")
     ax.set_ylabel("arterial pressure (mmHg)")
     ax_t.set_ylabel("systolic variation (%) & hr (bpm)")

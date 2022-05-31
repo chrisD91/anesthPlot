@@ -15,12 +15,12 @@ from typing import Any, Optional, Callable
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
+
 import pandas as pd
 
-import anesplot.plot.anesplot.plot.pfunc
+import anesplot.plot.pfunc
 
 anesplot.plot.pfunc.update_pltparams()
-
 
 # %%
 def plot_header(
@@ -391,7 +391,6 @@ def cardiovasc_p1p2(
     xmax = param.get("xmax", None)
     # unit = param.get("unit", "")
     save = param.get("save", False)
-    file = param.get("file", "")
 
     fig, axes = plt.subplots(figsize=(12, 6), ncols=1, nrows=2, sharex=True)
     axes = axes.flatten()
