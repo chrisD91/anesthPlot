@@ -73,13 +73,15 @@ def remove_outliers(
         }
 
     if key not in datadf.columns:
+        print(f"{key} is not present in the data")
         return pd.Series()
 
     if key not in limits:
-        print(f"{key} limits are not defined")
+        print(f"{key} limits are not defined, min & max will be used")
+        print("add new limits to pfunc.remove_outliers")
     ser = datadf[key].copy()
-    ser[ser < limits[key][0]] = np.nan
-    ser[ser > limits[key][1]] = np.nan
+    lims = limits.get(key, (ser.min(), ser.max()))
+    ser[~ser.between(lims[0], lims[1])] = np.nan
     ser = ser.dropna()
     return ser
 

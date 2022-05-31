@@ -32,3 +32,7 @@
 
     - [ ] change datetime by dtime
     - [ ] change eTime by eTimeSec
+
+- [ ] trend_plot.py
+
+    - [ ] externalize the save function

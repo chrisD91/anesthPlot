@@ -22,6 +22,7 @@ import anesplot.plot.pfunc
 
 anesplot.plot.pfunc.update_pltparams()
 
+
 # %%
 def plot_header(
     header: dict[str, Any], param: Optional[dict[str, Any]] = None
@@ -76,7 +77,7 @@ def plot_header(
 
 # ------------------------------------------------------
 def hist_cardio(
-    data: pd.DataFrame, param: Optional[dict[str, Any]] = None
+    datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
 ) -> plt.Figure:
     """
     Mean arterial pressure histogramme using matplotlib.
@@ -96,63 +97,62 @@ def hist_cardio(
     if param is None:
         param = {}
 
-    if "ip1m" not in data.columns:
-        print("no ip1 in the data")
+    keys = ["ip1m", "hr"]
+    if not set(keys).issubset(set(datadf.columns)):
+        print(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
         return plt.Figure()
-    if "hr" not in data.columns:
-        print("no hr in the data")
-        return plt.Figure()
+
     save = param.get("save", False)
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     axes = axes.flatten()
 
-    ax0 = axes[0]
-    ax0.set_title("arterial pressure", color="tab:red")
-    ax0.set_xlabel("mmHg", alpha=0.5)
-    ser = anesplot.plot.pfunc.remove_outliers(data, "ip1m")
+    ax = axes[0]
+    ax.set_title("arterial pressure", color="tab:red")
+    ax.set_xlabel("mmHg", alpha=0.5)
+    ser = anesplot.plot.pfunc.remove_outliers(datadf, "ip1m")
     if len(ser) > 0:
-        ax0.hist(ser.dropna(), bins=30, color="tab:red", edgecolor="red", alpha=0.7)
+        ax.hist(ser.dropna(), bins=30, color="tab:red", edgecolor="red", alpha=0.7)
         q50 = np.percentile(ser, [50])
-        ax0.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
         for lim in [70, 80]:
-            ax0.axvline(lim, color="tab:grey", alpha=1)
-        ax0.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
-        ax0.set_xlabel("mmHg", alpha=0.5)
+            ax.axvline(lim, color="tab:grey", alpha=1)
+        ax.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
+        ax.set_xlabel("mmHg", alpha=0.5)
     else:
-        ax0.text(
+        ax.text(
             0.5,
             0.5,
             "no data \n (arterial pressure)",
             horizontalalignment="center",
             fontsize="x-large",
             verticalalignment="center",
-            transform=ax0.transAxes,
+            transform=ax.transAxes,
         )
 
-    ax1 = axes[1]
-    ax1.set_title("heart rate", color="k")
-    ser = anesplot.plot.pfunc.remove_outliers(data, "hr")
+    ax = axes[1]
+    ax.set_title("heart rate", color="k")
+    ser = anesplot.plot.pfunc.remove_outliers(datadf, "hr")
     if len(ser) > 0:
-        ax1.hist(
+        ax.hist(
             ser,
             bins=30,
             color="tab:grey",
             edgecolor="tab:grey",
             alpha=0.8,
         )
-        ax1.set_xlabel("bpm", alpha=0.5)
+        ax.set_xlabel("bpm", alpha=0.5)
         q50 = np.percentile(ser, [50])
-        ax1.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
     else:
-        ax1.text(
+        ax.text(
             0.5,
             0.5,
             "no data \n (heart rate)",
             horizontalalignment="center",
             fontsize="x-large",
             verticalalignment="center",
-            transform=ax1.transAxes,
+            transform=ax.transAxes,
         )
 
     for axe in axes:
