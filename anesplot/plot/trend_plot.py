@@ -85,27 +85,25 @@ def hist_cardio(
     Parameters
     ----------
     data : pd.DataFrame
-        the recorded trends data(keys used : 'ip1m' and 'hr),.
+        the recorded trends data (keys used : 'ip1m' and 'hr),.
     param : dict, optional (default is None).
         parameters (save=bolean, 'path': path to directory).
 
     Returns
     -------
-    TYPE
-       plt.Figure
+    plt.Figure
     """
     if param is None:
         param = {}
 
-    keys = ["ip1m", "hr"]
-    if not set(keys).issubset(set(datadf.columns)):
+    keys = {"ip1m", "hr"}
+    if not keys.issubset(set(datadf.columns)):
         print(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
         return plt.Figure()
 
     save = param.get("save", False)
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
-    axes = axes.flatten()
 
     ax = axes[0]
     ax.set_title("arterial pressure", color="tab:red")
@@ -155,14 +153,14 @@ def hist_cardio(
             transform=ax.transAxes,
         )
 
-    for axe in axes:
+    for ax in axes:
         # call
-        anesplot.plot.pfunc.color_axis(axe, "bottom", "tab:grey")  # call
-        axe.get_yaxis().set_visible(False)
-        axe.get_xaxis().tick_bottom()
-        for locs in ["top", "right", "left"]:
-            axe.spines[locs].set_visible(False)
-        # annotations
+        anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")  # call
+        ax.get_yaxis().set_visible(False)
+        ax.get_xaxis().tick_bottom()
+        for spine in ["top", "right", "left"]:
+            ax.spines[spine].set_visible(False)
+    # annotations
     anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
     if save:
@@ -176,7 +174,7 @@ def hist_cardio(
 
 # ------------------------------------------------------
 def hist_co2_iso(
-    data: pd.DataFrame, param: Optional[dict[str, Any]] = None
+    datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
 ) -> plt.Figure:
     """
     Plot CO2 and iso histogram.
@@ -192,46 +190,44 @@ def hist_co2_iso(
 
     Returns
     -------
-    TYPE
-        matplotlib.pyplot.Figure.
+    matplotlib.pyplot.Figure.
     """
     if param is None:
         param = {}
-    if "co2exp" not in data.columns:
-        print("no co2exp in the data")
-        return plt.figure()
+    keys = {"co2exp", "aaExp"}
+    if not keys.issubset(set(datadf.columns)):
+        print(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
+        return plt.Figure()
     save = param.get("save", False)
-    # fig = plt.figure(figsize=(15,8))
-    fig = plt.figure(figsize=(12, 5))
 
-    ax1 = fig.add_subplot(121)
-    ax1.set_title("$End_{tidal}$ $CO_2$", color="tab:blue")
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+    ax = axes[0]
+    ax.set_title("$End_{tidal}$ $CO_2$", color="tab:blue")
     # call
-    ser = anesplot.plot.pfunc.remove_outliers(data, "co2exp")
+    ser = anesplot.plot.pfunc.remove_outliers(datadf, "co2exp")
     if len(ser) > 0:
-        ax1.axvspan(35, 45, color="tab:grey", alpha=0.5)
-        ax1.hist(ser, bins=20, color="tab:blue", edgecolor="tab:blue", alpha=0.8)
+        ax.axvspan(35, 45, color="tab:grey", alpha=0.5)
+        ax.hist(ser, bins=20, color="tab:blue", edgecolor="tab:blue", alpha=0.8)
         for limit in [35, 45]:
-            ax1.axvline(limit, color="tab:grey", alpha=1)
+            ax.axvline(limit, color="tab:grey", alpha=1)
         q50 = np.percentile(ser, [50])
-        ax1.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
-        ax1.set_xlabel("mmHg", alpha=0.5)
+        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+        ax.set_xlabel("mmHg", alpha=0.5)
     else:
-        ax1.text(
+        ax.text(
             0.5,
             0.5,
             "no data \n (co2exp)",
             horizontalalignment="center",
             fontsize="x-large",
             verticalalignment="center",
-            transform=ax1.transAxes,
+            transform=ax.transAxes,
         )
-
-    ax2 = fig.add_subplot(122)
-    ax2.set_title("$End_{tidal}$ isoflurane", color="tab:purple")
-    ser = anesplot.plot.pfunc.remove_outliers(data, "aaExp")
+    ax = axes[1]
+    ax.set_title("$End_{tidal}$ isoflurane", color="tab:purple")
+    ser = anesplot.plot.pfunc.remove_outliers(datadf, "aaExp")
     if len(ser) > 1:
-        ax2.hist(
+        ax.hist(
             ser,
             bins=20,
             color="tab:purple",
@@ -239,27 +235,26 @@ def hist_co2_iso(
             edgecolor="tab:purple",
             alpha=0.8,
         )
-        ax2.set_xlabel("%", alpha=0.5)
+        ax.set_xlabel("%", alpha=0.5)
         _, q50, _ = np.percentile(ser.dropna(), [25, 50, 75])
-        ax2.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
     else:
-        ax2.text(
+        ax.text(
             0.5,
             0.5,
             "no data \n (aaExp)",
             horizontalalignment="center",
             fontsize="x-large",
             verticalalignment="center",
-            transform=ax2.transAxes,
+            transform=ax.transAxes,
         )
 
-    for axe in [ax1, ax2]:
-        # call
-        anesplot.plot.pfunc.color_axis(axe, "bottom", "tab:grey")
-        axe.get_yaxis().set_visible(False)
-        axe.get_xaxis().tick_bottom()
-        for locs in ["top", "right", "left"]:
-            axe.spines[locs].set_visible(False)
+    for ax in axes:
+        anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")
+        ax.get_yaxis().set_visible(False)
+        ax.get_xaxis().tick_bottom()
+        for spine in ["top", "right", "left"]:
+            ax.spines[spine].set_visible(False)
         # annotations
     anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
