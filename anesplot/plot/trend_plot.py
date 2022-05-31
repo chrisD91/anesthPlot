@@ -167,8 +167,6 @@ def hist_cardio(
         fig_name = "hist_cardio" + str(param["item"])
         name = os.path.join(param["path"], fig_name)
         anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
-        if param["memo"]:
-            fig_memo(param["path"], fig_name)
     return fig
 
 
@@ -262,9 +260,6 @@ def hist_co2_iso(
         fig_name = "hist_co2_iso" + str(param["item"])
         name = os.path.join(param["path"], fig_name)
         anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
-        if param["memo"]:
-            fig_memo(param["path"], fig_name)
-
     return fig
 
 
@@ -341,9 +336,6 @@ def cardiovasc(
         fig_name = "cardiovasc" + str(param["item"])
         name = os.path.join(path, fig_name)
         anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
-        if param["memo"]:
-            fig_memo(path, fig_name)
-
     return fig
 
 
@@ -425,7 +417,7 @@ def cardiovasc_p1p2(
     else:
         ax_l.set_xlabel("etime (min)")
 
-    for ax in fig.get_axes():
+    for ax in axes:
         anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")  # call
         ax.spines["top"].set_visible(False)
 
@@ -448,9 +440,6 @@ def cardiovasc_p1p2(
         fig_name = "cardiovasc" + str(param["item"])
         name = os.path.join(path, fig_name)
         anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
-        if param["memo"]:
-            fig_memo(path, fig_name)
-
     return fig
 
 
@@ -534,22 +523,11 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
         fig_name = "co2iso" + str(param["item"])
         name = os.path.join(path, fig_name)
         anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
-        if param["memo"]:
-            fig_memo(path, fig_name)
-
     return fig
 
 
-# proposition de yann pour simplifier le code (à implémenter)
-# def func(ax, x, y1, y2, color="tab:blue", x0=38):
-#     ax.plot(x, y1, color=color)
-#     ax.plot(x, y2, color=color)
-#     ax.fill_between(x, y1, y2, color=color, alpha=0.1)
-#     ax.axhline(x0, linewidth=1, linestyle="dashed", color=color)
-
-
 # ------------------------------------------------------
-def co2o2(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
+def co2o2(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
     """
     Respiratory plot : CO2 and Iso.
 
@@ -568,15 +546,11 @@ def co2o2(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fig
     """
     if param is None:
         param = {}
-    try:
-        data.co2exp
-    except KeyError:
-        print("no CO2 records in this recording")
-        return plt.figure()
-    try:
-        data.o2exp
-    except KeyError:
-        print("no O2 records in this recording")
+    plot_items = {"co2insp", "co2exp", "o2insp", "o2exp"}
+    if not plot_items.issubset(set(datadf.columns)):
+        diff = plot_items - set(datadf.columns)
+        print("unable to perform the cardiovacular plot")
+        print(f"{diff} are not present in the data")
         return plt.figure()
 
     path = param.get("path", "")
@@ -584,28 +558,31 @@ def co2o2(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fig
     xmax = param.get("xmax", None)
     # unit = param.get("unit", "")
     dtime = param.get("dtime", False)
-    if dtime:
-        df = data.set_index("datetime")[["co2insp", "co2exp", "o2insp", "o2exp"]]
-    else:
-        df = data.set_index("eTimeMin")[["co2insp", "co2exp", "o2insp", "o2exp"]]
+
+    # global timeUnit
+    timebase = "datetime" if dtime else "eTimeMin"
+    plot_df = datadf.set_index(timebase)[list(plot_items)]
 
     fig = plt.figure()
-    # fig.suptitle('$CO_2$ & $O_2$ (insp & $End_{tidal}$)')
     ax_l = fig.add_subplot(111)
     ax_l.set_ylabel("$CO_2$")
     # ax_l.set_xlabel('time (' + unit +')')
     anesplot.plot.pfunc.color_axis(ax_l, "left", "tab:blue")
-    ax_l.plot(df.co2exp, color="tab:blue")
-    ax_l.plot(df.co2insp, color="tab:blue")
-    ax_l.fill_between(df.index, df.co2exp, df.co2insp, color="tab:blue", alpha=0.5)
+    ax_l.plot(plot_df.co2exp, color="tab:blue")
+    ax_l.plot(plot_df.co2insp, color="tab:blue")
+    ax_l.fill_between(
+        plot_df.index, plot_df.co2exp, plot_df.co2insp, color="tab:blue", alpha=0.5
+    )
     ax_l.axhline(38, linestyle="dashed", linewidth=2, color="tab:blue")
 
     ax_r = ax_l.twinx()
     ax_r.set_ylabel("$0_2$")
     anesplot.plot.pfunc.color_axis(ax_r, "right", "tab:green")
-    ax_r.plot(df.o2insp, color="tab:green")
-    ax_r.plot(df.o2exp, color="tab:green")
-    ax_r.fill_between(df.index, df.o2insp, df.o2exp, color="tab:green", alpha=0.5)
+    ax_r.plot(plot_df.o2insp, color="tab:green")
+    ax_r.plot(plot_df.o2exp, color="tab:green")
+    ax_r.fill_between(
+        plot_df.index, plot_df.o2insp, plot_df.o2exp, color="tab:green", alpha=0.5
+    )
     ax_r.set_ylim(21, 80)
     ax_r.axhline(30, linestyle="dashed", linewidth=3, color="tab:olive")
 
@@ -621,7 +598,7 @@ def co2o2(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fig
         ax.spines["top"].set_visible(False)
         ax.get_xaxis().tick_bottom()
         ax.set_xlim(xmin, xmax)
-        # annotations
+    # annotations
     anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
 
@@ -629,19 +606,19 @@ def co2o2(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fig
         fig_name = "co2o2" + str(param["item"])
         name = os.path.join(path, fig_name)
         anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
-        if param["memo"]:
-            fig_memo(path, fig_name)
     return fig
 
 
 # ------------------------------------------------------
-def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.Figure:
+def ventil(
+    datadf: pd.DataFrame, param: Optional[dict["str", Any]] = None
+) -> plt.Figure:
     """
     Plot ventilation.
 
     Parameters
     ----------
-    data : pd.DataFrame
+    datadf : pd.DataFrame
         recorded trend data
         columns used : (tvInsp, pPeak, pPlat, peep, minVexp, co2RR, co2exp )
     param : dict, optional (default is None)
@@ -659,13 +636,9 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
     xmax = param.get("xmax", None)
     # unit = param.get("unit", "")
     dtime = param.get("dtime", False)
-    if dtime:
-        df = data.set_index("datetime")
-    else:
-        df = data.set_index("eTimeMin")
-    #    if 'tvInsp' not in data.columns:
-    #        print('no spirometry data in the recording')
-    #        return
+    # global timeUnit
+    timebase = "datetime" if dtime else "eTimeMin"
+    plot_df = datadf.set_index(timebase)
 
     fig = plt.figure(figsize=(12, 5))
     # fig.suptitle('ventilation')
@@ -674,15 +647,15 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
     ax1.set_ylabel("tidal volume")
     anesplot.plot.pfunc.color_axis(ax1, "left", "tab:olive")
     ax1.yaxis.label.set_color("k")
-    if "tvInsp" in df.columns:  # datex
+    if "tvInsp" in plot_df.columns:  # datex
         # comparison with the taphonius data ... to be improved
         # calib = ttrend.data.tvInsp.mean() / taph_trend.data.tv.mean()
         calib = 187
-        ax1.plot(df.tvInsp / calib, color="tab:olive", linewidth=2, label="tvInsp")
-    elif "tv" in df.columns:  # taph
-        ax1.plot(df.tv, color="tab:olive", linewidth=1, linestyle=":", label="tv")
+        ax1.plot(plot_df.tvInsp / calib, color="tab:olive", linewidth=2, label="tvInsp")
+    elif "tv" in plot_df.columns:  # taph
+        ax1.plot(plot_df.tv, color="tab:olive", linewidth=1, linestyle=":", label="tv")
         try:
-            ax1.plot(df.tvCc, color="tab:olive", linewidth=2, label="tvCc")
+            ax1.plot(plot_df.tvCc, color="tab:olive", linewidth=2, label="tvCc")
         except AttributeError:
             print("no ventilation started")
     else:
@@ -693,15 +666,15 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
 
     toplot = {}
     # monitor
-    if {"pPeak", "pPlat", "peep"} < set(df.columns):
+    if {"pPeak", "pPlat", "peep"} < set(plot_df.columns):
         toplot = {"peak": "pPeak", "peep": "peep", "plat": "pPlat"}
         # correction if spirometry tubes have been inverted (plateau measure is false)
-        if df.peep.mean() > df.pPlat.mean():
+        if plot_df.peep.mean() > plot_df.pPlat.mean():
             toplot["peep"] = "pPlat"
             toplot.pop("plat")
     # taph
     # TODO fix end of file peak pressure
-    elif {"pip", "peep1", "peep"} < set(df.columns):
+    elif {"pip", "peep1", "peep"} < set(plot_df.columns):
         toplot = {"peak": "pip", "peep": "peep1"}
     else:
         print("no spirometry data in the recording")
@@ -710,14 +683,18 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
         styles = ["-", "-", ":"]
         for label, style in zip(toplot, styles):
             ax1_r.plot(
-                df[toplot[label]],
+                plot_df[toplot[label]],
                 color="tab:red",
                 linewidth=1,
                 linestyle=style,
                 label=label,
             )
         ax1_r.fill_between(
-            df.index, df[toplot["peak"]], df[toplot["peep"]], color="tab:red", alpha=0.1
+            plot_df.index,
+            plot_df[toplot["peak"]],
+            plot_df[toplot["peep"]],
+            color="tab:red",
+            alpha=0.1,
         )
 
     ax2 = fig.add_subplot(212, sharex=ax1)
@@ -725,15 +702,19 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
     # monitor
     monitor_items = {"minVexp", "co2RR"}
     taph_items = {"co2RR", "rr"}
-    if monitor_items < set(df.columns):
+    if monitor_items < set(plot_df.columns):
         # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
-        ax2.plot(df.minVexp, color="tab:olive", linewidth=2, label="minVexp")
-        ax2.plot(df.co2RR, color="tab:blue", linewidth=1, linestyle="--", label="co2RR")
-    elif taph_items < set(df.columns):
+        ax2.plot(plot_df.minVexp, color="tab:olive", linewidth=2, label="minVexp")
+        ax2.plot(
+            plot_df.co2RR, color="tab:blue", linewidth=1, linestyle="--", label="co2RR"
+        )
+    elif taph_items < set(plot_df.columns):
         # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
         # ax2.plot(df.minVexp, color="tab:olive", linewidth=2)
-        ax2.plot(df.co2RR, color="tab:blue", linewidth=2, linestyle="--", label="co2RR")
-        ax2.plot(df.rr, color="black", linewidth=1, linestyle=":", label="rr")
+        ax2.plot(
+            plot_df.co2RR, color="tab:blue", linewidth=2, linestyle="--", label="co2RR"
+        )
+        ax2.plot(plot_df.rr, color="black", linewidth=1, linestyle=":", label="rr")
     else:
         print("no spirometry data recorded")
     # ax2.set_xlabel('time (' + unit +')')
@@ -742,7 +723,7 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
     ax2_r.set_ylabel("Et $CO_2$")
     anesplot.plot.pfunc.color_axis(ax2_r, "right", "tab:blue")
     try:
-        ax2_r.plot(df.co2exp, color="tab:blue", linewidth=2, linestyle="-")
+        ax2_r.plot(plot_df.co2exp, color="tab:blue", linewidth=2, linestyle="-")
     except KeyError:
         print("no capnometry in the recording")
     ax1_r.set_ylim(0, 50)
@@ -766,13 +747,11 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
         fig_name = "ventil" + str(param["item"])
         name = os.path.join(path, fig_name)
         anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
-        if param["memo"]:
-            fig_memo(path, fig_name)
     return fig
 
 
 # ------------------------------------------------------
-def recrut(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
+def recrut(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
     """
     Display a recrut manoeuver.
 
@@ -795,10 +774,11 @@ def recrut(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fi
     xmax = param.get("xmax", None)
     # unit = param.get("unit", "")
     dtime = param.get("dtime", False)
-    if dtime:
-        df = data.set_index("datetime").copy()
-    else:
-        df = data.set_index("eTimeMin").copy()
+    df = (
+        datadf.set_index("datetime").copy()
+        if dtime
+        else datadf.set_index("eTimeMin").copy()
+    )
 
     fig = plt.figure()
     # fig.suptitle('recrutement')
@@ -842,8 +822,6 @@ def recrut(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fi
         fig_name = "recrut" + str(param["item"])
         name = os.path.join(path, fig_name)
         anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
-        if param["memo"]:
-            fig_memo(path, fig_name)
     return fig
 
 
@@ -895,10 +873,14 @@ def ventil_cardio(
     ax1_r = ax1.twinx()
     ax1_r.set_ylabel("P_resp")
     anesplot.plot.pfunc.color_axis(ax1_r, "right", "tab:red")
-    ax1_r.plot(df.pPeak, color="tab:red", linewidth=1, linestyle="-")
-    ax1_r.plot(df.pPlat, color="tab:red", linewidth=1, linestyle=":")
-    ax1_r.plot(df.peep, color="tab:red", linewidth=1, linestyle="-")
-    ax1_r.fill_between(df.index, df.peep, df.pPeak, color="tab:red", alpha=0.1)
+    anesplot.plot.pfunc.plot_minimeanmax_traces(
+        ax1_r,
+        df,
+        traces=["peep", "pPlat", "pPeak"],
+        widths=[1] * 3,
+        color="tab:red",
+        styles=["-", ":", "-"],
+    )
     ax1_r.spines["left"].set_visible(False)
     ax1_r.spines["bottom"].set_visible(False)
 
@@ -906,19 +888,14 @@ def ventil_cardio(
     ax2.set_ylabel("P_art")
     anesplot.plot.pfunc.color_axis(ax2, "left", "tab:red")
     ax2.spines["right"].set_visible(False)
-    ax2.plot(df.ip1m, color="tab:red", linewidth=1, linestyle="-")
-    ax2.plot(df.ip1s, color="tab:red", linewidth=0, linestyle="-")
-    ax2.plot(df.ip1d, color="tab:red", linewidth=0, linestyle="-")
-    ax2.fill_between(df.index, df.ip1s, df.ip1d, color="tab:red", alpha=0.2)
-
-    # ax2.set_xlabel('time (' + unit +')')
-
-    # ax1.set_xlim(108, 114)
-    # ax2.set_ylim(35, 95)
-    # ax1_r.set_ylim(5, 45)
-    # ax2.set_ylim(40, 95)
-    # ax2.set_ylim(40, 90)
-    # ax2.set_ylim(35, 95)
+    anesplot.plot.pfunc.plot_minimeanmax_traces(
+        ax2,
+        df,
+        traces=["ip1s", "ip1m", "ip1d"],
+        widths=[0, 2, 0],
+        color="tab:red",
+        styles=["-"] * 3,
+    )
 
     if dtime:
         my_fmt = mdates.DateFormatter("%H:%M")
@@ -926,12 +903,11 @@ def ventil_cardio(
     else:
         ax1.set_xlabel("etime (min)")
 
-    axes = [ax1, ax1_r, ax2]
-    for axe in axes:
-        axe.grid()
-        anesplot.plot.pfunc.color_axis(axe, "bottom", "tab:grey")
-        axe.spines["top"].set_visible(False)
-        axe.get_xaxis().tick_bottom()
+    for ax in [ax1, ax1_r, ax2]:
+        ax.grid()
+        anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")
+        ax.spines["top"].set_visible(False)
+        ax.get_xaxis().tick_bottom()
 
     # annotations
     anesplot.plot.pfunc.add_baseline(fig, param)
@@ -973,11 +949,11 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     axl = fig.add_subplot(111)
     axr = axl.twinx()
 
-    for axe, trace, color, style in zip(
+    for ax, trace, color, style in zip(
         [axl, axr], ["sat", "spo2Hr"], ["tab:red", "tab:grey"], ["-", ":"]
     ):
 
-        axe.plot(
+        ax.plot(
             satdf[trace],
             color=color,
             linestyle=style,
@@ -985,14 +961,14 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
         )
         if dtime:
             my_fmt = mdates.DateFormatter("%H:%M")
-            axe.xaxis.set_major_formatter(my_fmt)
+            ax.xaxis.set_major_formatter(my_fmt)
 
-        axe.spines["top"].set_visible(False)
-        axe.set_ylabel(trace)
-        axe.yaxis.label.set_color(color)
-        axe.tick_params(axis="y", colors=color)
-        axe.tick_params(axis="x", colors="tab:grey")
-        axe.xaxis.label.set_color("tab:grey")
+        ax.spines["top"].set_visible(False)
+        ax.set_ylabel(trace)
+        ax.yaxis.label.set_color(color)
+        ax.tick_params(axis="y", colors=color)
+        ax.tick_params(axis="x", colors="tab:grey")
+        ax.xaxis.label.set_color("tab:grey")
 
     axl.set_ylim(60, 100)
     axr.set_ylim(25, 70)
@@ -1004,60 +980,6 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
 
     fig.tight_layout()
     return fig
-
-
-# ------------------------------------------------------
-def save_distri(data: pd.DataFrame, path: dict[str, Any]) -> None:
-    """
-    Save the 4 distributions graphs for cardiovasc and respi.
-
-    Parameters
-    ----------
-    data : pd.DataFrame
-        trends data.
-    path : dict
-        dict(save: boolean, path['save'], xmin, xmax, unit,
-                        dtime = boolean for time display in HH:MM format)..
-
-    Returns
-    -------
-    None.
-    """
-    #    bpgas(data).savefig((path["sFig"] + "O_bpgas.png"), bbox_inches="tight")
-    hist_co2_iso(data).savefig(
-        (path["sFig"] + "O_hist_co2_iso.png"), bbox_inches="tight"
-    )
-    #   bppa(data).savefig((path["sFig"] + "O_bppa.png"), bbox_inches="tight")
-    hist_cardio(data).savefig((path["sFig"] + "O_hist_cardio.png"), bbox_inches="tight")
-
-
-def fig_memo(apath: str, fig_name: str) -> None:
-    """
-    Append latex frame command in a txt file inside the fig folder.
-
-    create the file if it doesn't exist
-
-    Parameters
-    ----------
-    apath : str
-        dirname to export to.
-    fig_name : str
-        figure short name.
-
-    Returns
-    -------
-    None.
-    """
-    include_text = (
-        "\\begin{frame}{fileName}\n\t\\includegraphics[width = \\textwidth]{bg/"
-        + fig_name
-        + "} \n\\end{frame} \n %----------------- \n \\n"
-    )
-
-    fig_insert = os.path.join(apath, "figIncl.txt")
-    with open(fig_insert, "a", encoding="utf-8") as file:
-        file.write(include_text + "\n")
-        file.close()
 
 
 # %%

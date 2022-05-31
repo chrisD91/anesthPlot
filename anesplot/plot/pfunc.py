@@ -86,6 +86,46 @@ def remove_outliers(
     return ser
 
 
+def plot_minimeanmax_traces(
+    ax: plt.subplot,
+    df: pd.DataFrame,
+    traces: list[str],
+    color: str = "tab:blue",
+    widths: Optional[list[int]] = None,
+    styles: Optional[list[str]] = None,
+) -> None:
+    """
+    Plot mean and fill_between min-max on the given ax
+
+    Parameters
+    ----------
+    ax : plt.subplot
+        the axe to use.
+    df : pd.DataFrame
+        the data.
+    traces : list[str]
+        the list of columns.
+    color : str
+        the color to use.
+
+    Returns
+    -------
+    None
+    """
+    if styles is None:
+        styles = ["-"] * len(traces)
+    if widths is None:
+        widths = [1] * len(traces)
+    # traces = ["ip1d", "ipm", "ip1s"]
+    # color = "tab:red"
+    # widths = [1, 2, 1]
+    # styles = ["-", "-", "-"]
+    for trace, width, style in zip(traces, widths, styles):
+        print(f"{trace=}, {width=}, {style=}")
+        ax.plot(df[trace], color=color, linewidth=width, linestyle=style)
+    ax.fill_between(df.index, df[traces[0]], df[traces[-1]], color=color, alpha=0.2)
+
+
 def color_axis(ax0: plt.Axes, spine: str = "bottom", color: str = "r") -> None:
     """
     Change the color of the label & tick & spine.
