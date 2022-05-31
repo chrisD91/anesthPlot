@@ -3,6 +3,8 @@
 Created on Fri May 20 13:05:03 2022
 
 @author: cdesbois
+
+plot functions
 """
 import os
 from typing import Optional, Any
@@ -31,6 +33,14 @@ def update_pltparams() -> None:
     plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
     print("plot_func: updated the matplotlib rcParams (plot_func)")
     # print(f"{params}")
+
+
+def add_baseline(fig: plt.figure, param: Optional[dict[str, Any]] = None) -> None:
+    """Annotate the base of the plot."""
+    if param is None:
+        param = {}
+    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
+    fig.text(0.01, 0.01, param.get("file", ""), ha="left", va="bottom", alpha=0.4)
 
 
 # ------------------------------------------------------

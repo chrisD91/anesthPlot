@@ -94,8 +94,8 @@ def build_half_white(
     name: str,
     datadf: pd.DataFrame,
     param: dict[str, Any],
-    roi: dict[str, Any],
-) -> tuple[plt.Figure, tuple[float, float], plt.Figure]:
+    roi: Optional[dict[str, Any]],
+) -> tuple[plt.Figure, Optional[tuple[float, float]], plt.Figure]:
     """
     Build a half white figure for teaching.
 
@@ -121,7 +121,7 @@ def build_half_white(
     """
     if roi is None:
         print("please build a roi using the .save_roi method")
-        return plt.Figure(), (), plt.Figure()
+        return plt.Figure(), None, plt.Figure()
 
     # iniax = inifig.get_axes()[0]
     if param["dtime"]:
@@ -142,15 +142,15 @@ def build_half_white(
     halfax = halffig.get_axes()[0]
     fulllims = (lims[0], lims[1] + (lims[1] - lims[0]))
     halfax.set_xlim(fulllims)
-    # halfax.axvline(lims[1], color="tab:grey")
-    texts = [
-        "1: que se passe-t-il ?",
-        "2: que va-t-il se passer ?",
-        "3: c'est grave docteur ?",
-        "4: que feriez vous ?",
-    ]
-    positions = [(0.15, 0.9), (0.6, 0.9), (0.6, 0.7), (0.6, 0.5)]
-    for pos, txt in zip(positions, texts):
+    for txt, pos in zip(
+        [
+            "1: que se passe-t-il ?",
+            "2: que va-t-il se passer ?",
+            "3: c'est grave docteur ?",
+            "4: que feriez vous ?",
+        ],
+        [(0.15, 0.9), (0.6, 0.9), (0.6, 0.7), (0.6, 0.5)],
+    ):
         halfax.text(
             pos[0],
             pos[1],
@@ -163,13 +163,12 @@ def build_half_white(
     fullfig = func(datadf, param)
     fullfig.get_axes()[0].set_xlim(fulllims)
 
-    size = inifig.get_size_inches()
+    # size = inifig.get_size_inches()
     for fig in [halffig, fullfig]:
-        for i, ylim in enumerate(roi.get("ylims")):  # type: ignore
-            ax = fig.get_axes()[i]
+        for ax, ylim in zip(fig.get_axes(), roi.get("ylims")):  # type: ignore
             ax.set_ylim(ylim)
             ax.axvline(lims[1], color="tab:grey")
-        fig.set_size_inches(size)
+        fig.set_size_inches(inifig.get_size_inches())
         fig.tight_layout()
         # fig.show()
 

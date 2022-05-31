@@ -80,8 +80,8 @@ def main(file_name: Optional[str] = None) -> None:
 
     Parameters
     ----------
-    file_name : str, optional
-        recordfile fullname (default is None).
+    file_name : str, optional (default is None)
+        recordfile fullname .
 
     Returns
     -------

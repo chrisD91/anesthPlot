@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import animation
 
-from anesplot.plot.plot_func import update_pltparams
+from anesplot.plot.pfunc import update_pltparams
 
 update_pltparams()
 

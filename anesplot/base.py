@@ -7,7 +7,7 @@ Created on Thu Apr 28 16:20:07 2022
 the base wave for slow and fast waves
 """
 
-from typing import Any
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -34,7 +34,7 @@ class _Waves:  # pylint: disable=too-few-public-methods
         self.filename: str
         self.data: pd.DataFrame
         self.fig: plt.Figure
-        self.roi: dict[str, Any]
+        self.roi: Optional[dict[str, Any]] = None
         self.header: dict[str, Any]
         self.param: dict[str, Any] = dict(
             xmin=None,

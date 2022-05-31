@@ -17,19 +17,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from anesplot.plot.plot_func import (
-    remove_outliers,
-    save_graph,
-    color_axis,
-    update_pltparams,
-)
+import anesplot.plot.anesplot.plot.pfunc
 
-update_pltparams()
+anesplot.plot.pfunc.update_pltparams()
 
 
 # %%
 def plot_header(
-    descr: dict[str, Any], param: Optional[dict[str, Any]] = None
+    header: dict[str, Any], param: Optional[dict[str, Any]] = None
 ) -> plt.Figure:
     """
     Plot the header of the file.
@@ -39,15 +34,15 @@ def plot_header(
     descr : dict
         header of the recording.
     param : dict, optional (default is None)
-        dictionary of parameters. .
+        dictionary of parameters.
 
     Returns
     -------
-    fig : pyplot.Figure
+    fig : plt.Figure
         plot of the header.
     """
     if param is None:
-        param = {"save": False}
+        param = {"save": False, "file": ""}
 
     hcell = 2
     wcell = 2
@@ -56,28 +51,26 @@ def plot_header(
     nbcol = 2
     hpad = 0.1
     txt = []
-    for key in descr.keys():
-        value = descr[key]
+    for key, val in header.items():
         if key == "Weight":
-            value *= 10
-        txt.append([key, value])
+            val *= 10
+        txt.append([key, val])
     # ['Age', 'Sex', 'Weight', 'Version', 'Date', 'Patient Name', 'Sampling Rate',
     # 'Height', 'Patient ID', 'Equipment', 'Procedure']
     fig = plt.figure(figsize=(nbcol * hcell + hpad, nbcol * wcell + wpad))
-    ax0 = fig.add_subplot(111)
-    ax0.axis("off")
-    ax0.xaxis.set_visible(False)
-    ax0.yaxis.set_visible(False)
-    table = ax0.table(cellText=txt, loc="center", fontsize=18, bbox=[0, 0, 1, 1])
+    ax = fig.add_subplot(111)
+    ax.axis("off")
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+    table = ax.table(cellText=txt, loc="center", fontsize=18, bbox=[0, 0, 1, 1])
     # table.auto_set_font_size(False)
     table.set_fontsize(10)
     # table.set_zorder(10)
-    for spineval in ax0.spines.values():
+    for spineval in ax.spines.values():
         spineval.set_color("w")
         spineval.set_zorder(0)
     # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
     return fig
 
 
@@ -117,7 +110,7 @@ def hist_cardio(
     ax0 = axes[0]
     ax0.set_title("arterial pressure", color="tab:red")
     ax0.set_xlabel("mmHg", alpha=0.5)
-    ser = remove_outliers(data, "ip1m")
+    ser = anesplot.plot.pfunc.remove_outliers(data, "ip1m")
     if len(ser) > 0:
         ax0.hist(ser.dropna(), bins=30, color="tab:red", edgecolor="red", alpha=0.7)
         q50 = np.percentile(ser, [50])
@@ -139,7 +132,7 @@ def hist_cardio(
 
     ax1 = axes[1]
     ax1.set_title("heart rate", color="k")
-    ser = remove_outliers(data, "hr")
+    ser = anesplot.plot.pfunc.remove_outliers(data, "hr")
     if len(ser) > 0:
         ax1.hist(
             ser,
@@ -164,19 +157,18 @@ def hist_cardio(
 
     for axe in axes:
         # call
-        color_axis(axe, "bottom", "tab:grey")  # call
+        anesplot.plot.pfunc.color_axis(axe, "bottom", "tab:grey")  # call
         axe.get_yaxis().set_visible(False)
         axe.get_xaxis().tick_bottom()
         for locs in ["top", "right", "left"]:
             axe.spines[locs].set_visible(False)
         # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
     if save:
         fig_name = "hist_cardio" + str(param["item"])
         name = os.path.join(param["path"], fig_name)
-        save_graph(name, ext="png", close=False, verbose=True)
+        anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
         if param["memo"]:
             fig_memo(param["path"], fig_name)
     return fig
@@ -215,7 +207,7 @@ def hist_co2_iso(
     ax1 = fig.add_subplot(121)
     ax1.set_title("$End_{tidal}$ $CO_2$", color="tab:blue")
     # call
-    ser = remove_outliers(data, "co2exp")
+    ser = anesplot.plot.pfunc.remove_outliers(data, "co2exp")
     if len(ser) > 0:
         ax1.axvspan(35, 45, color="tab:grey", alpha=0.5)
         ax1.hist(ser, bins=20, color="tab:blue", edgecolor="tab:blue", alpha=0.8)
@@ -237,7 +229,7 @@ def hist_co2_iso(
 
     ax2 = fig.add_subplot(122)
     ax2.set_title("$End_{tidal}$ isoflurane", color="tab:purple")
-    ser = remove_outliers(data, "aaExp")
+    ser = anesplot.plot.pfunc.remove_outliers(data, "aaExp")
     if len(ser) > 1:
         ax2.hist(
             ser,
@@ -263,19 +255,18 @@ def hist_co2_iso(
 
     for axe in [ax1, ax2]:
         # call
-        color_axis(axe, "bottom", "tab:grey")
+        anesplot.plot.pfunc.color_axis(axe, "bottom", "tab:grey")
         axe.get_yaxis().set_visible(False)
         axe.get_xaxis().tick_bottom()
         for locs in ["top", "right", "left"]:
             axe.spines[locs].set_visible(False)
         # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
-    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
     if save:
         fig_name = "hist_co2_iso" + str(param["item"])
         name = os.path.join(param["path"], fig_name)
-        save_graph(name, ext="png", close=False, verbose=True)
+        anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
         if param["memo"]:
             fig_memo(param["path"], fig_name)
 
@@ -321,7 +312,7 @@ def cardiovasc(
     ax_l.fill_between(
         pressuredf.index, pressuredf.ip1d, pressuredf.ip1s, color="tab:red", alpha=0.5
     )
-    color_axis(ax_l, "left", "tab:red")  # call
+    anesplot.plot.pfunc.color_axis(ax_l, "left", "tab:red")  # call
     ax_l.set_ylabel("arterial Pressure", color="tab:red")
     ax_l.set_ylim(30, 150)
     ax_l.axhline(70, linewidth=1, linestyle="dashed", color="tab:red")
@@ -330,7 +321,7 @@ def cardiovasc(
     ax_r.plot(pressuredf.hr, color="tab:grey", label="heart rate", linewidth=2)
     ax_r.set_ylabel("heart Rate")
     ax_r.set_ylim(20, 100)
-    color_axis(ax_r, "right", "tab:grey")  # call
+    anesplot.plot.pfunc.color_axis(ax_r, "right", "tab:grey")  # call
 
     ax_l.set_xlim(datadf.iloc[0][timebase], ax_l.get_xlim()[1])
     ax_l.spines["right"].set_visible(False)
@@ -341,12 +332,11 @@ def cardiovasc(
         ax_l.set_xlabel("etime (min)")
 
     for ax in fig.get_axes():
-        color_axis(ax, "bottom", "tab:grey")  # call
+        anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")  # call
         ax.spines["top"].set_visible(False)
 
     # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param.get("file", ""), ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
     if param.get("xmin", None) and param.get("xmax", None):
         ax_r.set_xlim(param.get("xmin"), param.get("xmax"))
@@ -355,7 +345,7 @@ def cardiovasc(
         path = param["path"]
         fig_name = "cardiovasc" + str(param["item"])
         name = os.path.join(path, fig_name)
-        save_graph(name, ext="png", close=False, verbose=True)
+        anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
 
@@ -410,7 +400,7 @@ def cardiovasc_p1p2(
     # ax_l.set_xlabel('time (' + unit +')')
     ax_l.set_ylabel("arterial Pressure", color="tab:red")
     # call
-    color_axis(ax_l, "left", "tab:red")
+    anesplot.plot.pfunc.color_axis(ax_l, "left", "tab:red")
     # for spine in ["top", "right"]:
     #     ax_l.spines[spine].set_visible(False)
     ax_l.plot(pressuredf.ip1m, "-", color="red", label="arterial pressure", linewidth=2)
@@ -424,11 +414,11 @@ def cardiovasc_p1p2(
     ax_r.set_ylabel("heart Rate")
     ax_r.set_ylim(20, 100)
     ax_r.plot(pressuredf.hr, color="tab:grey", label="heart rate", linewidth=2)
-    color_axis(ax_r, "right", "tab:grey")  # call
+    anesplot.plot.pfunc.color_axis(ax_r, "right", "tab:grey")  # call
 
     ax1 = axes[1]
     ax1.set_ylabel("venous Pressure", color="tab:blue")
-    color_axis(ax1, "left", "tab:blue")  # call
+    anesplot.plot.pfunc.color_axis(ax1, "left", "tab:blue")  # call
     ax1.plot(pressuredf.ip2m, "-", color="blue", label="venous pressure", linewidth=2)
     ax1.fill_between(
         pressuredf.index, pressuredf.ip2d, pressuredf.ip2s, color="tab:blue", alpha=0.5
@@ -442,11 +432,11 @@ def cardiovasc_p1p2(
         ax_l.set_xlabel("etime (min)")
 
     for ax in fig.get_axes():
-        color_axis(ax, "bottom", "tab:grey")  # call
+        anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")  # call
         ax.spines["top"].set_visible(False)
 
     for i, ax in enumerate(fig.get_axes()):
-        color_axis(ax, "bottom", "tab:grey")  # call
+        anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")  # call
         ax.spines["top"].set_visible(False)
         if i == 0:
             ax.spines["right"].set_visible(False)
@@ -454,8 +444,7 @@ def cardiovasc_p1p2(
             ax_r.spines["left"].set_visible(False)
 
         # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, file, ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
     if xmin and xmax:
         ax_r.set_xlim(xmin, xmax)
@@ -464,7 +453,7 @@ def cardiovasc_p1p2(
         path = param["path"]
         fig_name = "cardiovasc" + str(param["item"])
         name = os.path.join(path, fig_name)
-        save_graph(name, ext="png", close=False, verbose=True)
+        anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
 
@@ -507,7 +496,7 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
 
     ax_l.set_ylabel("$CO_2$")
     # call
-    color_axis(ax_l, "left", "tab:blue")
+    anesplot.plot.pfunc.color_axis(ax_l, "left", "tab:blue")
 
     ax_l.plot(plot_df.co2exp, color="tab:blue")
     ax_l.plot(plot_df.co2insp, color="tab:blue")
@@ -518,7 +507,7 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
 
     ax_r = ax_l.twinx()
     ax_r.set_ylabel("isoflurane")
-    color_axis(ax_r, "right", "tab:purple")
+    anesplot.plot.pfunc.color_axis(ax_r, "right", "tab:purple")
     # func(ax_r, x, etIso, inspIs, color='m', x0=38)
     ax_r.plot(plot_df.aaExp, color="tab:purple")
     ax_r.plot(plot_df.aaInsp, color="tab:purple")
@@ -536,22 +525,21 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
         ax_l.set_xlabel("etime (min)")
 
     for ax in fig.get_axes():
-        color_axis(ax, "bottom", "tab:grey")  # call
+        anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")  # call
         ax.spines["top"].set_visible(False)
 
     if param.get("xmin", None) and param.get("xmax", None):
         ax_r.set_xlim(param.get("xmin"), param.get("xmax"))
 
     # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param.get("file", ""), ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
 
     if param.get("save", False):
         path = param.get("path", "")
         fig_name = "co2iso" + str(param["item"])
         name = os.path.join(path, fig_name)
-        save_graph(name, ext="png", close=False, verbose=True)
+        anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
 
@@ -612,7 +600,7 @@ def co2o2(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fig
     ax_l = fig.add_subplot(111)
     ax_l.set_ylabel("$CO_2$")
     # ax_l.set_xlabel('time (' + unit +')')
-    color_axis(ax_l, "left", "tab:blue")
+    anesplot.plot.pfunc.color_axis(ax_l, "left", "tab:blue")
     ax_l.plot(df.co2exp, color="tab:blue")
     ax_l.plot(df.co2insp, color="tab:blue")
     ax_l.fill_between(df.index, df.co2exp, df.co2insp, color="tab:blue", alpha=0.5)
@@ -620,7 +608,7 @@ def co2o2(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fig
 
     ax_r = ax_l.twinx()
     ax_r.set_ylabel("$0_2$")
-    color_axis(ax_r, "right", "tab:green")
+    anesplot.plot.pfunc.color_axis(ax_r, "right", "tab:green")
     ax_r.plot(df.o2insp, color="tab:green")
     ax_r.plot(df.o2exp, color="tab:green")
     ax_r.fill_between(df.index, df.o2insp, df.o2exp, color="tab:green", alpha=0.5)
@@ -635,19 +623,18 @@ def co2o2(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fig
 
     axes = [ax_l, ax_r]
     for ax in axes:
-        color_axis(ax, "bottom", "tab:grey")
+        anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")
         ax.spines["top"].set_visible(False)
         ax.get_xaxis().tick_bottom()
         ax.set_xlim(xmin, xmax)
         # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
 
     if param["save"]:
         fig_name = "co2o2" + str(param["item"])
         name = os.path.join(path, fig_name)
-        save_graph(name, ext="png", close=False, verbose=True)
+        anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
     return fig
@@ -691,7 +678,7 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
 
     ax1 = fig.add_subplot(211)
     ax1.set_ylabel("tidal volume")
-    color_axis(ax1, "left", "tab:olive")
+    anesplot.plot.pfunc.color_axis(ax1, "left", "tab:olive")
     ax1.yaxis.label.set_color("k")
     if "tvInsp" in df.columns:  # datex
         # comparison with the taphonius data ... to be improved
@@ -708,7 +695,7 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
         print("no spirometry data in the recording")
     ax1_r = ax1.twinx()
     ax1_r.set_ylabel("pression")
-    color_axis(ax1_r, "right", "tab:red")
+    anesplot.plot.pfunc.color_axis(ax1_r, "right", "tab:red")
 
     toplot = {}
     # monitor
@@ -759,7 +746,7 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
 
     ax2_r = ax2.twinx()
     ax2_r.set_ylabel("Et $CO_2$")
-    color_axis(ax2_r, "right", "tab:blue")
+    anesplot.plot.pfunc.color_axis(ax2_r, "right", "tab:blue")
     try:
         ax2_r.plot(df.co2exp, color="tab:blue", linewidth=2, linestyle="-")
     except KeyError:
@@ -774,18 +761,17 @@ def ventil(data: pd.DataFrame, param: Optional[dict["str", Any]] = None) -> plt.
             ax.xaxis.set_major_formatter(my_fmt)
         else:
             ax.set_xlabel("etime (min)")
-        color_axis(ax, "bottom", "tab:grey")
+        anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")
         ax.spines["top"].set_visible(False)
         ax.get_xaxis().tick_bottom()
         ax.set_xlim(xmin, xmax)
         # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
     if param["save"]:
         fig_name = "ventil" + str(param["item"])
         name = os.path.join(path, fig_name)
-        save_graph(name, ext="png", close=False, verbose=True)
+        anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
     return fig
@@ -827,7 +813,7 @@ def recrut(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fi
     # ax1.set_xlabel('time (' + unit +')')
     ax1.spines["top"].set_visible(False)
     ax1.set_ylabel("peep & Peak")
-    color_axis(ax1, "left", "tab:red")
+    anesplot.plot.pfunc.color_axis(ax1, "left", "tab:red")
     ax1.spines["right"].set_visible(False)
     ax1.plot(df.pPeak, color="tab:red", linewidth=2, linestyle="-")
     ax1.plot(df.pPlat, color="tab:red", linewidth=1, linestyle=":")
@@ -837,7 +823,7 @@ def recrut(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fi
 
     ax2 = ax1.twinx()
     ax2.set_ylabel("volume")
-    color_axis(ax2, "right", "tab:olive")
+    anesplot.plot.pfunc.color_axis(ax2, "right", "tab:olive")
     ax2.spines["left"].set_visible(False)
     ax2.yaxis.label.set_color("black")
     ax2.plot(df.tvInsp, color="tab:olive", linewidth=2)
@@ -853,16 +839,15 @@ def recrut(data: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Fi
 
     axes = [ax1, ax2]
     for ax in axes:
-        color_axis(ax, "bottom", "tab:grey")
+        anesplot.plot.pfunc.color_axis(ax, "bottom", "tab:grey")
         ax.spines["top"].set_visible(False)
     # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
     if param["save"]:
         fig_name = "recrut" + str(param["item"])
         name = os.path.join(path, fig_name)
-        save_graph(name, ext="png", close=False, verbose=True)
+        anesplot.plot.pfunc.save_graph(name, ext="png", close=False, verbose=True)
         if param["memo"]:
             fig_memo(path, fig_name)
     return fig
@@ -906,7 +891,7 @@ def ventil_cardio(
 
     ax1 = fig.add_subplot(211)
     ax1.set_ylabel("tidal vol.")
-    color_axis(ax1, "left", "tab:olive")
+    anesplot.plot.pfunc.color_axis(ax1, "left", "tab:olive")
     ax1.yaxis.label.set_color("k")
     ax1.plot(df.tvInsp, color="tab:olive", linewidth=2)
     ax1.spines["right"].set_visible(False)
@@ -915,7 +900,7 @@ def ventil_cardio(
 
     ax1_r = ax1.twinx()
     ax1_r.set_ylabel("P_resp")
-    color_axis(ax1_r, "right", "tab:red")
+    anesplot.plot.pfunc.color_axis(ax1_r, "right", "tab:red")
     ax1_r.plot(df.pPeak, color="tab:red", linewidth=1, linestyle="-")
     ax1_r.plot(df.pPlat, color="tab:red", linewidth=1, linestyle=":")
     ax1_r.plot(df.peep, color="tab:red", linewidth=1, linestyle="-")
@@ -925,7 +910,7 @@ def ventil_cardio(
 
     ax2 = fig.add_subplot(212, sharex=ax1)
     ax2.set_ylabel("P_art")
-    color_axis(ax2, "left", "tab:red")
+    anesplot.plot.pfunc.color_axis(ax2, "left", "tab:red")
     ax2.spines["right"].set_visible(False)
     ax2.plot(df.ip1m, color="tab:red", linewidth=1, linestyle="-")
     ax2.plot(df.ip1s, color="tab:red", linewidth=0, linestyle="-")
@@ -950,13 +935,12 @@ def ventil_cardio(
     axes = [ax1, ax1_r, ax2]
     for axe in axes:
         axe.grid()
-        color_axis(axe, "bottom", "tab:grey")
+        anesplot.plot.pfunc.color_axis(axe, "bottom", "tab:grey")
         axe.spines["top"].set_visible(False)
         axe.get_xaxis().tick_bottom()
 
     # annotations
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
-    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
     fig.tight_layout()
     return fig
 
@@ -1022,9 +1006,7 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     axr.spines["left"].set_visible(False)
 
     # annotations
-    file = param.get("file", "")
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
-    fig.text(0.01, 0.01, file, ha="left", va="bottom", alpha=0.4)
+    anesplot.plot.pfunc.add_baseline(fig, param)
 
     fig.tight_layout()
     return fig
