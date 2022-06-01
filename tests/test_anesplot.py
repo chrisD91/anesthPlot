@@ -114,21 +114,6 @@ def test_loadtaph(num: int = 5) -> None:
 
 def test_trend_plot() -> None:
     """test the trend plotting"""
-    # import anesplot.config.load_recordrc
-    # from anesplot.slow_waves import MonitorTrend
-    # from anesplot.plot.trend_plot import (
-    #     plot_header,
-    #     cardiovasc,
-    #     cardiovasc_p1p2,
-    #     co2iso,
-    #     co2o2,
-    #     hist_cardio,
-    #     hist_co2_iso,
-    #     recrut,
-    #     sat_hr,
-    #     ventil,
-    #     ventil_cardio,
-    # )
 
     def t_header_plot(header: pd.DataFrame, param: dict[str, Any]) -> None:
         """Test the plotting for header."""
@@ -175,10 +160,9 @@ def test_trend_plot() -> None:
         print(f"{'...'*5} > test_data_plot")
 
     print(f"{'='* 20} ")
-    file = "../example_files/MonitorTrend.csv"
-    # filename = os.path.join(paths["cwd"], file)
-    # mtrends = MonitorTrend(filename)
-    mtrends = anesplot.slow_waves.MonitorTrend(file)
+    file = "example_files/MonitorTrend.csv"
+    filename = os.path.join(paths["cwd"], file)
+    mtrends = anesplot.slow_waves.MonitorTrend(filename)
     print(f"{'='* 20} ")
     t_header_plot(mtrends.header, mtrends.param)
     t_data_plot(mtrends.data, mtrends.param)
