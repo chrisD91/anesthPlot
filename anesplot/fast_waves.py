@@ -10,12 +10,13 @@ build the objects or the fast_waves ('waves'):
 
 """
 import os
-from typing import Tuple, Optional, Any
+from typing import Tuple, Optional, Any, Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
 import anesplot.plot.wave_plot as wplot
+import anesplot.plot.wave2video as w2vid
 import anesplot.treatrec.arterial_func
 import anesplot.treatrec.ekg_func
 import anesplot.plot.t_agg_plot as tagg
@@ -56,7 +57,7 @@ class _FastWave(_Waves):
         datadf["ekgLowPass"] = fix_baseline_wander(datadf[item], samplingfreq)
 
     def plot_wave(
-        self, traces_list: Optional[list[str]] = None
+        self, traces_list: Union[list[str], None] = None
     ) -> tuple[plt.figure, list[plt.Line2D], list[str]]:
         """
         Choose and plot for a wave.
@@ -75,7 +76,7 @@ class _FastWave(_Waves):
         """
         if self.data.empty:
             fig = plt.Figure()
-            lines = []
+            lines: list[plt.Line2D] = []
             traces_list = []
             print("there are no data to plot")
         else:
@@ -170,7 +171,7 @@ class _FastWave(_Waves):
 
         """
         if self.roi:
-            wplot.create_video(
+            w2vid.create_video(
                 self.data,
                 self.param,
                 self.roi,

@@ -21,6 +21,9 @@ import pyperclip
 import anesplot.slow_waves
 import anesplot.fast_waves
 import anesplot.plot.trend_plot
+import anesplot.plot.wave_plot
+import anesplot.loadrec.loadmonitor_waverecord
+
 from anesplot.config.load_recordrc import build_paths
 
 paths = build_paths()
@@ -167,3 +170,27 @@ def test_trend_plot() -> None:
     t_header_plot(mtrends.header, mtrends.param)
     t_data_plot(mtrends.data, mtrends.param)
     print(f"{'='* 20} ")
+
+
+def test_wave_plot() -> None:
+    """test the wave process"""
+
+    file_name = os.path.join(paths["cwd"], "example_files", "MonitorWave.csv")
+    header = anesplot.loadrec.loadmonitor_waverecord.loadmonitor_waveheader(file_name)
+    assert isinstance(header, dict)
+    assert bool(header)
+
+    data_df = anesplot.loadrec.loadmonitor_waverecord.loadmonitor_wavedata(file_name)
+    assert isinstance(data_df, pd.DataFrame)
+    assert ~bool(data_df.empty)
+
+    columns = [_ for _ in data_df.columns if "time" not in _]
+    columns = [_ for _ in columns if _.startswith("w")]
+
+    plt.close("all")
+    for k in range(1, 3):
+        trace_keys = choices(columns, k=k)
+        # print(f"{k=} {trace_keys=}")
+        figure, _ = anesplot.plot.wave_plot.plot_wave(data_df, trace_keys)
+        assert isinstance(figure, plt.Figure)
+    plt.close("all")
