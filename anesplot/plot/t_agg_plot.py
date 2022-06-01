@@ -89,8 +89,32 @@ def retrieve_function(name: str) -> Any:
     return [_ for _ in func_list if _.__name__ == name][0]
 
 
+def anotate_half_white(halffig: plt.Figure) -> plt.Figure:
+    """Annotate the half fig."""
+    ax = halffig.get_axes()[0]
+    for txt, pos in zip(
+        [
+            "1: que se passe-t-il ?",
+            "2: que va-t-il se passer ?",
+            "3: c'est grave docteur ?",
+            "4: que feriez vous ?",
+        ],
+        [(0.15, 0.9), (0.6, 0.9), (0.6, 0.7), (0.6, 0.5)],
+    ):
+        ax.text(
+            pos[0],
+            pos[1],
+            txt,
+            horizontalalignment="left",
+            fontsize=16,
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
+    return halffig
+
+
 def build_half_white(
-    inifig: plt.figure,
+    inifig: plt.Figure,
     name: str,
     datadf: pd.DataFrame,
     param: dict[str, Any],
@@ -112,12 +136,12 @@ def build_half_white(
 
     Returns
     -------
-    halffig : plt.Figure
-        the half-white figure.
-    fulllims : the limits
+    half_fig : plt.Figure
+        the half-white figure (previous + 50% blank.
+    full_lims : the limits
         the xscale.
-    fullfig : plt.Figure
-        the full scale (previous + next xscale)
+    full_fig : plt.Figure
+        the full scale figure (previous + 50% filled)
     """
     if roi is None:
         print("please build a roi using the .save_roi method")
@@ -138,33 +162,16 @@ def build_half_white(
         )
     # build half white figure
     func = retrieve_function(name)
-    halffig = func(shortdf, param)
-    halfax = halffig.get_axes()[0]
-    fulllims = (lims[0], lims[1] + (lims[1] - lims[0]))
-    halfax.set_xlim(fulllims)
-    for txt, pos in zip(
-        [
-            "1: que se passe-t-il ?",
-            "2: que va-t-il se passer ?",
-            "3: c'est grave docteur ?",
-            "4: que feriez vous ?",
-        ],
-        [(0.15, 0.9), (0.6, 0.9), (0.6, 0.7), (0.6, 0.5)],
-    ):
-        halfax.text(
-            pos[0],
-            pos[1],
-            txt,
-            horizontalalignment="left",
-            fontsize=16,
-            verticalalignment="center",
-            transform=halfax.transAxes,
-        )
-    fullfig = func(datadf, param)
-    fullfig.get_axes()[0].set_xlim(fulllims)
+    half_fig = func(shortdf, param)
+    full_lims = (lims[0], lims[1] + (lims[1] - lims[0]))
+    half_fig.get_axes()[0].set_xlim(full_lims)
+    half_fig = anotate_half_white(half_fig)
+
+    full_fig = func(datadf, param)
+    full_fig.get_axes()[0].set_xlim(full_lims)
 
     # size = inifig.get_size_inches()
-    for fig in [halffig, fullfig]:
+    for fig in [half_fig, full_fig]:
         for ax, ylim in zip(fig.get_axes(), roi.get("ylims")):  # type: ignore
             ax.set_ylim(ylim)
             ax.axvline(lims[1], color="tab:grey")
@@ -172,7 +179,7 @@ def build_half_white(
         fig.tight_layout()
         # fig.show()
 
-    return halffig, fulllims, fullfig
+    return half_fig, full_lims, full_fig
 
 
 def plot_a_trend(
@@ -300,7 +307,7 @@ if __name__ == "__main__":
     # %%
     mtrends.save_roi()
     # scale the figure
-    half_fig, new_lims, full_fig = build_half_white(
+    ahalf_fig, anew_lims, afull_fig = build_half_white(
         figure,
         name=tracename,
         datadf=mtrends.data,
@@ -308,4 +315,4 @@ if __name__ == "__main__":
         roi=mtrends.roi,
     )
     # change the scale for third
-    figure.get_axes()[0].set_xlim(new_lims)
+    figure.get_axes()[0].set_xlim(anew_lims)
