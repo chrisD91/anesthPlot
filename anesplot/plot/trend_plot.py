@@ -9,7 +9,7 @@ collection of functions to plot the trend data
 ____
 """
 
-from typing import Any, Optional, Callable
+from typing import Any, Optional
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -41,9 +41,11 @@ def plot_header(
     fig : plt.Figure
         plot of the header.
     """
+    if not header:
+        print("empty header")
+        return plt.figure()
     if param is None:
         param = {"save": False, "file": ""}
-
     hcell = 2
     wcell = 2
     wpad = 0.2
@@ -99,7 +101,7 @@ def hist_cardio(
     keys = {"ip1m", "hr"}
     if not keys.issubset(set(datadf.columns)):
         print(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
-        return plt.Figure()
+        return plt.figure()
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     fig.__name__ = "hist_cardio"
@@ -189,7 +191,7 @@ def hist_co2_iso(
     keys = {"co2exp", "aaExp"}
     if not keys.issubset(set(datadf.columns)):
         print(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
-        return plt.Figure()
+        return plt.figure()
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     fig.__name__ = "hist_co2_iso"
     ax = axes[0]
@@ -930,60 +932,3 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
 
     fig.tight_layout()
     return fig
-
-
-# %%
-if __name__ == "__main__":
-
-    def test_header_plot(header: pd.DataFrame, param: dict[str, Any]) -> None:
-        """Test the plotting for header."""
-        headerfunc_list: list[
-            Callable[[dict[str, Any], Optional[dict[str, Any]]], plt.Figure]
-        ] = [
-            plot_header,
-        ]
-
-        print(f"{'...'*5} test_header_plot < ")
-        for func in headerfunc_list:
-            # plt.close('all')
-            fig = func(header, param)
-            fig.show()
-            print(func.__name__)
-            plt.close(fig)
-        plt.close("all")
-        print(f"{'...'*5} > test_header_plot")
-
-    def test_data_plot(data: pd.DataFrame, param: dict[str, Any]) -> None:
-        """Test the plotting for data."""
-        print(f"{'...'*5} test_data_plot < ")
-        datafunc_list: list[
-            Callable[[pd.DataFrame, Optional[dict[str, Any]]], plt.Figure]
-        ] = [
-            cardiovasc,
-            cardiovasc_p1p2,
-            co2iso,
-            co2o2,
-            hist_cardio,
-            hist_co2_iso,
-            recrut,
-            sat_hr,
-            ventil,
-            ventil_cardio,
-        ]
-        for func in datafunc_list:
-            # plt.close('all')
-            print(func.__name__)
-            fig = func(data, param)
-            fig.show()
-            plt.close(fig)
-        plt.close("all")
-        print(f"{'...'*5} > test_data_plot")
-
-    from anesplot.slow_waves import MonitorTrend
-
-    print(f"{'='* 20} ")
-    mtrends = MonitorTrend()
-    print(f"{'='* 20} ")
-    test_header_plot(mtrends.header, mtrends.param)
-    test_data_plot(mtrends.data, mtrends.param)
-    print(f"{'='* 20} ")

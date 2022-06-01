@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Feb 19 16:15:27 2020
 
@@ -91,7 +90,7 @@ def time_freq_plot(t, freqs, data, coefs, time_label="time (ms)"):
 
 
 if len(sys.argv) < 2:
-    print("/!\ NEED TO PROVIDE TREND AND WAVE FILE AS ARGUMENTS")
+    print(r"/!\ NEED TO PROVIDE TREND AND WAVE FILE AS ARGUMENTS")
 else:
     Trend_File = sys.argv[1]
     Wave_File = sys.argv[2]

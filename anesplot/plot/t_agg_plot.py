@@ -121,7 +121,7 @@ def build_half_white(
     """
     if roi is None:
         print("please build a roi using the .save_roi method")
-        return plt.Figure(), None, plt.Figure()
+        return plt.figure(), None, plt.figure()
 
     # iniax = inifig.get_axes()[0]
     if param["dtime"]:
