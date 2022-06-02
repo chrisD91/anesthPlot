@@ -169,15 +169,15 @@ def plot_roi_systolic_pressure_variation(
 
     def deltavar(ser: pd.Series, median: bool = False) -> float:
         """compute the delta variation with med or mean base"""
-        maxi, mini, mean, med = ser.agg(["max", "min", "mean", "med"])
+        maxi, mini, mean, med = ser.agg(["max", "min", "mean", "median"])
         if median:
             return float((maxi - mini) / med)
         return float((maxi - mini) / mean)
 
-    datadf = mwave.data[["sec", "wap"]].dropna().copy()
+    datadf = mwave.data[["etimesec", "wap"]].dropna().copy()
     if lims is None:
         lims = mwave.roi["sec"]
-    datadf = datadf.set_index("sec").loc[lims[0] : lims[1]]
+    datadf = datadf.set_index("etimesec").loc[lims[0] : lims[1]]
 
     # plot the arterial pressure data
     fig = plt.figure()

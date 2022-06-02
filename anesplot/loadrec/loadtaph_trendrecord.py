@@ -137,13 +137,13 @@ def choose_taph_record(monitorname: Optional[str] = None) -> str:
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
     day_index = 0  # first key (<-> last date)
-    question = "select the recording date"
+    question = "select the adequate recording"
     if monitorname:
         day = extract_record_day(monitorname)
         mname = os.path.basename(monitorname)
         mname = "-".join(
             [
-                day,
+                "M" + day,
                 ":".join(mname.split(".")[0].split("-")[-1].split("_")),
             ]
         )
