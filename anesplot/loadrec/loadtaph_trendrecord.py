@@ -90,7 +90,7 @@ def build_taph_decodedate_dico(
 
 def extract_record_day(monitor_file_name: str) -> str:
     """
-    Extract the date as 'YYYY_MM_DD' from a monitor_filename.
+    Extract the date as 'YYYY_MM_DD' from a monitor_filename to match taph standard.
 
     Parameters
     ----------
@@ -136,14 +136,19 @@ def choose_taph_record(monitorname: Optional[str] = None) -> str:
     # global APP
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
+    day_index = 0  # first key (<-> last date)
     question = "select the recording date"
-    if monitorname is not None:
+    if monitorname:
+        day = extract_record_day(monitorname)
         mname = os.path.basename(monitorname)
+        mname = "-".join(
+            [
+                day,
+                ":".join(mname.split(".")[0].split("-")[-1].split("_")),
+            ]
+        )
         question = f"{question} \n ({mname=})"
 
-    day_index = 0  # first key (<-> last date)
-    if monitorname is not None:
-        day = extract_record_day(monitorname)
         # index of the first record to be displayed based on year
         for i, thedate in enumerate(recorddates):
             if str(day) in thedate:
