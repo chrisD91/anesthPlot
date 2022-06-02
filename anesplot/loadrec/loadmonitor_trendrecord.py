@@ -208,7 +208,7 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
         "I:E": "ieRat",
         "Inp_T": "inspT",
         "Exp_T": "expT",
-        "eTime": "eTime",
+        "eTime": "eTimeSec",
         "S_comp": "sCompl",
         "Spplat": "sPplat",
     }
@@ -237,8 +237,8 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
         print("no capnographic recording")
 
     # elapsed time(in seconds)
-    datadf["eTime"] = datadf.index * headerdico["Sampling Rate"]
-    datadf["eTimeMin"] = datadf["eTime"] / 60
+    datadf["eTimeSec"] = datadf.index * headerdico["Sampling Rate"]
+    datadf["eTimeMin"] = datadf["eTimeSec"] / 60
     # convert time to dateTime
     min_time_iloc = datadf.loc[
         datadf["datetime"] == datadf["datetime"].min()

@@ -188,7 +188,7 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
     datadf["datetime"] = [start_time + i * time_delta for i in range(len(datadf))]
     datadf["point"] = datadf.index  # point location
     # add a 'sec'
-    datadf["sec"] = datadf.index / sampling_fr
+    datadf["eTimeSec"] = datadf.index / sampling_fr
 
     # clean data
     # params = ['wekg', 'wap', 'wco2', 'wawp', 'wflow']

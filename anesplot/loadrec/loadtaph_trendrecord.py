@@ -104,10 +104,13 @@ def extract_record_day(monitor_file_name: str) -> str:
 
     """
     record_date = os.path.basename(monitor_file_name.lower())
-    for txt in ["sd", "m", ".csv", "wave"]:
-        record_date = record_date.strip(txt)
-    thedate = time.strptime(record_date, "%Y_%m_%d-%H_%M_%S")
-    day = time.strftime("%Y_%m_%d", thedate)
+    if record_date:
+        for txt in ["sd", "m", ".csv", "wave"]:
+            record_date = record_date.strip(txt)
+        thedate = time.strptime(record_date, "%Y_%m_%d-%H_%M_%S")
+        day = time.strftime("%Y_%m_%d", thedate)
+    else:
+        day = ""
     return day
 
 
@@ -281,8 +284,8 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     datadf[["Date", "Time"]] = datadf[["Date", "Time"]].astype(str)
     # nb not for events because that will change np.nan to str(nan)
     sampling = (datadf.time[1] - datadf.time[0]).seconds
-    datadf["eTime"] = datadf.index * sampling
-    datadf["eTimeMin"] = datadf.eTime / 60
+    datadf["eTimeSec"] = datadf.index * sampling
+    datadf["eTimeMin"] = datadf.eTimeSec / 60
     # to remove the zero values :
     # OK for histograms, but induce a bug in plotting
     #    data.ip1m = data.ip1m.replace([0], [None])

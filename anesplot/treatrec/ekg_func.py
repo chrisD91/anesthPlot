@@ -39,11 +39,11 @@ def plot_sample_ekgbeat_overlap(
     fig : plt.Figure
         the matplotlib figure.
     """
-    ekgdf = mwave.data[["sec", "wekg"]].dropna().copy()  # pd.DataFrame
+    ekgdf = mwave.data[["eTimeSec", "wekg"]].dropna().copy()  # pd.DataFrame
     if lims is None:
         lims = mwave.roi["sec"]
         # lims = (df.iloc[0].sec, df.iloc[0].sec + 60)
-    ekgdf = ekgdf.set_index("sec").loc[lims[0] : lims[1]]  # type: ignore
+    ekgdf = ekgdf.set_index("eTimeSec").loc[lims[0] : lims[1]]  # type: ignore
 
     # find the R peaks
     ekgser = fix_baseline_wander(ekgdf.wekg, mwave.param["sampling_freq"])

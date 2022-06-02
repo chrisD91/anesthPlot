@@ -209,7 +209,7 @@ class _FastWave(_Waves):
         anesplot.treatrec.arterial_func.plot_record_systolic_variation(self)
 
     def plot_sample_ekgbeat_overlap(
-        self, lims: Optional[Tuple[float, float]], threshold: float = -1
+        self, lims: Optional[Tuple[float, float]] = None, threshold: float = -1
     ) -> plt.Figure:
         """Overlap a sample ekg R centered traces."""
         fig = anesplot.treatrec.ekg_func.plot_sample_ekgbeat_overlap(
