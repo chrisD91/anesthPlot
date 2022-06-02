@@ -21,7 +21,7 @@ from anesplot.treatrec.wave_func import fix_baseline_wander
 # %%
 
 
-def plot_sample_ekgbeat_overlap(
+def plot_roi_ekgbeat_overlap(
     mwave: Any, lims: Optional[tuple[float, float]] = None, threshold: float = -1
 ) -> plt.Figure:
     """
@@ -39,11 +39,11 @@ def plot_sample_ekgbeat_overlap(
     fig : plt.Figure
         the matplotlib figure.
     """
-    ekgdf = mwave.data[["eTimeSec", "wekg"]].dropna().copy()  # pd.DataFrame
+    ekgdf = mwave.data[["etimesec", "wekg"]].dropna().copy()  # pd.DataFrame
     if lims is None:
         lims = mwave.roi["sec"]
         # lims = (df.iloc[0].sec, df.iloc[0].sec + 60)
-    ekgdf = ekgdf.set_index("eTimeSec").loc[lims[0] : lims[1]]  # type: ignore
+    ekgdf = ekgdf.set_index("etimesec").loc[lims[0] : lims[1]]  # type: ignore
 
     # find the R peaks
     ekgser = fix_baseline_wander(ekgdf.wekg, mwave.param["sampling_freq"])
@@ -140,4 +140,4 @@ if __name__ == "__main__":
     # adjust the scale
     mwaves.save_roi()
 
-    plot_sample_ekgbeat_overlap(mwaves)
+    plot_roi_ekgbeat_overlap(mwaves)

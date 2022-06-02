@@ -284,8 +284,8 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     datadf[["Date", "Time"]] = datadf[["Date", "Time"]].astype(str)
     # nb not for events because that will change np.nan to str(nan)
     sampling = (datadf.time[1] - datadf.time[0]).seconds
-    datadf["eTimeSec"] = datadf.index * sampling
-    datadf["eTimeMin"] = datadf.eTimeSec / 60
+    datadf["etimesec"] = datadf.index * sampling
+    datadf["etimemin"] = datadf.etimesec / 60
     # to remove the zero values :
     # OK for histograms, but induce a bug in plotting
     #    data.ip1m = data.ip1m.replace([0], [None])

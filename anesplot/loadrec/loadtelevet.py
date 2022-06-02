@@ -90,8 +90,8 @@ def loadtelevet(fname: Optional[str] = None, all_traces: bool = False) -> pd.Dat
     datadf /= 100  # to mV
     # implement time values
     datadf["point"] = datadf.index
-    datadf["eTimeSec"] = datadf.index / 500
-    datadf["min"] = datadf.sec / 60
+    datadf["etimesec"] = datadf.index / 500
+    datadf["etimemin"] = datadf.sec / 60
 
     print(f"{'-' * 20} < loaded televet datafile")
     return datadf

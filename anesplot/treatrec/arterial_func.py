@@ -141,7 +141,7 @@ def compute_systolic_variation(ser: pd.Series) -> float:
     return float(var)
 
 
-def plot_sample_systolic_pressure_variation(
+def plot_roi_systolic_pressure_variation(
     mwave: Any,
     teach: bool = False,
     annotations: bool = False,
@@ -427,7 +427,7 @@ if __name__ == "__main__":
     _, _, mwaves = build_obj_from_hdf(filename)
 
     limits = (4100, 4160)
-    samp_figure, samp_peak_df = plot_sample_systolic_pressure_variation(
+    samp_figure, samp_peak_df = plot_roi_systolic_pressure_variation(
         mwaves, lims=limits, annotations=False
     )
     record_figure, peaks_df = plot_record_systolic_variation(mwaves, annotations=False)

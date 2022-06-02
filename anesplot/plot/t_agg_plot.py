@@ -52,14 +52,14 @@ def get_roi(
         ]
     else:  # index = sec
         i_lims = [
-            datadf.set_index("eTimeSec").index.get_indexer([_], method="nearest")
+            datadf.set_index("etimesec").index.get_indexer([_], method="nearest")
             for _ in dtime_lims
         ]
     i_lims = [i_lims[0][0], i_lims[1][-1]]
     if "point" not in datadf.columns:
         datadf["point"] = datadf.index
     roidict = {}
-    for abbr, col in {"dt": "datetime", "pt": "point", "sec": "eTimeSec"}.items():
+    for abbr, col in {"dt": "datetime", "pt": "point", "sec": "etimesec"}.items():
         if col in datadf.reset_index().columns:
             lims = tuple(datadf.iloc[_][[col]].values[0] for _ in i_lims)
         else:

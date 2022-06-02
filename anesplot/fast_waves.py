@@ -186,7 +186,7 @@ class _FastWave(_Waves):
         else:
             print("no roi attribute, please use record_roi() to build one")
 
-    def plot_sample_systolic_variation(
+    def plot_roi_systolic_variation(
         self,
         lims: Optional[Tuple[int, int]] = None,
         teach: bool = False,
@@ -194,7 +194,7 @@ class _FastWave(_Waves):
     ) -> None:
         """Plot the systolic variations (sample of a record based on ROI)."""
         if self.roi:
-            anesplot.treatrec.arterial_func.plot_sample_systolic_pressure_variation(
+            anesplot.treatrec.arterial_func.plot_roi_systolic_pressure_variation(
                 self,
                 teach=teach,
                 annotations=annotations,
@@ -208,11 +208,11 @@ class _FastWave(_Waves):
         """Plot the systolic variation (whole record)."""
         anesplot.treatrec.arterial_func.plot_record_systolic_variation(self)
 
-    def plot_sample_ekgbeat_overlap(
+    def plot_roi_ekgbeat_overlap(
         self, lims: Optional[Tuple[float, float]] = None, threshold: float = -1
     ) -> plt.Figure:
         """Overlap a sample ekg R centered traces."""
-        fig = anesplot.treatrec.ekg_func.plot_sample_ekgbeat_overlap(
+        fig = anesplot.treatrec.ekg_func.plot_roi_ekgbeat_overlap(
             self, lims=lims, threshold=threshold
         )
         return fig
@@ -284,11 +284,11 @@ class MonitorWave(_FastWave):
         build an animation
     filter_ekg
         filter the ekg
-    plot_sample_ekgbeat_overlap
+    plot_roi_ekgbeat_overlap
         overlap detected ekg beats
     plot_record_systolic_variation
         blood pressure variation
-    plot_sample_systolic_variation
+    plot_roi_systolic_variation
         blood pressure variation
     """
 
