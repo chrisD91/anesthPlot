@@ -99,7 +99,7 @@ def hist_cardio(
     -------
     plt.Figure
     """
-    if datadf.empty:
+    if datadf.empty or len(datadf) < 5:
         print("empty dataframe")
         return plt.figure()
     if param is None:
@@ -193,7 +193,7 @@ def hist_co2_iso(
     -------
     matplotlib.pyplot.Figure.
     """
-    if datadf.empty:
+    if datadf.empty or len(datadf) < 5:
         print("empty dataframe")
         return plt.figure()
     if param is None:
@@ -283,19 +283,22 @@ def cardiovasc(
     -------
     matplotlib.pyplot.Figure
     """
-
-    if datadf.empty:
-        print("empty dataframe")
-        return plt.figure()
     if param is None:
         param = {}  # type : dict[str, Any]
+
+    if datadf.empty or len(datadf) < 5:
+        print("empty dataframe")
+        mes = f"empty data for {param.get('file', '')}"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
 
     cardiac_items = {"ip1m", "ip1d", "ip1s", "hr"}
     if not cardiac_items.issubset(set(datadf.columns)):
         diff = cardiac_items - set(datadf.columns)
         print("unable to perform the cardiovacular plot")
-        print(f"{diff} are not present in the data")
-        return plt.figure()
+        mes = f"{diff} are not present in the data ({param.get('file', '')})"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
 
     # global timeUnit
     timebase = "datetime" if param.get("dtime", False) else "eTimeMin"
@@ -361,11 +364,13 @@ def cardiovasc_p1p2(
     TYPE
         matplotlib.pyplot.Figure.
     """
-    if datadf.empty:
-        print("empty dataframe")
-        return plt.figure()
     if param is None:
         param = {}  # type : dict[str, Any]
+    if datadf.empty or len(datadf) < 5:
+        print("empty dataframe")
+        mes = f"empty data for {param.get('file', '')}"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
 
     cardiac_items = {"ip1m", "ip1d", "ip1s", "hr", "ip2s", "ip2d", "ip2m"}
     if not cardiac_items.issubset(set(datadf.columns)):
@@ -446,17 +451,20 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     -------
     matplotlib.pyplot.Figure
     """
-    if datadf.empty:
-        print("empty dataframe")
-        return plt.figure()
     if param is None:
         param = {}  # type : dict[str, Any]
+    if datadf.empty or len(datadf) < 5:
+        print("empty dataframe")
+        mes = f"empty data for {param.get('file', '')}"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
 
     plot_items = {"co2insp", "co2exp", "aaInsp", "aaExp"}
     if not plot_items.issubset(set(datadf.columns)):
         diff = plot_items - set(datadf.columns)
         print("unable to perform the cardiovacular plot")
-        print(f"{diff} are not present in the data")
+        mes = f"{diff} are not present in the data ({param.get('file', '')})"
+        fig = pfunc.empty_data_fig(mes)
         return plt.figure()
 
     # global timeUnit
@@ -528,17 +536,21 @@ def co2o2(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.F
     TYPE
         maplotlib.pyplot.Figure
     """
-    if datadf.empty:
-        print("empty dataframe")
-        return plt.figure()
     if param is None:
         param = {}
+    if datadf.empty or len(datadf) < 5:
+        print("empty dataframe")
+        mes = f"empty data for {param.get('file', '')}"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
+
     plot_items = {"co2insp", "co2exp", "o2insp", "o2exp"}
     if not plot_items.issubset(set(datadf.columns)):
         diff = plot_items - set(datadf.columns)
         print("unable to perform the cardiovacular plot")
-        print(f"{diff} are not present in the data")
-        return plt.figure()
+        mes = f"{diff} are not present in the data ({param.get('file', '')})"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
 
     xmin = param.get("xmin", None)
     xmax = param.get("xmax", None)
@@ -610,11 +622,13 @@ def ventil(
     -------
     fig : matplotlib.pyplot.Figure
     """
-    if datadf.empty:
-        print("empty dataframe")
-        return plt.figure()
     if param is None:
         param = {}
+    if datadf.empty or len(datadf) < 5:
+        print("empty dataframe")
+        mes = f"empty data for {param.get('file', '')}"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
     xlims = (param.get("xmin", None), param.get("xmax", None))
     # unit = param.get("unit", "")
     dtime = param.get("dtime", False)
@@ -642,6 +656,14 @@ def ventil(
             print("no ventilation started")
     else:
         print("no spirometry data in the recording")
+        ax1.text(
+            0.5,
+            0.5,
+            "no spirometry",
+            horizontalalignment="center",
+            verticalalignment="center",
+            transform=ax1.transAxes,
+        )
     ax1_r = ax1.twinx()
     ax1_r.set_ylabel("pression")
     pfunc.color_axis(ax1_r, "right", "tab:red")
@@ -706,8 +728,19 @@ def ventil(
     pfunc.color_axis(ax2_r, "right", "tab:blue")
     try:
         ax2_r.plot(plot_df.co2exp, color="tab:blue", linewidth=2, linestyle="-")
-    except KeyError:
+    # except KeyError:
+    #     print("")
+    except AttributeError:
         print("no capnometry in the recording")
+        ax2_r.text(
+            0.5,
+            0.5,
+            "no capnometry",
+            horizontalalignment="center",
+            verticalalignment="center",
+            transform=ax2_r.transAxes,
+        )
+
     ax1_r.set_ylim(0, 50)
 
     for ax in [ax1, ax1_r, ax2, ax2_r]:
@@ -747,11 +780,13 @@ def recrut(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     -------
     fig : matplotlib.pyplot.Figure
     """
-    if datadf.empty:
-        print("empty dataframe")
-        return plt.figure()
     if param is None:
         param = {}
+    if datadf.empty or len(datadf) < 5:
+        print("empty dataframe")
+        mes = f"empty data for {param.get('file', '')}"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
     xlims = (param.get("xmin", None), param.get("xmax", None))
     # unit = param.get("unit", "")
     dtime = param.get("dtime", False)
@@ -822,11 +857,13 @@ def ventil_cardio(
     -------
     fig : matplotlib.pyplot.Figure
     """
-    if datadf.empty:
-        print("empty dataframe")
-        return plt.figure()
     if param is None:
         param = {}
+    if datadf.empty or len(datadf) < 5:
+        print("empty dataframe")
+        mes = f"empty data for {param.get('file', '')}"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
     dtime = param.get("dtime", False)
 
     df = (
@@ -912,11 +949,13 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     -------
     fig : plt.Figure
     """
-    if datadf.empty:
-        print("empty dataframe")
-        return plt.figure()
     if param is None:
         param = {}
+    if datadf.empty or len(datadf) < 5:
+        print("empty dataframe")
+        mes = f"empty data for {param.get('file', '')}"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
 
     if "sat" not in datadf.columns:
         print("no saturation in the recording")

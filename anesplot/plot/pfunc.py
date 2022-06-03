@@ -35,6 +35,33 @@ def update_pltparams() -> None:
     # print(f"{params}")
 
 
+def empty_data_fig(mes: str = "") -> plt.Figure:
+    """
+    Generate an empty figure message for empty/missing data.
+
+    Parameters
+    ----------
+    mes : str, optional (default is None)
+        the message to display.
+
+    Returns
+    -------
+    fig : plt.Figure
+        an empty figure.
+
+    """
+    fig = plt.figure()
+    fig.text(
+        0.5,
+        0.5,
+        mes,
+        horizontalalignment="center",
+        fontsize="x-large",
+        verticalalignment="center",
+    )
+    return fig
+
+
 def add_baseline(fig: plt.figure, param: Optional[dict[str, Any]] = None) -> None:
     """Annotate the base of the plot."""
     if param is None:
