@@ -99,6 +99,9 @@ def hist_cardio(
     -------
     plt.Figure
     """
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure()
     if param is None:
         param = {}
 
@@ -190,6 +193,9 @@ def hist_co2_iso(
     -------
     matplotlib.pyplot.Figure.
     """
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure()
     if param is None:
         param = {}
     keys = {"co2exp", "aaExp"}
@@ -277,6 +283,10 @@ def cardiovasc(
     -------
     matplotlib.pyplot.Figure
     """
+
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure()
     if param is None:
         param = {}  # type : dict[str, Any]
 
@@ -351,6 +361,9 @@ def cardiovasc_p1p2(
     TYPE
         matplotlib.pyplot.Figure.
     """
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure()
     if param is None:
         param = {}  # type : dict[str, Any]
 
@@ -433,6 +446,9 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     -------
     matplotlib.pyplot.Figure
     """
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure()
     if param is None:
         param = {}  # type : dict[str, Any]
 
@@ -512,6 +528,9 @@ def co2o2(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.F
     TYPE
         maplotlib.pyplot.Figure
     """
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure()
     if param is None:
         param = {}
     plot_items = {"co2insp", "co2exp", "o2insp", "o2exp"}
@@ -591,6 +610,9 @@ def ventil(
     -------
     fig : matplotlib.pyplot.Figure
     """
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure()
     if param is None:
         param = {}
     xlims = (param.get("xmin", None), param.get("xmax", None))
@@ -725,6 +747,9 @@ def recrut(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     -------
     fig : matplotlib.pyplot.Figure
     """
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure()
     if param is None:
         param = {}
     xlims = (param.get("xmin", None), param.get("xmax", None))
@@ -797,6 +822,9 @@ def ventil_cardio(
     -------
     fig : matplotlib.pyplot.Figure
     """
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure()
     if param is None:
         param = {}
     dtime = param.get("dtime", False)
@@ -884,6 +912,9 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     -------
     fig : plt.Figure
     """
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure()
     if param is None:
         param = {}
 

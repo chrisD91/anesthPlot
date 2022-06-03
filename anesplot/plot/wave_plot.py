@@ -194,6 +194,11 @@ def plot_wave(
     matplotlib.pyplot.Figure
     list[plt.Line2D]
     """
+    if datadf.empty:
+        print("empty dataframe")
+        return plt.figure(), [
+            None,
+        ]
     # test if wave is in the dataframe
     if not set(keys).issubset(set(datadf.columns)):
         print(f"the traces {set(keys) - set(datadf.columns)} is not in the data")
