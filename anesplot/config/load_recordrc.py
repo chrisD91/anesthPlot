@@ -61,6 +61,7 @@ def adapt_with_syspath(path_dico: dict[str, str]) -> None:
 #    adapt_with_syspath(paths)
 # trying to avoid to have a python package in the path
 
+paths = build_paths()
 # %%
 if __name__ == "__main__":
     paths = build_paths()

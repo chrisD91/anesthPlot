@@ -33,12 +33,12 @@ in example_file.py
     2 	 ekg2hr.txt
     3 	 guide_ekg_to_hr.txt
     4 	 hdf2work.txt
-    5 	 samplePaVariation.txt
+    5 	 roiPaVariation.txt
     -------------------------
 
- .. code-block:: python
+.. code-block:: python
 
-     > enter 0
+     > type 0 & enter
      the content of 'buildPyFiles.txt' is in your clipboard
 
  paste and execute in terminal:
@@ -60,7 +60,7 @@ in example_file.py
 
 1. load the data and save to hdf
 --------------------------------
-in csv2hdf.py execute :
+execute in an ipython terminal:
 
 .. code-block:: python
 
@@ -80,10 +80,11 @@ in csv2hdf.py execute :
 
 .. code-block:: python
 
-    > 1
+    > type 1 & enter
     the content of 'csv2hdf.txt' is in your clipboard
 
-paste in csv2hdf -> the resulting file:
+open csv2hdf.py and paste the content of you clipboard
+-> the resulting file:
 
 .. code-block:: python
 
@@ -93,34 +94,41 @@ paste in csv2hdf -> the resulting file:
     from anesplot.loadrec.export_reload import export_data_to_hdf
 
     paths = rec.paths
-    paths["save"] = "~"
+    paths["save"] = "~"     # <--- the directory to save-in (FILL ME)
 
-    # %% load and save to hdf
-    m_name = None
+    ############################################# load
+    m_name = None           # <--- the monitor filename (FILL ME)
     mtrends = rec.MonitorTrend(m_name)
     mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))
-    ttrends = rec.TaphTrend(monitorname=mtrends.filename)
-    t_name = None
-    ttrends = rec.TaphTrend(t_name)
 
-    name = mtrends.header["Patient Name"].title().replace(" ", "")
-    name = name[0].lower() + name[1:]
+    ttrends = rec.TaphTrend(monitorname=mtrends.filename)   # comment when t_name is defined
+    # --> a dialog will appear to choose the right file according to the monitor filename
 
+    t_name = ''             # <--- FILL ME (use the value of ttends.filename)
+    ttrends = rec.TaphTrend(filename = t_name)  # --> will load without the dialog
 
+    ############################################# look at the data
     mtrends.show_graphs()
     ttrends.show_graphs()
-    ## correction for machine time (in minutes)
-    # ttrends.shift_datetime(60)
+
+    ############################################# adapt
+    # ttrends.shift_datetime(60)  # ---> correction? between monitor and taph file (in minutes)
+    # ---> check the result
 
     ## correction for etime (minutes and sec) based on the start of the monitor recording
     # mstart = mtrends.data.datetime.iloc[0]
     # ttrends.sync_etime(mstart)
 
+    ############################################# export to hdf
+    name = mtrends.header["Patient Name"].title().replace(" ", "")
+    name = name[0].lower() + name[1:]
 
     save_name = os.path.join(paths["save"], 'data', name + ".hdf")
     save = False
     if save:
         export_data_to_hdf(save_name, mtrend=mtrends, mwave=mwaves, ttrend=ttrends)
+
+
 
 
   execute it line by line
