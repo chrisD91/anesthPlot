@@ -20,9 +20,10 @@ import matplotlib.pyplot as plt
 # import numpy as np
 import pandas as pd
 
-import anesplot.plot.pfunc
+# import anesplot.plot.pfunc
+from . import pfunc
 
-anesplot.plot.pfunc.update_pltparams()
+pfunc.update_pltparams()
 
 
 # %%
@@ -161,7 +162,7 @@ def plot_on_one_ax(
     ax.get_xaxis().tick_bottom()
 
     for spine in ["left", "bottom"]:
-        anesplot.plot.pfunc.color_axis(ax, spine=spine, color="tab:grey")
+        pfunc.color_axis(ax, spine=spine, color="tab:grey")
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
     if not dtime:
@@ -194,15 +195,22 @@ def plot_wave(
     matplotlib.pyplot.Figure
     list[plt.Line2D]
     """
-    if datadf.empty:
+    if param is None:
+        param = {}
+    if datadf.empty or len(datadf) < 5:
         print("empty dataframe")
-        return plt.figure(), [
+        mes = f"empty data for {param.get('file', '')}"
+        fig = pfunc.empty_data_fig(mes)
+        return fig, [
             None,
         ]
     # test if wave is in the dataframe
     if not set(keys).issubset(set(datadf.columns)):
-        print(f"the traces {set(keys) - set(datadf.columns)} is not in the data")
-        return plt.figure(), [
+        diff = set(keys) - set(datadf.columns)
+        mes = f"traces {diff} is not in the data ({param.get('file', '')})"
+        print(mes)
+        fig = pfunc.empty_data_fig(mes)
+        return fig, [
             None,
         ]
     if len(keys) not in [1, 2]:
@@ -210,8 +218,6 @@ def plot_wave(
         return plt.figure(), [
             None,
         ]
-    if param is None:
-        param = {}
     dtime = param.get("dtime", False)
     # default plotting labels
     key_dict = build_default_parameters(keys)
@@ -245,13 +251,13 @@ def plot_wave(
         if dtime:
             ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
         for spine in ["left", "right", "bottom"]:
-            anesplot.plot.pfunc.color_axis(ax, spine=spine, color="tab:grey")
+            pfunc.color_axis(ax, spine=spine, color="tab:grey")
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
         if i == len("axes") - 1 and not dtime:
             ax.set_xlabel("time (sec)")
     # annotations
-    anesplot.plot.pfunc.add_baseline(fig)
+    pfunc.add_baseline(fig)
     # fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
     # fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
