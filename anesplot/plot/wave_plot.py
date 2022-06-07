@@ -99,9 +99,9 @@ def restrict_dataframe(
         plotdf = datadf[cols].copy()
         plotdf = plotdf.iloc[ilims[0] : ilims[1]].set_index("datetime")
     else:
-        cols.insert(0, "sec")
+        cols.insert(0, "etimesec")
         plotdf = datadf[cols].copy()
-        plotdf = plotdf.iloc[ilims[0] : ilims[1]].set_index("sec")
+        plotdf = plotdf.iloc[ilims[0] : ilims[1]].set_index("etimesec")
     return plotdf
 
 
