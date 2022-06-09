@@ -1,0 +1,13 @@
+these files are provided as examples or recording:
+all correspond to the same anesthesia.
+
+The wave recording has been cutted by half becauseto reduce the the weight of the file.
+
+Monitor files:
+- M2021_4_16-8_44_38.csv : a monitorTrend file
+- M2021_4_16-8_44_38Wave.csv : a monitorWave file
+
+Taphonius files:
+Patient.csv : the description
+SD2021APR16-7_19_4.csv : the taphoniusTrend file
+
