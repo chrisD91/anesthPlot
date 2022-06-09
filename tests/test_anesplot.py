@@ -163,7 +163,7 @@ def test_trend_plot() -> None:
         print(f"{'...'*5} > test_data_plot")
 
     print(f"{'='* 20} ")
-    file = "example_files/MonitorTrend.csv"
+    file = "example_files/M2021_4_16-8_44_38.csv"
     filename = os.path.join(paths["cwd"], file)
     mtrends = anesplot.slow_waves.MonitorTrend(filename)
     print(f"{'='* 20} ")
@@ -175,7 +175,9 @@ def test_trend_plot() -> None:
 def test_wave_plot() -> None:
     """test the wave process"""
 
-    file_name = os.path.join(paths["cwd"], "example_files", "MonitorWave.csv")
+    file_name = os.path.join(
+        paths["cwd"], "example_files", "M2021_4_16-8_44_38Wave.csv"
+    )
     header = anesplot.loadrec.loadmonitor_waverecord.loadmonitor_waveheader(file_name)
     assert isinstance(header, dict)
     assert bool(header)
