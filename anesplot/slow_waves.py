@@ -124,7 +124,7 @@ class _SlowWave(_Waves):
         self.roi = roidict
         return roidict
 
-    def build_half_white(self) -> tuple[plt.Figure, plt.Figure]:
+    def build_half_white(self, lang: str = "fr") -> tuple[plt.Figure, plt.Figure]:
         """
         Take self.fig and build a figure with a, empty 50% time expansion.
 
@@ -142,7 +142,7 @@ class _SlowWave(_Waves):
             print("please define a roi -> .save_roi()")
             return plt.Figure(), plt.Figure()
         halffig, _, fullfig = tagg.build_half_white(
-            self.fig, self.name, self.data, self.param, self.roi
+            self.fig, self.name, self.data, self.param, self.roi, lang=lang
         )
         halffig.show()
         fullfig.show()

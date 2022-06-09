@@ -1,3 +1,62 @@
+test with the example files
+===========================
+
+1. load the data
+----------------
+
+.. code-block:: python3
+
+    import os
+    import anesplot.record_main as rec
+    paths = rec.path()
+    monitorname = os.path.join(paths['cwd'], 'example_files', 'M2021_4_16-8_44_38.csv')
+    mtrends = rec.MonitorTrend(monitorname)
+    mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))
+    taphname = os.path.join(paths['cwd'], 'example_files', 'SD2021APR16-7_19_4.csv')
+    ttrends = rec.TaphTrend(taphname)
+    # perform a correction for the time shift between the two computers
+    ttrends.shift_datetime(60)
+
+2. play with the monitor_trend_object
+--------------------------------------
+
+.. code-block:: python3
+
+    mtrends.show_graphs()        # -> 'clinical debrief'
+
+    # close the plots one by one
+
+    trends.plot_trend()          # -> choose a time based plot (for example cardiovascular)
+    # use the loop to zoom on an ineresting part
+    mtrends.save_roi()           # save the plot information
+    mtrends.build_half_white(lang='en')   # build debrief slides
+
+
+1. play with the taph_trend_object
+--------------------------------------
+
+.. code-block:: python3
+
+    ttrends.show_graphs()        # -> 'clinical debrief'
+    ttrends.plot_ventil_drive()   # -> plot the ventilation management
+
+
+4. play with the monitor_wave_object
+--------------------------------------
+
+.. code-block:: python3
+
+    mwaves.plot_wave()   # choose the wave(s) to plot
+    # zoom and select an interesting part of the recording
+    mwaves.save_roi()
+    # if ekg you can try
+    mwaves.plot_roi_ekgbeat_overlap()
+    # if arterial pressure you can try
+    mwave.plot_roi_systolic_variation()
+    # or to build a video
+    mwave.animate_fig()
+
+
 cookbook
 ========
 

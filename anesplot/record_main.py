@@ -54,7 +54,7 @@ faulthandler.enable()
 def get_basic_debrief_commands() -> str:
     """Copy in clipboard the usual commands to build a debrief."""
     lines = [
-        "mtrends = rec.MonitorTrend()",
+        "mtrends = rec.MonitorTrend()  #<- add filename here (if you know it)",
         "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))",
         "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
     ]

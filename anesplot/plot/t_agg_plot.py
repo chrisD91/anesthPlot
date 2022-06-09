@@ -89,22 +89,31 @@ def retrieve_function(name: str) -> Any:
     return [_ for _ in func_list if _.__name__ == name][0]
 
 
-def anotate_half_white(halffig: plt.Figure) -> plt.Figure:
+def anotate_half_white(halffig: plt.Figure, lang: str = "fr") -> plt.Figure:
     """Annotate the half fig."""
     ax = halffig.get_axes()[0]
-    for txt, pos in zip(
-        [
+    questions = {
+        "fr": [
             "1: que se passe-t-il ?",
             "2: que va-t-il se passer ?",
             "3: c'est grave docteur ?",
             "4: que feriez vous ?",
         ],
+        "en": [
+            "1: what is going on?",
+            "2: what is going to happen?",
+            "3: is it serious ?",
+            "4: what would you do ?",
+        ],
+    }
+    for question, pos in zip(
+        questions.get(lang, questions["en"]),
         [(0.15, 0.9), (0.6, 0.9), (0.6, 0.7), (0.6, 0.5)],
     ):
         ax.text(
             pos[0],
             pos[1],
-            txt,
+            question,
             horizontalalignment="left",
             fontsize=16,
             verticalalignment="center",
@@ -119,6 +128,7 @@ def build_half_white(
     datadf: pd.DataFrame,
     param: dict[str, Any],
     roi: Optional[dict[str, Any]],
+    lang: str = "fr",
 ) -> tuple[plt.Figure, Optional[tuple[float, float]], plt.Figure]:
     """
     Build a half white figure for teaching.
@@ -165,7 +175,7 @@ def build_half_white(
     half_fig = func(shortdf, param)
     full_lims = (lims[0], lims[1] + (lims[1] - lims[0]))
     half_fig.get_axes()[0].set_xlim(full_lims)
-    half_fig = anotate_half_white(half_fig)
+    half_fig = anotate_half_white(half_fig, lang)
 
     full_fig = func(datadf, param)
     full_fig.get_axes()[0].set_xlim(full_lims)
