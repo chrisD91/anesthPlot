@@ -29,6 +29,8 @@ import pandas as pd
 # import numpy as np
 from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
 
+from anesplot.loadrec import cts
+
 if "paths" not in dir():
     paths = {}
 paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
@@ -222,54 +224,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         # )
         return pd.DataFrame()
 
-    corr_title = {
-        "Date": "Date",
-        "Time": "Time",
-        "Events": "events",
-        "CPAP/PEEP": "peep",
-        "TV": "tv",
-        "TVcc": "tvCc",
-        "RR": "co2RR",
-        "IT": "it",
-        "IP": "ip",
-        "MV": "minVol",
-        "I Flow": "iFlow",
-        "I:E Ratio": "IE",
-        "Exp Time": "expTime",
-        "TV.1": "tv1",
-        "Insp Time": "inspTime",
-        "Exp Time.1": "expTime1",
-        "RR.1": "rr1",
-        "MV.1": "mv1",
-        "I Flow.1": "iFlow1",
-        "I:E Ratio.1": "IE1",
-        "CPAP/PEEP.1": "peep1",
-        "PIP": "pip",
-        "Insp CO2": "co2insp",
-        "Exp CO2": "co2exp",
-        "Resp Rate": "rr",
-        "Insp Agent": "aaInsp",
-        "Exp Agent": "aaExp",
-        "Insp O2": "o2insp",
-        "Exp O2": "o2exp",
-        "Atmospheric Pressure": "atmP",
-        "SpO2 HR": "spo2Hr",
-        "Saturation": "sat",
-        "Mean": "ip1m",
-        "Systolic": "ip1s",
-        "Diastolic": "ip1d",
-        "HR": "hr",
-        "T1": "t1",
-        "T2": "t2",
-        "ECG HR": "ekgHR",
-        "Batt1": "batt1",
-        "Current1": "curr1",
-        "Batt2": "batt2",
-        "Current2": "curr2",
-        "Piston Position": "pistPos",
-        "Insp N2O": "n2oInsp",
-        "Exp N2O": "n2oExp",
-    }
+    corr_title = cts.taph_corr_title
     datadf.rename(columns=corr_title, inplace=True)
     datadf = pd.DataFrame(datadf)
     # datadf.replace("nan", np.nan)

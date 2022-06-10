@@ -212,15 +212,6 @@ def plot_a_trend(
     plt.figure
         the builded figure
     """
-    # clean the data for taph monitoring
-    if param_dico["source"] == "taphTrend":
-        if "co2exp" in datadf.columns.values:
-            datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
-        # test ip1m
-        if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
-            datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
-        else:
-            print("no pressure tdata recorded")
     # plotting
     func_list = [
         tplot.ventil,
@@ -230,8 +221,16 @@ def plot_a_trend(
         tplot.hist_co2_iso,
         tplot.hist_cardio,
     ]
+    # clean the data for taph monitoring
     if param_dico["source"] == "taphTrend":
         func_list.insert(0, tplot.sat_hr)
+        if "co2exp" in datadf.columns.values:
+            datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
+        # test ip1m
+        if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
+            datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
+        else:
+            print("no pressure tdata recorded")
     # choose
     if "app" not in dir():
         app = QApplication(sys.argv)

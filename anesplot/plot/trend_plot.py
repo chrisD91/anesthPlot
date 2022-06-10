@@ -627,7 +627,7 @@ def ventil(
     if datadf.empty or len(datadf) < 5:
         print("empty dataframe")
         mes = f"empty data for {param.get('file', '')}"
-        fig = pfunc.empty_data_fig(mes)
+        fig = pfunc.empty_data_fig(mes)  # error message fig
         return fig
     xlims = (param.get("xmin", None), param.get("xmax", None))
     # unit = param.get("unit", "")
@@ -648,10 +648,25 @@ def ventil(
         # calib = ttrend.data.tvInsp.mean() / taph_trend.data.tv.mean()
         calib = 187
         ax1.plot(plot_df.tvInsp / calib, color="tab:olive", linewidth=2, label="tvInsp")
-    elif "tv" in plot_df.columns:  # taph
-        ax1.plot(plot_df.tv, color="tab:olive", linewidth=1, linestyle=":", label="tv")
+    elif "tv_spont" in plot_df.columns:  # taph
+        ax1.plot(
+            plot_df.tv_spont,
+            color="tab:olive",
+            linewidth=1,
+            linestyle="-",
+            label="tv_spont",
+        )
         try:
-            ax1.plot(plot_df.tvCc, color="tab:olive", linewidth=2, label="tvCc")
+            ax1.plot(
+                plot_df.tv_control, color="tab:olive", linewidth=2, label="tv_control"
+            )
+            ax1.plot(
+                plot_df.set_tv,
+                color="k",
+                linewidth=1,
+                linestyle=":",
+                label="set_tv",
+            )
         except AttributeError:
             print("no ventilation started")
     else:
@@ -678,8 +693,8 @@ def ventil(
             toplot.pop("plat")
     # taph
     # TODO fix end of file peak pressure
-    elif {"pip", "peep1", "peep"} < set(plot_df.columns):
-        toplot = {"peak": "pip", "peep": "peep1"}
+    elif {"set_peep"} < set(plot_df.columns):
+        toplot = {"peak": "pPeak", "peep": "peep"}
     else:
         print("no spirometry data in the recording")
 
@@ -700,12 +715,21 @@ def ventil(
             color="tab:red",
             alpha=0.1,
         )
-
+        try:
+            ax1_r.plot(
+                plot_df.set_peep,
+                color="k",
+                linewidth=1,
+                linestyle=":",
+                label="set_peep",
+            )
+        except AttributeError:
+            print("not on the taph")
     ax2 = fig.add_subplot(212, sharex=ax1)
     ax2.set_ylabel("MinVol & RR")
     # monitor
     monitor_items = {"minVexp", "co2RR"}
-    taph_items = {"co2RR", "rr"}
+    taph_items = {"set_rr", "rr", "calc_minVol"}
     if monitor_items < set(plot_df.columns):
         # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
         ax2.plot(plot_df.minVexp, color="tab:olive", linewidth=2, label="minVexp")
@@ -715,10 +739,17 @@ def ventil(
     elif taph_items < set(plot_df.columns):
         # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
         # ax2.plot(df.minVexp, color="tab:olive", linewidth=2)
+        ax2.plot(plot_df.rr, color="tab:gray", linewidth=2, linestyle="--", label="rr")
         ax2.plot(
-            plot_df.co2RR, color="tab:blue", linewidth=2, linestyle="--", label="co2RR"
+            plot_df.set_rr, color="black", linewidth=1, linestyle=":", label="set_rr"
         )
-        ax2.plot(plot_df.rr, color="black", linewidth=1, linestyle=":", label="rr")
+        ax2.plot(
+            plot_df.calc_minVol,
+            color="k",
+            linewidth=1,
+            linestyle=":",
+            label="calc_minV",
+        )
     else:
         print("no spirometry data recorded")
     # ax2.set_xlabel('time (' + unit +')')
@@ -728,6 +759,14 @@ def ventil(
     pfunc.color_axis(ax2_r, "right", "tab:blue")
     try:
         ax2_r.plot(plot_df.co2exp, color="tab:blue", linewidth=2, linestyle="-")
+        ax2_r.plot(plot_df.co2insp, color="tab:blue", linewidth=1, linestyle="-")
+        ax2_r.fill_between(
+            plot_df.index,
+            plot_df.co2exp,
+            plot_df.co2insp,
+            color="tab:blue",
+            alpha=0.1,
+        )
     # except KeyError:
     #     print("")
     except AttributeError:
