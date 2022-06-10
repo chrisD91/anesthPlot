@@ -641,13 +641,15 @@ def ventil(
 
     ax1 = fig.add_subplot(211)
     ax1.set_ylabel("tidal volume")
-    pfunc.color_axis(ax1, "left", "tab:olive")
-    ax1.yaxis.label.set_color("k")
+    pfunc.color_axis(ax1, "left", "tab:orange")
+    # ax1.yaxis.label.set_color("k")
     if "tvInsp" in plot_df.columns:  # datex
         # comparison with the taphonius data ... to be improved
         # calib = ttrend.data.tvInsp.mean() / taph_trend.data.tv.mean()
         calib = 187
-        ax1.plot(plot_df.tvInsp / calib, color="tab:olive", linewidth=2, label="tvInsp")
+        ax1.plot(
+            plot_df.tvInsp / calib, color="tab:orange", linewidth=2, label="tvInsp"
+        )
     elif "tv_spont" in plot_df.columns:  # taph
         ax1.plot(
             plot_df.tv_spont,
@@ -658,7 +660,7 @@ def ventil(
         )
         try:
             ax1.plot(
-                plot_df.tv_control, color="tab:olive", linewidth=2, label="tv_control"
+                plot_df.tv_control, color="tab:orange", linewidth=2, label="tv_control"
             )
             ax1.plot(
                 plot_df.set_tv,

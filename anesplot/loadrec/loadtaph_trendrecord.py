@@ -251,6 +251,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     #    data.ip1m = data.ip1m.replace([0], [None])
     #    data = data.replace([0], [None])
     # CO2: from % to mmHg
+    datadf["tv_spont"] /= 1000  # ml to liters
     try:
         datadf[["co2exp", "co2insp"]] *= 760 / 100
     except KeyError:
