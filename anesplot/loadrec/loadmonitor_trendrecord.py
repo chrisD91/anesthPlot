@@ -19,6 +19,8 @@ import pandas as pd
 # import numpy as np
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
+from anesplot.loadrec import cts
+
 
 def choosefile_gui(dirname: Optional[str] = None) -> str:
     """
@@ -171,47 +173,7 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
             datadf[col] = pd.to_numeric(datadf[col], errors="coerce")
 
     # correct the titles
-    corr_title = {
-        "AA  LB": "aaLabel",
-        "AA_Insp": "aaInsp",
-        "AA_Exp": "aaExp",
-        "CO2 RR": "co2RR",
-        "CO2_Insp": "co2insp",
-        "CO2_Exp": "co2exp",
-        "ECG HR": "ekgHR",
-        "IP1_M": "ip1m",
-        "IP1_S": "ip1s",
-        "IP1_D": "ip1d",
-        "IP1PR": "hr",
-        "IP2_M": "ip2m",
-        "IP2_S": "ip2s",
-        "IP2_D": "ip2d",
-        "IP2PR": "ip2PR",
-        "O2_Insp": "o2insp",
-        "O2_Exp": "o2exp",
-        "Time": "datetime",
-        "Resp": "resp",
-        "PPeak": "pPeak",
-        "Peep": "peep",
-        "PPlat": "pPlat",
-        "pmean": "pmean",
-        "ipeep": "ipeep",
-        "TV_Insp": "tvInsp",
-        "TV_Exp": "tvExp",
-        "Compli": "compli",
-        "raw": "raw",
-        "MinV_Insp": "minVinsp",
-        "MinV_Exp": "minVexp",
-        "epeep": "epeep",
-        "peepe": "peepe",
-        "peepi": "peepi",
-        "I:E": "ieRat",
-        "Inp_T": "inspT",
-        "Exp_T": "expT",
-        "eTime": "etimesec",
-        "S_comp": "sCompl",
-        "Spplat": "sPplat",
-    }
+    corr_title = cts.mon_corr_title
     datadf.rename(columns=corr_title, inplace=True)
     # TODO fix the code for 1 and 2
     if "aaLabel" in datadf.columns:
