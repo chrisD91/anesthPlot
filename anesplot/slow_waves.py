@@ -205,7 +205,8 @@ class MonitorTrend(_SlowWave):
         if header and load:
             data = loadmonitor_trenddata(filename, header)
             self.data = data
-            self.param["sampling_freq"] = header.get("60/Sampling Rate", None)
+            sampling = header.get("Sampling Rate", None)
+            self.param["sampling_freq"] = 1 / sampling if sampling else None
             self.param["source"] = "monitorTrend"
             name = str(header["Patient Name"]).title().replace(" ", "")
             # name = name.title().replace(" ", "")
