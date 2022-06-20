@@ -302,37 +302,29 @@ def cardiovasc(
         return fig
 
     # global timeUnit
-    timebase = "datetime" if param.get("dtime", False) else "eTimeMin"
-    pressuredf = datadf.set_index(timebase)[list(cardiac_items)]
+    # timebase = "datetime" if param.get("dtime", False) else "eTimeMin"
+    pressuredf = pfunc.restrictdf(datadf, param)
+    pressuredf = pressuredf[list(cardiac_items)]
 
     fig = plt.figure()
     fig.__name__ = "cardiovascular"
     ax_l = fig.add_subplot(111)
-    ax_l.plot(pressuredf.ip1m, "-", color="red", label="arterial pressure", linewidth=2)
-    ax_l.fill_between(
-        pressuredf.index, pressuredf.ip1d, pressuredf.ip1s, color="tab:red", alpha=0.5
-    )
-    pfunc.color_axis(ax_l, "left", "tab:red")  # call
-    ax_l.set_ylabel("arterial Pressure", color="tab:red")
-    ax_l.set_ylim(30, 150)
-    ax_l.axhline(70, linewidth=1, linestyle="dashed", color="tab:red")
+    tap.axplot_arterialpressure(ax_l, pressuredf)
 
     ax_r = ax_l.twinx()
-    ax_r.plot(pressuredf.hr, color="tab:grey", label="heart rate", linewidth=2)
-    ax_r.set_ylabel("heart Rate")
-    ax_r.set_ylim(20, 100)
-    pfunc.color_axis(ax_r, "right", "tab:grey")  # call
+    tap.axplot_hr(ax_r, pressuredf)
 
-    ax_l.set_xlim(datadf.iloc[0][timebase], ax_l.get_xlim()[1])
     ax_l.spines["right"].set_visible(False)
     ax_r.spines["left"].set_visible(False)
-    if timebase == "datetime":
+    # if timebase == "datetime":
+    if pressuredf.index.dtype == "<M8[ns]":
         ax_l.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     else:
         ax_l.set_xlabel("etime (min)")
 
+    pfunc.color_axis(ax_l, "left", "tab:red")  # call
+    pfunc.color_axis(ax_r, "right", "tab:grey")  # call
     for ax in fig.get_axes():
-        pfunc.color_axis(ax, "bottom", "tab:grey")  # call
         ax.spines["top"].set_visible(False)
 
     # annotations
@@ -637,16 +629,20 @@ def ventil(
     fig.__name__ = "ventil"
 
     ax1 = fig.add_subplot(211)
-    tap.plot_ventiltidal(ax1, plot_df)
+    tap.axplot_ventiltidal(ax1, plot_df)
+    pfunc.color_axis(ax1, "left", "tab:orange")  # call
 
     ax1_r = ax1.twinx()
-    tap.plot_ventilpressure(ax1_r, plot_df)
+    tap.axplot_ventilpressure(ax1_r, plot_df)
+    pfunc.color_axis(ax1_r, "right", "tab:red")  # call
 
     ax2 = fig.add_subplot(212, sharex=ax1)
-    tap.plot_minvol_rr(ax2, plot_df)
+    tap.axplot_minvol_rr(ax2, plot_df)
+    pfunc.color_axis(ax2, "left", "tab:grey")  # call
 
     ax2_r = ax2.twinx()
-    tap.plot_etco2(ax2_r, plot_df)
+    tap.axplot_etco2(ax2_r, plot_df)
+    pfunc.color_axis(ax2_r, "right", "tab:blue")  # call
 
     ax1_r.set_ylim(0, 50)
 
@@ -664,10 +660,6 @@ def ventil(
         # annotations
     pfunc.add_baseline(fig, param)
     fig.tight_layout()
-    # if param["save"]:
-    #     fig_name = "ventil" + str(param["item"])
-    #     name = os.path.join(path, fig_name)
-    #     pfunc.save_graph(name, ext="png", close=False, verbose=True)
     return fig
 
 

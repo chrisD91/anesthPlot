@@ -12,10 +12,10 @@ trend_axis_plot :
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from . import pfunc
+# from . import pfunc
 
 
-def plot_ventiltidal(ax: plt.axes, df: pd.DataFrame) -> None:
+def axplot_ventiltidal(ax: plt.axes, df: pd.DataFrame) -> None:
     """
     Append a tidal volume to the subplot provided.
 
@@ -33,7 +33,6 @@ def plot_ventiltidal(ax: plt.axes, df: pd.DataFrame) -> None:
 
     """
     ax.set_ylabel("tidal volume")
-    pfunc.color_axis(ax, "left", "tab:orange")
     if "tvInsp" in df.columns:  # datex
         # comparison with the taphonius data ... to be improved
         # calib = ttrend.data.tvInsp.mean() / taph_trend.data.tv.mean()
@@ -70,7 +69,7 @@ def plot_ventiltidal(ax: plt.axes, df: pd.DataFrame) -> None:
         )
 
 
-def plot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
+def axplot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
     """
     Append a ventilation pressure to the subplot provided.
 
@@ -88,8 +87,6 @@ def plot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
 
     """
     ax.set_ylabel("pression")
-    pfunc.color_axis(ax, "right", "tab:red")
-
     toplot = {}
     # monitor
     if {"pPeak", "pPlat", "peep"} < set(df.columns):
@@ -134,7 +131,7 @@ def plot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
             print("not on the taph")
 
 
-def plot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
+def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
     """
     Append minute volume and respiratory rate to the provided axes.
 
@@ -175,7 +172,7 @@ def plot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
     # ax2.set_xlabel('time (' + unit +')')
 
 
-def plot_etco2(ax: plt.axes, df: pd.DataFrame) -> None:
+def axplot_etco2(ax: plt.axes, df: pd.DataFrame) -> None:
     """
     Plot etC02 on the provided axes.
 
@@ -192,7 +189,6 @@ def plot_etco2(ax: plt.axes, df: pd.DataFrame) -> None:
 
     """
     ax.set_ylabel("Et $CO_2$")
-    pfunc.color_axis(ax, "right", "tab:blue")
     try:
         ax.plot(df.co2exp, color="tab:blue", linewidth=2, linestyle="-")
         ax.plot(df.co2insp, color="tab:blue", linewidth=1, linestyle="-")
@@ -215,3 +211,65 @@ def plot_etco2(ax: plt.axes, df: pd.DataFrame) -> None:
             verticalalignment="center",
             transform=ax.transAxes,
         )
+
+
+def axplot_arterialpressure(ax: plt.axes, df: pd.DataFrame, key: str = "ip1") -> None:
+    """
+    Plot pressure on the given axes.
+
+    Parameters
+    ----------
+    ax : plt.axes
+        the axes to use.
+    df : pd.DataFrame
+        the data.
+    key : the trace to use (in ['ip1', 'ip2'])
+
+    Returns
+    -------
+    None.
+
+    """
+    if key == "ip1":
+        label = "arterial pressure"
+        color = "tab:red"
+        mini = 70
+        traces = ["ip1" + _ for _ in ["m", "d", "s"]]
+        ylims = [30, 150]
+
+    elif key == "ip2":
+        label = "venuous pressure"
+        color = "tab:blue"
+        mini = 10
+        traces = ["ip2" + _ for _ in ["m", "d", "s"]]
+        ylims = [0, 20]
+    else:
+        txt = "key should be in [ip1, ip2]"
+        ax.text(0.5, 0.5, txt)
+        return
+
+    ax.plot(df[traces[0]], color=color, label=label, linewidth=2)
+    ax.fill_between(df.index, df[traces[1]], df[traces[2]], color=color, alpha=0.5)
+    ax.set_ylim(*ylims)
+    ax.axhline(mini, linewidth=1, linestyle="dashed", color="tab:red")
+
+
+def axplot_hr(ax: plt.axes, df: pd.DataFrame) -> None:
+    """
+    Plot heart rate on the given axes.
+
+    Parameters
+    ----------
+    ax : plt.axes
+        the axes to use.
+    df.pd.DataFrame : TYPE
+        the data.
+
+    Returns
+    -------
+    None
+
+    """
+    ax.plot(df.hr, color="tab:grey", label="heart rate", linewidth=2)
+    ax.set_ylabel("heart Rate")
+    ax.set_ylim(20, 100)
