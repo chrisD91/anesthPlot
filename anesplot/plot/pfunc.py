@@ -62,6 +62,36 @@ def empty_data_fig(mes: str = "") -> plt.Figure:
     return fig
 
 
+def restrictdf(df: pd.DataFrame, parm: dict["str", Any]) -> pd.DataFrame:
+    """
+    Change index and restrict the trend dataframe in time.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        the data.
+    parm : dict["str", Any]
+        a dictionary with {dtime:bool, xmin, and xmax}.
+
+    Returns
+    -------
+    toplot_df : pd.DataFrame
+        the dataframe with datetime or elapsed time index,
+        limited between xmin and xmax (if provided).
+
+    """
+    # xlims = (parm.get("xmin", None), parm.get("xmax", None))
+    # unit = param.get("unit", "")
+    dtime = parm.get("dtime", False)
+    # global timeUnit
+    timebase = "datetime" if dtime else "eTimeMin"
+    toplot_df = df.set_index(timebase).copy()
+    xmin = parm.get("xmin", df.index.min())
+    xmax = parm.get("xmax", df.index.max())
+    toplot_df = toplot_df.loc[xmin:xmax]
+    return toplot_df
+
+
 def add_baseline(fig: plt.figure, param: Optional[dict[str, Any]] = None) -> None:
     """Annotate the base of the plot."""
     if param is None:
@@ -115,7 +145,7 @@ def remove_outliers(
 
 
 def plot_minimeanmax_traces(
-    ax: plt.subplot,
+    ax: plt.axes,
     df: pd.DataFrame,
     traces: list[str],
     color: str = "tab:blue",
@@ -123,7 +153,7 @@ def plot_minimeanmax_traces(
     styles: Optional[list[str]] = None,
 ) -> None:
     """
-    Plot mean and fill_between min-max on the given ax
+    Plot mean and fill_between min-max on the given ax.
 
     Parameters
     ----------

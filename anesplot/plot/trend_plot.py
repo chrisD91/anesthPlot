@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 
 from . import pfunc
+from . import t_axplot as tap
 
 # import pfunc
 
@@ -629,163 +630,29 @@ def ventil(
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)  # error message fig
         return fig
-    xlims = (param.get("xmin", None), param.get("xmax", None))
-    # unit = param.get("unit", "")
-    dtime = param.get("dtime", False)
-    # global timeUnit
-    timebase = "datetime" if dtime else "eTimeMin"
-    plot_df = datadf.set_index(timebase)
+
+    plot_df = pfunc.restrictdf(datadf, param)
 
     fig = plt.figure(figsize=(12, 5))
     fig.__name__ = "ventil"
 
     ax1 = fig.add_subplot(211)
-    ax1.set_ylabel("tidal volume")
-    pfunc.color_axis(ax1, "left", "tab:orange")
-    # ax1.yaxis.label.set_color("k")
-    if "tvInsp" in plot_df.columns:  # datex
-        # comparison with the taphonius data ... to be improved
-        # calib = ttrend.data.tvInsp.mean() / taph_trend.data.tv.mean()
-        calib = 187
-        ax1.plot(
-            plot_df.tvInsp / calib, color="tab:orange", linewidth=2, label="tvInsp"
-        )
-    elif "tv_spont" in plot_df.columns:  # taph
-        ax1.plot(
-            plot_df.tv_spont,
-            color="tab:olive",
-            linewidth=1,
-            linestyle="-",
-            label="tv_spont",
-        )
-        try:
-            ax1.plot(
-                plot_df.tv_control, color="tab:orange", linewidth=2, label="tv_control"
-            )
-            ax1.plot(
-                plot_df.set_tv,
-                color="k",
-                linewidth=1,
-                linestyle=":",
-                label="set_tv",
-            )
-        except AttributeError:
-            print("no ventilation started")
-    else:
-        print("no spirometry data in the recording")
-        ax1.text(
-            0.5,
-            0.5,
-            "no spirometry",
-            horizontalalignment="center",
-            verticalalignment="center",
-            transform=ax1.transAxes,
-        )
+    tap.plot_ventiltidal(ax1, plot_df)
+
     ax1_r = ax1.twinx()
-    ax1_r.set_ylabel("pression")
-    pfunc.color_axis(ax1_r, "right", "tab:red")
+    tap.plot_ventilpressure(ax1_r, plot_df)
 
-    toplot = {}
-    # monitor
-    if {"pPeak", "pPlat", "peep"} < set(plot_df.columns):
-        toplot = {"peak": "pPeak", "peep": "peep", "plat": "pPlat"}
-        # correction if spirometry tubes have been inverted (plateau measure is false)
-        if plot_df.peep.mean() > plot_df.pPlat.mean():
-            toplot["peep"] = "pPlat"
-            toplot.pop("plat")
-    # taph
-    # TODO fix end of file peak pressure
-    elif {"set_peep"} < set(plot_df.columns):
-        toplot = {"peak": "pPeak", "peep": "peep"}
-    else:
-        print("no spirometry data in the recording")
-
-    if toplot:
-        styles = ["-", "-", ":"]
-        for label, style in zip(toplot, styles):
-            ax1_r.plot(
-                plot_df[toplot[label]],
-                color="tab:red",
-                linewidth=1,
-                linestyle=style,
-                label=label,
-            )
-        ax1_r.fill_between(
-            plot_df.index,
-            plot_df[toplot["peak"]],
-            plot_df[toplot["peep"]],
-            color="tab:red",
-            alpha=0.1,
-        )
-        try:
-            ax1_r.plot(
-                plot_df.set_peep,
-                color="k",
-                linewidth=1,
-                linestyle=":",
-                label="set_peep",
-            )
-        except AttributeError:
-            print("not on the taph")
     ax2 = fig.add_subplot(212, sharex=ax1)
-    ax2.set_ylabel("MinVol & RR")
-    # monitor
-    monitor_items = {"minVexp", "co2RR"}
-    taph_items = {"set_rr", "rr", "calc_minVol"}
-    if monitor_items < set(plot_df.columns):
-        # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
-        ax2.plot(plot_df.minVexp, color="tab:olive", linewidth=2, label="minVexp")
-        ax2.plot(
-            plot_df.co2RR, color="tab:blue", linewidth=1, linestyle="--", label="co2RR"
-        )
-    elif taph_items < set(plot_df.columns):
-        # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
-        # ax2.plot(df.minVexp, color="tab:olive", linewidth=2)
-        ax2.plot(plot_df.rr, color="tab:gray", linewidth=2, linestyle="--", label="rr")
-        ax2.plot(
-            plot_df.set_rr, color="black", linewidth=1, linestyle=":", label="set_rr"
-        )
-        ax2.plot(
-            plot_df.calc_minVol,
-            color="k",
-            linewidth=1,
-            linestyle=":",
-            label="calc_minV",
-        )
-    else:
-        print("no spirometry data recorded")
-    # ax2.set_xlabel('time (' + unit +')')
+    tap.plot_minvol_rr(ax2, plot_df)
 
     ax2_r = ax2.twinx()
-    ax2_r.set_ylabel("Et $CO_2$")
-    pfunc.color_axis(ax2_r, "right", "tab:blue")
-    try:
-        ax2_r.plot(plot_df.co2exp, color="tab:blue", linewidth=2, linestyle="-")
-        ax2_r.plot(plot_df.co2insp, color="tab:blue", linewidth=1, linestyle="-")
-        ax2_r.fill_between(
-            plot_df.index,
-            plot_df.co2exp,
-            plot_df.co2insp,
-            color="tab:blue",
-            alpha=0.1,
-        )
-    # except KeyError:
-    #     print("")
-    except AttributeError:
-        print("no capnometry in the recording")
-        ax2_r.text(
-            0.5,
-            0.5,
-            "no capnometry",
-            horizontalalignment="center",
-            verticalalignment="center",
-            transform=ax2_r.transAxes,
-        )
+    tap.plot_etco2(ax2_r, plot_df)
 
     ax1_r.set_ylim(0, 50)
 
     for ax in [ax1, ax1_r, ax2, ax2_r]:
-        if dtime:
+        # if dtime:
+        if plot_df.index.dtype == "<M8[ns]":
             my_fmt = mdates.DateFormatter("%H:%M")
             ax.xaxis.set_major_formatter(my_fmt)
         else:
@@ -793,7 +660,7 @@ def ventil(
         pfunc.color_axis(ax, "bottom", "tab:grey")
         ax.spines["top"].set_visible(False)
         ax.get_xaxis().tick_bottom()
-        ax.set_xlim(*xlims)
+        # ax.set_xlim(*xlims)
         # annotations
     pfunc.add_baseline(fig, param)
     fig.tight_layout()

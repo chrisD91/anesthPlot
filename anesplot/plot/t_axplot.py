@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+"""
+Created on Mon Jun 20 14:44:08 2022
+
+@author: cdesbois
+
+trend_axis_plot :
+    a series of functions taking plt.axes and pd.dataframe as argument
+    and append the plot to the provided axes
+"""
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+from . import pfunc
+
+
+def plot_ventiltidal(ax: plt.axes, df: pd.DataFrame) -> None:
+    """
+    Append a tidal volume to the subplot provided.
+
+    Parameters
+    ----------
+    ax : plt.axes
+        the subplot to draw on.
+    df : pd.DataFrame
+        the data.
+
+    Returns
+    -------
+    None
+        if added plot data.
+
+    """
+    ax.set_ylabel("tidal volume")
+    pfunc.color_axis(ax, "left", "tab:orange")
+    if "tvInsp" in df.columns:  # datex
+        # comparison with the taphonius data ... to be improved
+        # calib = ttrend.data.tvInsp.mean() / taph_trend.data.tv.mean()
+        calib = 187
+        ax.plot(df.tvInsp / calib, color="tab:orange", linewidth=2, label="tvInsp")
+    elif "tv_spont" in df.columns:  # taph
+        ax.plot(
+            df.tv_spont,
+            color="tab:olive",
+            linewidth=1,
+            linestyle="-",
+            label="tv_spont",
+        )
+        try:
+            ax.plot(df.tv_control, color="tab:orange", linewidth=2, label="tv_control")
+            ax.plot(
+                df.set_tv,
+                color="k",
+                linewidth=1,
+                linestyle=":",
+                label="set_tv",
+            )
+        except AttributeError:
+            print("no ventilation started")
+    else:
+        print("no spirometry data in the recording")
+        ax.text(
+            0.5,
+            0.5,
+            "no spirometry",
+            horizontalalignment="center",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
+
+
+def plot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
+    """
+    Append a ventilation pressure to the subplot provided.
+
+    Parameters
+    ----------
+    ax : plt.axes
+        the Axe to use to plot on.
+    df : pd.DataFrame
+        the data.
+
+    Returns
+    -------
+    None
+        if drawn.
+
+    """
+    ax.set_ylabel("pression")
+    pfunc.color_axis(ax, "right", "tab:red")
+
+    toplot = {}
+    # monitor
+    if {"pPeak", "pPlat", "peep"} < set(df.columns):
+        toplot = {"peak": "pPeak", "peep": "peep", "plat": "pPlat"}
+        # correction if spirometry tubes have been inverted (plateau measure is false)
+        if df.peep.mean() > df.pPlat.mean():
+            toplot["peep"] = "pPlat"
+            toplot.pop("plat")
+    # taph
+    # TODO fix end of file peak pressure
+    elif {"set_peep"} < set(df.columns):
+        toplot = {"peak": "pPeak", "peep": "peep"}
+    else:
+        print("no spirometry data in the recording")
+
+    if toplot:
+        styles = ["-", "-", ":"]
+        for label, style in zip(toplot, styles):
+            ax.plot(
+                df[toplot[label]],
+                color="tab:red",
+                linewidth=1,
+                linestyle=style,
+                label=label,
+            )
+        ax.fill_between(
+            df.index,
+            df[toplot["peak"]],
+            df[toplot["peep"]],
+            color="tab:red",
+            alpha=0.1,
+        )
+        try:
+            ax.plot(
+                df.set_peep,
+                color="k",
+                linewidth=1,
+                linestyle=":",
+                label="set_peep",
+            )
+        except AttributeError:
+            print("not on the taph")
+
+
+def plot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
+    """
+    Append minute volume and respiratory rate to the provided axes.
+
+    Parameters
+    ----------
+    ax : plt.axers
+        the axis to draw on.
+    df : pd.DataFrame
+        the data.
+
+    Returns
+    -------
+    None.
+
+    """
+    ax.set_ylabel("MinVol & RR")
+    # monitor
+    monitor_items = {"minVexp", "co2RR"}
+    taph_items = {"set_rr", "rr", "calc_minVol"}
+    if monitor_items < set(df.columns):
+        # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
+        ax.plot(df.minVexp, color="tab:olive", linewidth=2, label="minVexp")
+        ax.plot(df.co2RR, color="tab:blue", linewidth=1, linestyle="--", label="co2RR")
+    elif taph_items < set(df.columns):
+        # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
+        # ax2.plot(df.minVexp, color="tab:olive", linewidth=2)
+        ax.plot(df.rr, color="tab:gray", linewidth=2, linestyle="--", label="rr")
+        ax.plot(df.set_rr, color="black", linewidth=1, linestyle=":", label="set_rr")
+        ax.plot(
+            df.calc_minVol,
+            color="k",
+            linewidth=1,
+            linestyle=":",
+            label="calc_minV",
+        )
+    else:
+        print("no spirometry data recorded")
+    # ax2.set_xlabel('time (' + unit +')')
+
+
+def plot_etco2(ax: plt.axes, df: pd.DataFrame) -> None:
+    """
+    Plot etC02 on the provided axes.
+
+    Parameters
+    ----------
+    ax : plt.axes
+        the matplotlib axe to draw on.
+    df : pd.DataFrame
+        the data.
+
+    Returns
+    -------
+    None.
+
+    """
+    ax.set_ylabel("Et $CO_2$")
+    pfunc.color_axis(ax, "right", "tab:blue")
+    try:
+        ax.plot(df.co2exp, color="tab:blue", linewidth=2, linestyle="-")
+        ax.plot(df.co2insp, color="tab:blue", linewidth=1, linestyle="-")
+        ax.fill_between(
+            df.index,
+            df.co2exp,
+            df.co2insp,
+            color="tab:blue",
+            alpha=0.1,
+        )
+    # except KeyError:
+    #     print("")
+    except AttributeError:
+        print("no capnometry in the recording")
+        ax.text(
+            0.5,
+            0.5,
+            "no capnometry",
+            horizontalalignment="center",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
