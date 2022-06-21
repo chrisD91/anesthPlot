@@ -17,8 +17,12 @@ import numpy as np
 
 import pandas as pd
 
-from . import pfunc
-from . import t_axplot as tap
+
+from anesplot.plot import pfunc
+from anesplot.plot import t_axplot as tap
+
+# from . import pfunc
+# from . import t_axplot as tap
 
 # import pfunc
 
@@ -301,8 +305,7 @@ def cardiovasc(
         fig = pfunc.empty_data_fig(mes)
         return fig
 
-    # global timeUnit
-    # timebase = "datetime" if param.get("dtime", False) else "eTimeMin"
+    # restrict and timeUnit
     pressuredf = pfunc.restrictdf(datadf, param)
     pressuredf = pressuredf[list(cardiac_items)]
 
@@ -372,39 +375,24 @@ def cardiovasc_p1p2(
         print(f"{diff} are not present in the data")
         return plt.figure()
 
-    # global timeUnit
-    timebase = "datetime" if param.get("dtime", False) else "eTimeMin"
-    pressuredf = datadf.set_index(timebase)[list(cardiac_items)]
+    # restrict and timeUnit
+    pressuredf = pfunc.restrictdf(datadf, param)
+    pressuredf = pressuredf[list(cardiac_items)]
 
     fig, axes = plt.subplots(figsize=(12, 6), ncols=1, nrows=2, sharex=True)
     fig.__name__ = "cardiovascular_p1p2"
     ax_l = axes[0]
-    ax_l.set_ylabel("arterial Pressure", color="tab:red")
+    tap.axplot_arterialpressure(ax_l, pressuredf)
     pfunc.color_axis(ax_l, "left", "tab:red")
-    ax_l.plot(pressuredf.ip1m, "-", color="red", label="arterial pressure", linewidth=2)
-    ax_l.fill_between(
-        pressuredf.index, pressuredf.ip1d, pressuredf.ip1s, color="tab:red", alpha=0.5
-    )
-    ax_l.set_ylim(30, 150)
-    ax_l.axhline(70, linewidth=1, linestyle="dashed", color="tab:red")
-
+    # heart rate
     ax_r = ax_l.twinx()
-    ax_r.set_ylabel("heart Rate")
-    ax_r.set_ylim(20, 100)
-    ax_r.plot(pressuredf.hr, color="tab:grey", label="heart rate", linewidth=2)
+    tap.axplot_hr(ax_r, pressuredf)
     pfunc.color_axis(ax_r, "right", "tab:grey")  # call
-
+    # venuous pressure
     ax = axes[1]
-    ax.set_ylabel("venous Pressure", color="tab:blue")
+    tap.axplot_arterialpressure(ax, pressuredf, key="ip2")
     pfunc.color_axis(ax, "left", "tab:blue")  # call
-    ax.plot(pressuredf.ip2m, "-", color="blue", label="venous pressure", linewidth=2)
-    ax.fill_between(
-        pressuredf.index, pressuredf.ip2d, pressuredf.ip2s, color="tab:blue", alpha=0.5
-    )
-    ax.set_ylim(-5, 15)
-    ax.axhline(0, linewidth=1, linestyle="-", color="tab:gray")
-
-    if timebase == "datetime":
+    if pressuredf.index.dtype == "<M8[ns]":
         ax_l.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     else:
         ax_l.set_xlabel("etime (min)")
@@ -416,14 +404,9 @@ def cardiovasc_p1p2(
             ax.spines["right"].set_visible(False)
         else:
             ax_r.spines["left"].set_visible(False)
-
     # annotations
     pfunc.add_baseline(fig, param)
     fig.tight_layout()
-
-    xlims = (param.get("xmin", None), param.get("xmin", None))
-    if all(xlims):
-        ax_r.set_xlim(*xlims)
     return fig
 
 
@@ -460,40 +443,24 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
         fig = pfunc.empty_data_fig(mes)
         return plt.figure()
 
-    # global timeUnit
-    timebase = "datetime" if param.get("dtime", False) else "eTimeMin"
-    plot_df = datadf.set_index(timebase)[list(plot_items)]
+    # restrict and timeUnit
+    plot_df = pfunc.restrictdf(datadf, param)
+    plot_df = plot_df[list(plot_items)]
 
     fig = plt.figure()
     fig.__name__ = "co2iso"
+    # co2
     ax_l = fig.add_subplot(111)
-
-    ax_l.set_ylabel("$CO_2$")
-    # call
+    tap.axplot_etco2(ax_l, plot_df)
     pfunc.color_axis(ax_l, "left", "tab:blue")
-
-    ax_l.plot(plot_df.co2exp, color="tab:blue")
-    ax_l.plot(plot_df.co2insp, color="tab:blue")
-    ax_l.fill_between(
-        plot_df.index, plot_df.co2exp, plot_df.co2insp, color="tab:blue", alpha=0.5
-    )
-    ax_l.axhline(38, linewidth=2, linestyle="dashed", color="tab:blue")
-
+    # iso
     ax_r = ax_l.twinx()
-    ax_r.set_ylabel("isoflurane")
+    tap.axplot_iso(ax_r, plot_df)
     pfunc.color_axis(ax_r, "right", "tab:purple")
-    # func(ax_r, x, etIso, inspIs, color='m', x0=38)
-    ax_r.plot(plot_df.aaExp, color="tab:purple")
-    ax_r.plot(plot_df.aaInsp, color="tab:purple")
-    ax_r.fill_between(
-        plot_df.index, plot_df.aaExp, plot_df.aaInsp, color="tab:purple", alpha=0.5
-    )
-    ax_r.set_ylim(0, 3)
 
-    ax_l.set_xlim(datadf.iloc[0][timebase], ax_l.get_xlim()[1])
     ax_l.spines["right"].set_visible(False)
     ax_r.spines["left"].set_visible(False)
-    if timebase == "datetime":
+    if plot_df.index.dtype == "<M8[ns]":
         ax_l.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     else:
         ax_l.set_xlabel("etime (min)")
@@ -501,9 +468,6 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     for ax in fig.get_axes():
         pfunc.color_axis(ax, "bottom", "tab:grey")  # call
         ax.spines["top"].set_visible(False)
-
-    if param.get("xmin", None) and param.get("xmax", None):
-        ax_r.set_xlim(param.get("xmin"), param.get("xmax"))
 
     # annotations
     pfunc.add_baseline(fig, param)
@@ -545,40 +509,22 @@ def co2o2(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.F
         fig = pfunc.empty_data_fig(mes)
         return fig
 
-    xmin = param.get("xmin", None)
-    xmax = param.get("xmax", None)
-    # unit = param.get("unit", "")
-    dtime = param.get("dtime", False)
-
-    # global timeUnit
-    timebase = "datetime" if dtime else "eTimeMin"
-    plot_df = datadf.set_index(timebase)[list(plot_items)]
+    # restrict and timeUnit
+    plot_df = pfunc.restrictdf(datadf, param)
+    plot_df = plot_df[list(plot_items)]
 
     fig = plt.figure()
     fig.__name__ = "co2o2"
+    # co2
     ax_l = fig.add_subplot(111)
-    ax_l.set_ylabel("$CO_2$")
-    # ax_l.set_xlabel('time (' + unit +')')
+    tap.axplot_etco2(ax_l, plot_df)
     pfunc.color_axis(ax_l, "left", "tab:blue")
-    ax_l.plot(plot_df.co2exp, color="tab:blue")
-    ax_l.plot(plot_df.co2insp, color="tab:blue")
-    ax_l.fill_between(
-        plot_df.index, plot_df.co2exp, plot_df.co2insp, color="tab:blue", alpha=0.5
-    )
-    ax_l.axhline(38, linestyle="dashed", linewidth=2, color="tab:blue")
-
+    # o2
     ax_r = ax_l.twinx()
-    ax_r.set_ylabel("$0_2$")
+    tap.axplot_o2(ax_l, plot_df)
     pfunc.color_axis(ax_r, "right", "tab:green")
-    ax_r.plot(plot_df.o2insp, color="tab:green")
-    ax_r.plot(plot_df.o2exp, color="tab:green")
-    ax_r.fill_between(
-        plot_df.index, plot_df.o2insp, plot_df.o2exp, color="tab:green", alpha=0.5
-    )
-    ax_r.set_ylim(21, 80)
-    ax_r.axhline(30, linestyle="dashed", linewidth=3, color="tab:olive")
 
-    if dtime:
+    if plot_df.index.dtype == "<M8[ns]":
         my_fmt = mdates.DateFormatter("%H:%M")
         ax_r.xaxis.set_major_formatter(my_fmt)
     else:
@@ -588,7 +534,6 @@ def co2o2(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.F
         pfunc.color_axis(ax, "bottom", "tab:grey")
         ax.spines["top"].set_visible(False)
         ax.get_xaxis().tick_bottom()
-        ax.set_xlim(xmin, xmax)
     # annotations
     pfunc.add_baseline(fig, param)
     fig.tight_layout()

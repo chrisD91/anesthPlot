@@ -213,6 +213,92 @@ def axplot_etco2(ax: plt.axes, df: pd.DataFrame) -> None:
         )
 
 
+def axplot_iso(ax: plt.axes, df: pd.DataFrame) -> None:
+    """
+    Plot iso on the provided axes.
+
+    Parameters
+    ----------
+    ax : plt.axes
+        the matplotlib axe to draw on.
+    df : pd.DataFrame
+        the data.
+
+    Returns
+    -------
+    None.
+
+    """
+    ax.set_ylabel("isoflurane")
+    try:
+        ax.plot(df.aaExp, color="tab:purple", linewidth=2, linestyle="-")
+        ax.plot(df.aaInsp, color="tab:purple", linewidth=2, linestyle="-")
+        ax.fill_between(
+            df.index,
+            df.aaExp,
+            df.aaInsp,
+            color="tab:blue",
+            alpha=0.2,
+        )
+        ax.set_ylim(0, 3)
+    # except KeyError:
+    #     print("")
+    except AttributeError:
+        print("no anesthetic agent in the recording")
+        ax.text(
+            0.5,
+            0.5,
+            "no anesthetic agent",
+            horizontalalignment="center",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
+
+
+def axplot_o2(ax: plt.axes, df: pd.DataFrame) -> None:
+    """
+    Plot oxygen  on the provided axes.
+
+    Parameters
+    ----------
+    ax : plt.axes
+        the matplotlib axe to draw on.
+    df : pd.DataFrame
+        the data.
+
+    Returns
+    -------
+    None.
+
+    """
+    ax.set_ylabel("oxygen")
+    try:
+        ax.plot(df.o2insp, color="tab:green", linewidth=2, linestyle="-")
+        ax.plot(df.o2exp, color="tab:green", linewidth=2, linestyle="-")
+        ax.fill_between(
+            df.index,
+            df.o2insp,
+            df.o2exp,
+            color="tab:green",
+            alpha=0.2,
+        )
+        ax.set_ylim(21, 80)
+        ax.axhline(30, linestyle="dashed", linewidth=3, color="tab:olive")
+        ax.set_ylim(0, 3)
+    # except KeyError:
+    #     print("")
+    except AttributeError:
+        print("no oxygen measure in the recording")
+        ax.text(
+            0.5,
+            0.5,
+            "no oxygen measure",
+            horizontalalignment="center",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
+
+
 def axplot_arterialpressure(ax: plt.axes, df: pd.DataFrame, key: str = "ip1") -> None:
     """
     Plot pressure on the given axes.
@@ -251,7 +337,7 @@ def axplot_arterialpressure(ax: plt.axes, df: pd.DataFrame, key: str = "ip1") ->
     ax.plot(df[traces[0]], color=color, label=label, linewidth=2)
     ax.fill_between(df.index, df[traces[1]], df[traces[2]], color=color, alpha=0.5)
     ax.set_ylim(*ylims)
-    ax.axhline(mini, linewidth=1, linestyle="dashed", color="tab:red")
+    ax.axhline(mini, linewidth=1, linestyle="dashed", color=color)
 
 
 def axplot_hr(ax: plt.axes, df: pd.DataFrame) -> None:
