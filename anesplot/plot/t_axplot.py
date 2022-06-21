@@ -154,7 +154,7 @@ def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
     if monitor_items < set(df.columns):
         # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
         ax.plot(df.minVexp, color="tab:olive", linewidth=2, label="minVexp")
-        ax.plot(df.co2RR, color="tab:blue", linewidth=1, linestyle="--", label="co2RR")
+        ax.plot(df.co2RR, color="tab:blue", linewidth=2, linestyle="--", label="co2RR")
     elif taph_items < set(df.columns):
         # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
         # ax2.plot(df.minVexp, color="tab:olive", linewidth=2)
@@ -197,7 +197,7 @@ def axplot_etco2(ax: plt.axes, df: pd.DataFrame) -> None:
             df.co2exp,
             df.co2insp,
             color="tab:blue",
-            alpha=0.1,
+            alpha=0.2,
         )
     # except KeyError:
     #     print("")
@@ -237,7 +237,7 @@ def axplot_iso(ax: plt.axes, df: pd.DataFrame) -> None:
             df.index,
             df.aaExp,
             df.aaInsp,
-            color="tab:blue",
+            color="tab:purple",
             alpha=0.2,
         )
         ax.set_ylim(0, 3)
@@ -283,8 +283,7 @@ def axplot_o2(ax: plt.axes, df: pd.DataFrame) -> None:
             alpha=0.2,
         )
         ax.set_ylim(21, 80)
-        ax.axhline(30, linestyle="dashed", linewidth=3, color="tab:olive")
-        ax.set_ylim(0, 3)
+        ax.axhline(30, linestyle="dashed", linewidth=3, color="tab:green")
     # except KeyError:
     #     print("")
     except AttributeError:

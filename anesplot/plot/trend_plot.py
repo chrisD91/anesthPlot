@@ -521,7 +521,7 @@ def co2o2(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.F
     pfunc.color_axis(ax_l, "left", "tab:blue")
     # o2
     ax_r = ax_l.twinx()
-    tap.axplot_o2(ax_l, plot_df)
+    tap.axplot_o2(ax_r, plot_df)
     pfunc.color_axis(ax_r, "right", "tab:green")
 
     if plot_df.index.dtype == "<M8[ns]":
