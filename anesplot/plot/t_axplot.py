@@ -75,6 +75,27 @@ def get_cte(key: str = "default") -> dict[str, Any]:
             traces=[],
             ylims=[0, 2],
         ),
+        "sat": dict(
+            key="sat",
+            label="sp02",
+            color="tab:red",
+            tracealpha=0.8,
+            edgecolor="tab:red",
+            unit="%",
+            goals=[90, 100],
+            traces=[],
+            ylims=[60, 100],
+        ),
+        "sathr": dict(
+            key="sathr",
+            label="spO2 heart rate",
+            color="tab:gray",
+            edgecolor="tab:gray",
+            unit="bpm",
+            goals=[30, 50],
+            traces=[],
+            ylims=[20, 100],
+        ),
         "hr": dict(
             key="hr",
             label="heart rate",
@@ -484,6 +505,35 @@ def axplot_arterialpressure(ax: plt.axes, df: pd.DataFrame, key: str = "ip1") ->
     ax.axhline(press.goals[0], linewidth=1, linestyle="dashed", color=press.color)
 
 
+def axplot_sat(ax: plt.axes, df: pd.DataFrame) -> None:
+    """
+    Plot heart rate on the given axes.
+
+    Parameters
+    ----------
+    ax : plt.axes
+        the axes to use.
+    df.pd.DataFrame : TYPE
+        the data.
+
+    Returns
+    -------
+    None
+
+    """
+    sat = sn(**get_cte("sat"))  # get the drawing constants
+    ax.plot(df.sat, color=sat.color, label=sat.label, linewidth=2)
+    ax.set_ylabel(sat.label)
+    ax.set_ylim(*sat.ylims)
+    ax.axhline(
+        sat.goals[0],
+        linewidth=1,
+        linestyle="dashed",
+        color=sat.color,
+        alpha=sat.tracealpha,
+    )
+
+
 def axplot_hr(ax: plt.axes, df: pd.DataFrame) -> None:
     """
     Plot heart rate on the given axes.
@@ -501,6 +551,34 @@ def axplot_hr(ax: plt.axes, df: pd.DataFrame) -> None:
 
     """
     hrate = sn(**get_cte("hr"))  # get the drawing constants
-    ax.plot(df.hr, color=hrate.color, label=hrate.label, linewidth=2)
+    ax.plot(df.hr, color=hrate.color, label=hrate.label, linewidth=2, linestyle=":")
     ax.set_ylabel(hrate.label)
     ax.set_ylim(*hrate.ylims)
+
+
+def axplot_sathr(ax: plt.axes, df: pd.DataFrame) -> None:
+    """
+    Plot sat_heart rate on the given axes.
+
+    Parameters
+    ----------
+    ax : plt.axes
+        the axes to use.
+    df.pd.DataFrame : TYPE
+        the data.
+
+    Returns
+    -------
+    None
+
+    """
+    sathrate = sn(**get_cte("sathr"))  # get the drawing constants
+    ax.plot(
+        df.spo2Hr,
+        color=sathrate.color,
+        label=sathrate.label,
+        linewidth=2,
+        linestyle=":",
+    )
+    ax.set_ylabel(sathrate.label)
+    ax.set_ylim(*sathrate.ylims)

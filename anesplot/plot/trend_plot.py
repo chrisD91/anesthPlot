@@ -731,43 +731,33 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     if "spo2Hr" not in datadf.columns:
         print("no satHr in the recording")
         return plt.figure()
-    # global timeUnit
-    dtime = param.get("dtime", False)
-    if dtime:
-        satdf = datadf.set_index("datetime")[["sat", "spo2Hr"]]
-    else:
-        satdf = datadf.set_index("eTimeMin")[["sat", "spo2Hr"]]
+
+    plot_items = ["sat", "spo2Hr"]
+    plot_df = pfunc.restrictdf(datadf, param)
+    plot_df = plot_df[list(plot_items)]
 
     fig = plt.figure()
     fig.__name__ = "sat_hr"
+
+    # sat
     axl = fig.add_subplot(111)
+    tap.axplot_sat(axl, plot_df)
+    pfunc.color_axis(axl, "left", "tab:red")  # call
+    axl.spines["right"].set_visible(False)
+    # sathr
     axr = axl.twinx()
+    tap.axplot_sathr(axr, plot_df)
+    pfunc.color_axis(axr, "right", "tab:grey")  # call
+    axr.spines["left"].set_visible(False)
 
-    for ax, trace, color, style in zip(
-        [axl, axr], ["sat", "spo2Hr"], ["tab:red", "tab:grey"], ["-", ":"]
-    ):
-
-        ax.plot(
-            satdf[trace],
-            color=color,
-            linestyle=style,
-            linewidth=2,
-        )
-        if dtime:
+    for ax in fig.get_axes():
+        ax.spines["top"].set_visible(False)
+        pfunc.color_axis(ax, "bottom", "tab:grey")  # call
+        if plot_df.index.dtype == "<M8[ns]":
             my_fmt = mdates.DateFormatter("%H:%M")
             ax.xaxis.set_major_formatter(my_fmt)
-
-        ax.spines["top"].set_visible(False)
-        ax.set_ylabel(trace)
-        ax.yaxis.label.set_color(color)
-        ax.tick_params(axis="y", colors=color)
-        ax.tick_params(axis="x", colors="tab:grey")
-        ax.xaxis.label.set_color("tab:grey")
-
-    axl.set_ylim(60, 100)
-    axr.set_ylim(25, 70)
-    axl.axhline(90, color="tab:red", linestyle=":", alpha=0.8)
-    axr.spines["left"].set_visible(False)
+        else:
+            ax.set_xlabel("etime (min)")
 
     # annotations
     pfunc.add_baseline(fig, param)
