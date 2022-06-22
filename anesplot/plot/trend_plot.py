@@ -117,53 +117,14 @@ def hist_cardio(
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     fig.__name__ = "hist_cardio"
+    # arterial pressure
     ax = axes[0]
-    ax.set_title("arterial pressure", color="tab:red")
-    ax.set_xlabel("mmHg", alpha=0.5)
     ser = pfunc.remove_outliers(datadf, "ip1m")
-    if len(ser) > 0:
-        ax.hist(ser.dropna(), bins=30, color="tab:red", edgecolor="red", alpha=0.7)
-        q50 = np.percentile(ser, [50])
-        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
-        for lim in [70, 80]:
-            ax.axvline(lim, color="tab:grey", alpha=1)
-        ax.axvspan(70, 80, -0.1, 1, color="tab:grey", alpha=0.5)
-        ax.set_xlabel("mmHg", alpha=0.5)
-    else:
-        ax.text(
-            0.5,
-            0.5,
-            "no data \n (arterial pressure)",
-            horizontalalignment="center",
-            fontsize="x-large",
-            verticalalignment="center",
-            transform=ax.transAxes,
-        )
-
+    tap.axplot_hist(ax, ser, key="ip1")
+    # heart rate
     ax = axes[1]
-    ax.set_title("heart rate", color="k")
     ser = pfunc.remove_outliers(datadf, "hr")
-    if len(ser) > 0:
-        ax.hist(
-            ser,
-            bins=30,
-            color="tab:grey",
-            edgecolor="tab:grey",
-            alpha=0.8,
-        )
-        ax.set_xlabel("bpm", alpha=0.5)
-        q50 = np.percentile(ser, [50])
-        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
-    else:
-        ax.text(
-            0.5,
-            0.5,
-            "no data \n (heart rate)",
-            horizontalalignment="center",
-            fontsize="x-large",
-            verticalalignment="center",
-            transform=ax.transAxes,
-        )
+    tap.axplot_hist(ax, ser, key="hr")
 
     for ax in axes:
         # call

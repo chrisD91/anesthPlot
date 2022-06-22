@@ -8,11 +8,123 @@ trend_axis_plot :
     a series of functions taking plt.axes and pd.dataframe as argument
     and append the plot to the provided axes
 """
+from types import SimpleNamespace as sn
+from typing import Any
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
-# from . import pfunc
+
+def get_cte(key: str = "default") -> dict[str, Any]:
+    """
+    Build a dico containing the drawing constants.
+
+    Parameters
+    ----------
+    key : str, optional (default is 'default')
+        key for the display
+
+    Returns
+    -------
+    cte : TYPE
+        DESCRIPTION.
+
+    """
+    dicos: dict[str, dict[str, Any]] = {
+        "default": dict(
+            key="",
+            label="",
+            color="blue",
+            edgecolor="blue",
+            unit="",
+            goals=[],
+            traces=[],
+            ylims=[None, None],
+        ),
+        "hr": dict(
+            key="hr",
+            label="heart rate",
+            color="tab:gray",
+            edgecolor="tab:gray",
+            unit="bpm",
+            goals=[30, 50],
+            traces=[],
+            ylims=[30, 150],
+        ),
+        "ip1": dict(
+            key="ip1",
+            label="arterial pressure",
+            color="tab:red",
+            edgecolor="red",
+            unit="mmHg",
+            goals=[70, 80],
+            traces=["ip1" + _ for _ in ["m", "d", "s"]],
+            ylims=[30, 150],
+        ),
+        "ip2": dict(
+            key="ip2",
+            label="arterial pressure",
+            color="tab:red",
+            edgecolor="red",
+            unit="mmHg",
+            goals=[70, 80],
+            traces=["ip1" + _ for _ in ["m", "d", "s"]],
+            ylims=[30, 150],
+        ),
+    }
+    if key in dicos:
+        dico = dicos[key]
+        out_dico = dicos["default"] | dico
+    else:
+        print(f"no cts defined for {key}, used default")
+        out_dico = dicos["default"]
+    return out_dico
+
+
+def axplot_hist(ax: plt.axes, ser: pd.Series, key: str = "ip1") -> None:
+    """
+    Draw an histogram on the specified axes.
+
+    Parameters
+    ----------
+    ax : plt.axes
+        the axes to draw on.
+    ser : pd.Series
+        the data.
+    key : str, optional (default is "ip1")
+        key to load the presets
+
+    Returns
+    -------
+    None.
+
+    """
+    defined = ["ip1", "ip2", "hr"]
+    if key not in defined:
+        print(f"key should be in {defined} ({key} was used)")
+    cts = sn(**get_cte(key))
+    ax.set_title(cts.label, color=cts.color)
+    if len(ser) > 0:
+        ax.hist(
+            ser.dropna(), bins=30, color=cts.color, edgecolor=cts.edgecolor, alpha=0.7
+        )
+        q50 = np.percentile(ser, [50])
+        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
+        for goal in cts.goals:
+            ax.axvline(goal, color="tab:grey", alpha=1)
+        ax.axvspan(cts.goals[0], cts.goals[1], -0.1, 1, color="tab:grey", alpha=0.3)
+        ax.set_xlabel(cts.unit, alpha=0.5)
+    else:
+        ax.text(
+            0.5,
+            0.5,
+            f"no data \n ({cts.label})",
+            horizontalalignment="center",
+            fontsize="x-large",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
 
 
 def axplot_ventiltidal(ax: plt.axes, df: pd.DataFrame) -> None:
@@ -323,7 +435,7 @@ def axplot_arterialpressure(ax: plt.axes, df: pd.DataFrame, key: str = "ip1") ->
         ylims = [30, 150]
 
     elif key == "ip2":
-        label = "venuous pressure"
+        label = "venous pressure"
         color = "tab:blue"
         mini = 10
         traces = ["ip2" + _ for _ in ["m", "d", "s"]]
