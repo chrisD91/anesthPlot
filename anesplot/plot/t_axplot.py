@@ -42,6 +42,26 @@ def get_cte(key: str = "default") -> dict[str, Any]:
             traces=[],
             ylims=[None, None],
         ),
+        "co2": dict(
+            key="co2",
+            label="end tidal co2",
+            color="tab:blue",
+            edgecolor="tab:blue",
+            unit="mmHg",
+            goals=[35, 45],
+            traces=[],
+            ylims=[30, 150],
+        ),
+        "aa": dict(
+            key="aa",
+            label="isoflurane",
+            color="tab:purple",
+            edgecolor="tab:purple",
+            unit="%",
+            goals=[1.2, 1.4],
+            traces=[],
+            ylims=[0, 2],
+        ),
         "hr": dict(
             key="hr",
             label="heart rate",
@@ -100,7 +120,7 @@ def axplot_hist(ax: plt.axes, ser: pd.Series, key: str = "ip1") -> None:
     None.
 
     """
-    defined = ["ip1", "ip2", "hr"]
+    defined = ["ip1", "ip2", "hr", "co2", "aa"]
     if key not in defined:
         print(f"key should be in {defined} ({key} was used)")
     cts = sn(**get_cte(key))

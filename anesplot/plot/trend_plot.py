@@ -13,7 +13,8 @@ from typing import Any, Optional
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-import numpy as np
+
+# import numpy as np
 
 import pandas as pd
 
@@ -170,53 +171,14 @@ def hist_co2_iso(
         return plt.figure()
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     fig.__name__ = "hist_co2_iso"
+    # co2
     ax = axes[0]
-    ax.set_title("$End_{tidal}$ $CO_2$", color="tab:blue")
-    # call
     ser = pfunc.remove_outliers(datadf, "co2exp")
-    if len(ser) > 0:
-        ax.axvspan(35, 45, color="tab:grey", alpha=0.5)
-        ax.hist(ser, bins=20, color="tab:blue", edgecolor="tab:blue", alpha=0.8)
-        for limit in [35, 45]:
-            ax.axvline(limit, color="tab:grey", alpha=1)
-        q50 = np.percentile(ser, [50])
-        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
-        ax.set_xlabel("mmHg", alpha=0.5)
-    else:
-        ax.text(
-            0.5,
-            0.5,
-            "no data \n (co2exp)",
-            horizontalalignment="center",
-            fontsize="x-large",
-            verticalalignment="center",
-            transform=ax.transAxes,
-        )
+    tap.axplot_hist(ax, ser, key="co2")
+    # iso
     ax = axes[1]
-    ax.set_title("$End_{tidal}$ isoflurane", color="tab:purple")
     ser = pfunc.remove_outliers(datadf, "aaExp")
-    if len(ser) > 1:
-        ax.hist(
-            ser,
-            bins=20,
-            color="tab:purple",
-            range=(0.5, 2),
-            edgecolor="tab:purple",
-            alpha=0.8,
-        )
-        ax.set_xlabel("%", alpha=0.5)
-        _, q50, _ = np.percentile(ser.dropna(), [25, 50, 75])
-        ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
-    else:
-        ax.text(
-            0.5,
-            0.5,
-            "no data \n (aaExp)",
-            horizontalalignment="center",
-            fontsize="x-large",
-            verticalalignment="center",
-            transform=ax.transAxes,
-        )
+    tap.axplot_hist(ax, ser, key="aa")
 
     for ax in axes:
         pfunc.color_axis(ax, "bottom", "tab:grey")
