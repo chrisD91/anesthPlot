@@ -27,8 +27,8 @@ def get_cte(key: str = "default") -> dict[str, Any]:
 
     Returns
     -------
-    cte : TYPE
-        DESCRIPTION.
+    cte : dict
+        the 'constants' to be used to build the plot.
 
     """
     dicos: dict[str, dict[str, Any]] = {
@@ -42,20 +42,33 @@ def get_cte(key: str = "default") -> dict[str, Any]:
             traces=[],
             ylims=[None, None],
         ),
+        "o2": dict(
+            key="o2",
+            label="oxygen",
+            color="tab:green",
+            fillalpha=0.2,
+            edgecolor="tab:green",
+            unit="%",
+            goals=[30, 50],
+            traces=[],
+            ylims=[20, 80],
+        ),
         "co2": dict(
             key="co2",
             label="end tidal co2",
             color="tab:blue",
+            fillalpha=0.2,
             edgecolor="tab:blue",
             unit="mmHg",
             goals=[35, 45],
             traces=[],
             ylims=[30, 150],
         ),
-        "aa": dict(
-            key="aa",
+        "iso": dict(
+            key="iso",
             label="isoflurane",
             color="tab:purple",
+            fillalpha=0.2,
             edgecolor="tab:purple",
             unit="%",
             goals=[1.2, 1.4],
@@ -70,7 +83,7 @@ def get_cte(key: str = "default") -> dict[str, Any]:
             unit="bpm",
             goals=[30, 50],
             traces=[],
-            ylims=[30, 150],
+            ylims=[20, 100],
         ),
         "ip1": dict(
             key="ip1",
@@ -81,16 +94,18 @@ def get_cte(key: str = "default") -> dict[str, Any]:
             goals=[70, 80],
             traces=["ip1" + _ for _ in ["m", "d", "s"]],
             ylims=[30, 150],
+            fillalpha=0.5,
         ),
         "ip2": dict(
             key="ip2",
-            label="arterial pressure",
-            color="tab:red",
-            edgecolor="red",
+            label="venous pressure",
+            color="tab:blue",
+            edgecolor="blue",
             unit="mmHg",
-            goals=[70, 80],
-            traces=["ip1" + _ for _ in ["m", "d", "s"]],
-            ylims=[30, 150],
+            goals=[10, 20],
+            traces=["ip2" + _ for _ in ["m", "d", "s"]],
+            ylims=[0, 20],
+            fillalpha=0.4,
         ),
     }
     if key in dicos:
@@ -120,10 +135,10 @@ def axplot_hist(ax: plt.axes, ser: pd.Series, key: str = "ip1") -> None:
     None.
 
     """
-    defined = ["ip1", "ip2", "hr", "co2", "aa"]
+    defined = ["ip1", "ip2", "hr", "co2", "iso"]
     if key not in defined:
         print(f"key should be in {defined} ({key} was used)")
-    cts = sn(**get_cte(key))
+    cts = sn(**get_cte(key))  # get the drawing constants
     ax.set_title(cts.label, color=cts.color)
     if len(ser) > 0:
         ax.hist(
@@ -320,16 +335,17 @@ def axplot_etco2(ax: plt.axes, df: pd.DataFrame) -> None:
     None.
 
     """
-    ax.set_ylabel("Et $CO_2$")
+    co2 = sn(**get_cte("co2"))  # get the drawing constants
+    ax.set_ylabel(co2.label)
     try:
-        ax.plot(df.co2exp, color="tab:blue", linewidth=2, linestyle="-")
-        ax.plot(df.co2insp, color="tab:blue", linewidth=1, linestyle="-")
+        ax.plot(df.co2exp, color=co2.color, linewidth=2, linestyle="-")
+        ax.plot(df.co2insp, color=co2.color, linewidth=1, linestyle="-")
         ax.fill_between(
             df.index,
             df.co2exp,
             df.co2insp,
-            color="tab:blue",
-            alpha=0.2,
+            color=co2.color,
+            alpha=co2.fillalpha,
         )
     # except KeyError:
     #     print("")
@@ -361,16 +377,17 @@ def axplot_iso(ax: plt.axes, df: pd.DataFrame) -> None:
     None.
 
     """
-    ax.set_ylabel("isoflurane")
+    iso = sn(**get_cte("iso"))  # get the drawing constants
+    ax.set_ylabel(iso.label)
     try:
-        ax.plot(df.aaExp, color="tab:purple", linewidth=2, linestyle="-")
-        ax.plot(df.aaInsp, color="tab:purple", linewidth=2, linestyle="-")
+        ax.plot(df.aaExp, color=iso.color, linewidth=2, linestyle="-")
+        ax.plot(df.aaInsp, color=iso.color, linewidth=2, linestyle="-")
         ax.fill_between(
             df.index,
             df.aaExp,
             df.aaInsp,
-            color="tab:purple",
-            alpha=0.2,
+            color=iso.color,
+            alpha=iso.fillalpha,
         )
         ax.set_ylim(0, 3)
     # except KeyError:
@@ -403,19 +420,20 @@ def axplot_o2(ax: plt.axes, df: pd.DataFrame) -> None:
     None.
 
     """
-    ax.set_ylabel("oxygen")
+    oxy = sn(**get_cte("o2"))  # get the drawing constants
+    ax.set_ylabel(oxy.label)
     try:
-        ax.plot(df.o2insp, color="tab:green", linewidth=2, linestyle="-")
-        ax.plot(df.o2exp, color="tab:green", linewidth=2, linestyle="-")
+        ax.plot(df.o2insp, color=oxy.color, linewidth=2, linestyle="-")
+        ax.plot(df.o2exp, color=oxy.color, linewidth=2, linestyle="-")
         ax.fill_between(
             df.index,
             df.o2insp,
             df.o2exp,
-            color="tab:green",
-            alpha=0.2,
+            color=oxy.color,
+            alpha=oxy.fillalpha,
         )
-        ax.set_ylim(21, 80)
-        ax.axhline(30, linestyle="dashed", linewidth=3, color="tab:green")
+        ax.set_ylim(*oxy.ylims)
+        ax.axhline(oxy.ylims[0], linestyle="dashed", linewidth=3, color=oxy.color)
     # except KeyError:
     #     print("")
     except AttributeError:
@@ -447,28 +465,23 @@ def axplot_arterialpressure(ax: plt.axes, df: pd.DataFrame, key: str = "ip1") ->
     None.
 
     """
-    if key == "ip1":
-        label = "arterial pressure"
-        color = "tab:red"
-        mini = 70
-        traces = ["ip1" + _ for _ in ["m", "d", "s"]]
-        ylims = [30, 150]
-
-    elif key == "ip2":
-        label = "venous pressure"
-        color = "tab:blue"
-        mini = 10
-        traces = ["ip2" + _ for _ in ["m", "d", "s"]]
-        ylims = [0, 20]
+    if key in ["ip1", "ip2"]:
+        press = sn(**get_cte(key))  # get the drawing constants
     else:
         txt = "key should be in [ip1, ip2]"
         ax.text(0.5, 0.5, txt)
         return
 
-    ax.plot(df[traces[0]], color=color, label=label, linewidth=2)
-    ax.fill_between(df.index, df[traces[1]], df[traces[2]], color=color, alpha=0.5)
-    ax.set_ylim(*ylims)
-    ax.axhline(mini, linewidth=1, linestyle="dashed", color=color)
+    ax.plot(df[press.traces[0]], color=press.color, label=press.label, linewidth=2)
+    ax.fill_between(
+        df.index,
+        df[press.traces[1]],
+        df[press.traces[2]],
+        color=press.color,
+        alpha=press.fillalpha,
+    )
+    ax.set_ylim(*press.ylims)
+    ax.axhline(press.goals[0], linewidth=1, linestyle="dashed", color=press.color)
 
 
 def axplot_hr(ax: plt.axes, df: pd.DataFrame) -> None:
@@ -487,6 +500,7 @@ def axplot_hr(ax: plt.axes, df: pd.DataFrame) -> None:
     None
 
     """
-    ax.plot(df.hr, color="tab:grey", label="heart rate", linewidth=2)
-    ax.set_ylabel("heart Rate")
-    ax.set_ylim(20, 100)
+    hrate = sn(**get_cte("hr"))  # get the drawing constants
+    ax.plot(df.hr, color=hrate.color, label=hrate.label, linewidth=2)
+    ax.set_ylabel(hrate.label)
+    ax.set_ylim(*hrate.ylims)

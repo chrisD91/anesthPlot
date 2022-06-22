@@ -178,7 +178,7 @@ def hist_co2_iso(
     # iso
     ax = axes[1]
     ser = pfunc.remove_outliers(datadf, "aaExp")
-    tap.axplot_hist(ax, ser, key="aa")
+    tap.axplot_hist(ax, ser, key="iso")
 
     for ax in axes:
         pfunc.color_axis(ax, "bottom", "tab:grey")
