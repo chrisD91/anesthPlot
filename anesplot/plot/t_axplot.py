@@ -75,6 +75,111 @@ def get_cte(key: str = "default") -> dict[str, Any]:
             traces=[],
             ylims=[0, 2],
         ),
+        "tvinsp": dict(
+            # datex
+            key="tvinsp",
+            label="tidalVolume insp",
+            color="tab:orange",
+            fillalpha=0.2,
+            style="-",
+            edgecolor="tab:orange",
+            unit="l",
+            goals=[5, 6],
+            traces=[],
+            ylims=[0, 7],
+            calib=187,
+        ),
+        "tvspont": dict(
+            # taph
+            key="tvspont",
+            label="tidalVolume spont",
+            color="tab:olive",
+            fillalpha=0.2,
+            style="-",
+            edgecolor="tab:olive",
+            unit="l",
+            goals=[5, 6],
+            traces=[],
+            ylims=[0, 7],
+        ),
+        "tvcontrol": dict(
+            # taph
+            key="tvcontrol",
+            label="tidalVolume control",
+            color="tab:orange",
+            fillalpha=0.2,
+            style="-",
+            edgecolor="tab:orange",
+            unit="l",
+            goals=[5, 6],
+            traces=[],
+            ylims=[0, 7],
+        ),
+        "pPeak": dict(
+            # taph
+            key="tvcontrol",
+            label="tidalVolume control",
+            color="tab:red",
+            fillalpha=0.2,
+            style="-",
+            edgecolor="tab:red",
+            unit="l",
+            goals=[5, 6],
+            traces=[],
+            ylims=[0, 7],
+        ),
+        "peep": dict(
+            # taph
+            key="tvcontrol",
+            label="tidalVolume control",
+            color="tab:red",
+            fillalpha=0.2,
+            style="-",
+            edgecolor="tab:red",
+            unit="l",
+            goals=[5, 6],
+            traces=[],
+            ylims=[0, 7],
+        ),
+        "pPlat": dict(
+            # taph
+            key="tvcontrol",
+            label="tidalVolume control",
+            color="tab:red",
+            fillalpha=0.2,
+            style="-",
+            edgecolor="tab:red",
+            unit="l",
+            goals=[5, 6],
+            traces=[],
+            ylims=[0, 7],
+        ),
+        "settv": dict(
+            # taph
+            key="settv",
+            label="set_tidalVolume",
+            color="k",
+            fillalpha=1,
+            style=":",
+            edgecolor="tab:orange",
+            unit="l",
+            goals=[5, 6],
+            traces=[],
+            ylims=[0, 7],
+        ),
+        "setpeep": dict(
+            # taph
+            key="setpeep",
+            label="set_peep",
+            color="k",
+            fillalpha=1,
+            style=":",
+            edgecolor="tab:red",
+            unit="l",
+            goals=[5, 6],
+            traces=[],
+            ylims=[0, 7],
+        ),
         "sat": dict(
             key="sat",
             label="sp02",
@@ -204,24 +309,30 @@ def axplot_ventiltidal(ax: plt.axes, df: pd.DataFrame) -> None:
     if "tvInsp" in df.columns:  # datex
         # comparison with the taphonius data ... to be improved
         # calib = ttrend.data.tvInsp.mean() / taph_trend.data.tv.mean()
-        calib = 187
-        ax.plot(df.tvInsp / calib, color="tab:orange", linewidth=2, label="tvInsp")
+        # calib = 187
+        # ax.plot(df.tvInsp / calib, color="tab:orange", linewidth=2, label="tvInsp")
+        cts = sn(**get_cte("tvinsp"))
+        calib = cts.calib
+        ax.plot(df.tvInsp / calib, color=cts.color, linewidth=2, label=cts.label)
     elif "tv_spont" in df.columns:  # taph
+        cts = sn(**get_cte("tvspont"))
         ax.plot(
             df.tv_spont,
-            color="tab:olive",
+            color=cts.color,
             linewidth=1,
             linestyle="-",
-            label="tv_spont",
+            label=cts.label,
         )
         try:
-            ax.plot(df.tv_control, color="tab:orange", linewidth=2, label="tv_control")
+            cts = sn(**get_cte("tvcontrol"))
+            ax.plot(df.tv_control, color=cts.color, linewidth=2, label=cts.label)
+            cts = sn(**get_cte("settv"))
             ax.plot(
                 df.set_tv,
-                color="k",
+                color=cts.color,
                 linewidth=1,
-                linestyle=":",
-                label="set_tv",
+                linestyle=cts.style,
+                label=cts.label,
             )
         except AttributeError:
             print("no ventilation started")
@@ -255,45 +366,48 @@ def axplot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
 
     """
     ax.set_ylabel("pression")
-    toplot = {}
+    columns = {}
     # monitor
     if {"pPeak", "pPlat", "peep"} < set(df.columns):
-        toplot = {"peak": "pPeak", "peep": "peep", "plat": "pPlat"}
+        columns = {"peak": "pPeak", "peep": "peep", "plat": "pPlat"}
         # correction if spirometry tubes have been inverted (plateau measure is false)
         if df.peep.mean() > df.pPlat.mean():
-            toplot["peep"] = "pPlat"
-            toplot.pop("plat")
+            columns["peep"] = "pPlat"
+            columns.pop("plat")
     # taph
     # TODO fix end of file peak pressure
     elif {"set_peep"} < set(df.columns):
-        toplot = {"peak": "pPeak", "peep": "peep"}
+        columns = {"peak": "pPeak", "peep": "peep"}
     else:
         print("no spirometry data in the recording")
 
-    if toplot:
-        styles = ["-", "-", ":"]
-        for label, style in zip(toplot, styles):
+    keys = list(columns.values())
+
+    if keys:
+        for key in keys:
+            cts = sn(**get_cte(key))
             ax.plot(
-                df[toplot[label]],
-                color="tab:red",
+                df[key],
+                color=cts.color,
                 linewidth=1,
-                linestyle=style,
-                label=label,
+                linestyle=cts.style,
+                label=cts.label,
             )
         ax.fill_between(
             df.index,
-            df[toplot["peak"]],
-            df[toplot["peep"]],
+            df[keys[0]],
+            df[keys[-1]],
             color="tab:red",
             alpha=0.1,
         )
         try:
+            cts = sn(**get_cte("setpeep"))
             ax.plot(
                 df.set_peep,
-                color="k",
+                color=cts.color,
                 linewidth=1,
-                linestyle=":",
-                label="set_peep",
+                linestyle=cts.style,
+                label=cts.label,
             )
         except AttributeError:
             print("not on the taph")
@@ -315,7 +429,7 @@ def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
     None.
 
     """
-    ax.set_ylabel("MinVol & RR")
+    ax.set_ylabel("'MinVol' & RR")
     # monitor
     monitor_items = {"minVexp", "co2RR"}
     taph_items = {"set_rr", "rr", "calc_minVol"}
@@ -329,8 +443,8 @@ def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
         ax.plot(df.rr, color="tab:gray", linewidth=2, linestyle="--", label="rr")
         ax.plot(df.set_rr, color="black", linewidth=1, linestyle=":", label="set_rr")
         ax.plot(
-            df.calc_minVol,
-            color="k",
+            df.calc_minVol / 10,
+            color="tab:olive",
             linewidth=1,
             linestyle=":",
             label="calc_minV",
