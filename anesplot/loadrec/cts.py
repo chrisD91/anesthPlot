@@ -73,7 +73,7 @@ taph_corr_title = {
     "TV.1": "tv_spont",
     "Insp Time": "inspTime",
     "Exp Time.1": "expTime",
-    "RR.1": "rr",
+    "RR.1": "rr_strange",
     "MV.1": "mv",
     "I Flow.1": "iFlow",
     "I:E Ratio.1": "IE",
