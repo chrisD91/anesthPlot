@@ -405,7 +405,7 @@ class TaphTrend(_SlowWave):
         None.
 
         """
-        self.data = ltt.shift_datetime(self.data, minutes)
+        self.data = ltt.shift_dtime(self.data, minutes)
         # recompute events extractions, ventildrive, ...
         self.extract_events(minutes)
 

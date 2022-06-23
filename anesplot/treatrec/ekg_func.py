@@ -11,6 +11,7 @@ import os
 from typing import Optional, Any
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 # import pandas as pd
 # import scipy.signal as sg
@@ -96,7 +97,20 @@ def plot_roi_ekgbeat_overlap(
         beat = ekgdf.loc[x_loc - 0.5 : x_loc + 0.7]
         beat.index = beat.index - x_loc
         ax.plot(beat, label=i, alpha=0.8)
-    ax.grid()
+    ax.set_xticks(np.arange(-0.5, 0.7, 0.1), minor=True)
+    ax.grid(which="both")
+    txt = f"{len(beatloc_df)} beats overlapped  "
+    ax.text(
+        0.99,
+        0.1,
+        txt,
+        horizontalalignment="right",
+        verticalalignment="center",
+        transform=ax.transAxes,
+        color="tab:grey",
+        backgroundcolor="white",
+    )
+
     ax.set_ymargin(0.1)
     # ax.legend()
     for spine in ["top", "right"]:

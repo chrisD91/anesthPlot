@@ -37,6 +37,6 @@
 
     - [ ] externalize the save function
 
-- [ ] plot_roi_ekgbeat_overlap -> display the number of beats on the plot
+- [x] plot_roi_ekgbeat_overlap -> display the number of beats on the plot
 
 - [ ] check wave2video
