@@ -233,11 +233,11 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
 
     if len(datadf) < 4:
         print(f"empty file ({os.path.basename(filename)})")
-        for col in ["datetime", "time", "eTime", "eTimeMin"]:
+        for col in ["dtime", "time", "eTime", "eTimeMin"]:
             datadf[col] = np.nan
         return datadf
 
-    datadf["datetime"] = pd.to_datetime(datadf.Date + ";" + datadf.Time, dayfirst=True)
+    datadf["dtime"] = pd.to_datetime(datadf.Date + ";" + datadf.Time, dayfirst=True)
     datadf["time"] = datadf.Date + "-" + datadf.Time
     datadf["time"] = pd.to_datetime(datadf["time"], dayfirst=True)
 
@@ -304,7 +304,7 @@ def loadtaph_patientfile(filename: str) -> dict[str, Any]:
     return dict(descr)
 
 
-def shift_datetime(
+def shift_dtime(
     datadf: pd.DataFrame, minutes_to_add: Optional[int] = None
 ) -> pd.DataFrame:
     """
@@ -313,22 +313,22 @@ def shift_datetime(
     Parameters
     ----------
     datadf : pd.DataFrame
-        a recording (that have to contain 'datetime' and 'time' column.
+        a recording (that have to contain 'dtime' and 'time' column.
     minutes_to_add : int, optional
         DESCRIPTION. The default is None.
 
     Returns
     -------
     datadf : pd.DataFrame
-        the recording with shifted datetime and time columns.
+        the recording with shifted dtime and time columns.
     """
     if minutes_to_add:
         shift = timedelta(minutes=minutes_to_add)
-        if {"datetime", "time"} < set(datadf.columns):
-            datadf["datetime"] += shift
+        if {"dtime", "time"} < set(datadf.columns):
+            datadf["dtime"] += shift
             datadf["time"] += shift
         else:
-            print("datetime and time are not in the dataframe columns")
+            print("dtime and time are not in the dataframe columns")
     return datadf
 
 
@@ -341,7 +341,7 @@ def shift_elapsed_time(
     Parameters
     ----------
     datadf : pd.DataFrame
-        a recording (that have to contain 'datetime' and 'time' column.
+        a recording (that have to contain 'dtime' and 'time' column.
     minutes_to_add : int, optional (default is None)
 
     Returns
@@ -359,16 +359,16 @@ def shift_elapsed_time(
     return datadf
 
 
-def sync_elapsed_time(datetime_0: datetime, taphdatadf: pd.DataFrame) -> pd.DataFrame:
+def sync_elapsed_time(dtime_0: datetime, taphdatadf: pd.DataFrame) -> pd.DataFrame:
     """
     Use the first point of monitor recording to sync the taph elapsed time (s and min).
 
-    !!! beware, datetime should be the same one the two devices ... or corrected !!!
+    !!! beware, dtime should be the same one the two devices ... or corrected !!!
 
     Parameters
     ----------
-    datetime_0 : datetime.datetime
-        the 0 of the time (usually monitordatadf.datetime.iloc[0]
+    dtime_0 : datetime.datetime
+        the 0 of the time (usually monitordatadf.dtime.iloc[0]
     taphdatadf : pd.DataFrame
         the taph recording.
 
@@ -378,7 +378,7 @@ def sync_elapsed_time(datetime_0: datetime, taphdatadf: pd.DataFrame) -> pd.Data
         the corrected taph recording.
 
     """
-    mini_index = (abs(taphdatadf.datetime - datetime_0)).idxmin()
+    mini_index = (abs(taphdatadf.dtime - dtime_0)).idxmin()
     taphdatadf.eTime -= taphdatadf.iloc[mini_index].eTime
     taphdatadf.eTimeMin -= taphdatadf.iloc[mini_index].eTimeMin
     return taphdatadf
@@ -400,7 +400,7 @@ if __name__ == "__main__":
         "before2020/Anonymous/Patients2013DEC17/Record08_29_27/SD2013DEC17-8_29_27.csv"
     )
     NAME = "Anonymous/Patients2022JAN21/Record22_52_07/SD2022JAN21-22_52_7.csv"
-    # check datetime (non linear and there is 2015 & 2021dates)
+    # check dtime (non linear and there is 2015 & 2021dates)
     file_name = os.path.join(paths["taph_data"], NAME)
 
     tdata_df = loadtaph_trenddata(file_name)

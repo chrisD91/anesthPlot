@@ -559,7 +559,7 @@ def recrut(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     # unit = param.get("unit", "")
     dtime = param.get("dtime", False)
     df = (
-        datadf.set_index("datetime").copy()
+        datadf.set_index("dtime").copy()
         if dtime
         else datadf.set_index("eTimeMin").copy()
     )
@@ -635,7 +635,7 @@ def ventil_cardio(
     dtime = param.get("dtime", False)
 
     df = (
-        datadf.set_index("datetime").copy()
+        datadf.set_index("dtime").copy()
         if dtime
         else datadf.set_index("eTimeMin").copy()
     )
@@ -711,7 +711,7 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     taphdata : pd.DataFrame
         the taph recording
     dtime : boolean, optional (default is True)
-        plot over datetime (or elapsed time)
+        plot over dtime (or elapsed time)
 
     Returns
     -------

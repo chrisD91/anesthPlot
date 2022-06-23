@@ -25,13 +25,13 @@
 - [x] mwaves.data.columns :
 
     - [x] change sec by eTimeSec
-    - [ ] append eTimeMin. -> no to avoid increase in data size
+    - [ ] append eTimeMin. -> NO to avoid increase in data size
     - [x] change time by dtime
 
-- [ ] mtrends.data.columns
+- [x] mtrends.data.columns
 
-    - [ ] change datetime by dtime
-    - [ ] change eTime by eTimeSec
+    - [x] change datetime by dtime
+    - [x] change eTime by etimesec
 
 - [ ] trend_plot.py
 

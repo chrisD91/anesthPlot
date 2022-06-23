@@ -91,7 +91,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     if datadf.empty:
         print("empty dataframe")
         return dteventsdf
-    df = datadf[["events", "datetime"]].dropna().set_index("datetime")
+    df = datadf[["events", "dtime"]].dropna().set_index("dtime")
     df.events = df.events.apply(
         lambda st: [_.strip("[").strip("]") for _ in st.splitlines()]
     )

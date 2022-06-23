@@ -25,7 +25,7 @@ mon_corr_title = {
     "IP2PR": "ip2PR",
     "O2_Insp": "o2insp",
     "O2_Exp": "o2exp",
-    "Time": "datetime",
+    "Time": "dtime",
     "Resp": "resp",
     "PPeak": "pPeak",
     "Peep": "peep",

@@ -202,17 +202,15 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
     datadf["etimesec"] = datadf.index * headerdico["Sampling Rate"]
     datadf["etimemin"] = datadf["etimesec"] / 60
     # convert time to dateTime
-    min_time_iloc = datadf.loc[
-        datadf["datetime"] == datadf["datetime"].min()
-    ].index.values[0]
-    datadf.datetime = datadf.datetime.apply(lambda x: headerdico["Date"] + "-" + x)
-    datadf.datetime = pd.to_datetime(datadf.datetime, format="%d-%m-%Y-%H:%M:%S")
+    min_time_iloc = datadf.loc[datadf.dtime == datadf.dtime.min()].index.values[0]
+    datadf.dtime = datadf.dtime.apply(lambda x: headerdico["Date"] + "-" + x)
+    datadf.dtime = pd.to_datetime(datadf.dtime, format="%d-%m-%Y-%H:%M:%S")
     # if overlap between two dates (ie over midnight): add one day
     if min_time_iloc > datadf.index.min():
         print("recording was performed during two days")
-        datetime_series = datadf.datetime.copy()
-        datetime_series.iloc[min_time_iloc:] += timedelta(days=1)
-        datadf.datetime = datetime_series
+        dtime_series = datadf.dtime.copy()
+        dtime_series.iloc[min_time_iloc:] += timedelta(days=1)
+        datadf.dtime = dtime_series
     # remove irrelevant measures
     # df.co2exp.loc[data.co2exp < 30] = np.nan
     print(f"{'-' * 20} loaded trenddata >")

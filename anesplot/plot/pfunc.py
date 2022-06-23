@@ -84,7 +84,7 @@ def restrictdf(df: pd.DataFrame, parm: dict["str", Any]) -> pd.DataFrame:
     # unit = param.get("unit", "")
     dtime = parm.get("dtime", False)
     # global timeUnit
-    timebase = "datetime" if dtime else "eTimeMin"
+    timebase = "dtime" if dtime else "eTimeMin"
     toplot_df = df.set_index(timebase).copy()
     xmin = parm.get("xmin", df.index.min())
     xmax = parm.get("xmax", df.index.max())
