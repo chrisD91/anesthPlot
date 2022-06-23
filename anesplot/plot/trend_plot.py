@@ -551,52 +551,30 @@ def recrut(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)
         return fig
-    xlims = (param.get("xmin", None), param.get("xmax", None))
-    # unit = param.get("unit", "")
-    dtime = param.get("dtime", False)
-    df = (
-        datadf.set_index("dtime").copy()
-        if dtime
-        else datadf.set_index("eTimeMin").copy()
-    )
+
+    # restrict and timeUnit
+    toplot_df = pfunc.restrictdf(datadf, param)
 
     fig = plt.figure()
     fig.__name__ = "recrut"
+    # ventil_pressure
     ax1 = fig.add_subplot(111)
-    # ax1.set_xlabel('time (' + unit +')')
-    ax1.spines["top"].set_visible(False)
-    ax1.set_ylabel("peep & Peak")
+    tap.axplot_ventilpressure(ax1, toplot_df)
     pfunc.color_axis(ax1, "left", "tab:red")
     ax1.spines["right"].set_visible(False)
-    pfunc.plot_minimeanmax_traces(
-        ax1,
-        df,
-        traces=["peep", "pPlat", "pPeak"],
-        color="tab:red",
-        styles=[":"] * 3,
-        widths=[1] * 3,
-    )
-    ax1.set_ylim(0, 50)
+    # ventil_volume
+    ax1_r = ax1.twinx()
+    tap.axplot_ventiltidal(ax1_r, toplot_df)
+    pfunc.color_axis(ax1_r, "right", "tab:orange")
+    ax1.spines["left"].set_visible(False)
 
-    ax2 = ax1.twinx()
-    ax2.set_ylabel("volume")
-    pfunc.color_axis(ax2, "right", "tab:olive")
-    ax2.spines["left"].set_visible(False)
-    ax2.yaxis.label.set_color("black")
-    ax2.plot(df.tvInsp, color="tab:olive", linewidth=2)
-
-    ax1.set_xlim(*xlims)
-
-    if dtime:
-        my_fmt = mdates.DateFormatter("%H:%M")
-        ax1.xaxis.set_major_formatter(my_fmt)
-    else:
-        ax1.set_xlabel("etime (min)")
-
-    axes = [ax1, ax2]
-    for ax in axes:
+    for ax in fig.get_axes():
         pfunc.color_axis(ax, "bottom", "tab:grey")
         ax.spines["top"].set_visible(False)
+        if toplot_df.index.dtype == "<M8[ns]":
+            ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+        else:
+            ax.set_xlabel("etime (min)")
     # annotations
     pfunc.add_baseline(fig, param)
     fig.tight_layout()
