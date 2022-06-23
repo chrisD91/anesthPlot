@@ -503,6 +503,7 @@ def axplot_arterialpressure(ax: plt.axes, df: pd.DataFrame, key: str = "ip1") ->
     )
     ax.set_ylim(*press.ylims)
     ax.axhline(press.goals[0], linewidth=1, linestyle="dashed", color=press.color)
+    ax.set_ylabel(press.label)
 
 
 def axplot_sat(ax: plt.axes, df: pd.DataFrame) -> None:

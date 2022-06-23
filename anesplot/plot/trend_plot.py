@@ -13,14 +13,10 @@ from typing import Any, Optional
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-
-# import numpy as np
-
 import pandas as pd
 
-
 from anesplot.plot import pfunc
-from anesplot.plot import t_axplot as tap
+import anesplot.plot.t_axplot as tap
 
 # from . import pfunc
 # from . import t_axplot as tap
@@ -632,69 +628,53 @@ def ventil_cardio(
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)
         return fig
-    dtime = param.get("dtime", False)
-
-    df = (
-        datadf.set_index("dtime").copy()
-        if dtime
-        else datadf.set_index("eTimeMin").copy()
-    )
 
     if "tvInsp" not in datadf.columns:
         print("no spirometry data in the recording")
 
+    cardiac_items = {"ip1m", "ip1d", "ip1s", "hr"}
+    if not cardiac_items.issubset(set(datadf.columns)):
+        diff = cardiac_items - set(datadf.columns)
+        print("unable to perform the cardiovacular plot")
+        mes = f"{diff} are not present in the data ({param.get('file', '')})"
+        fig = pfunc.empty_data_fig(mes)
+        return fig
+
+    # restrict and timeUnit
+    plot_df = pfunc.restrictdf(datadf, param)
+    pressuredf = plot_df[list(cardiac_items)]
+
     fig = plt.figure(figsize=(12, 5))
     fig.__name__ = "ventil_cardio"
+
     ax1 = fig.add_subplot(211)
-    ax1.set_ylabel("tidal vol.")
-    pfunc.color_axis(ax1, "left", "tab:olive")
-    ax1.yaxis.label.set_color("k")
-    ax1.plot(df.tvInsp, color="tab:olive", linewidth=2)
+    tap.axplot_ventiltidal(ax1, plot_df)
+    pfunc.color_axis(ax1, "left", "tab:orange")  # call
     ax1.spines["right"].set_visible(False)
-    ax1.spines["bottom"].set_visible(False)
-    ax1.tick_params("x")
 
     ax1_r = ax1.twinx()
-    ax1_r.set_ylabel("P_resp")
-    pfunc.color_axis(ax1_r, "right", "tab:red")
-    pfunc.plot_minimeanmax_traces(
-        ax1_r,
-        df,
-        traces=["peep", "pPlat", "pPeak"],
-        widths=[
-            1,
-        ]
-        * 3,
-        color="tab:red",
-        styles=["-", ":", "-"],
-    )
+    tap.axplot_ventilpressure(ax1_r, plot_df)
+    pfunc.color_axis(ax1_r, "right", "tab:red")  # call
     ax1_r.spines["left"].set_visible(False)
-    ax1_r.spines["bottom"].set_visible(False)
 
     ax2 = fig.add_subplot(212, sharex=ax1)
-    ax2.set_ylabel("P_art")
+    tap.axplot_arterialpressure(ax2, pressuredf)
     pfunc.color_axis(ax2, "left", "tab:red")
     ax2.spines["right"].set_visible(False)
-    pfunc.plot_minimeanmax_traces(
-        ax2,
-        df,
-        traces=["ip1s", "ip1m", "ip1d"],
-        widths=[0, 2, 0],
-        color="tab:red",
-        styles=["-"] * 3,
-    )
 
-    if dtime:
-        my_fmt = mdates.DateFormatter("%H:%M")
-        ax1.xaxis.set_major_formatter(my_fmt)
-    else:
-        ax1.set_xlabel("etime (min)")
+    ax2_r = ax2.twinx()
+    tap.axplot_hr(ax2_r, pressuredf)
+    pfunc.color_axis(ax2_r, "right", "tab:grey")
+    ax2_r.spines["left"].set_visible(False)
 
-    for ax in [ax1, ax1_r, ax2]:
-        ax.grid()
-        pfunc.color_axis(ax, "bottom", "tab:grey")
+    for ax in fig.get_axes():
         ax.spines["top"].set_visible(False)
-        ax.get_xaxis().tick_bottom()
+        pfunc.color_axis(ax, "bottom", "tab:grey")
+        if plot_df.index.dtype == "<M8[ns]":
+            my_fmt = mdates.DateFormatter("%H:%M")
+            ax.xaxis.set_major_formatter(my_fmt)
+        else:
+            ax.set_xlabel("etime (min)")
 
     # annotations
     pfunc.add_baseline(fig, param)
@@ -738,7 +718,6 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
 
     fig = plt.figure()
     fig.__name__ = "sat_hr"
-
     # sat
     axl = fig.add_subplot(111)
     tap.axplot_sat(axl, plot_df)
