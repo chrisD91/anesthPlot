@@ -64,6 +64,18 @@ def get_cte(key: str = "default") -> dict[str, Any]:
             traces=[],
             ylims=[30, 150],
         ),
+        "co2rr": dict(
+            key="co2rr",
+            label="co2 respirationRate",
+            color="tab:blue",
+            fillalpha=0.2,
+            edgecolor="tab:blue",
+            unit="mmHg",
+            goals=[5, 15],
+            traces=[],
+            ylims=[6, 10],
+            style="--",
+        ),
         "iso": dict(
             key="iso",
             label="isoflurane",
@@ -115,6 +127,19 @@ def get_cte(key: str = "default") -> dict[str, Any]:
             traces=[],
             ylims=[0, 7],
         ),
+        "minvol": dict(
+            # taph
+            key="minvol",
+            label="minuteVolume",
+            color="tab:olive",
+            fillalpha=0.2,
+            style="-",
+            edgecolor="tab:olive",
+            unit="uncalibrated",
+            goals=[5, 6],
+            traces=[],
+            ylims=[0, 7],
+        ),
         "pPeak": dict(
             # taph
             key="tvcontrol",
@@ -149,10 +174,23 @@ def get_cte(key: str = "default") -> dict[str, Any]:
             fillalpha=0.2,
             style="-",
             edgecolor="tab:red",
-            unit="l",
-            goals=[5, 6],
+            unit="cmH20",
+            goals=[10, 25],
             traces=[],
-            ylims=[0, 7],
+            ylims=[0, 30],
+        ),
+        "setrr": dict(
+            # taph
+            key="setrr",
+            label="set_respiratoryRate",
+            color="k",
+            fillalpha=1,
+            style=":",
+            edgecolor="k",
+            unit="rpm",
+            goals=[5, 10],
+            traces=[],
+            ylims=[0, 15],
         ),
         "settv": dict(
             # taph
@@ -196,6 +234,7 @@ def get_cte(key: str = "default") -> dict[str, Any]:
             label="spO2 heart rate",
             color="tab:gray",
             edgecolor="tab:gray",
+            style=":",
             unit="bpm",
             goals=[30, 50],
             traces=[],
@@ -430,28 +469,37 @@ def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
 
     """
     ax.set_ylabel("'MinVol' & RR")
-    # monitor
-    monitor_items = {"minVexp", "co2RR"}
-    taph_items = {"set_rr", "rr", "calc_minVol"}
-    if monitor_items < set(df.columns):
-        # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
-        ax.plot(df.minVexp, color="tab:olive", linewidth=2, label="minVexp")
-        ax.plot(df.co2RR, color="tab:blue", linewidth=2, linestyle="--", label="co2RR")
-    elif taph_items < set(df.columns):
-        # if ("minVexp" in df.columns) and ("co2RR" in df.columns):
-        # ax2.plot(df.minVexp, color="tab:olive", linewidth=2)
-        ax.plot(df.rr, color="tab:gray", linewidth=2, linestyle="--", label="rr")
-        ax.plot(df.set_rr, color="black", linewidth=1, linestyle=":", label="set_rr")
+    minvol = sn(**get_cte("minvol"))
+    if "co2_rr" in df.columns:
+        co2rr = sn(**get_cte("co2rr"))
+        ax.plot(
+            df.co2_rr,
+            color=co2rr.color,
+            linewidth=2,
+            linestyle=co2rr.style,
+            label=co2rr.label,
+        )
+    if "minVexp" in df.columns:  # monitor
+        ax.plot(df.minVexp, color=minvol.color, linewidth=2, label=minvol.label)
+    if "set_rr" in df.columns:  # taph
+        setrr = sn(**get_cte("setrr"))
+        ax.plot(
+            df.set_rr,
+            color=setrr.color,
+            linewidth=1,
+            linestyle=setrr.style,
+            label=setrr.label,
+        )
+    if "calc_minVol" in df.columns:  # taph
         ax.plot(
             df.calc_minVol / 10,
-            color="tab:olive",
-            linewidth=1,
-            linestyle=":",
-            label="calc_minV",
+            color=minvol.color,
+            linewidth=2,
+            linestyle=minvol.style,
+            label=minvol.label,
         )
     else:
         print("no spirometry data recorded")
-    # ax2.set_xlabel('time (' + unit +')')
 
 
 def axplot_etco2(ax: plt.axes, df: pd.DataFrame) -> None:
@@ -693,7 +741,7 @@ def axplot_sathr(ax: plt.axes, df: pd.DataFrame) -> None:
         color=sathrate.color,
         label=sathrate.label,
         linewidth=2,
-        linestyle=":",
+        linestyle=sathrate.style,
     )
     ax.set_ylabel(sathrate.label)
     ax.set_ylim(*sathrate.ylims)
