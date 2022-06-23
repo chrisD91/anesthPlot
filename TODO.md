@@ -22,11 +22,11 @@
 
 - [x] homogeneize the return elements of the plot function for trends
 
-- [ ] mwaves.data.columns :
+- [x] mwaves.data.columns :
 
-    - [ ] change sec by eTimeSec
-    - [ ] append eTimeMin
-    - [ ] change time by dtime
+    - [x] change sec by eTimeSec
+    - [ ] append eTimeMin. -> no to avoid increase in data size
+    - [x] change time by dtime
 
 - [ ] mtrends.data.columns
 
@@ -36,3 +36,7 @@
 - [ ] trend_plot.py
 
     - [ ] externalize the save function
+
+- [ ] plot_roi_ekgbeat_overlap -> display the number of beats on the plot
+
+- [ ] check wave2video

@@ -156,7 +156,7 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
         "~AWP": "wawp",
         "~Flow": "wflow",
         "~AirV": "wVol",
-        "Unnamed: 0": "time",
+        "Unnamed: 0": "dtime",
     }
     datadf = datadf.rename(columns=colnames)
 
@@ -167,24 +167,24 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
     datadf["wekg"] /= 100  # tranform EKG in mVolts
     datadf["wawp"] *= 10  # mmH2O -> cmH2O
 
-    datadf.time = datadf.time.apply(
+    datadf.dtime = datadf.dtime.apply(
         lambda x: pd.to_datetime(date + "-" + x) if not pd.isna(x) else x
     )
     # correct date time if over midnight
-    min_time_iloc = datadf.loc[datadf.time == datadf.time.min()].index.values[0]
+    min_time_iloc = datadf.loc[datadf.dtime == datadf.dtime.min()].index.values[0]
     if min_time_iloc > datadf.index.min():
         print("recording was performed during two days")
-        datetime_series = datadf.time.copy()
+        datetime_series = datadf.dtime.copy()
         datetime_series.iloc[min_time_iloc:] = datetime_series.iloc[
             min_time_iloc:
         ].apply(lambda x: x + timedelta(days=1) if not pd.isna(x) else x)
-        datadf.time = datetime_series
+        datadf.dtime = datetime_series
     # interpolate time values (fill the gaps)
-    dt_df = datadf.time[datadf.time.notnull()]
+    dt_df = datadf.dtime[datadf.dtime.notnull()]
     time_delta = (dt_df.iloc[-1] - dt_df.iloc[0]) / (
         dt_df.index[-1] - dt_df.index[0] - 1
     )
-    start_time = datadf.time.iloc[0]
+    start_time = datadf.dtime.iloc[0]
     datadf["datetime"] = [start_time + i * time_delta for i in range(len(datadf))]
     datadf["point"] = datadf.index  # point location
     # add a 'sec'
