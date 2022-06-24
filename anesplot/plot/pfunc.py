@@ -62,7 +62,7 @@ def empty_data_fig(mes: str = "") -> plt.Figure:
     return fig
 
 
-def restrictdf(df: pd.DataFrame, parm: dict["str", Any]) -> pd.DataFrame:
+def restrict_trenddf(df: pd.DataFrame, parm: dict["str", Any]) -> pd.DataFrame:
     """
     Change index and restrict the trend dataframe in time.
 
@@ -84,7 +84,12 @@ def restrictdf(df: pd.DataFrame, parm: dict["str", Any]) -> pd.DataFrame:
     # unit = param.get("unit", "")
     dtime = parm.get("dtime", False)
     # global timeUnit
-    timebase = "dtime" if dtime else "eTimeMin"
+    if dtime:
+        timebase = "dtime"
+        parm["unit"] = "dtime"
+    else:
+        timebase = "eTimeMin"
+        parm["unit"] = "min"
     toplot_df = df.set_index(timebase).copy()
     xmin = parm.get("xmin", df.index.min())
     xmax = parm.get("xmax", df.index.max())
@@ -142,46 +147,6 @@ def remove_outliers(
     ser[~ser.between(lims[0], lims[1])] = np.nan
     ser = ser.dropna()
     return ser
-
-
-def plot_minimeanmax_traces(
-    ax: plt.axes,
-    df: pd.DataFrame,
-    traces: list[str],
-    color: str = "tab:blue",
-    widths: Optional[list[int]] = None,
-    styles: Optional[list[str]] = None,
-) -> None:
-    """
-    Plot mean and fill_between min-max on the given ax.
-
-    Parameters
-    ----------
-    ax : plt.subplot
-        the axe to use.
-    df : pd.DataFrame
-        the data.
-    traces : list[str]
-        the list of columns.
-    color : str
-        the color to use.
-
-    Returns
-    -------
-    None
-    """
-    if styles is None:
-        styles = ["-"] * len(traces)
-    if widths is None:
-        widths = [1] * len(traces)
-    # traces = ["ip1d", "ipm", "ip1s"]
-    # color = "tab:red"
-    # widths = [1, 2, 1]
-    # styles = ["-", "-", "-"]
-    for trace, width, style in zip(traces, widths, styles):
-        print(f"{trace=}, {width=}, {style=}")
-        ax.plot(df[trace], color=color, linewidth=width, linestyle=style)
-    ax.fill_between(df.index, df[traces[0]], df[traces[-1]], color=color, alpha=0.2)
 
 
 def color_axis(ax0: plt.Axes, spine: str = "bottom", color: str = "r") -> None:

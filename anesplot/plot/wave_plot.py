@@ -20,8 +20,9 @@ import matplotlib.pyplot as plt
 # import numpy as np
 import pandas as pd
 
-# import anesplot.plot.pfunc
-from . import pfunc
+from anesplot.plot import pfunc
+
+# from . import pfunc
 
 pfunc.update_pltparams()
 
@@ -60,8 +61,8 @@ def build_default_parameters(keys: list[str]) -> dict[str, list[str]]:
     return keydict
 
 
-def restrict_dataframe(
-    keys: list[str], datadf: pd.DataFrame, param: dict[str, Any]
+def restrict_wavedf(
+    keys: list[str], datadf: pd.DataFrame, parm: dict[str, Any]
 ) -> pd.DataFrame:
     """
     Return a dataframe with adequate index and only selected columns.
@@ -81,7 +82,7 @@ def restrict_dataframe(
         the restricted dataframe.
 
     """
-    ilims = [param.get("mini", datadf.index[0]), param.get("maxi", datadf.index[-1])]
+    ilims = [parm.get("mini", datadf.index[0]), parm.get("maxi", datadf.index[-1])]
     if not datadf.index[0] <= ilims[0] <= datadf.index[-1]:
         print("mini value not in range, replaced by start time value")
         ilims[0] = datadf.index[0]
@@ -89,19 +90,21 @@ def restrict_dataframe(
         print("maxi value not in range, replaced by end time value")
         ilims[1] = datadf.index[-1]
     # datetime or elapsed time sec
-    dtime = param.get("dtime", False)
+    dtime = parm.get("dtime", False)
     if dtime and "datetime" not in datadf.columns:
         print("no datetime values, changed dtime to False")
         dtime = False
     cols = list(set(keys))
     if dtime:
-        cols.insert(0, "datetime")
+        cols.insert(0, "dtime")
         plotdf = datadf[cols].copy()
         plotdf = plotdf.iloc[ilims[0] : ilims[1]].set_index("datetime")
+        parm["unit"] = "dtime"
     else:
         cols.insert(0, "etimesec")
         plotdf = datadf[cols].copy()
         plotdf = plotdf.iloc[ilims[0] : ilims[1]].set_index("etimesec")
+        parm["unit"] = "sec"
     return plotdf
 
 
@@ -221,7 +224,7 @@ def plot_wave(
     dtime = param.get("dtime", False)
     # default plotting labels
     key_dict = build_default_parameters(keys)
-    plotdf = restrict_dataframe(keys, datadf, param)
+    plotdf = restrict_wavedf(keys, datadf, param)
 
     # Plot
     lines: list[plt.Line2D] = []

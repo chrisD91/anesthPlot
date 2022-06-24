@@ -225,7 +225,7 @@ def cardiovasc(
         return fig
 
     # restrict and timeUnit
-    pressuredf = pfunc.restrictdf(datadf, param)
+    pressuredf = pfunc.restrict_trenddf(datadf, param)
     pressuredf = pressuredf[list(cardiac_items)]
 
     fig = plt.figure()
@@ -295,7 +295,7 @@ def cardiovasc_p1p2(
         return plt.figure()
 
     # restrict and timeUnit
-    pressuredf = pfunc.restrictdf(datadf, param)
+    pressuredf = pfunc.restrict_trenddf(datadf, param)
     pressuredf = pressuredf[list(cardiac_items)]
 
     fig, axes = plt.subplots(figsize=(12, 6), ncols=1, nrows=2, sharex=True)
@@ -363,7 +363,7 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
         return plt.figure()
 
     # restrict and timeUnit
-    plot_df = pfunc.restrictdf(datadf, param)
+    plot_df = pfunc.restrict_trenddf(datadf, param)
     plot_df = plot_df[list(plot_items)]
 
     fig = plt.figure()
@@ -429,7 +429,7 @@ def co2o2(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.F
         return fig
 
     # restrict and timeUnit
-    plot_df = pfunc.restrictdf(datadf, param)
+    plot_df = pfunc.restrict_trenddf(datadf, param)
     plot_df = plot_df[list(plot_items)]
 
     fig = plt.figure()
@@ -487,7 +487,7 @@ def ventil(
         fig = pfunc.empty_data_fig(mes)  # error message fig
         return fig
 
-    plot_df = pfunc.restrictdf(datadf, param)
+    plot_df = pfunc.restrict_trenddf(datadf, param)
 
     fig = plt.figure(figsize=(12, 5))
     fig.__name__ = "ventil"
@@ -553,7 +553,7 @@ def recrut(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
         return fig
 
     # restrict and timeUnit
-    toplot_df = pfunc.restrictdf(datadf, param)
+    toplot_df = pfunc.restrict_trenddf(datadf, param)
 
     fig = plt.figure()
     fig.__name__ = "recrut"
@@ -619,7 +619,7 @@ def ventil_cardio(
         return fig
 
     # restrict and timeUnit
-    plot_df = pfunc.restrictdf(datadf, param)
+    plot_df = pfunc.restrict_trenddf(datadf, param)
     pressuredf = plot_df[list(cardiac_items)]
 
     fig = plt.figure(figsize=(12, 5))
@@ -691,7 +691,7 @@ def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
         return plt.figure()
 
     plot_items = ["sat", "spo2Hr"]
-    plot_df = pfunc.restrictdf(datadf, param)
+    plot_df = pfunc.restrict_trenddf(datadf, param)
     plot_df = plot_df[list(plot_items)]
 
     fig = plt.figure()
