@@ -37,16 +37,18 @@ class _Waves:  # pylint: disable=too-few-public-methods
         self.roi: Optional[dict[str, Any]] = None
         self.header: dict[str, Any]
         self.param: dict[str, Any] = dict(
+            dtmin=None,
+            dtmax=None,
             xmin=None,
             xmax=None,
             ymin=0,
             ymax=None,
             path=paths.get("sFig", "~"),
-            unit="min",
+            dtime=True,
+            unit="dtime",
             save=False,
             memo=False,
             file=None,
             source=None,
             sampling_freq=None,
-            dtime=True,
         )

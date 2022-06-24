@@ -47,7 +47,7 @@ def get_roi(
         dtime_lims = [_.tz_localize(None) for _ in dtime_lims]
         # i_lims = [bisect(datadf.datetime, _) for _ in dtime_lims]fig
         i_lims = [
-            datadf.set_index("datetime").index.get_indexer([_], method="nearest")
+            datadf.set_index("dtime").index.get_indexer([_], method="nearest")
             for _ in dtime_lims
         ]
     else:  # index = sec
@@ -59,7 +59,7 @@ def get_roi(
     if "point" not in datadf.columns:
         datadf["point"] = datadf.index
     roidict = {}
-    for abbr, col in {"dt": "datetime", "pt": "point", "sec": "etimesec"}.items():
+    for abbr, col in {"dt": "dtime", "pt": "point", "sec": "etimesec"}.items():
         if col in datadf.reset_index().columns:
             lims = tuple(datadf.iloc[_][[col]].values[0] for _ in i_lims)
         else:

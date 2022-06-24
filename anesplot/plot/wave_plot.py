@@ -91,14 +91,15 @@ def restrict_wavedf(
         ilims[1] = datadf.index[-1]
     # datetime or elapsed time sec
     dtime = parm.get("dtime", False)
-    if dtime and "datetime" not in datadf.columns:
-        print("no datetime values, changed dtime to False")
+    if dtime and "dtime" not in datadf.columns:
+        print("no dtime values, changed dtime to False")
         dtime = False
+        parm["dtime"] = False
     cols = list(set(keys))
     if dtime:
         cols.insert(0, "dtime")
         plotdf = datadf[cols].copy()
-        plotdf = plotdf.iloc[ilims[0] : ilims[1]].set_index("datetime")
+        plotdf = plotdf.iloc[ilims[0] : ilims[1]].set_index("dtime")
         parm["unit"] = "dtime"
     else:
         cols.insert(0, "etimesec")
@@ -109,7 +110,7 @@ def restrict_wavedf(
 
 
 def plot_on_one_ax(
-    ax: plt.Axes, ser: pd.Series, key: str, name: list[str], dtime: bool
+    ax: plt.Axes, ser: pd.Series, key: str, names: list[str], dtime: bool
 ) -> tuple[plt.Axes, list[str]]:
     """
     Plot using the provided ax.
@@ -135,7 +136,7 @@ def plot_on_one_ax(
         list of the displayed line 2D objects.
 
     """
-    _, color, unit = name
+    _, color, unit = names
     (line,) = ax.plot(ser, color=color, alpha=0.6)
     ax.axhline(0, alpha=0.3)
     ax.set_ylabel(unit)
