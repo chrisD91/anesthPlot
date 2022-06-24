@@ -23,7 +23,7 @@ def create_video(
     save: bool = False,
     savename: str = "example",
     savedir: str = "~",
-) -> None:
+) -> Any:
     """
     Create a video from a figure.
 
@@ -69,9 +69,9 @@ def create_video(
         -------
         sub_df : pandas.DataFrame
         """
-        sub_df = datadf[xlims[0] < datadf.sec]
-        sub_df = sub_df[sub_df.sec < xlims[1]]
-        sub_df = sub_df.set_index("sec")
+        sub_df = datadf[xlims[0] < datadf.etimesec]
+        sub_df = sub_df[sub_df.etimesec < xlims[1]]
+        sub_df = sub_df.set_index("etimesec")
         sub_df = sub_df[keys].copy()
         return sub_df
 
@@ -81,7 +81,7 @@ def create_video(
         keys: list[str],
         xlims: tuple[int, ...],
         ylims: list[tuple[int, int]],
-    ) -> Union[plt.figure, plt.Line2D]:
+    ) -> Union[plt.figure, list[plt.Line2D]]:
         """Build a new figure and associated line2D objects."""
         plt.close("all")
         dtime = param["dtime"]
@@ -96,7 +96,7 @@ def create_video(
 
     def animate(
         i: int, df: pd.DataFrame, keys: list[str], nbpoint: int
-    ) -> Any[tuple[plt.Line2D], tuple[plt.Line2D, plt.Line2D]]:
+    ) -> Union[tuple[plt.Line2D], tuple[plt.Line2D, plt.Line2D]]:
         """
         Animate the plot.
 
@@ -143,14 +143,13 @@ def create_video(
 
     df = select_sub_dataframe(data, traces, x_lims)
     fig, lines = init(data, param, traces, x_lims, y_lims)
-
     for line in lines:
         line.set_data([], [])
     line0 = lines[0]
     line1 = lines[1] if len(lines) > 1 else None
 
-    global ANI
-    ani = animation.FuncAnimation(
+    # global ANI
+    anim = animation.FuncAnimation(
         fig,
         animate,
         # init_func = init_wave,
@@ -166,11 +165,34 @@ def create_video(
             savedir = os.path.expanduser("~")
         filename = os.path.join(savedir, savename)
         print(f"{'-' * 10} building video : {savename}.png and .mp4")
-        ani.save(filename + ".mp4")
+        anim.save(filename + ".mp4")
         fig.savefig(filename + ".png")
         print(f"{'-' * 10} saved {savename}.png and .mp4")
-    plt.show()
+    # plt.show()
+    return anim
 
 
-# ANI = "global_to_maintain animation"
-ANI = None
+# %%
+if __name__ == "__main__":
+    pass
+    # import anesplot.config.load_recordrc
+    # import anesplot.fast_waves
+
+    # paths = anesplot.config.load_recordrc.build_paths()
+    # test_filename = os.path.join(
+    #     paths["cwd"], "example_files", "M2021_4_16-8_44_38Wave.csv"
+    # )
+
+    # mwaves = anesplot.fast_waves.MonitorWave(test_filename)
+    # mwaves.plot_wave(["wekg", "wap"])
+    # # zoom in
+    # mwaves.save_roi()
+    # anim_ = create_video(
+    #     mwaves.data,
+    #     mwaves.param,
+    #     mwaves.roi,
+    #     speed=50,
+    #     save=False,
+    #     savename="example",
+    #     savedir="~",
+    # )

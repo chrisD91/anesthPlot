@@ -146,7 +146,7 @@ class _FastWave(_Waves):
         save: bool = False,
         savename: str = "video",
         # savedir: str = "~",
-    ) -> None:
+    ) -> Optional[Any]:
         """
         Build a video the previous builded figure.
 
@@ -167,11 +167,11 @@ class _FastWave(_Waves):
 
         Returns
         -------
-        None.
+        plt.Animation.
 
         """
         if self.roi:
-            w2vid.create_video(
+            anim = w2vid.create_video(
                 self.data,
                 self.param,
                 self.roi,
@@ -180,11 +180,10 @@ class _FastWave(_Waves):
                 savename=savename,
                 savedir="~",
             )
-            # wplot.create_video(
-            #     self, speed=speed, save=save, savename=savename, savedir="~"
-            # )
-        else:
-            print("no roi attribute, please use record_roi() to build one")
+            return anim
+        mes = "no roi attribute, please use record_roi() to build one"
+        print(mes)
+        return mes
 
     def plot_roi_systolic_variation(
         self,

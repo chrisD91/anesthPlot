@@ -111,7 +111,7 @@ def restrict_wavedf(
 
 def plot_on_one_ax(
     ax: plt.Axes, ser: pd.Series, key: str, names: list[str], dtime: bool
-) -> tuple[plt.Axes, list[str]]:
+) -> tuple[plt.Axes, plt.Line2D]:
     """
     Plot using the provided ax.
 
@@ -172,9 +172,7 @@ def plot_on_one_ax(
     if not dtime:
         ax.set_xlabel("time (sec)")
 
-    return ax, [
-        line,
-    ]
+    return ax, line
 
 
 def plot_wave(
