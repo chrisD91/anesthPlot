@@ -28,7 +28,6 @@ from anesplot.treatrec.wave_func import fix_baseline_wander
 # from ..plot.wave_plot import color_axis
 
 # %%
-plt.close("all")
 
 
 def get_peaks(
@@ -168,7 +167,7 @@ def plot_roi_systolic_pressure_variation(
     """
 
     def deltavar(ser: pd.Series, median: bool = False) -> float:
-        """compute the delta variation with med or mean base"""
+        """Compute the delta variation with med or mean base."""
         maxi, mini, mean, med = ser.agg(["max", "min", "mean", "median"])
         if median:
             return float((maxi - mini) / med)
