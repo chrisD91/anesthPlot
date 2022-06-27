@@ -14,6 +14,7 @@ collection of functions to plot the wave data
 # from math import ceil, floor
 from typing import Any, Optional
 
+# import matplotlib
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 
@@ -23,7 +24,7 @@ import pandas as pd
 from anesplot.plot import pfunc
 
 # from . import pfunc
-
+# matplotlib.use("MacOsX")
 pfunc.update_pltparams()
 
 
@@ -228,8 +229,11 @@ def plot_wave(
     # Plot
     lines: list[plt.Line2D] = []
     # one wave -> key, key_dict, plotdf[key], dtime
+    # breakpoint()
     if len(keys) == 1:
-        fig = plt.figure(figsize=(12, 4))
+        fig = plt.figure(
+            figsize=(12, 4)
+        )  # -> segmentation fault if called from terminal
         fig.suptitle(key_dict[keys[0]][0], color="tab:grey")
         ax = fig.add_subplot(111)
         ax.margins(0)

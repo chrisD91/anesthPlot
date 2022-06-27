@@ -58,7 +58,7 @@ class _FastWave(_Waves):
 
     def plot_wave(
         self, traces_list: Union[list[str], None] = None
-    ) -> tuple[plt.figure, list[plt.Line2D], list[str]]:
+    ) -> tuple[plt.Figure, list[plt.Line2D], Optional[list[str]]]:
         """
         Choose and plot for a wave.
 
@@ -82,16 +82,13 @@ class _FastWave(_Waves):
         else:
             print(f"{'-' * 20} started FastWave plot_wave)")
             print(f"{'-' * 10}> choose the wave(s)")
-            cols = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
-            if traces_list is None:
-                traces_list = []
-                # trace = loadagg.select_type(question='choose wave', items=cols)
-                for num in [1, 2]:
-                    trace = select_wave_to_plot(waves=cols, num=num)
-                    if trace is not None:
-                        traces_list.append(trace)
+            cols: list[str] = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
+            if traces_list is None and cols:
+                traces_list = select_wave_to_plot(waves=cols)
             if traces_list:
                 print("call wplot.plot_wave")
+                # get segmentation fault if called after
+                # breakpoint()
                 fig, lines = wplot.plot_wave(
                     self.data, keys=traces_list, param=self.param
                 )

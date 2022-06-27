@@ -8,11 +8,14 @@ import os
 from math import floor, ceil
 from typing import Any, Union
 
+import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import animation
 
 import anesplot.plot.wave_plot
+
+matplotlib.use("qt5Agg")
 
 
 def create_video(
