@@ -70,7 +70,7 @@ def trendname_to_wavename(name: str) -> str:
     return name.split(".")[0] + "Wave.csv"
 
 
-def main(file_name: Optional[str] = None) -> None:
+def main(file_name: Optional[str] = None) -> str:
     """
     Script called from command line.
 
@@ -87,6 +87,8 @@ def main(file_name: Optional[str] = None) -> None:
     -------
     None.
     """
+    # breakpoint()
+    # faulthandler.enable()
     # os.chdir(paths.get("recordMain", os.path.expanduser('~')))
     print(f"backEnd= {plt.get_backend()}")  # required ?
     print("start QtApp")
@@ -100,6 +102,8 @@ def main(file_name: Optional[str] = None) -> None:
     print(f"file_name is {file_name}")
     if file_name is None:
         file_name = loadagg.choosefile_gui(paths["data"])
+    if not file_name:
+        return ""
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     # select base index in the scroll down
     num = 0
@@ -128,6 +132,7 @@ def main(file_name: Optional[str] = None) -> None:
 
     pyperclip.copy(file_name)
     plt.show()
+    return file_name
 
 
 # %%

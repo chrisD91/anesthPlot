@@ -94,13 +94,13 @@ class _FastWave(_Waves):
                 )
                 print("returned from wplot.plot_wave")
                 self.trace_list = traces_list
-                plt.show()  # required to display the plot before exiting
             else:
                 self.trace_list = []
                 fig = plt.figure()
                 lines = [plt.Line2D]
             self.fig = fig
             print(f"{'-' * 20} ended FastWave plot_wave")
+            plt.show()  # required to display the plot before exiting
         return fig, lines, traces_list
 
     def save_roi(self, erase: bool = False) -> dict[str, Any]:
@@ -177,6 +177,7 @@ class _FastWave(_Waves):
                 savename=savename,
                 savedir="~",
             )
+            plt.show()
             return anim
         mes = "no roi attribute, please use record_roi() to build one"
         print(mes)

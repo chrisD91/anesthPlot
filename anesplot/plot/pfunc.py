@@ -10,13 +10,14 @@ import os
 from typing import Optional, Any
 
 import numpy as np
-import matplotlib
+
+# import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import dates as mdates
 
 # matplotlib.use("QT5agg")
-matplotlib.use("MacOsX")
+# matplotlib.use("MacOsX")
 
 
 def update_pltparams() -> None:

@@ -25,6 +25,7 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
         DESCRIPTION. : full name of the selected file
 
     """
+    # breakpoint()
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
@@ -78,3 +79,15 @@ def select_type(
     else:
         selection = None
     return selection
+
+
+#%%
+if __name__ == "__main__":
+    import os
+    import anesplot.config.load_recordrc
+
+    paths = anesplot.config.load_recordrc.paths
+    FILENAME = choosefile_gui(paths["data"])
+    print(os.path.basename(FILENAME))
+
+    # kinds = select_type(question="choose kind of file", items=kinds)
