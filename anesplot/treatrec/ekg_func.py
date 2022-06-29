@@ -94,10 +94,10 @@ def plot_roi_ekgbeat_overlap(
     for i, x_loc in enumerate(beatloc_df.x_loc):
         x_loc = beatloc_df.x_loc[i]
         # beat = ekgdf.loc[x_loc - 0.3 * interbeat_sec : x_loc + 0.5 * interbeat_sec]
-        beat = ekgdf.loc[x_loc - 0.5 : x_loc + 0.8]
+        beat = ekgdf.loc[x_loc - 0.6 : x_loc + 0.8]
         beat.index = beat.index - x_loc
         ax.plot(beat, label=i, alpha=0.8)
-    ax.set_xticks(np.arange(-0.5, 0.8, 0.1), minor=True)
+    ax.set_xticks(np.arange(-0.6, 0.8, 0.1), minor=True)
     ax.grid(which="both")
     txt = f"{len(beatloc_df)} beats overlapped  "
     ax.text(

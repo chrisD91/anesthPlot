@@ -51,7 +51,9 @@ rcParams["axes.ymargin"] = 0
 
 faulthandler.enable()
 
-
+if "app" not in dir():
+    app = QApplication(sys.argv)
+    app.quitOnLastWindowClosed()
 fig_group = SimpleNamespace()
 
 
@@ -120,9 +122,9 @@ def main(file_name: Optional[str] = None) -> str:
     print(f"backEnd= {plt.get_backend()}")  # required ?
     print("start QtApp")
     # global APP
-    if "app" not in dir():
-        app = QApplication(sys.argv)
-        app.setQuitOnLastWindowClosed(True)
+    # if "app" not in dir():
+    #     app = QApplication(sys.argv)
+    #     app.setQuitOnLastWindowClosed(True)
 
     # choose file and indicate the source
     print("select the file containing the data")

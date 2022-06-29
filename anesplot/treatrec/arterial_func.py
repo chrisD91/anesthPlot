@@ -56,6 +56,7 @@ def get_peaks(
     distance = 300
     width = 1  # just to have a width measure in the output
     low_width = 45  # to remove the artefacts (narrow peaks)
+    # replaced in the code by 80* of median width value
 
     ser_detrended = fix_baseline_wander(ser, 300)
     height = ser_detrended.quantile(q=quantile)
@@ -109,6 +110,7 @@ def get_peaks(
         fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
         fig.tight_layout()
     # remove artefact:
+    low_width = 0.8 * np.median(properties["widths"])
     artefact = np.where(peaksdf.widths < low_width)[0]
     if annotations:
         ax0.plot(artefact, ser_detrended.iloc[artefact], "or")

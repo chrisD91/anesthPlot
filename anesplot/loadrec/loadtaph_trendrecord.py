@@ -157,6 +157,9 @@ def choose_taph_record(monitorname: Optional[str] = None) -> str:
                 day_index = i
                 break
     #    APP = QApplication(sys.argv)
+    if "app" not in dir():
+        app = QApplication([])
+        app.setQuitOnLastWindowClosed(True)
     widg = QWidget()
     recorddate, ok_pressed = QInputDialog.getItem(
         widg, "select", question, recorddates, day_index, False

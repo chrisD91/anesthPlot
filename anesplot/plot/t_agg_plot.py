@@ -14,7 +14,7 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
 
 import anesplot.plot.trend_plot as tplot
 
@@ -236,6 +236,10 @@ def plot_a_trend(
         app = QApplication(sys.argv)
         app.setQuitOnLastWindowClosed(True)
     question = "choose the function to use"
+    if "app" not in dir():
+        app = QApplication([])
+        app.setQuitOnLastWindowClosed(True)
+
     widg = QWidget()
     names = [st.__name__ for st in func_list[::-1]]
     name, ok_pressed = QInputDialog.getItem(widg, "select", question, names, 0, False)

@@ -55,7 +55,7 @@ def select_wave_to_plot(waves: list[str]) -> list[str]:
     """Select the wave(s)."""
     # waves = ["wekg", "wap", "wco2"]
     selected_waves = []
-    app = QApplication(sys.argv)
+    # app = QApplication(sys.argv)
     for num in [1, 2]:
         dial = ChooseWave(waves, num)
         if dial.select:
@@ -64,7 +64,12 @@ def select_wave_to_plot(waves: list[str]) -> list[str]:
     return selected_waves
 
 
+if "app" not in dir():
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(True)
+
 # %%
 if __name__ == "__main__":
+
     selections = select_wave_to_plot(["wekg", "wap", "wco2"])
     print(selections)

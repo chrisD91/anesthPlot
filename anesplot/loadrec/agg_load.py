@@ -69,9 +69,9 @@ def select_type(
         items = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
     if question is None:
         question = "choose kind of file"
-    # if 'app' not in dir():
-    app = QApplication([])
-    app.setQuitOnLastWindowClosed(True)
+    if "app" not in dir():
+        app = QApplication([])
+        app.setQuitOnLastWindowClosed(True)
     widg = QWidget()
     kind, ok_pressed = QInputDialog.getItem(widg, "select", question, items, num, False)
     if ok_pressed and kind:
