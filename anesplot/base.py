@@ -6,7 +6,7 @@ Created on Thu Apr 28 16:20:07 2022
 
 the base wave for slow and fast waves
 """
-
+from types import SimpleNamespace
 from typing import Any, Optional
 
 import matplotlib.pyplot as plt
@@ -34,6 +34,7 @@ class _Waves:  # pylint: disable=too-few-public-methods
         self.filename: str
         self.data: pd.DataFrame
         self.fig: plt.Figure
+        self.figures: SimpleNamespace = SimpleNamespace()
         self.roi: Optional[dict[str, Any]] = None
         self.header: dict[str, Any]
         self.param: dict[str, Any] = dict(
@@ -50,5 +51,25 @@ class _Waves:  # pylint: disable=too-few-public-methods
             memo=False,
             file=None,
             source=None,
+            # source_abbr=None,
             sampling_freq=None,
         )
+
+    def append_to_figures(self, figdico: dict[str, plt.Figure]) -> None:
+        """
+        Append fig to a self.figures (a SimpleNameSpace).
+
+        Parameters
+        ----------
+        figdico : dict[str, plt.Figure]
+            dico {name:fig}.
+
+        Returns
+        -------
+        None.
+
+        """
+        for name, fig in figdico.items():
+            # callname = name + "_".join([name, self.param["source_abbr"]])
+            callname = name
+            setattr(self.figures, callname, fig)

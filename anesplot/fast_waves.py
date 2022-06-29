@@ -87,7 +87,7 @@ class _FastWave(_Waves):
                 traces_list = select_wave_to_plot(waves=cols)
             if traces_list:
                 print("call wplot.plot_wave")
-                # get segmentation fault if called after
+                # get segmentation fault if called after a trend.showplots()
                 # breakpoint()
                 fig, lines = wplot.plot_wave(
                     self.data, keys=traces_list, param=self.param
@@ -99,6 +99,7 @@ class _FastWave(_Waves):
                 fig = plt.figure()
                 lines = [plt.Line2D]
             self.fig = fig
+            self.append_to_figures({"waveplot": fig})
             print(f"{'-' * 20} ended FastWave plot_wave")
             plt.show()  # required to display the plot before exiting
         return fig, lines, traces_list
@@ -191,19 +192,24 @@ class _FastWave(_Waves):
     ) -> None:
         """Plot the systolic variations (sample of a record based on ROI)."""
         if self.roi:
-            anesplot.treatrec.arterial_func.plot_roi_systolic_pressure_variation(
+            (
+                fig,
+                _,
+            ) = anesplot.treatrec.arterial_func.plot_roi_systolic_pressure_variation(
                 self,
                 teach=teach,
                 annotations=annotations,
                 lims=lims,
             )
+            self.append_to_figures({"systolic_variation": fig})
             # wplot.plot_systolic_pressure_variation(self)
         else:
             print("please define a ROI using mwave.save_a_roi")
 
     def plot_record_systolic_variation(self) -> None:
         """Plot the systolic variation (whole record)."""
-        anesplot.treatrec.arterial_func.plot_record_systolic_variation(self)
+        fig, _ = anesplot.treatrec.arterial_func.plot_record_systolic_variation(self)
+        self.append_to_figures({"systolic_variation": fig})
 
     def plot_roi_ekgbeat_overlap(
         self, lims: Optional[Tuple[float, float]] = None, threshold: float = -1
@@ -212,6 +218,7 @@ class _FastWave(_Waves):
         fig = anesplot.treatrec.ekg_func.plot_roi_ekgbeat_overlap(
             self, lims=lims, threshold=threshold
         )
+        self.append_to_figures({"ekgbeat_overlap": fig})
         return fig
 
 
@@ -242,6 +249,7 @@ class TelevetWave(_FastWave):
         self.data = data
         # self.source = "teleVet"
         self.param["source"] = "televet"
+        # self.param["source_abbr"] = "tw"
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
         sampling_freq = data.index.max() / data.sec.iloc[-1]
@@ -305,5 +313,6 @@ class MonitorWave(_FastWave):
             print(f"{'-'*5} MonitorWave: didn't load the data ({load=})")
             self.data = pd.DataFrame()
         self.param["source"] = "monitorWave"
+        # self.param["source_abbr"] = "mw"
         self.param["sampling_freq"] = float(header.get("Data Rate (ms)", 0)) * 60 / 1000
         # usually 300 Hz

@@ -18,7 +18,9 @@ import pandas as pd
 
 # import anesplot
 import anesplot.loadrec.loadtaph_trendrecord as ltt
-import anesplot.plot.t_agg_plot as tagg
+
+# import anesplot.plot.t_agg_plot as tagg
+import anesplot.plot.t_agg_plot
 from anesplot.base import _Waves
 from anesplot.config.load_recordrc import build_paths
 from anesplot.loadrec.agg_load import choosefile_gui
@@ -73,7 +75,10 @@ class _SlowWave(_Waves):
             print("recording is empty : no data to plot")
             fig_dico = {}
         else:
-            fig_dico = tagg.plot_trenddata(self.data, self.header, self.param)
+            fig_dico = anesplot.plot.t_agg_plot.plot_trenddata(
+                self.data, self.header, self.param
+            )
+            self.append_to_figures(fig_dico)
         return fig_dico
 
     def plot_trend(self) -> tuple[plt.Figure, str]:
@@ -86,10 +91,12 @@ class _SlowWave(_Waves):
         else:
             print(f"{'-' * 20} started trends plot_trend)")
             print(f"{'-' * 10}> choose the trace")
-            fig, name = tagg.plot_a_trend(self.data, self.param)
+            fig, name = anesplot.plot.t_agg_plot.plot_a_trend(self.data, self.param)
             print(f"{'-' * 20} ended trends plot_trend")
             self.fig = fig
             self.name = name
+            if name:
+                self.append_to_figures({name: fig})
         return fig, name
 
     def save_roi(self, erase: bool = False) -> dict[str, Any]:
@@ -115,8 +122,7 @@ class _SlowWave(_Waves):
         if erase:
             roidict = {}
         if self.fig:
-            roidict = tagg.get_roi(self.fig, self.data, self.param)
-            # roidict = tagg.get_trend_roi(self.fig, self.data, self.param)
+            roidict = anesplot.plot.t_agg_plot.get_roi(self.fig, self.data, self.param)
             roidict.update({"name": self.name, "fig": self.fig})
         else:
             print("no fig attribute, please use plot_trend() method to build one")
@@ -141,7 +147,7 @@ class _SlowWave(_Waves):
         if self.roi is None:
             print("please define a roi -> .save_roi()")
             return plt.Figure(), plt.Figure()
-        halffig, _, fullfig = tagg.build_half_white(
+        halffig, _, fullfig = anesplot.plot.t_agg_plot.build_half_white(
             self.fig, self.name, self.data, self.param, self.roi, lang=lang
         )
         halffig.show()
@@ -208,6 +214,7 @@ class MonitorTrend(_SlowWave):
             sampling = header.get("Sampling Rate", None)
             self.param["sampling_freq"] = 1 / sampling if sampling else None
             self.param["source"] = "monitorTrend"
+            # self.param["source_abbr"] = "m"
             name = str(header["Patient Name"]).title().replace(" ", "")
             # name = name.title().replace(" ", "")
             self.param["name"] = name[0].lower() + name[1:]
@@ -293,8 +300,8 @@ class TaphTrend(_SlowWave):
             header = {}
         self.data = data
         self.header = header
-
         self.param["source"] = "taphTrend"
+        # self.param["source_abbr"] = "t"
         self.param["sampling_freq"] = None
         self.extract_events()
 
@@ -338,6 +345,7 @@ class TaphTrend(_SlowWave):
             self.ventil_drive_df, self.param, all_traces
         )
         fig.show()
+        self.append_to_figures({"ventil_drive": fig})
         return fig
 
     def plot_events(
@@ -362,6 +370,7 @@ class TaphTrend(_SlowWave):
         fig = anesplot.treatrec.manage_events.plot_events(
             self.dt_events_df, self.param, todrop, dtime
         )
+        self.append_to_figures({"events": fig})
         return fig
 
     def export_taph_events(self, save_to_file: bool = False) -> None:

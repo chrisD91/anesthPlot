@@ -194,7 +194,7 @@ def build_half_white(
 
 def plot_a_trend(
     datadf: pd.DataFrame, param_dico: dict[str, Any]
-) -> tuple[plt.figure, str]:
+) -> tuple[plt.Figure, str]:
     """
     Choose and generate a trend plot.
 

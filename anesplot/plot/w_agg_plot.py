@@ -13,16 +13,12 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
 
 
-class ChooseWave(QWidget):  # typing: ignore
-    """ "Choose wave dialog."""
+class ChooseWave(QWidget):
+    """Choose wave dialog."""
 
     def __init__(self, waves: list[str], num: int = 1) -> None:
         super().__init__()
         self.title = "choose the trace to plot"
-        self.left = 10
-        self.top = 10
-        self.width = 640
-        self.height = 480
         self.waves = waves
         self.num = num
         self.select: Optional[str] = None
@@ -30,8 +26,12 @@ class ChooseWave(QWidget):  # typing: ignore
 
     def init_ui(self) -> None:
         """Init GUI."""
+        left = 10
+        top = 10
+        width = 640
+        height = 480
         self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setGeometry(left, top, width, height)
         self.get_choice()
         self.show()
 

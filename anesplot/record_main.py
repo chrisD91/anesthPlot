@@ -28,6 +28,7 @@ nb to work within spyder : move inside anestplot (>> cd anesplot)
 import faulthandler
 import os
 import sys
+from types import SimpleNamespace
 from typing import Optional
 
 import matplotlib
@@ -49,6 +50,33 @@ rcParams["axes.xmargin"] = 0
 rcParams["axes.ymargin"] = 0
 
 faulthandler.enable()
+
+
+fig_group = SimpleNamespace()
+
+
+def append_to_figures(
+    figs: SimpleNamespace, figdico: dict[str, plt.Figure], key: str = "t"
+) -> None:
+    """
+    Append figures to a simpleNameSpace variables.
+
+    Parameters
+    ----------
+    figures : SimpleNamespace
+        DESCRIPTION.
+    figdico : dict[str, plt.Figure]
+        list of builded figures.
+    add_key : str, optional (default is "t")
+        key to add to the figure name
+
+    Returns
+    -------
+    None.
+
+    """
+    for name, fig in figdico.items():
+        setattr(figs, name + "_".join([name, key]), fig)
 
 
 def get_basic_debrief_commands() -> str:
@@ -87,7 +115,6 @@ def main(file_name: Optional[str] = None) -> str:
     -------
     None.
     """
-    # breakpoint()
     # faulthandler.enable()
     # os.chdir(paths.get("recordMain", os.path.expanduser('~')))
     print(f"backEnd= {plt.get_backend()}")  # required ?
