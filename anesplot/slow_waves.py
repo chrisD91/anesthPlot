@@ -27,6 +27,7 @@ from anesplot.loadrec.agg_load import choosefile_gui
 from anesplot.loadrec.loadmonitor_trendrecord import (
     loadmonitor_trenddata,
     loadmonitor_trendheader,
+    concat_data,
 )
 import anesplot.treatrec.manage_events
 from anesplot.treatrec.clean_data import clean_trenddata
@@ -222,6 +223,22 @@ class MonitorTrend(_SlowWave):
         else:
             print(f"{'-'*5} MonitorTrend: didn't load the data ({load=})")
             self.data = pd.DataFrame()
+
+    def merge_with_other_record(self) -> None:
+        """
+        Merge the recording with the next one (in case of crash and reload).
+        """
+        next_filename = choosefile_gui(paths["mon_data"])
+
+        next_file = os.path.basename(next_filename)
+        self.filename = "_+_".join([self.filename, next_file])
+        self.param["filename"] = self.filename
+        self.param["file"] = os.path.basename(self.filename)
+
+        next_header = loadmonitor_trendheader(next_filename)
+        if next_header:
+            next_data = loadmonitor_trenddata(next_filename, next_header)
+        self.data = concat_data(self.data, next_data, self.param["sampling_freq"])
 
 
 class TaphTrend(_SlowWave):
