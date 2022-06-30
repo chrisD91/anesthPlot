@@ -15,6 +15,7 @@ from datetime import timedelta
 from typing import Optional, Any
 
 import pandas as pd
+import numpy as np
 
 # import numpy as np
 from PyQt5.QtWidgets import QApplication, QFileDialog
@@ -214,6 +215,75 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
     # remove irrelevant measures
     # df.co2exp.loc[data.co2exp < 30] = np.nan
     print(f"{'-' * 20} loaded trenddata >")
+    return datadf
+
+
+# %% merge consecutive recordings
+
+
+def concat_param(param1: dict[str, Any], param2: dict[str, Any]) -> dict[str, Any]:
+    """
+    Concatenate the two param dictionary for a merge of two recordings.
+
+    Parameters
+    ----------
+    param1 : dict[str, Any]
+        mtrend.param.
+    param2 : dict[str, Any]
+        mtrend.param.
+
+    Returns
+    -------
+    dict[str, Any]
+        DESCRIPTION.
+
+    """
+    param = param1.copy()
+    param["file"] = "_+_".join([param1["file"], param2["file"]])
+    param["filename"] = "_+_".join([param1["filename"], param2["file"]])
+    return param
+
+
+def concat_data(
+    datadf1: pd.DataFrame, datadf2: pd.DataFrame, sampling_freq: float = 0.2
+) -> pd.DataFrame:
+    """
+    Concatenate the dataframe of two consecutive recording.
+
+    Parameters
+    ----------
+    datadf1 : pd.DataFrame
+        mtrends.data.
+    datadf2 : pd.DataFrame
+        mtrends.data.
+    sampling_frequency: float (default = 0.2)
+        mtrends.param["sampling_freq"]
+
+    Returns
+    -------
+    df : pd.DataFrame
+        the merged result.
+
+    """
+    # get delta time between the two reconrdings
+    df1 = datadf1.copy()
+    df2 = datadf2.copy()
+
+    delta_sec = (df2.iloc[0].dtime - df1.iloc[-1].dtime).total_seconds()
+    df2.etimesec += df1.iloc[-1].etimesec + delta_sec
+    df2.etimemin += df1.iloc[-1].etimemin + delta_sec / 60
+
+    # fill last line with nan (to avoid a continuous line in the plotting process)
+    df1_newline = df1.iloc[-1].copy()
+    delta_break = timedelta(seconds=1 / sampling_freq)
+    df1_newline.dtime += delta_break
+    cols = df1.columns.tolist()
+    cols.remove("dtime")
+    df1_newline[cols] = np.nan
+    df1 = pd.concat([df1, df1_newline], ignore_index=True)
+
+    datadf = pd.concat([df1, df2], ignore_index=True)
+
     return datadf
 
 

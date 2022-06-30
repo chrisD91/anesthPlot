@@ -93,7 +93,7 @@ def restrict_trenddf(df: pd.DataFrame, parm: dict["str", Any]) -> pd.DataFrame:
         timebase = "dtime"
         parm["unit"] = "dtime"
     else:
-        timebase = "eTimeMin"
+        timebase = "etimemin"
         parm["unit"] = "min"
     toplot_df = df.set_index(timebase).copy()
     xmin = parm.get("xmin", df.index.min())
