@@ -20,7 +20,7 @@ import anesplot.plot.wave2video as w2vid
 import anesplot.treatrec.arterial_func
 import anesplot.treatrec.ekg_func
 import anesplot.plot.t_agg_plot as tagg
-from anesplot.base import _Waves
+from anesplot.base import Waves
 from anesplot.config.load_recordrc import build_paths
 from anesplot.loadrec.agg_load import choosefile_gui
 from anesplot.loadrec.loadmonitor_waverecord import (
@@ -35,7 +35,7 @@ paths = build_paths()
 
 
 # ++++++++
-class _FastWave(_Waves):
+class _FastWave(Waves):
     """Class for Fastwaves = continuous recordings."""
 
     def __init__(self) -> None:

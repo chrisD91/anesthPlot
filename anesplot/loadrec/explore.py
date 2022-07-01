@@ -7,7 +7,7 @@ Created on Thu Mar 12 16:52:13 2020
 """
 from typing import Optional
 
-from PyQt5.QtWidgets import QApplication, QFileDialog
+from PyQt5.QtWidgets import QFileDialog
 import matplotlib.pyplot as plt
 
 # %%
@@ -18,8 +18,8 @@ def gui_choosefile(paths: Optional[dict[str, str]] = None) -> str:
     if not paths:
         paths = {}
     apath = paths.get("data", "~")
-    app = QApplication([apath])
-    app.setQuitOnLastWindowClosed(True)
+    # app = QApplication([apath])
+    # app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(
         caption="choose a file", directory=apath, filter="*.csv"
     )

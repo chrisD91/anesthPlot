@@ -35,8 +35,8 @@ def choosefile_gui(dirpath: Optional[str] = None) -> str:
     """
     if dirpath is None:
         dirpath = os.path.expanduser("~")
-    app = QApplication([dirpath])
-    app.setQuitOnLastWindowClosed(True)
+    # app = QApplication([dirpath])
+    # app.setQuitOnLastWindowClosed(True)
 
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirpath, filter="csv (*.csv)"

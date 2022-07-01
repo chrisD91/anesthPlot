@@ -5,7 +5,6 @@ Created on Thu Apr 28 15:50:27 2022
 @author: cdesbois
 """
 
-import sys
 from typing import Union, Optional
 
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
@@ -25,14 +24,10 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
         DESCRIPTION. : full name of the selected file
 
     """
-    # breakpoint()
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
-    if "app" not in dir():
-        app = QApplication(sys.argv)
-        app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
@@ -89,5 +84,3 @@ if __name__ == "__main__":
     paths = anesplot.config.load_recordrc.paths
     FILENAME = choosefile_gui(paths["data"])
     print(os.path.basename(FILENAME))
-
-    # kinds = select_type(question="choose kind of file", items=kinds)

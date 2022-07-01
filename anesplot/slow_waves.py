@@ -21,22 +21,27 @@ import anesplot.loadrec.loadtaph_trendrecord as ltt
 
 # import anesplot.plot.t_agg_plot as tagg
 import anesplot.plot.t_agg_plot
-from anesplot.base import _Waves
-from anesplot.config.load_recordrc import build_paths
-from anesplot.loadrec.agg_load import choosefile_gui
-from anesplot.loadrec.loadmonitor_trendrecord import (
-    loadmonitor_trenddata,
-    loadmonitor_trendheader,
-    concat_data,
-)
+import anesplot.base
+import anesplot.config.load_recordrc
+import anesplot.loadrec.agg_load
+import anesplot.loadrec.loadmonitor_trendrecord as lmt
+
+# from anesplot.base import _Waves
+# from anesplot.config.load_recordrc import build_paths
+# from anesplot.loadrec.agg_load import choosefile_gui
+# from anesplot.loadrec.loadmonitor_trendrecord import (
+#     loadmonitor_trenddata,
+#     loadmonitor_trendheader,
+#     concat_data,
+# )
 import anesplot.treatrec.manage_events
 from anesplot.treatrec.clean_data import clean_trenddata
 
-paths = build_paths()
-
+# paths = build_paths()
+paths = anesplot.config.load_recordrc.paths
 
 # +++++++
-class _SlowWave(_Waves):
+class _SlowWave(anesplot.base.Waves):
     """
     Class for slow_waves = trends.
 
@@ -202,15 +207,15 @@ class MonitorTrend(_SlowWave):
         """
         super().__init__()
         if filename is None:
-            filename = choosefile_gui(paths["mon_data"])
+            filename = anesplot.loadrec.agg_load.choosefile_gui(paths["mon_data"])
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
 
-        header = loadmonitor_trendheader(filename)
+        header = lmt.loadmonitor_trendheader(filename)
         self.header = header
         if header and load:
-            data = loadmonitor_trenddata(filename, header)
+            data = lmt.loadmonitor_trenddata(filename, header)
             self.data = data
             sampling = header.get("Sampling Rate", None)
             self.param["sampling_freq"] = 1 / sampling if sampling else None
@@ -225,20 +230,18 @@ class MonitorTrend(_SlowWave):
             self.data = pd.DataFrame()
 
     def merge_with_other_record(self) -> None:
-        """
-        Merge the recording with the next one (in case of crash and reload).
-        """
-        next_filename = choosefile_gui(paths["mon_data"])
+        """Merge the recording with the next one (in case of crash and reload)."""
+        next_filename = anesplot.loadrec.agg_load.choosefile_gui(paths["mon_data"])
 
         next_file = os.path.basename(next_filename)
         self.filename = "_+_".join([self.filename, next_file])
         self.param["filename"] = self.filename
         self.param["file"] = os.path.basename(self.filename)
 
-        next_header = loadmonitor_trendheader(next_filename)
+        next_header = lmt.loadmonitor_trendheader(next_filename)
         if next_header:
-            next_data = loadmonitor_trenddata(next_filename, next_header)
-        self.data = concat_data(self.data, next_data, self.param["sampling_freq"])
+            next_data = lmt.loadmonitor_trenddata(next_filename, next_header)
+        self.data = lmt.concat_data(self.data, next_data, self.param["sampling_freq"])
 
 
 class TaphTrend(_SlowWave):

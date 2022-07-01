@@ -18,7 +18,7 @@ from anesplot.config.load_recordrc import build_paths
 paths = build_paths()
 
 
-class _Waves:  # pylint: disable=too-few-public-methods
+class Waves:  # pylint: disable=too-few-public-methods
     """the base object to store the records."""
 
     def __init__(self) -> None:
