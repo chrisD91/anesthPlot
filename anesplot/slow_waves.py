@@ -17,14 +17,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # import anesplot
-import anesplot.loadrec.loadtaph_trendrecord as ltt
-
-# import anesplot.plot.t_agg_plot as tagg
-import anesplot.plot.t_agg_plot
-import anesplot.base
 import anesplot.config.load_recordrc
 import anesplot.loadrec.agg_load
+import anesplot.loadrec.loadtaph_trendrecord as ltt
 import anesplot.loadrec.loadmonitor_trendrecord as lmt
+
+import anesplot.plot.t_agg_plot
+
+# import anesplot.plot.t_agg_plot as tagg
+import anesplot.base
 
 # from anesplot.base import _Waves
 # from anesplot.config.load_recordrc import build_paths
@@ -207,7 +208,8 @@ class MonitorTrend(_SlowWave):
         """
         super().__init__()
         if filename is None:
-            filename = anesplot.loadrec.agg_load.choosefile_gui(paths["mon_data"])
+            # filename = anesplot.loadrec.agg_load.choosefile_gui(paths["mon_data"])
+            filename = lmt.choosefile_gui(paths["mon_data"])
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
@@ -231,7 +233,8 @@ class MonitorTrend(_SlowWave):
 
     def merge_with_other_record(self) -> None:
         """Merge the recording with the next one (in case of crash and reload)."""
-        next_filename = anesplot.loadrec.agg_load.choosefile_gui(paths["mon_data"])
+        # next_filename = anesplot.loadrec.agg_load.choosefile_gui(paths["mon_data"])
+        next_filename = lmt.choosefile_gui(paths["mon_data"])
 
         next_file = os.path.basename(next_filename)
         self.filename = "_+_".join([self.filename, next_file])
@@ -289,7 +292,7 @@ class TaphTrend(_SlowWave):
         self,
         filename: Optional[str] = None,
         monitorname: Optional[str] = None,
-        load: Optional[bool] = True,
+        load: bool = True,
     ):
         """
         Initilisation routine.

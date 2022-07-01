@@ -51,9 +51,10 @@ def get_roi(
             for _ in dtime_lims
         ]
     else:  # index = sec
+        sec_lims = ax.get_xlim()
         i_lims = [
             datadf.set_index("etimesec").index.get_indexer([_], method="nearest")
-            for _ in dtime_lims
+            for _ in sec_lims
         ]
     i_lims = [i_lims[0][0], i_lims[1][-1]]
     if "point" not in datadf.columns:
@@ -310,22 +311,23 @@ def plot_trenddata(
 
 # %%
 
-if __name__ == "__main__":
-    # import anesplot.record_main as rec
-    from anesplot.slow_waves import MonitorTrend
+# if __name__ == "__main__":
+#     pass
+# import anesplot.record_main as rec
+# from anesplot.slow_waves import MonitorTrend
 
-    mtrends = MonitorTrend()
-    figure, tracename = mtrends.plot_trend()
-    print("now scale the figure please")
-    # %%
-    mtrends.save_roi()
-    # scale the figure
-    ahalf_fig, anew_lims, afull_fig = build_half_white(
-        figure,
-        name=tracename,
-        datadf=mtrends.data,
-        param=mtrends.param,
-        roi=mtrends.roi,
-    )
-    # change the scale for third
-    figure.get_axes()[0].set_xlim(anew_lims)
+# mtrends = MonitorTrend()
+# figure, tracename = mtrends.plot_trend()
+# print("now scale the figure please")
+# # %%
+# mtrends.save_roi()
+# # scale the figure
+# ahalf_fig, anew_lims, afull_fig = build_half_white(
+#     figure,
+#     name=tracename,
+#     datadf=mtrends.data,
+#     param=mtrends.param,
+#     roi=mtrends.roi,
+# )
+# # change the scale for third
+# figure.get_axes()[0].set_xlim(anew_lims)
