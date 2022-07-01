@@ -139,7 +139,7 @@ def axplot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
         if drawn.
 
     """
-    ax.set_ylabel("pression")
+    ax.set_ylabel("pressure")
     columns = {}
     # monitor
     if {"pPeak", "pPlat", "peep"} < set(df.columns):
@@ -203,7 +203,7 @@ def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
     None.
 
     """
-    ax.set_ylabel("'MinVol' & RR")
+    ax.set_ylabel("'minVol' & RR")
     minvol = sn(**cts_dico["minvol"])
     if "co2_rr" in df.columns:
         co2rr = sn(**cts_dico["co2rr"])
@@ -237,7 +237,7 @@ def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
         print("no spirometry data recorded")
 
 
-def axplot_etco2(ax: plt.axes, df: pd.DataFrame) -> None:
+def axplot_co2(ax: plt.axes, df: pd.DataFrame) -> None:
     """
     Plot etC02 on the provided axes.
 

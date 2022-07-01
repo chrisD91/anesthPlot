@@ -370,7 +370,7 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     fig.__name__ = "co2iso"
     # co2
     ax_l = fig.add_subplot(111)
-    tap.axplot_etco2(ax_l, plot_df)
+    tap.axplot_co2(ax_l, plot_df)
     pfunc.color_axis(ax_l, "left", "tab:blue")
     # iso
     ax_r = ax_l.twinx()
@@ -436,7 +436,7 @@ def co2o2(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.F
     fig.__name__ = "co2o2"
     # co2
     ax_l = fig.add_subplot(111)
-    tap.axplot_etco2(ax_l, plot_df)
+    tap.axplot_co2(ax_l, plot_df)
     pfunc.color_axis(ax_l, "left", "tab:blue")
     # o2
     ax_r = ax_l.twinx()
@@ -505,7 +505,7 @@ def ventil(
     pfunc.color_axis(ax2, "left", "tab:grey")  # call
 
     ax2_r = ax2.twinx()
-    tap.axplot_etco2(ax2_r, plot_df)
+    tap.axplot_co2(ax2_r, plot_df)
     pfunc.color_axis(ax2_r, "right", "tab:blue")  # call
 
     ax1_r.set_ylim(0, 50)

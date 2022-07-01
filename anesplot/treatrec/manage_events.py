@@ -320,8 +320,11 @@ def plot_ventilation_drive(
             )
     ax.legend()
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-    ymax = ax.get_ylim()[1]
-    ax.set_ylim(0, ceil(ymax / 5) * 5)
+    ylims = ax.get_ylim()
+    ylims = (0, ceil(ylims[1] / 5) * 5)
+    ax.set_ylim(ylims)
+    ax.set_yticks(np.arange(ylims[0], ylims[1] + 0.1, 5))
+    ax.grid()
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)

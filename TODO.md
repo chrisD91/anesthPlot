@@ -41,8 +41,8 @@
 
 - [ ] check wave2video
 
-- [ ] plot_ventil_drive : add a grid
+- [x] plot_ventil_drive : add a grid
 
-- [ ] ventil : change axis label end tidal CO~2~ -> CO~2~
+- [x] ventil : change axis label end tidal CO~2~ -> CO~2~
 
 - [ ]

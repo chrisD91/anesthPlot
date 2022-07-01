@@ -19,7 +19,7 @@ cts_dico: dict[str, dict[str, Any]] = {
     ),
     "o2": dict(
         key="o2",
-        label="oxygen",
+        label="oxygen (%)",
         color="tab:green",
         fillalpha=0.2,
         edgecolor="tab:green",
@@ -30,7 +30,7 @@ cts_dico: dict[str, dict[str, Any]] = {
     ),
     "co2": dict(
         key="co2",
-        label="end tidal co2",
+        label="CO2 (mmHg)",
         color="tab:blue",
         fillalpha=0.2,
         edgecolor="tab:blue",
@@ -41,7 +41,7 @@ cts_dico: dict[str, dict[str, Any]] = {
     ),
     "co2rr": dict(
         key="co2rr",
-        label="co2 respirationRate",
+        label="CO2 respiratoryRate",
         color="tab:blue",
         fillalpha=0.2,
         edgecolor="tab:blue",
@@ -53,7 +53,7 @@ cts_dico: dict[str, dict[str, Any]] = {
     ),
     "iso": dict(
         key="iso",
-        label="isoflurane",
+        label="isoflurane (%)",
         color="tab:purple",
         fillalpha=0.2,
         edgecolor="tab:purple",
