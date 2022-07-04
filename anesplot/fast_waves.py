@@ -93,6 +93,7 @@ class _FastWave(Waves):
                 )
                 print("returned from wplot.plot_wave")
                 self.trace_list = traces_list
+                self.fig = fig
             else:
                 self.trace_list = []
                 fig = plt.figure()
