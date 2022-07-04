@@ -4,7 +4,7 @@ Created on Thu Apr 28 15:50:27 2022
 
 @author: cdesbois
 """
-
+import sys
 from typing import Union, Optional
 
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
@@ -28,11 +28,14 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
+    if "app" not in dir():
+        app = QApplication(sys.argv)
+        app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
     print("return")
-    # app.quit()
+
     if isinstance(fname, tuple):
         fullname = fname[0]
     else:

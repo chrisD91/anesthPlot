@@ -88,7 +88,6 @@ class _FastWave(Waves):
             if traces_list:
                 print("call wplot.plot_wave")
                 # get segmentation fault if called after a trend.showplots()
-                # breakpoint()
                 fig, lines = wplot.plot_wave(
                     self.data, keys=traces_list, param=self.param
                 )
@@ -98,7 +97,6 @@ class _FastWave(Waves):
                 self.trace_list = []
                 fig = plt.figure()
                 lines = [plt.Line2D]
-            self.fig = fig
             self.append_to_figures({"waveplot": fig})
             print(f"{'-' * 20} ended FastWave plot_wave")
             plt.show()  # required to display the plot before exiting

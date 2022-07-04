@@ -229,7 +229,6 @@ def plot_wave(
     # Plot
     lines: list[plt.Line2D] = []
     # one wave -> key, key_dict, plotdf[key], dtime
-    # breakpoint()
     if len(keys) == 1:
         fig = plt.figure(
             figsize=(12, 4)
@@ -302,7 +301,6 @@ if __name__ == "__main__":
 #     for k in range(1, 3):
 #         trace_keys = random.choices(columns, k=k)
 #         # print(f"{k=} {trace_keys=}")
-#         breakpoint
 #         figure, lines2D = plot_wave(data_df, trace_keys)
 #         assert isinstance(figure, plt.Figure)
 #     plt.close("all")

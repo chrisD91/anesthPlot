@@ -13,7 +13,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
 
 
-class ChooseWave(QWidget):
+class ChooseWave(QWidget):  # type: ignore
     """Choose wave dialog."""
 
     def __init__(self, waves: list[str], num: int = 1) -> None:
@@ -55,7 +55,8 @@ def select_wave_to_plot(waves: list[str]) -> list[str]:
     """Select the wave(s)."""
     # waves = ["wekg", "wap", "wco2"]
     selected_waves = []
-    # app = QApplication(sys.argv)
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(True)
     for num in [1, 2]:
         dial = ChooseWave(waves, num)
         if dial.select:
@@ -64,9 +65,9 @@ def select_wave_to_plot(waves: list[str]) -> list[str]:
     return selected_waves
 
 
-if "app" not in dir():
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
+# if "app" not in dir():
+#    app = QApplication(sys.argv)
+#    app.setQuitOnLastWindowClosed(True)
 
 # %%
 if __name__ == "__main__":

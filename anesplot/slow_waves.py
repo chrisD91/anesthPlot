@@ -208,8 +208,8 @@ class MonitorTrend(_SlowWave):
         """
         super().__init__()
         if filename is None:
-            # filename = anesplot.loadrec.agg_load.choosefile_gui(paths["mon_data"])
-            filename = lmt.choosefile_gui(paths["mon_data"])
+            filename = anesplot.loadrec.agg_load.choosefile_gui(paths["mon_data"])
+            # filename = lmt.choosefile_gui(paths["mon_data"])
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)

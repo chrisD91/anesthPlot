@@ -27,6 +27,7 @@ nb to work within spyder : move inside anestplot (>> cd anesplot)
 
 import faulthandler
 import os
+import sys
 from types import SimpleNamespace
 from typing import Optional
 
@@ -34,7 +35,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pyperclip
 from matplotlib import rcParams
-
+from PyQt5.QtWidgets import QApplication
 import anesplot.loadrec.agg_load as loadagg
 from anesplot.config.load_recordrc import build_paths
 from anesplot.fast_waves import MonitorWave, TelevetWave
@@ -49,9 +50,9 @@ rcParams["axes.ymargin"] = 0
 
 faulthandler.enable()
 
-# if "app" not in dir():
-#     app = QApplication(sys.argv)
-#     app.quitOnLastWindowClosed()
+if "app" not in dir():
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(False)
 fig_group = SimpleNamespace()
 
 

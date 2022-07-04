@@ -43,8 +43,8 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
-    # app = QApplication([dirname])
-    # app.setQuitOnLastWindowClosed(True)
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
