@@ -49,8 +49,8 @@ def filedialog(
     """
     label = "select the folder for " + kind
     options = QFileDialog.Options()
-    options |= QFileDialog.DontUseNativeDialog
-    options |= QFileDialog.DontUseCustomDirectoryIcons
+    #    options |= QFileDialog.DontUseNativeDialog
+    #    options |= QFileDialog.DontUseCustomDirectoryIcons
     dialog = QFileDialog(caption=label)
     dialog.setOptions(options)
 

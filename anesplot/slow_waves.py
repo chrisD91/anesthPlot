@@ -10,17 +10,22 @@ build the objects for the slow_waves ('trends'):
 
 """
 import os
+import sys
 from datetime import datetime, timedelta
 from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from PyQt5.QtWidgets import QApplication
 
 # import anesplot
 import anesplot.config.load_recordrc
-import anesplot.loadrec.agg_load
+
+# import anesplot.loadrec.agg_load
 import anesplot.loadrec.loadtaph_trendrecord as ltt
 import anesplot.loadrec.loadmonitor_trendrecord as lmt
+
+import anesplot.loadrec.dialogs
 
 import anesplot.plot.t_agg_plot
 
@@ -37,6 +42,8 @@ import anesplot.base
 # )
 import anesplot.treatrec.manage_events
 from anesplot.treatrec.clean_data import clean_trenddata
+from anesplot.loadrec.agg_load import choosefile_gui
+from anesplot.loadrec.dialogs import get_file
 
 # paths = build_paths()
 paths = anesplot.config.load_recordrc.paths
@@ -93,7 +100,7 @@ class _SlowWave(anesplot.base.Waves):
         # TODO add a preset if self.name is defined
         if self.data.empty:
             print("recording is empty : no data to plot")
-            fig = plt.figure
+            fig = plt.figure()
             name = ""
         else:
             print(f"{'-' * 20} started trends plot_trend)")
@@ -208,8 +215,23 @@ class MonitorTrend(_SlowWave):
         """
         super().__init__()
         if filename is None:
-            filename = anesplot.loadrec.agg_load.choosefile_gui(paths["mon_data"])
+            # TODO : find bug, fail in first call ? paths global
+            # breakpoint()
+            if not "app" in dir():
+                pass
+                # app = QApplication(sys.argv)
+            dlg = choosefile_gui
+            filename = dlg(paths["mon_data"])
             # filename = lmt.choosefile_gui(paths["mon_data"])
+            # breakpoint()
+            # breakpoint()
+            # filename = get_file(
+            #   "choose monitor recording", paths["mon_data"], "*.csv"
+            # )
+
+        #            filename = anesplot.loadrec.dialogs.get_file(
+        #                "choose monitor recording", paths["mon_data"], "*.csv"
+        #           )
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
@@ -309,6 +331,9 @@ class TaphTrend(_SlowWave):
         super().__init__()
         if filename is None:
             filename = ltt.choose_taph_record(monitorname)
+            # filename = anesplot.loadrec.dialogs.get_file(
+            #    "choose monitor recording", paths["taph_data"], "*.csv"
+            # )
         self.filename = filename
         if filename:
             self.param["filename"] = filename

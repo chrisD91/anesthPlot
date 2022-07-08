@@ -5,6 +5,7 @@ Created on Thu Mar 12 16:52:13 2020
 
 @author: cdesbois
 """
+import os
 from typing import Optional
 
 from PyQt5.QtWidgets import QFileDialog
@@ -18,6 +19,8 @@ def gui_choosefile(paths: Optional[dict[str, str]] = None) -> str:
     if not paths:
         paths = {}
     apath = paths.get("data", "~")
+    # NB  a fake name has to bee added for the procedure to work on macos
+    apath = os.path.join(apath, "fakename.csv")
     # app = QApplication([apath])
     # app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(

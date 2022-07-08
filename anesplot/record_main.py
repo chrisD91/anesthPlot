@@ -27,7 +27,8 @@ nb to work within spyder : move inside anestplot (>> cd anesplot)
 
 import faulthandler
 import os
-import sys
+
+# import sys
 from types import SimpleNamespace
 from typing import Optional
 
@@ -35,12 +36,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pyperclip
 from matplotlib import rcParams
-from PyQt5.QtWidgets import QApplication
+
+# from PyQt5.QtWidgets import QApplication
 import anesplot.loadrec.agg_load as loadagg
 from anesplot.config.load_recordrc import build_paths
 from anesplot.fast_waves import MonitorWave, TelevetWave
 from anesplot.slow_waves import MonitorTrend, TaphTrend
 from anesplot.guides.choose_guide import get_guide  # pylint: disable=unused-import
+import anesplot.loadrec.dialogs
 
 paths = build_paths()
 matplotlib.use("Qt5Agg")  # NB required for the dialogs
@@ -50,9 +53,9 @@ rcParams["axes.ymargin"] = 0
 
 faulthandler.enable()
 
-if "app" not in dir():
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(False)
+# if "app" not in dir():
+#    app = QApplication(sys.argv)
+#    app.setQuitOnLastWindowClosed(False)
 fig_group = SimpleNamespace()
 
 
@@ -122,14 +125,15 @@ def main(file_name: Optional[str] = None) -> str:
     print("start QtApp")
     # global APP
     # if "app" not in dir():
-    #     app = QApplication(sys.argv)
-    #     app.setQuitOnLastWindowClosed(True)
+    # app = QApplication(sys.argv)
+    # app.setQuitOnLastWindowClosed(True)
 
     # choose file and indicate the source
     print("select the file containing the data")
     print(f"file_name is {file_name}")
     if file_name is None:
-        file_name = loadagg.choosefile_gui(paths["data"])
+        # file_name = loadagg.choosefile_gui(paths["data"])
+        file_name = anesplot.loadrec.dialogs.get_file("", paths["data"], "*.csv")
     if not file_name:
         return ""
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]

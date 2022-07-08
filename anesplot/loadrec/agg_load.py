@@ -4,6 +4,7 @@ Created on Thu Apr 28 15:50:27 2022
 
 @author: cdesbois
 """
+import os
 import sys
 from typing import Union, Optional
 
@@ -28,6 +29,8 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
+    # bug un macos : necessity to add a fakename
+    dirname = os.path.join(dirname, "fakename.csv")
     if "app" not in dir():
         app = QApplication(sys.argv)
         app.setQuitOnLastWindowClosed(True)
@@ -81,7 +84,6 @@ def select_type(
 
 #%%
 if __name__ == "__main__":
-    import os
     import anesplot.config.load_recordrc
 
     paths = anesplot.config.load_recordrc.paths

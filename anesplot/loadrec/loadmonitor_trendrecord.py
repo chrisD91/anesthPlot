@@ -43,6 +43,8 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
+    # bug in macos : add fake name
+    dirname = os.path.join(dirname, "fakename.csv")
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(True)
     fname = QFileDialog.getOpenFileName(

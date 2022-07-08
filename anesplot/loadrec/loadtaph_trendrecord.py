@@ -136,8 +136,8 @@ def choose_taph_record(monitorname: Optional[str] = None) -> str:
     recorddates = sorted(taphdico.keys(), reverse=True)
 
     # global APP
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
+    # app = QApplication(sys.argv)
+    # app.setQuitOnLastWindowClosed(True)
     day_index = 0  # first key (<-> last date)
     question = "select the adequate recording"
     if monitorname:
@@ -158,7 +158,7 @@ def choose_taph_record(monitorname: Optional[str] = None) -> str:
                 break
     #    APP = QApplication(sys.argv)
     if "app" not in dir():
-        app = QApplication([])
+        app = QApplication(sys.argv)
         app.setQuitOnLastWindowClosed(True)
     widg = QWidget()
     recorddate, ok_pressed = QInputDialog.getItem(

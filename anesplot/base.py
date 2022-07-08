@@ -33,7 +33,7 @@ class Waves:  # pylint: disable=too-few-public-methods
         """
         self.filename: str
         self.data: pd.DataFrame
-        self.fig: plt.Figure
+        self.fig: plt.Figure = None
         self.figures: SimpleNamespace = SimpleNamespace()
         self.roi: Optional[dict[str, Any]] = None
         self.header: dict[str, Any]

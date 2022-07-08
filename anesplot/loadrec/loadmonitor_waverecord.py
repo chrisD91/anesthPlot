@@ -38,7 +38,8 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
         dirname = os.path.expanduser("~")
     # app = QApplication([dirname])
     # app.setQuitOnLastWindowClosed(True)
-
+    # bug in macos : neccessity to add a fakename
+    dirname = os.path.join(dirname, "fakename.csv")
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
