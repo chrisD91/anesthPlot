@@ -150,7 +150,7 @@ def plot_on_one_ax(
     if dtime:
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     if key == "wco2":
-        ax.axhlines(38, linestyle="dashed", alpha=0.5)
+        ax.axhline(38, linestyle="dashed", alpha=0.5)
         ax.set_ylim(0, 50)
     elif key == "wekg":
         ax.grid()
