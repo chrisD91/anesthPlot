@@ -252,7 +252,7 @@ def plot_wave(
             ax, line = plot_on_one_ax(
                 ax, plotdf[keys[i]], keys[i], key_dict[keys[i]], dtime
             )
-            ax.set_ylabel(key_dict[keys[i]][1])
+            ax.set_ylabel(key_dict[keys[i]][0])
             pfunc.color_axis(ax, "left", key_dict[keys[i]][1])
             lines.append(line)
 

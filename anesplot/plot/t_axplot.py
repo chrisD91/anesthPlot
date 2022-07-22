@@ -143,7 +143,7 @@ def axplot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
     columns = {}
     # monitor
     if {"pPeak", "pPlat", "peep"} < set(df.columns):
-        columns = {"peak": "pPeak", "peep": "peep", "plat": "pPlat"}
+        columns = {"peak": "pPeak", "plat": "pPlat", "peep": "peep"}
         # correction if spirometry tubes have been inverted (plateau measure is false)
         if df.peep.mean() > df.pPlat.mean():
             columns["peep"] = "pPlat"
@@ -172,7 +172,7 @@ def axplot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
             df[keys[0]],
             df[keys[-1]],
             color="tab:red",
-            alpha=0.1,
+            alpha=0.2,
         )
         try:
             cts = sn(**cts_dico["setpeep"])
