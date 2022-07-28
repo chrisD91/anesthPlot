@@ -204,14 +204,17 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
         return pd.DataFrame(columns=datadf.columns)
 
     datadf, _ = remove_txt_messages(datadf)
+
     corr_title = cts.mon_corr_title
     datadf.rename(columns=corr_title, inplace=True)
 
     # TODO fix the code for 1 and 2
     if "aaLabel" in datadf.columns:
         anesth_code = {0: "none", 1: "", 2: "", 4: "iso", 6: "sevo"}
-        datadf.aaLabel = datadf.aaLabel.fillna(0)
-        datadf.aaLabel = datadf.aaLabel.apply(lambda x: anesth_code.get(int(x), ""))
+        # datadf.aaLabel = datadf.aaLabel.fillna(0)
+        # datadf.aaLabel = datadf.aaLabel.apply(lambda x: anesth_code.get(int(x), ""))
+        code = datadf.aaLabel.value_counts().index[0]
+        datadf.aaLabel = anesth_code[code]
 
     # remove empty rows and columns
     datadf.dropna(axis=0, how="all", inplace=True)
@@ -230,19 +233,30 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
     except KeyError:
         print("no capnographic recording")
 
+    day = os.path.basename(filename).strip("M").split("-")[0]
+    datadf.dtime = datadf.dtime.apply(lambda st: day + "-" + st)
+    datadf.dtime = pd.to_datetime(datadf.dtime, format="%Y_%m_%d-%H:%M:%S")
+    # overmidnight ?
+    overnight = (datadf.dtime.iloc[-1] - datadf.dtime.iloc[0]).days
+    if overnight:
+        last_index = datadf.dtime[datadf.dtime == datadf.dtime.max()].index[-1]
+        ser = datadf.dtime.loc[datadf.index > last_index]
+        ser = ser.apply(lambda dt: dt + timedelta(days=1))
+        datadf.dtime.loc[datadf.index > last_index] = ser
+
     # elapsed time(in seconds)
     datadf["etimesec"] = datadf.index * headerdico["Sampling Rate"]
     datadf["etimemin"] = datadf["etimesec"] / 60
     # convert time to dateTime
-    min_time_iloc = datadf.loc[datadf.dtime == datadf.dtime.min()].index.values[0]
-    datadf.dtime = datadf.dtime.apply(lambda x: headerdico["Date"] + "-" + x)
-    datadf.dtime = pd.to_datetime(datadf.dtime, format="%d-%m-%Y-%H:%M:%S")
-    # if overlap between two dates (ie over midnight): add one day
-    if min_time_iloc > datadf.index.min():
-        print("recording was performed during two days")
-        dtime_series = datadf.dtime.copy()
-        dtime_series.iloc[min_time_iloc:] += timedelta(days=1)
-        datadf.dtime = dtime_series
+    # min_time_iloc = datadf.loc[datadf.dtime == datadf.dtime.min()].index.values[0]
+    # datadf.dtime = datadf.dtime.apply(lambda x: headerdico["Date"] + "-" + x)
+    # datadf.dtime = pd.to_datetime(datadf.dtime, format="%d-%m-%Y-%H:%M:%S")
+    # # if overlap between two dates (ie over midnight): add one day
+    # if min_time_iloc > datadf.index.min():
+    #     print("recording was performed during two days")
+    #     dtime_series = datadf.dtime.copy()
+    #     dtime_series.iloc[min_time_iloc:] += timedelta(days=1)
+    #     datadf.dtime = dtime_series
     # remove irrelevant measures
     # df.co2exp.loc[data.co2exp < 30] = np.nan
     print(f"{'-' * 20} loaded trenddata >")
