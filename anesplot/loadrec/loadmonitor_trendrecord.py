@@ -138,12 +138,12 @@ def remove_txt_messages(recorddf: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFr
 
     """
     to_fix = []
+    messagesdf = pd.DataFrame()
     for col in recorddf.columns:
         if recorddf[col].dtype != "float64":
             if col != "Time":
                 to_fix.append(col)
     if to_fix:
-        messagesdf = pd.DataFrame()
         print("there are non numericals values:")
         for line, ser in recorddf[to_fix].iterrows():
             try:
@@ -236,29 +236,28 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
     day = os.path.basename(filename).strip("M").split("-")[0]
     datadf.dtime = datadf.dtime.apply(lambda st: day + "-" + st)
     datadf.dtime = pd.to_datetime(datadf.dtime, format="%Y_%m_%d-%H:%M:%S")
-    # overmidnight ?
+    # overmidnight ? -> append a day after midnight
     overnight = (datadf.dtime.iloc[-1] - datadf.dtime.iloc[0]).days
     if overnight:
         last_index = datadf.dtime[datadf.dtime == datadf.dtime.max()].index[-1]
-        ser = datadf.dtime.loc[datadf.index > last_index]
-        ser = ser.apply(lambda dt: dt + timedelta(days=1))
-        datadf.dtime.loc[datadf.index > last_index] = ser
-
+        dtime_ser = datadf.dtime.copy()
+        dtime_ser.loc[dtime_ser.index > last_index] = dtime_ser.loc[
+            dtime_ser.index > last_index
+        ].apply(lambda dt: dt + timedelta(days=1))
+        datadf.dtime = dtime_ser
     # elapsed time(in seconds)
-    datadf["etimesec"] = datadf.index * headerdico["Sampling Rate"]
-    datadf["etimemin"] = datadf["etimesec"] / 60
-    # convert time to dateTime
-    # min_time_iloc = datadf.loc[datadf.dtime == datadf.dtime.min()].index.values[0]
-    # datadf.dtime = datadf.dtime.apply(lambda x: headerdico["Date"] + "-" + x)
-    # datadf.dtime = pd.to_datetime(datadf.dtime, format="%d-%m-%Y-%H:%M:%S")
-    # # if overlap between two dates (ie over midnight): add one day
-    # if min_time_iloc > datadf.index.min():
-    #     print("recording was performed during two days")
-    #     dtime_series = datadf.dtime.copy()
-    #     dtime_series.iloc[min_time_iloc:] += timedelta(days=1)
-    #     datadf.dtime = dtime_series
+    datadf["etimesec"] = datadf.dtime - datadf.dtime.iloc[0]
+    datadf.etimesec = datadf.etimesec.apply(lambda dt: dt.total_seconds())
+    datadf["etimemin"] = datadf.etimesec / 60
     # remove irrelevant measures
     # df.co2exp.loc[data.co2exp < 30] = np.nan
+
+    # check sampling_freq:
+    sampling = round(
+        (datadf.dtime.iloc[-1] - datadf.dtime.iloc[0]).total_seconds() / len(datadf)
+    )
+    print(f"{sampling=}, header_sampling={headerdico['Sampling Rate']}")
+
     print(f"{'-' * 20} loaded trenddata >")
     return datadf
 
