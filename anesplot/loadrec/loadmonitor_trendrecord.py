@@ -122,6 +122,43 @@ def loadmonitor_trendheader(filename: str) -> dict["str", Any]:
     return descr
 
 
+def remove_txt_messages(recorddf: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Extract and remove the annotion in a monitor record.
+
+    Parameters
+    ----------
+    recorddf : pd.DataFrame
+        the recorded data.
+
+    Returns
+    -------
+    recorddf : pd.DataFrame
+        same data but with anoration replace by np.Nan.
+
+    """
+    to_fix = []
+    for col in recorddf.columns:
+        if recorddf[col].dtype != "float64":
+            if col != "Time":
+                to_fix.append(col)
+    if to_fix:
+        messagesdf = pd.DataFrame()
+        print("there are non numericals values:")
+        for line, ser in recorddf[to_fix].iterrows():
+            try:
+                pd.to_numeric(ser)
+            except ValueError:
+                message = recorddf.loc[line].dropna()
+                txt = " ".join([str(_) for _ in message.to_list()])
+                print(f"(replaced by NaN) -> {txt}")
+                messagesdf[line] = message
+                recorddf.loc[line] = np.nan
+        for col in to_fix:
+            recorddf[col] = pd.to_numeric(recorddf[col])
+    return recorddf, messagesdf
+
+
 def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataFrame:
     """
     Load the monitor trend data.
@@ -161,23 +198,15 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
     datadf = pd.DataFrame(datadf)
     # drop waves time indicators(column name beginning with a '~')
     datadf = datadf.drop([_ for _ in datadf.columns if _.startswith("~")], axis=1)
-    # is empty (ie only a few lines of waves data)
+    # is empty (ie only a few lines of trend data)
     if datadf.set_index("Time").dropna(how="all").empty:
         print(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
         return pd.DataFrame(columns=datadf.columns)
-    # to float values
-    to_fix = []
-    for col in datadf.columns:
-        if datadf[col].dtype != "float64":
-            if col != "Time":
-                to_fix.append(col)
-    if to_fix:
-        for col in to_fix:
-            datadf[col] = pd.to_numeric(datadf[col], errors="coerce")
 
-    # correct the titles
+    datadf, _ = remove_txt_messages(datadf)
     corr_title = cts.mon_corr_title
     datadf.rename(columns=corr_title, inplace=True)
+
     # TODO fix the code for 1 and 2
     if "aaLabel" in datadf.columns:
         anesth_code = {0: "none", 1: "", 2: "", 4: "iso", 6: "sevo"}
