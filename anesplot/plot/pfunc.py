@@ -106,7 +106,7 @@ def add_baseline(fig: plt.figure, param: Optional[dict[str, Any]] = None) -> Non
     """Annotate the base of the plot."""
     if param is None:
         param = {}
-    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
+    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
     fig.text(0.01, 0.01, param.get("file", ""), ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
 

@@ -207,7 +207,7 @@ cts_dico: dict[str, dict[str, Any]] = {
     "sathr": dict(
         key="sathr",
         label="spO2 heart rate",
-        color="tab:gray",
+        color="k",
         edgecolor="tab:gray",
         style=":",
         unit="bpm",
@@ -218,7 +218,7 @@ cts_dico: dict[str, dict[str, Any]] = {
     "hr": dict(
         key="hr",
         label="heart rate",
-        color="tab:gray",
+        color="k",
         edgecolor="tab:gray",
         unit="bpm",
         goals=[30, 50],
