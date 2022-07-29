@@ -170,7 +170,7 @@ def hist_co2aa(
     try:
         agent = datadf.aaLabel.value_counts().index[0]
     except AttributeError:
-        agent = "iso"
+        agent = "aa"
     # TODO fix this for taph recording
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     fig.__name__ = "hist_co2_aa"
@@ -385,7 +385,7 @@ def plot_co2aa(
     try:
         aa = datadf.aaLabel.value_counts().index[0]
     except AttributeError:
-        aa = "iso"
+        aa = "aa"
     # TODO fix this for taph recording
     ax_r = ax_l.twinx()
     tap.axplot_aa(ax_r, plot_df, key=aa)

@@ -35,7 +35,7 @@ def axplot_hist(ax: plt.axes, ser: pd.Series, key: str = "ip1") -> None:
     None.
 
     """
-    defined = ["ip1", "ip2", "hr", "co2", "iso", "sevo"]
+    defined = ["ip1", "ip2", "hr", "co2", "iso", "sevo", "aa"]
     if key not in defined:
         print(f"key should be in {defined} ({key} was used)")
     cts = sn(**(cts_dico[key]))  # get the drawing constants
@@ -48,7 +48,8 @@ def axplot_hist(ax: plt.axes, ser: pd.Series, key: str = "ip1") -> None:
         ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
         for goal in cts.goals:
             ax.axvline(goal, color="tab:grey", alpha=1)
-        ax.axvspan(cts.goals[0], cts.goals[1], -0.1, 1, color="tab:grey", alpha=0.3)
+        if cts.goals:
+            ax.axvspan(cts.goals[0], cts.goals[1], -0.1, 1, color="tab:grey", alpha=0.3)
         ax.set_xlabel(cts.unit, alpha=0.5)
     else:
         ax.text(
@@ -297,8 +298,8 @@ def axplot_aa(ax: plt.axes, df: pd.DataFrame, key: str = "iso") -> None:
     None.
 
     """
-    if key not in ["iso", "sevo"]:
-        print("key should be in ['iso', 'sevo']")
+    if key not in ["iso", "sevo", "aa"]:
+        print("key should be in ['iso', 'sevo', 'aa']")
         return
     aa = sn(**cts_dico[key])  # get the drawing constants
     ax.set_ylabel(aa.label)

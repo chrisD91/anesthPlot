@@ -51,6 +51,17 @@ cts_dico: dict[str, dict[str, Any]] = {
         ylims=[6, 10],
         style="--",
     ),
+    "aa": dict(
+        key="aa",
+        label="anesthetic (%)",
+        color="tab:gray",
+        fillalpha=0.2,
+        edgecolor="tab:gray",
+        unit="%",
+        goals=[],
+        traces=[],
+        ylims=None,
+    ),
     "iso": dict(
         key="iso",
         label="isoflurane (%)",
