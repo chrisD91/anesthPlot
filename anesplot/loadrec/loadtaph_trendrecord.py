@@ -239,16 +239,14 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         for col in ["dtime", "time", "eTime", "eTimeMin"]:
             datadf[col] = np.nan
         return datadf
+    ser = pd.to_datetime(datadf.Date + ";" + datadf.Time, dayfirst=True)
+    datadf.insert(0, "dtime", ser)
+    datadf = datadf.drop(["Date", "Time"], axis=1)
 
-    datadf["dtime"] = pd.to_datetime(datadf.Date + ";" + datadf.Time, dayfirst=True)
-    datadf["time"] = datadf.Date + "-" + datadf.Time
-    datadf["time"] = pd.to_datetime(datadf["time"], dayfirst=True)
-
-    datadf[["Date", "Time"]] = datadf[["Date", "Time"]].astype(str)
-    # nb not for events because that will change np.nan to str(nan)
-    sampling = (datadf.time[1] - datadf.time[0]).seconds
-    datadf["etimesec"] = datadf.index * sampling
+    datadf["etimesec"] = datadf.dtime - datadf.dtime.iloc[0]
+    datadf.etimesec = datadf.etimesec.apply(lambda dt: dt.total_seconds())
     datadf["etimemin"] = datadf.etimesec / 60
+
     # to remove the zero values :
     # OK for histograms, but induce a bug in plotting
     #    data.ip1m = data.ip1m.replace([0], [None])
@@ -350,15 +348,15 @@ def shift_elapsed_time(
     Returns
     -------
     datadf : pd.DataFrame
-        the recording with shifted eTime and eTimeMin columns.
+        the recording with shifted etimesec and etimemin columns.
     """
     if minutes_to_add:
         shift = minutes_to_add
-        if {"eTime", "eTimeMin"} < set(datadf.columns):
-            datadf["eTime"] += shift * 60
-            datadf["eTimeMin"] += shift
+        if {"etimesec", "etimemin"} < set(datadf.columns):
+            datadf["etime"] += shift * 60
+            datadf["etimemin"] += shift
         else:
-            print("eTime and eTimeMin are not in the dataframe columns")
+            print("etime and etimemin are not in the dataframe columns")
     return datadf
 
 
