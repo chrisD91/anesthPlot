@@ -203,28 +203,19 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
         return pd.DataFrame(columns=datadf.columns)
 
     datadf, anotdf = remove_txt_messages(datadf)
-
-    corr_title = cts.mon_corr_title
-    datadf.rename(columns=corr_title, inplace=True)
-
-    # TODO fix the code for 1 and 2
-    if "aaLabel" in datadf.columns:
-        anesth_code = {0: "none", 1: "", 2: "", 4: "iso", 6: "sevo"}
-        # datadf.aaLabel = datadf.aaLabel.fillna(0)
-        # datadf.aaLabel = datadf.aaLabel.apply(lambda x: anesth_code.get(int(x), ""))
-        code = datadf.aaLabel.value_counts().index[0]
-        datadf.aaLabel = anesth_code[code]
+    datadf.rename(columns=cts.mon_corr_title, inplace=True)
 
     # remove empty rows and columns
     datadf.dropna(axis=0, how="all", inplace=True)
     datadf.dropna(axis=1, how="all", inplace=True)
 
-    # should be interesting to export the comment
-    # for index, row in df.iterrows():
-    #     if len(row) < 6:
-    #         print(index, row)
-    # remove comments present in colon 1(ie suppres if less than 5 item rows)
-    datadf = datadf.dropna(thresh=6)
+    # TODO fix the code for 1 and 2
+    if "aaLabel" in datadf.columns:
+        anesth_code = {0: "none", 1: "", 2: "", 4: "iso", 6: "sevo"}
+        datadf.aaLabel = datadf.aaLabel.fillna(method="ffill")
+        datadf.aaLabel = datadf.aaLabel.apply(lambda x: anesth_code.get(int(x), ""))
+        datadf.aaLabel = datadf.aaLabel.astype("category")
+        # aa = datadf.aaLabel.value_counts().index[0]
 
     # CO2: from % to mmHg
     try:
@@ -233,11 +224,12 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
         print("no capnographic recording")
 
     day = os.path.basename(filename).strip("M").split("-")[0]
+    datadf.dtime = datadf.dtime.astype(str)
     datadf.dtime = datadf.dtime.apply(lambda st: day + "-" + st)
     datadf.dtime = pd.to_datetime(datadf.dtime, format="%Y_%m_%d-%H:%M:%S")
     # overmidnight ? -> append a day after midnight
-    overnight = (datadf.dtime.iloc[-1] - datadf.dtime.iloc[0]).days
-    if overnight:
+    overmidnight = (datadf.dtime.iloc[-1] - datadf.dtime.iloc[0]).days
+    if overmidnight:
         last_index = datadf.dtime[datadf.dtime == datadf.dtime.max()].index[-1]
         dtime_ser = datadf.dtime.copy()
         dtime_ser.loc[dtime_ser.index > last_index] = dtime_ser.loc[
