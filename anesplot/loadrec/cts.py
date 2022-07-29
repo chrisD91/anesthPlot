@@ -52,7 +52,7 @@ mon_corr_title = {
 
 # set_ -> user settings
 # calc_ -> calculated
-# mes_ -> mesured
+# mes_ -> measured
 
 taph_corr_title = {
     "Date": "Date",

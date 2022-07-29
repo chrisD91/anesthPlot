@@ -10,13 +10,15 @@ build the objects for the slow_waves ('trends'):
 
 """
 import os
-import sys
+
+# import sys
 from datetime import datetime, timedelta
 from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from PyQt5.QtWidgets import QApplication
+
+# from PyQt5.QtWidgets import QApplication
 
 # import anesplot
 import anesplot.config.load_recordrc
@@ -43,7 +45,8 @@ import anesplot.base
 import anesplot.treatrec.manage_events
 from anesplot.treatrec.clean_data import clean_trenddata
 from anesplot.loadrec.agg_load import choosefile_gui
-from anesplot.loadrec.dialogs import get_file
+
+# from anesplot.loadrec.dialogs import get_file
 
 # paths = build_paths()
 paths = anesplot.config.load_recordrc.paths
@@ -239,8 +242,9 @@ class MonitorTrend(_SlowWave):
         header = lmt.loadmonitor_trendheader(filename)
         self.header = header
         if header and load:
-            data = lmt.loadmonitor_trenddata(filename, header)
+            data, anotations = lmt.loadmonitor_trenddata(filename)
             self.data = data
+            self.anotations = anotations
             sampling = header.get("Sampling Rate", None)
             self.param["sampling_freq"] = 1 / sampling if sampling else None
             self.param["source"] = "monitorTrend"
@@ -265,7 +269,7 @@ class MonitorTrend(_SlowWave):
 
         next_header = lmt.loadmonitor_trendheader(next_filename)
         if next_header:
-            next_data = lmt.loadmonitor_trenddata(next_filename, next_header)
+            next_data = lmt.loadmonitor_trenddata(next_filename)
         self.data = lmt.concat_data(self.data, next_data, self.param["sampling_freq"])
 
 

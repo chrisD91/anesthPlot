@@ -77,7 +77,6 @@ def loadmonitor_trendheader(filename: str) -> dict["str", Any]:
     descr = {}  # type: dict[str, Any]
     if filename == "":
         # to build and empty header
-        # return {}
         return descr
 
     print(f"{'-' * 20} < loadmonitor_trendheader")
@@ -159,7 +158,7 @@ def remove_txt_messages(recorddf: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFr
     return recorddf, messagesdf
 
 
-def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataFrame:
+def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
     """
     Load the monitor trend data.
 
@@ -203,7 +202,7 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
         print(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
         return pd.DataFrame(columns=datadf.columns)
 
-    datadf, _ = remove_txt_messages(datadf)
+    datadf, anotdf = remove_txt_messages(datadf)
 
     corr_title = cts.mon_corr_title
     datadf.rename(columns=corr_title, inplace=True)
@@ -253,13 +252,13 @@ def loadmonitor_trenddata(filename: str, headerdico: dict[str, Any]) -> pd.DataF
     # df.co2exp.loc[data.co2exp < 30] = np.nan
 
     # check sampling_freq:
-    sampling = round(
-        (datadf.dtime.iloc[-1] - datadf.dtime.iloc[0]).total_seconds() / len(datadf)
-    )
-    print(f"{sampling=}, header_sampling={headerdico['Sampling Rate']}")
+    # sampling = round(
+    #     (datadf.dtime.iloc[-1] - datadf.dtime.iloc[0]).total_seconds() / len(datadf)
+    # )
+    # print(f"{sampling=}, header_sampling={headerdico['Sampling Rate']}")
 
     print(f"{'-' * 20} loaded trenddata >")
-    return datadf
+    return datadf, anotdf
 
 
 # %% merge consecutive recordings
@@ -346,11 +345,12 @@ if __name__ == "__main__":
         if "Wave" not in file:
             header_dict = loadmonitor_trendheader(FILE_NAME)
             if header_dict:
-                MDATA_DF = loadmonitor_trenddata(FILE_NAME, header_dict)
+                MDATA_DF, anot_df = loadmonitor_trenddata(FILE_NAME)
                 print(f"{'>' * 10} loaded recording of {file} in mdata_df")
                 # mdata= cleanMonitorTrendData(mdata)
             else:
                 MDATA_DF = None
+                ANOT_DF = None
                 print(f"{'!' * 5}  {file} file is empty  {'!' * 5}")
         else:
             print(f"{'!' * 5} {file} is not a MonitorTrend recording {'!' * 5}")
