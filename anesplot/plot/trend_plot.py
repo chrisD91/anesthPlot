@@ -137,7 +137,7 @@ def hist_cardio(
 
 
 # ------------------------------------------------------
-def hist_co2_iso(
+def hist_co2aa(
     datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
 ) -> plt.Figure:
     """
@@ -165,8 +165,15 @@ def hist_co2_iso(
     if not keys.issubset(set(datadf.columns)):
         print(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
         return plt.figure()
+    # agent = datadf.aaLabel.value_counts().index[0]
+    # aa
+    try:
+        agent = datadf.aaLabel.value_counts().index[0]
+    except AttributeError:
+        agent = "iso"
+    # TODO fix this for taph recording
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
-    fig.__name__ = "hist_co2_iso"
+    fig.__name__ = "hist_co2_aa"
     # co2
     ax = axes[0]
     ser = pfunc.remove_outliers(datadf, "co2exp")
@@ -174,7 +181,7 @@ def hist_co2_iso(
     # iso
     ax = axes[1]
     ser = pfunc.remove_outliers(datadf, "aaExp")
-    tap.axplot_hist(ax, ser, key="iso")
+    tap.axplot_hist(ax, ser, key=agent)
 
     for ax in axes:
         pfunc.color_axis(ax, "bottom", "tab:grey")
@@ -189,7 +196,7 @@ def hist_co2_iso(
 
 
 # ------------------------------------------------------
-def cardiovasc(
+def plot_cardiovasc(
     datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
 ) -> plt.Figure:
     """
@@ -259,7 +266,7 @@ def cardiovasc(
 
 
 # ------------------------------------------------------
-def cardiovasc_p1p2(
+def plot_cardiovasc_p1p2(
     datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
 ) -> pd.DataFrame:
     """
@@ -330,15 +337,17 @@ def cardiovasc_p1p2(
 
 
 # ------------------------------------------------------
-def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
+def plot_co2aa(
+    datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
+) -> plt.Figure:
     """
-    Plot CO2/iso over time.
+    Plot CO2/anestheticAgent over time.
 
     Parameters
     ----------
     data : pd.DataFrame
         the recorded data. Columns used :['ip1s', 'ip1m', 'ip1d', 'hr'].
-    param : dict, optiona (default is None).
+    param : dict, optional (default is None).
         dict(save: boolean, path['save'], xmin, xmax, unit,
              dtime = boolean for time display in HH:MM format)
 
@@ -367,15 +376,20 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     plot_df = plot_df[list(plot_items)]
 
     fig = plt.figure()
-    fig.__name__ = "co2iso"
+    fig.__name__ = "co2_aa"
     # co2
     ax_l = fig.add_subplot(111)
     tap.axplot_co2(ax_l, plot_df)
     pfunc.color_axis(ax_l, "left", "tab:blue")
-    # iso
+    # aa
+    try:
+        aa = datadf.aaLabel.value_counts().index[0]
+    except AttributeError:
+        aa = "iso"
+    # TODO fix this for taph recording
     ax_r = ax_l.twinx()
-    tap.axplot_iso(ax_r, plot_df)
-    pfunc.color_axis(ax_r, "right", "tab:purple")
+    tap.axplot_aa(ax_r, plot_df, key=aa)
+    pfunc.color_axis(ax_r, "right", "tab:grey")
 
     ax_l.spines["right"].set_visible(False)
     ax_r.spines["left"].set_visible(False)
@@ -395,7 +409,9 @@ def co2iso(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
 
 
 # ------------------------------------------------------
-def co2o2(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
+def plot_co2o2(
+    datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
+) -> plt.Figure:
     """
     Respiratory plot : CO2 and Iso.
 
@@ -460,7 +476,7 @@ def co2o2(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.F
 
 
 # ------------------------------------------------------
-def ventil(
+def plot_ventil(
     datadf: pd.DataFrame, param: Optional[dict["str", Any]] = None
 ) -> plt.Figure:
     """
@@ -528,7 +544,9 @@ def ventil(
 
 
 # ------------------------------------------------------
-def recrut(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
+def plot_recrut(
+    datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
+) -> plt.Figure:
     """
     Display a recrut manoeuver.
 
@@ -581,7 +599,7 @@ def recrut(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.
     return fig
 
 
-def ventil_cardio(
+def plot_ventilcardio(
     datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
 ) -> plt.Figure:
     """
@@ -660,7 +678,9 @@ def ventil_cardio(
     return fig
 
 
-def sat_hr(datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None) -> plt.Figure:
+def plot_sathr(
+    datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
+) -> plt.Figure:
     """
     Plot a sat and sat_hr over time.
 

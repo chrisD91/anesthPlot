@@ -35,7 +35,7 @@ def axplot_hist(ax: plt.axes, ser: pd.Series, key: str = "ip1") -> None:
     None.
 
     """
-    defined = ["ip1", "ip2", "hr", "co2", "iso"]
+    defined = ["ip1", "ip2", "hr", "co2", "iso", "sevo"]
     if key not in defined:
         print(f"key should be in {defined} ({key} was used)")
     cts = sn(**(cts_dico[key]))  # get the drawing constants
@@ -279,7 +279,7 @@ def axplot_co2(ax: plt.axes, df: pd.DataFrame) -> None:
         )
 
 
-def axplot_iso(ax: plt.axes, df: pd.DataFrame) -> None:
+def axplot_aa(ax: plt.axes, df: pd.DataFrame, key: str = "iso") -> None:
     """
     Plot iso on the provided axes.
 
@@ -289,23 +289,28 @@ def axplot_iso(ax: plt.axes, df: pd.DataFrame) -> None:
         the matplotlib axe to draw on.
     df : pd.DataFrame
         the data.
+    key : str (default is 'iso')
+        the anaethetic agent
 
     Returns
     -------
     None.
 
     """
-    iso = sn(**cts_dico["iso"])  # get the drawing constants
-    ax.set_ylabel(iso.label)
+    if key not in ["iso", "sevo"]:
+        print("key should be in ['iso', 'sevo']")
+        return
+    aa = sn(**cts_dico[key])  # get the drawing constants
+    ax.set_ylabel(aa.label)
     try:
-        ax.plot(df.aaExp, color=iso.color, linewidth=2, linestyle="-")
-        ax.plot(df.aaInsp, color=iso.color, linewidth=2, linestyle="-")
+        ax.plot(df.aaExp, color=aa.color, linewidth=2, linestyle="-")
+        ax.plot(df.aaInsp, color=aa.color, linewidth=2, linestyle="-")
         ax.fill_between(
             df.index,
             df.aaExp,
             df.aaInsp,
-            color=iso.color,
-            alpha=iso.fillalpha,
+            color=aa.color,
+            alpha=aa.fillalpha,
         )
         ax.set_ylim(0, 3)
     # except KeyError:
@@ -449,7 +454,9 @@ def axplot_hr(ax: plt.axes, df: pd.DataFrame) -> None:
 
     """
     hrate = sn(**cts_dico["hr"])  # get the drawing constants
-    ax.plot(df.hr, color=hrate.color, label=hrate.label, linewidth=2, linestyle=":")
+    ax.plot(
+        df.hr, color=hrate.color, label=hrate.label, linewidth=2, linestyle=hrate.style
+    )
     ax.set_ylabel(hrate.label)
     ax.set_ylim(*hrate.ylims)
 

@@ -142,16 +142,16 @@ def test_trend_plot() -> None:
         datafunc_list: list[
             Callable[[pd.DataFrame, Optional[dict[str, Any]]], plt.Figure]
         ] = [
-            anesplot.plot.trend_plot.cardiovasc,
-            anesplot.plot.trend_plot.cardiovasc_p1p2,
-            anesplot.plot.trend_plot.co2iso,
-            anesplot.plot.trend_plot.co2o2,
+            anesplot.plot.trend_plot.plot_cardiovasc,
+            anesplot.plot.trend_plot.plot_cardiovasc_p1p2,
+            anesplot.plot.trend_plot.plot_co2aa,
+            anesplot.plot.trend_plot.plot_co2o2,
             anesplot.plot.trend_plot.hist_cardio,
-            anesplot.plot.trend_plot.hist_co2_iso,
-            anesplot.plot.trend_plot.recrut,
-            anesplot.plot.trend_plot.sat_hr,
-            anesplot.plot.trend_plot.ventil,
-            anesplot.plot.trend_plot.ventil_cardio,
+            anesplot.plot.trend_plot.hist_co2aa,
+            anesplot.plot.trend_plot.plot_recrut,
+            anesplot.plot.trend_plot.plot_sathr,
+            anesplot.plot.trend_plot.plot_ventil,
+            anesplot.plot.trend_plot.plot_ventilcardio,
         ]
         for func in datafunc_list:
             # plt.close('all')

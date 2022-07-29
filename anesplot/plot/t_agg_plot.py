@@ -79,13 +79,13 @@ def get_roi(
 def retrieve_function(name: str) -> Any:
     """Get the function from it's name."""
     func_list = [
-        tplot.ventil,
-        tplot.co2o2,
-        tplot.co2iso,
-        tplot.cardiovasc,
-        tplot.hist_co2_iso,
+        tplot.plot_ventil,
+        tplot.plot_co2o2,
+        tplot.plot_co2aa,
+        tplot.plot_cardiovasc,
+        tplot.hist_co2aa,
         tplot.hist_cardio,
-        tplot.sat_hr,
+        tplot.plot_sathr,
     ]
     return [_ for _ in func_list if _.__name__ == name][0]
 
@@ -215,16 +215,16 @@ def plot_a_trend(
     """
     # plotting
     func_list = [
-        tplot.ventil,
-        tplot.co2o2,
-        tplot.co2iso,
-        tplot.cardiovasc,
-        tplot.hist_co2_iso,
+        tplot.plot_ventil,
+        tplot.plot_co2o2,
+        tplot.plot_co2aa,
+        tplot.plot_cardiovasc,
+        tplot.hist_co2aa,
         tplot.hist_cardio,
     ]
     # clean the data for taph monitoring
     if param_dico["source"] == "taphTrend":
-        func_list.insert(0, tplot.sat_hr)
+        func_list.insert(0, tplot.plot_sathr)
         if "co2exp" in datadf.columns.values:
             datadf.loc[datadf["co2exp"] < 20, "co2exp"] = np.NaN
         # test ip1m
@@ -286,15 +286,15 @@ def plot_trenddata(
     afig_list = []
     # plotting
     plot_func_list: list[Callable[[pd.DataFrame, dict[str, Any]], plt.Figure]] = [
-        tplot.ventil,
-        tplot.co2o2,
-        tplot.co2iso,
-        tplot.cardiovasc,
-        tplot.hist_co2_iso,
+        tplot.plot_ventil,
+        tplot.plot_co2o2,
+        tplot.plot_co2aa,
+        tplot.plot_cardiovasc,
+        tplot.hist_co2aa,
         tplot.hist_cardio,
     ]
     if param_dico["source"] == "taphTrend":
-        plot_func_list.insert(0, tplot.sat_hr)
+        plot_func_list.insert(0, tplot.plot_sathr)
     print("building figures")
     for func in plot_func_list:
         afig_list.append(func(datadf, param_dico))

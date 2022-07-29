@@ -62,6 +62,17 @@ cts_dico: dict[str, dict[str, Any]] = {
         traces=[],
         ylims=[0, 2],
     ),
+    "sevo": dict(
+        key="sevo",
+        label="sevoflurane (%)",
+        color="tab:olive",
+        fillalpha=0.2,
+        edgecolor="tab:olive",
+        unit="%",
+        goals=[2.4, 2.8],
+        traces=[],
+        ylims=[0, 4],
+    ),
     "tvinsp": dict(
         # datex
         key="tvinsp",
@@ -218,7 +229,8 @@ cts_dico: dict[str, dict[str, Any]] = {
     "hr": dict(
         key="hr",
         label="heart rate",
-        color="k",
+        color="tab:gray",
+        style="-",
         edgecolor="tab:gray",
         unit="bpm",
         goals=[30, 50],
