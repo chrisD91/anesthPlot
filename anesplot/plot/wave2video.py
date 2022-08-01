@@ -65,18 +65,15 @@ def create_video(
             wave recording.
         keys : list
             list of columns to use (max : 2).
-        xlims : tuple
-            (xmin, xmax).
+        xlims : tuple (xmin, xmax)
+            on a sec basis (mwaves.roi[sec])
 
         Returns
         -------
         sub_df : pandas.DataFrame
         """
-        sub_df = datadf[xlims[0] < datadf.etimesec]
-        sub_df = sub_df[sub_df.etimesec < xlims[1]]
-        sub_df = sub_df.set_index("etimesec")
-        sub_df = sub_df[keys].copy()
-        return sub_df
+        sub_df = datadf.loc[datadf.etimesec.between(*xlims)]
+        return sub_df.set_index("etimesec")[keys].copy()
 
     def init(
         data: pd.DataFrame,
@@ -171,6 +168,7 @@ def create_video(
         anim.save(filename + ".mp4")
         fig.savefig(filename + ".png")
         print(f"{'-' * 10} saved {savename}.png and .mp4")
+        print(f" -> {filename.split('.')[0]}")
     # plt.show()
     return anim
 

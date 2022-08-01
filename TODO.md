@@ -39,10 +39,12 @@
 
 - [x] plot_roi_ekgbeat_overlap -> display the number of beats on the plot
 
-- [ ] check wave2video
+- [x] check wave2video
 
 - [x] plot_ventil_drive : add a grid
 
 - [x] ventil : change axis label end tidal CO~2~ -> CO~2~
 
 - [x] check filename in 'status line' of the plots for wave plot
+
+x
