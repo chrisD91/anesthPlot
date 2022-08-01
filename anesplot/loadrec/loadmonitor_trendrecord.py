@@ -20,7 +20,7 @@ import numpy as np
 # import numpy as np
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
-from anesplot.loadrec import cts
+from anesplot.loadrec import ctes_load
 
 
 def choosefile_gui(dirname: Optional[str] = None) -> str:
@@ -203,7 +203,7 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
         return pd.DataFrame(columns=datadf.columns)
 
     datadf, anotdf = remove_txt_messages(datadf)
-    datadf.rename(columns=cts.mon_corr_title, inplace=True)
+    datadf.rename(columns=ctes_load.mon_corr_title, inplace=True)
 
     # remove empty rows and columns
     datadf.dropna(axis=0, how="all", inplace=True)

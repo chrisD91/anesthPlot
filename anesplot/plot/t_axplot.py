@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from anesplot.plot.cts_plot import cts_dico
+from anesplot.plot.ctes_plot import ctes_dico
 
 
 def axplot_hist(ax: plt.axes, ser: pd.Series, key: str = "ip1") -> None:
@@ -38,24 +38,26 @@ def axplot_hist(ax: plt.axes, ser: pd.Series, key: str = "ip1") -> None:
     defined = ["ip1", "ip2", "hr", "co2", "iso", "sevo", "aa"]
     if key not in defined:
         print(f"key should be in {defined} ({key} was used)")
-    cts = sn(**(cts_dico[key]))  # get the drawing constants
-    ax.set_title(cts.label, color=cts.color)
+    ctes = sn(**(ctes_dico[key]))  # get the drawing constants
+    ax.set_title(ctes.label, color=ctes.color)
     if len(ser) > 0:
         ax.hist(
-            ser.dropna(), bins=30, color=cts.color, edgecolor=cts.edgecolor, alpha=0.7
+            ser.dropna(), bins=30, color=ctes.color, edgecolor=ctes.edgecolor, alpha=0.7
         )
         q50 = np.percentile(ser, [50])
         ax.axvline(q50, linestyle="dashed", linewidth=2, color="k", alpha=0.8)
-        for goal in cts.goals:
+        for goal in ctes.goals:
             ax.axvline(goal, color="tab:grey", alpha=1)
-        if cts.goals:
-            ax.axvspan(cts.goals[0], cts.goals[1], -0.1, 1, color="tab:grey", alpha=0.3)
-        ax.set_xlabel(cts.unit, alpha=0.5)
+        if ctes.goals:
+            ax.axvspan(
+                ctes.goals[0], ctes.goals[1], -0.1, 1, color="tab:grey", alpha=0.3
+            )
+        ax.set_xlabel(ctes.unit, alpha=0.5)
     else:
         ax.text(
             0.5,
             0.5,
-            f"no data \n ({cts.label})",
+            f"no data \n ({ctes.label})",
             horizontalalignment="center",
             fontsize="x-large",
             verticalalignment="center",
@@ -86,28 +88,28 @@ def axplot_ventiltidal(ax: plt.axes, df: pd.DataFrame) -> None:
         # calib = ttrend.data.tvInsp.mean() / taph_trend.data.tv.mean()
         # calib = 187
         # ax.plot(df.tvInsp / calib, color="tab:orange", linewidth=2, label="tvInsp")
-        cts = sn(**cts_dico["tvinsp"])
-        calib = cts.calib
-        ax.plot(df.tvInsp / calib, color=cts.color, linewidth=2, label=cts.label)
+        ctes = sn(**ctes_dico["tvinsp"])
+        calib = ctes.calib
+        ax.plot(df.tvInsp / calib, color=ctes.color, linewidth=2, label=ctes.label)
     elif "tv_spont" in df.columns:  # taph
-        cts = sn(**cts_dico["tvspont"])
+        ctes = sn(**ctes_dico["tvspont"])
         ax.plot(
             df.tv_spont,
-            color=cts.color,
+            color=ctes.color,
             linewidth=1,
             linestyle="-",
-            label=cts.label,
+            label=ctes.label,
         )
         try:
-            cts = sn(**cts_dico["tvcontrol"])
-            ax.plot(df.tv_control, color=cts.color, linewidth=2, label=cts.label)
-            cts = sn(**cts_dico["settv"])
+            ctes = sn(**ctes_dico["tvcontrol"])
+            ax.plot(df.tv_control, color=ctes.color, linewidth=2, label=ctes.label)
+            ctes = sn(**ctes_dico["settv"])
             ax.plot(
                 df.set_tv,
-                color=cts.color,
+                color=ctes.color,
                 linewidth=1,
-                linestyle=cts.style,
-                label=cts.label,
+                linestyle=ctes.style,
+                label=ctes.label,
             )
         except AttributeError:
             print("no ventilation started")
@@ -160,13 +162,13 @@ def axplot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
 
     if keys:
         for key in keys:
-            cts = sn(**cts_dico[key])
+            ctes = sn(**ctes_dico[key])
             ax.plot(
                 df[key],
-                color=cts.color,
+                color=ctes.color,
                 linewidth=1,
-                linestyle=cts.style,
-                label=cts.label,
+                linestyle=ctes.style,
+                label=ctes.label,
             )
         ax.fill_between(
             df.index,
@@ -176,13 +178,13 @@ def axplot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
             alpha=0.2,
         )
         try:
-            cts = sn(**cts_dico["setpeep"])
+            ctes = sn(**ctes_dico["setpeep"])
             ax.plot(
                 df.set_peep,
-                color=cts.color,
+                color=ctes.color,
                 linewidth=1,
-                linestyle=cts.style,
-                label=cts.label,
+                linestyle=ctes.style,
+                label=ctes.label,
             )
         except AttributeError:
             print("not on the taph")
@@ -205,9 +207,9 @@ def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
 
     """
     ax.set_ylabel("'minVol' & RR")
-    minvol = sn(**cts_dico["minvol"])
+    minvol = sn(**ctes_dico["minvol"])
     if "co2_rr" in df.columns:
-        co2rr = sn(**cts_dico["co2rr"])
+        co2rr = sn(**ctes_dico["co2rr"])
         ax.plot(
             df.co2_rr,
             color=co2rr.color,
@@ -218,7 +220,7 @@ def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
     if "minVexp" in df.columns:  # monitor
         ax.plot(df.minVexp, color=minvol.color, linewidth=2, label=minvol.label)
     if "set_rr" in df.columns:  # taph
-        setrr = sn(**cts_dico["setrr"])
+        setrr = sn(**ctes_dico["setrr"])
         ax.plot(
             df.set_rr,
             color=setrr.color,
@@ -254,7 +256,7 @@ def axplot_co2(ax: plt.axes, df: pd.DataFrame) -> None:
     None.
 
     """
-    co2 = sn(**cts_dico["co2"])  # get the drawing constants
+    co2 = sn(**ctes_dico["co2"])  # get the drawing constants
     ax.set_ylabel(co2.label)
     try:
         ax.plot(df.co2exp, color=co2.color, linewidth=2, linestyle="-")
@@ -301,7 +303,7 @@ def axplot_aa(ax: plt.axes, df: pd.DataFrame, key: str = "iso") -> None:
     if key not in ["iso", "sevo", "aa"]:
         print("key should be in ['iso', 'sevo', 'aa']")
         return
-    aa = sn(**cts_dico[key])  # get the drawing constants
+    aa = sn(**ctes_dico[key])  # get the drawing constants
     ax.set_ylabel(aa.label)
     try:
         ax.plot(df.aaExp, color=aa.color, linewidth=2, linestyle="-")
@@ -344,7 +346,7 @@ def axplot_o2(ax: plt.axes, df: pd.DataFrame) -> None:
     None.
 
     """
-    oxy = sn(**cts_dico["o2"])  # get the drawing constants
+    oxy = sn(**ctes_dico["o2"])  # get the drawing constants
     ax.set_ylabel(oxy.label)
     try:
         ax.plot(df.o2insp, color=oxy.color, linewidth=2, linestyle="-")
@@ -390,7 +392,7 @@ def axplot_arterialpressure(ax: plt.axes, df: pd.DataFrame, key: str = "ip1") ->
 
     """
     if key in ["ip1", "ip2"]:
-        press = sn(**cts_dico[key])  # get the drawing constants
+        press = sn(**ctes_dico[key])  # get the drawing constants
     else:
         txt = "key should be in [ip1, ip2]"
         ax.text(0.5, 0.5, txt)
@@ -425,7 +427,7 @@ def axplot_sat(ax: plt.axes, df: pd.DataFrame) -> None:
     None
 
     """
-    sat = sn(**cts_dico["sat"])  # get the drawing constants
+    sat = sn(**ctes_dico["sat"])  # get the drawing constants
     ax.plot(df.sat, color=sat.color, label=sat.label, linewidth=2)
     ax.set_ylabel(sat.label)
     ax.set_ylim(*sat.ylims)
@@ -454,7 +456,7 @@ def axplot_hr(ax: plt.axes, df: pd.DataFrame) -> None:
     None
 
     """
-    hrate = sn(**cts_dico["hr"])  # get the drawing constants
+    hrate = sn(**ctes_dico["hr"])  # get the drawing constants
     ax.plot(
         df.hr, color=hrate.color, label=hrate.label, linewidth=2, linestyle=hrate.style
     )
@@ -478,7 +480,7 @@ def axplot_sathr(ax: plt.axes, df: pd.DataFrame) -> None:
     None
 
     """
-    sathrate = sn(**cts_dico["sathr"])  # get the drawing constants
+    sathrate = sn(**ctes_dico["sathr"])  # get the drawing constants
     ax.plot(
         df.spo2Hr,
         color=sathrate.color,

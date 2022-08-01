@@ -6,7 +6,7 @@ Created on Thu Jun 23 15:25:39 2022
 """
 from typing import Any
 
-cts_dico: dict[str, dict[str, Any]] = {
+ctes_dico: dict[str, dict[str, Any]] = {
     "default": dict(
         key="",
         label="",

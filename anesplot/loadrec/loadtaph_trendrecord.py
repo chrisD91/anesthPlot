@@ -29,7 +29,7 @@ import pandas as pd
 # import numpy as np
 from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
 
-from anesplot.loadrec import cts
+from anesplot.loadrec import ctes_load
 
 if "paths" not in dir():
     paths = {}
@@ -227,7 +227,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         # )
         return pd.DataFrame()
 
-    corr_title = cts.taph_corr_title
+    corr_title = ctes_load.taph_corr_title
     datadf.rename(columns=corr_title, inplace=True)
     datadf = pd.DataFrame(datadf)
     # datadf.replace("nan", np.nan)
