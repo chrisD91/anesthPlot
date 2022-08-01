@@ -266,9 +266,7 @@ def plot_wave(
         if i == len("axes") - 1 and not dtime:
             ax.set_xlabel("time (sec)")
     # annotations
-    pfunc.add_baseline(fig)
-    # fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
-    # fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    pfunc.add_baseline(fig, param=param)
     fig.tight_layout()
     return fig, lines
 

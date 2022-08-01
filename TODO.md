@@ -45,4 +45,4 @@
 
 - [x] ventil : change axis label end tidal CO~2~ -> CO~2~
 
-- [ ]  check filename in 'status line' of the plots for wave plot
+- [x] check filename in 'status line' of the plots for wave plot
