@@ -104,3 +104,17 @@ taph_corr_title = {
     "Insp N2O": "n2oInsp",
     "Exp N2O": "n2oExp",
 }
+
+
+monwave_corr_title = {
+    "~ECG1": "wekg",
+    "~INVP1": "wap",
+    "~INVP2": "wvp",
+    "~CO.2": "wco2",
+    "~AWP": "wawp",
+    "~Flow": "wflow",
+    "~AirV": "wVol",
+    "Unnamed: 0": "dtime",
+}
+
+ctes_load = mon_corr_title | taph_corr_title | monwave_corr_title

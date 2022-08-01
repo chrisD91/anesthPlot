@@ -19,6 +19,8 @@ import numpy as np
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
+from anesplot.loadrec.ctes_load import ctes_load
+
 
 def choosefile_gui(dirname: Optional[str] = None) -> str:
     """
@@ -148,19 +150,8 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
             f"{'!' * 10} there are no data in this file : {os.path.basename(filename)} !"
         )
         return datadf
-    # columns names correction
-    colnames = {
-        "~ECG1": "wekg",
-        "~INVP1": "wap",
-        "~INVP2": "wvp",
-        "~CO.2": "wco2",
-        "~AWP": "wawp",
-        "~Flow": "wflow",
-        "~AirV": "wVol",
-        "Unnamed: 0": "dtime",
-    }
-    datadf = datadf.rename(columns=colnames)
-
+    # rename columns
+    datadf = datadf.rename(columns=ctes_load)
     # scaling correction
     if "wco2" in datadf.columns:
         datadf.wco2 = datadf.wco2.shift(-480)  # time lag correction
@@ -171,7 +162,7 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
     datadf.dtime = datadf.dtime.apply(
         lambda x: pd.to_datetime(date + "-" + x) if not pd.isna(x) else x
     )
-    # correct date time if over midnight
+    # correct date time if over midnight -> check location of mini dtime value
     min_time_iloc = datadf.loc[datadf.dtime == datadf.dtime.min()].index.values[0]
     if min_time_iloc > datadf.index.min():
         print("recording was performed during two days")
@@ -190,6 +181,11 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
     datadf["dtime"] = start_time + datadf.index * time_delta
     # add a 'sec'
     datadf["etimesec"] = datadf.index / sampling_fr
+    # TODO test and choose (method applied to monitor trend)
+    # elapsed time(in seconds)
+    # datadf["etimesec"] = datadf.dtime - datadf.dtime.iloc[0]
+    # datadf.etimesec = datadf.etimesec.apply(lambda dt: dt.total_seconds())
+    datadf["etimemin"] = datadf.etimesec / 60
 
     # clean data
     # params = ['wekg', 'wap', 'wco2', 'wawp', 'wflow']

@@ -24,18 +24,18 @@
 
 - [x] mwaves.data.columns :
 
-    - [x] change sec by eTimeSec
-    - [ ] append eTimeMin. -> NO to avoid increase in data size
-    - [x] change time by dtime
+  - [x] change sec by eTimeSec
+  - [ ] append eTimeMin. -> NO to avoid increase in data size
+  - [x] change time by dtime
 
 - [x] mtrends.data.columns
 
-    - [x] change datetime by dtime
-    - [x] change eTime by etimesec
+  - [x] change datetime by dtime
+  - [x] change eTime by etimesec
 
 - [ ] trend_plot.py
 
-    - [ ] externalize the save function
+  - [ ] externalize the save function
 
 - [x] plot_roi_ekgbeat_overlap -> display the number of beats on the plot
 
@@ -45,4 +45,4 @@
 
 - [x] ventil : change axis label end tidal CO~2~ -> CO~2~
 
-- [ ]
+- [ ]  check filename in 'status line' of the plots for wave plot
