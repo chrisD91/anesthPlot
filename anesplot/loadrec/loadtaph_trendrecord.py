@@ -325,9 +325,8 @@ def shift_dtime(
     """
     if minutes_to_add:
         shift = timedelta(minutes=minutes_to_add)
-        if {"dtime", "time"} < set(datadf.columns):
+        if {"dtime"} < set(datadf.columns):
             datadf["dtime"] += shift
-            datadf["time"] += shift
         else:
             print("dtime and time are not in the dataframe columns")
     return datadf

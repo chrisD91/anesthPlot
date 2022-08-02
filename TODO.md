@@ -16,7 +16,7 @@
 
 - [x] build a function to choose a plot from a list for monitor  or taph record
 
-- [ ] fix time correction for taph records and plot_ventil_dive (plot is not updated after a time shift)
+- [x] fix time correction for taph records and plot_ventil_dive (plot is not updated after a time shift)
 
 - [x] build a trend save_roi the same way for trends as for waves
 
@@ -46,5 +46,3 @@
 - [x] ventil : change axis label end tidal CO~2~ -> CO~2~
 
 - [x] check filename in 'status line' of the plots for wave plot
-
-x

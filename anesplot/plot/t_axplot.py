@@ -149,7 +149,8 @@ def axplot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
         columns = {"peak": "pPeak", "plat": "pPlat", "peep": "peep"}
         # correction if spirometry tubes have been inverted (plateau measure is false)
         if df.peep.mean() > df.pPlat.mean():
-            columns["peep"] = "pPlat"
+            columns["peep"] = "pPeak"
+            columns["pPeak"] = "peep"
             columns.pop("plat")
     # taph
     # TODO fix end of file peak pressure
