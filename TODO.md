@@ -45,4 +45,8 @@
 
 - [x] ventil : change axis label end tidal CO~2~ -> CO~2~
 
-- [x] check filename in 'status line' of the plots for wave plot
+- [x] check filename in 'status line' of the plots for wave plotfig
+
+- [ ] ekg_to_hr
+
+  implement a way to add or remove several beats for cleaning the detection
