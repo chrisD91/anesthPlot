@@ -107,15 +107,15 @@ you can execute line by line in a file the following process
 ::
 
     ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
-    waves.data = tohr.append_rr_and_ihr_to_wave(waves.data, ahr_df)
-    trends.data = tohr.append_ihr_to_trend(trends.data, waves.data, ekg_df)
+    mwaves.data = tohr.append_rr_and_ihr_to_wave(mwaves.data, ahr_df)
+    mtrends.data = tohr.append_ihr_to_trend(mtrends.data, mwaves.data, ekg_df)
 
 6. save:
 --------
 ::
 
-    tohr.save_trends_data(trends.data, savename=name, dirpath='data')
-    tohr.save_waves_data(waves.data, savename=name, dirpath='data')
+    tohr.save_trends_data(mtrends.data, savename=name, dirpath='data')
+    tohr.save_waves_data(mwaves.data, savename=name, dirpath='data')
 """
 import os
 from typing import Any, Optional
@@ -412,24 +412,52 @@ def save_beats(
     None
         hdf file, key='beatlocdf'
     """
+    subf = ""
     if dirpath is None:
         dirpath = os.getcwd()
-    filename = savename + "_" + "beatlocdf"
-    if filename.startswith("_"):
-        filename = filename[1:]
-    name = os.path.join(dirpath, filename)
+        if not os.path.basename(os.getcwd()) == "data":
+            subf = "data"
+            if not os.path.isdir("data"):
+                os.mkdir("data")
+    filename = "_".join([savename, "beatlocdf"]).strip("_")
+    name = os.path.join(dirpath, subf, filename)
     beatlocdf.to_hdf(name + ".hdf", mode="w", key="beatlocdf")
     beatstochangedf.to_hdf(name + ".hdf", mode="a", key="beatstochangedf")
     if csv:
         beatlocdf.to_csv(name + ".csv")
-        filename = savename + "_" + "beatstochangedf"
-        if filename.startswith("_"):
-            filename = filename[1:]
-        name = os.path.join(dirpath, filename)
+        filename = "_".join([savename, "beatstochangedf"]).strip("_")
+        name = os.path.join(dirpath, subf, filename)
         beatstochangedf.to_csv(name + ".csv")
 
 
 # %% apply changes to the beatlocdf
+
+
+def adjust_type(beatdf: pd.DataFrame) -> pd.DataFrame:
+    """
+    adjust the types for the beat dataframes
+
+    Parameters
+    ----------
+    beatdf : pd.DataFrame
+        the input.
+
+    Returns
+    -------
+    beatdf : ps.DataFrame
+        the output.
+
+    """
+    for col in ["p_loc", "left_bases", "right_bases"]:
+        if col in beatdf.columns:
+            beatdf[col] = beatdf[col].astype(int)
+    for col in ["action"]:
+        if col in beatdf.columns:
+            beatdf[col] = beatdf[col].astype(str)
+    for col in ["x_loc", "y_loc", "prominences"]:
+        if col in beatdf.columns:
+            beatdf[col] = beatdf[col].astype(float)
+    return beatdf
 
 
 def update_beatloc_df(
@@ -465,13 +493,7 @@ def update_beatloc_df(
             print(f"file is not present ({name})")
         name = os.path.join(path_to_file, "toChange.csv")
         beatstochangedf = pd.read_csv(name, index_col=0)
-    for col in ["p_loc", "left_bases", "right_bases"]:
-        beatstochangedf[col] = beatstochangedf[col].astype(int)
-    for col in ["action"]:
-        beatstochangedf[col] = beatstochangedf[col].astype(str)
-    for col in ["x_loc", "y_loc"]:
-        beatstochangedf[col] = beatstochangedf[col].astype(float)
-    # >>>
+    beatstochangedf = adjust_type(beatstochangedf)
     beatstochangedf = beatstochangedf.set_index("action")
     to_remove = beatstochangedf.loc["remove"].p_loc
     beatlocdf = beatlocdf.set_index("p_loc").drop(to_remove, errors="ignore")
@@ -482,6 +504,7 @@ def update_beatloc_df(
     # rebuild
     beatlocdf.drop_duplicates(keep=False, inplace=True)
     beatlocdf = beatlocdf.sort_values(by="p_loc").reset_index(drop=True)
+    beatlocdf = adjust_type(beatlocdf)
     return beatlocdf
 
 
@@ -614,12 +637,12 @@ def plot_rr(
         ax2.plot(xvals, ahr_df.rrInterpolSqDiff.values, "-g")
         lims = (0, ahr_df.rrInterpolSqDiff.quantile(0.98))
         ax2.set_ylim(lims)
-    for loca in ["top", "right"]:
-        ax.spines[loca].set_visible(False)
-        ax2.spines[loca].set_visible(False)
+    for spine in ["top", "right"]:
+        ax.spines[spine].set_visible(False)
+        ax2.spines[spine].set_visible(False)
     #    file = os.path.basename(filename)
-    fig.text(0.99, 0.01, param["file"], ha="right", va="bottom", alpha=0.4)
-    fig.text(0.01, 0.01, "anesthPlot", ha="left", va="bottom", alpha=0.4)
+    fig.text(0.01, 0.01, param["file"], ha="right", va="bottom", alpha=0.4)
+    fig.text(0.99, 0.01, "anesthPlot", ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
     return fig
 
