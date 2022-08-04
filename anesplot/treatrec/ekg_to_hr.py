@@ -745,6 +745,9 @@ def save_trends_data(
     if not os.path.isdir(dirpath):
         print("folder {dirpath} does not exist, please build it")
         return
+    for col in trenddf.columns:
+        if trenddf[col].dtype == "category":
+            trenddf[col] = trenddf[col].astype(str)
     filename = savename + "_" + "trendData"
     if filename.startswith("_"):
         filename = filename[1:]
