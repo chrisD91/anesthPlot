@@ -53,3 +53,4 @@ save = False
 if save:
     tohr.save_trends_data(mtrends.data, savename=name, dirpath='data')
     tohr.save_waves_data(mwaves.data, savename=name, dirpath='data')
+    # export_data_to_hdf(save_name, mtrend=mtrends, mwave=mwaves)

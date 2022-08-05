@@ -36,22 +36,26 @@ ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg, mwaves.param['s
 beatloc_df = tohr.detect_beats(ekg_df.wekg_lowpass, threshold=-1)
 
 # 3. perform the manual adjustments required:
-to_change_df = pd.DataFrame(columns=beatloc_df.columns.insert(0, 'action'))
+beats_tochange_df = pd.DataFrame(columns=beatloc_df.columns.insert(0, 'action'))
 # zoom to have only one peak
 figure = tohr.plot_beats(ekg_df.wekg_lowpass, beatloc_df)
 
 #- remove or add peaks : zoom on the figure to observe only one peak, then::
-to_change_df = tohr.remove_beat(beatloc_df, ekg_df, to_change_df, figure)
+beats_tochange_df = tohr.remove_a_beat(beatloc_df, beats_tochange_df, figure)
 # or
-to_change_df = tohr.append_beat(beatloc_df, ekg_df, to_change_df, figure, yscale=-1)
+beats_tochange_df = tohr.remove_allbeats(beatloc_df, beats_tochange_df, figure)
+# or
+beats_tochange_df = tohr.append_a_beat(ekg_df, beats_tochange_df, figure, yscale=-1)
 
 # - combine to update the beatloc_df with the manual changes::
-beatloc_df = tohr.update_beatloc_df(beatloc_df, to_change_df, path_to_file="", from_file=False)
+beatloc_df = tohr.update_beatloc_df(beatloc_df, beats_tochange_df, path_to_file="", from_file=False)
 
 # - save the peaks locations::
-# tohr.save_beats(beatloc_df, to_change_df, savename='', dirpath=paths["save"])
+save = False
+if save:
+    tohr.save_beats(beatloc_df, beats_tochange_df, savename='', dirpath=None)
 # (# or reload
-# beatloc_df = pd.read_hdf(os.path.join(paths['save'], 'beatlocdf.hdf'), key='beatlocdf')
+# beatloc_df = pd.read_hdf('beatDf.hdf', key='beatDf') )
 
 # 4. go from points values to continuous time:
 beatloc_df = tohr.point_to_time_rr(beatloc_df)
