@@ -15,28 +15,32 @@ name = name[0].lower() + name[1:]
 params = mwaves.param
 ekg_df = pd.DataFrame(mwaves.data.wekg)
 ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg, mwaves.param['sampling_freq'])
-beat_df = tohr.detect_beats(ekg_df.wekg_lowpass, threshold= -1)
+beatloc_df = tohr.detect_beats(ekg_df.wekg_lowpass, threshold= -1)
 
 # 3. perform the manual adjustments required:
-figure = tohr.plot_beats(ekg_df.wekg_lowpass, beat_df)
-to_change_df = pd.DataFrame(columns=beat_df.columns.insert(0, 'action'))
+figure = tohr.plot_beats(ekg_df.wekg_lowpass, beatloc_df)
+beats_tochange_df = pd.DataFrame(columns=beatloc_df.columns.insert(0, 'action'))
 
 #- remove or add peaks : zoom on the figure to observe only one peak, then::
-to_change_df = tohr.remove_beat(beat_df, ekg_df, to_change_df, figure)
+beats_tochange_df = tohr.remove_a_beat(beatloc_df, beats_tochange_df, figure)
 # or
-to_change_df = tohr.append_beat(beat_df, ekg_df, to_change_df, figure, yscale=-1)
+beats_tochange_df = tohr.remove_allbeats(beatloc_df, beats_tochange_df, figure)
+# or
+beats_tochange_df = tohr.append_a_beat(ekg_df, beats_tochange_df, figure, yscale=-1)
 
-# - combine to update the beat_df with the manual changes::
-beat_df = tohr.update_beat_df(beat_df, to_change_df, path_to_file="", from_file=False)
+# - combine to update the beatloc_df with the manual changes::
+beatloc_df = tohr.update_beatloc_df(beatloc_df, beats_tochange_df, path_to_file="", from_file=False)
 
 # - save the peaks locations::
-# tohr.save_beats(beat_df, to_change_df, savename='', dirpath=None)
+save = False
+if save:
+    tohr.save_beats(beatloc_df, beats_tochange_df, savename='', dirpath=None)
 # (# or reload
-# beat_df = pd.read_hdf('beatDf.hdf', key='beatDf') )
+# beatloc_df = pd.read_hdf('beatDf.hdf', key='beatDf') )
 
 # 4. go from points values to continuous time:
-beat_df = tohr.compute_rr(beat_df)
-ahr_df = tohr.interpolate_rr(beat_df)
+beatloc_df = tohr.point_to_time_rr(beatloc_df)
+ahr_df = tohr.interpolate_rr(beatloc_df)
 tohr.plot_rr(ahr_df, params)
 
 # 5. append intantaneous heart rate to the initial data:
@@ -45,5 +49,7 @@ mwaves.data = tohr.append_rr_and_ihr_to_wave(mwaves.data, ahr_df)
 mtrends.data = tohr.append_ihr_to_trend(mtrends.data, mwaves.data, ekg_df)
 
 # 6. save:
-tohr.save_trends_data(mtrends.data, savename=name, dirpath='data')
-tohr.save_waves_data(mwaves.data, savename=name, dirpath='data')
+save = False
+if save:
+    tohr.save_trends_data(mtrends.data, savename=name, dirpath='data')
+    tohr.save_waves_data(mwaves.data, savename=name, dirpath='data')

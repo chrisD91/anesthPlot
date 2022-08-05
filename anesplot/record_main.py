@@ -29,6 +29,7 @@ import faulthandler
 import os
 
 # import sys
+from datetime import datetime
 from types import SimpleNamespace
 from typing import Optional
 
@@ -63,12 +64,12 @@ def append_to_figures(
     figs: SimpleNamespace, figdico: dict[str, plt.Figure], key: str = "t"
 ) -> None:
     """
-    Append figures to a simpleNameSpace variables.
+    Link figures to a simpleNameSpace variables.
 
     Parameters
     ----------
     figures : SimpleNamespace
-        DESCRIPTION.
+        group the figures names for easy access.
     figdico : dict[str, plt.Figure]
         list of builded figures.
     add_key : str, optional (default is "t")
@@ -81,6 +82,45 @@ def append_to_figures(
     """
     for name, fig in figdico.items():
         setattr(figs, name + "_".join([name, key]), fig)
+
+
+def organize_debrief_folder() -> None:
+    """
+    Build file and sub_folders for debrief process inside the current directory.
+
+    Returns
+    -------
+    None.
+
+    """
+    now = datetime.now()
+    date = now.strftime("%Y_%m_%d-%H:%m:%S")
+    os.chdir("/Users/cdesbois/toPlay/dir_test")
+
+    shebang = ["#!/usr/bin/env python3", "# -*- coding: utf-8 -*-", ""]
+    build = [
+        '"""',
+        f"Created on {date}",
+        "",
+        f"@author: {os.path.basename(os.path.expanduser('~'))}",
+        '"""',
+    ]
+
+    for directory in ["data", "fig", "doc", "bib"]:
+        try:
+            os.mkdir(directory)
+            print(f"builded {directory}")
+        except FileExistsError:
+            print(f"directory {directory} already exist")
+
+    for file in ["csv2hdf.py", "ekg2hr.py", "work_on.py", "todo.md"]:
+        if os.path.exists(file):
+            print(f"{file} already exists")
+        else:
+            with open(file, "w", encoding="utf-8") as openf:
+                if file.rsplit(".", maxsplit=1)[-1] == "py":
+                    openf.writelines(line + "\n" for line in shebang)
+                openf.writelines(line + "\n" for line in build)
 
 
 def get_basic_debrief_commands() -> str:
