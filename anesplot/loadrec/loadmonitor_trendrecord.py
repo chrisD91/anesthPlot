@@ -200,7 +200,7 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
     # is empty (ie only a few lines of trend data)
     if datadf.set_index("Time").dropna(how="all").empty:
         print(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
-        return pd.DataFrame(columns=datadf.columns)
+        return pd.DataFrame(columns=datadf.columns), pd.DataFrame()
 
     datadf, anotdf = remove_txt_messages(datadf)
     datadf.rename(columns=ctes_load.mon_corr_title, inplace=True)

@@ -57,3 +57,13 @@ def load_example_records() -> tuple[Any, Any, Any]:
 # %%
 if __name__ == "__main__":
     mtrends, mwaves, ttrends = load_example_records()
+    print()
+    print(f"{'=' * 40}")
+    print(
+        "builded record examples: \n \
+          'mtrends' : a MonitorTrend \n \
+          'mwaves'  : a MonitorWave \n \
+          'ttrends' : a TaphoniusTrend "
+    )
+    print("go-on : explore attributes and methods !")
+    print(f"{'-' * 40}")
