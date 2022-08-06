@@ -11,7 +11,7 @@ from typing import Optional, Any
 from PyQt5.QtWidgets import QFileDialog, QApplication, QInputDialog
 
 
-def get_file(
+def choose_file(
     title: str = "", dirname: Optional[str] = None, filtre: Optional[str] = None
 ) -> str:
     """
@@ -52,8 +52,8 @@ def get_file(
     return ""
 
 
-def get_directory(
-    title: str = "", dirname: Optional[str] = None, filtre: Optional[str] = None
+def choose_directory(
+    title: str = "", dirname: Optional[str] = None, see_question: bool = False
 ) -> str:
     """
     Choose a file, return the filename.
@@ -64,7 +64,8 @@ def get_directory(
         the title to use
     dirname : Optional[str], default is None -> ~
         the directory name to begin selection
-    filtre : Optional[str] (default is None ->  CSV Files (*.csv);;All Files (*)")
+    see_question : bool (default is False)
+        use non native dialog .. to see the question
 
     Returns
     -------
@@ -76,11 +77,9 @@ def get_directory(
         dirname = os.path.join(os.path.expanduser("~"))
         # NB  a fake name has to bee added for the procedure to work on macos
     # dirname = os.path.join(dirname, "fakename.csv")
-    if filtre is None:
-        filtre = "CSV Files (*.csv);;All Files (*)"
-        # filtre = ''
     options = QFileDialog.Options()
-    # options |= QFileDialog.DontUseNativeDialog
+    if see_question:
+        options |= QFileDialog.DontUseNativeDialog
     dirname = QFileDialog.getExistingDirectory(
         None,
         caption=title,
@@ -92,7 +91,9 @@ def get_directory(
     return ""
 
 
-def choose_in_alist(thelist: list[Any], message: Optional[str] = None) -> Any:
+def choose_in_alist(
+    thelist: list[Any], message: Optional[str] = None, index: Optional[int] = 0
+) -> Any:
     """
     Choose an item in the list.
 
@@ -112,7 +113,9 @@ def choose_in_alist(thelist: list[Any], message: Optional[str] = None) -> Any:
     if message is None:
         message = "choose the function to use"
     #    widg = QWidget()
-    name, ok_pressed = QInputDialog.getItem(None, "select", message, thelist, 0, False)
+    name, ok_pressed = QInputDialog.getItem(
+        None, "select", message, thelist, index, False
+    )
     if not ok_pressed and name:
         return ""
     return name
@@ -129,7 +132,7 @@ app = QApplication(sys.argv)
 # %%
 if __name__ == "__main__":
     #    file_name = get_name()
-    FILE_NAME = get_file()
+    FILE_NAME = choose_file()
     #    file_name = str(QFileDialog.getOpenFileName())
     #    file_name = get_file()
     #    syt.exit(app.exec_())

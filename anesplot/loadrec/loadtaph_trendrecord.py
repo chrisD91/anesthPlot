@@ -17,7 +17,8 @@ nb = 4 files are present in a Taphonius recording :
 """
 
 import os
-import sys
+
+# import sys
 import time
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -27,19 +28,52 @@ import numpy as np
 import pandas as pd
 
 # import numpy as np
-from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
+# from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
+from anesplot.config.load_recordrc import build_paths
 
+# from anesplot.record_main import build_paths
+from anesplot.loadrec.dialogs import choose_directory, choose_in_alist
 from anesplot.loadrec import ctes_load
 
 if "paths" not in dir():
-    paths = {}
-paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
+    paths = build_paths()
+# paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
+
+
+def get_taph_filelocation(paths_torecords: Optional[dict[str, str]] = None) -> str:
+    """
+    Return the taph filelocation (as a dirname).
+
+    Parameters
+    ----------
+    paths_torecords : Optional[dict[str, str]], optional (default is None)
+        a dictionary with 'taph_data' in the keys (typically rec.paths)
+
+    Returns
+    -------
+    str
+        the directory path to the records.
+
+    """
+    if paths_torecords is None:
+        paths_torecords = {}
+    try:
+        paths_torecords["taph_data"]
+    except KeyError:
+        question = "choose the directory of taph records"
+        start_directory = os.path.expanduser("~")
+        paths_torecords["taph_data"] = choose_directory(
+            title=question, dirname=start_directory, see_question=True
+        )
+    path_to_taphrecords = paths_torecords["taph_data"]
+    if not os.path.isdir(path_to_taphrecords):
+        print("not a valid path")
+        path_to_taphrecords = ""
+    return path_to_taphrecords
 
 
 # list taph recordings
-def build_taph_decodedate_dico(
-    pathdict: Optional[dict[str, str]] = None
-) -> dict[str, list[str]]:
+def list_taph_recordings(path_totaphrecords: str) -> dict[str, list[str]]:
     """
     List all the taph recordings and the paths to the record.
 
@@ -54,8 +88,6 @@ def build_taph_decodedate_dico(
         get all the recorded files expressed as {date : filename}.
 
     """
-    if pathdict is None:
-        pathdict = paths
     months = {
         "jan": "_01_",
         "feb": "_02_",
@@ -70,17 +102,20 @@ def build_taph_decodedate_dico(
         "nov": "_11_",
         "dec": "_12_",
     }
-    taphdata = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
-    apath = pathdict.get("taph_data", taphdata)
 
     dct = defaultdict(list)
-    for root, _, files in os.walk(apath):
+    dates = []
+    for root, _, files in os.walk(path_totaphrecords):
         found = [_ for _ in files if _.startswith("SD") and _.endswith(".csv")]
         if found:
             record = found[0]
             record_name = os.path.join(root, record)
-            # records.append(record_name)
-
+            if record not in dates:
+                dates.append(record)
+            else:
+                print("duplicate:")
+                print(record_name)
+                print("-------")
             recorddate = record.strip("SD").strip(".csv").lower()
             for abbr, num in months.items():
                 recorddate = recorddate.replace(abbr, num)
@@ -110,13 +145,15 @@ def extract_record_day(monitor_file_name: str) -> str:
         for txt in ["sd", "m", ".csv", "wave"]:
             record_date = record_date.strip(txt)
         thedate = time.strptime(record_date, "%Y_%m_%d-%H_%M_%S")
-        day = time.strftime("%Y_%m_%d", thedate)
+        taph_day = time.strftime("%Y_%m_%d", thedate)
     else:
-        day = ""
-    return day
+        taph_day = ""
+    return taph_day
 
 
-def choose_taph_record(monitorname: Optional[str] = None) -> str:
+def choose_taph_record(
+    path_to_taphrecord: str, monitorname: Optional[str] = None
+) -> str:
     """
     Explore the recording folders and proposes to select one.
 
@@ -132,8 +169,9 @@ def choose_taph_record(monitorname: Optional[str] = None) -> str:
 
     """
     print(f"{' ' * 20} + choose taph_record")
-    taphdico = build_taph_decodedate_dico()
-    recorddates = sorted(taphdico.keys(), reverse=True)
+
+    taph_records_dico = list_taph_recordings(path_to_taphrecord)
+    recorddates = sorted(taph_records_dico.keys(), reverse=True)
 
     # global APP
     # app = QApplication(sys.argv)
@@ -156,18 +194,20 @@ def choose_taph_record(monitorname: Optional[str] = None) -> str:
             if str(day) in thedate:
                 day_index = i
                 break
+
+    recorddate = choose_in_alist(thelist=recorddates, message=question, index=day_index)
     #    APP = QApplication(sys.argv)
-    if "app" not in dir():
-        app = QApplication(sys.argv)
-        app.setQuitOnLastWindowClosed(True)
-    widg = QWidget()
-    recorddate, ok_pressed = QInputDialog.getItem(
-        widg, "select", question, recorddates, day_index, False
-    )
-    if ok_pressed and recorddate:
-        filename = taphdico[recorddate][
-            -1
-        ]  # if bug : two dirs, the last should contain the data
+    # if "app" not in dir():
+    #     app = QApplication(sys.argv)
+    #     app.setQuitOnLastWindowClosed(True)
+    # widg = QWidget()
+    # recorddate, ok_pressed = QInputDialog.getItem(
+    #     widg, "select", question, recorddates, day_index, False
+    # )
+    # if ok_pressed and recorddate:
+    if recorddate:
+        filename = taph_records_dico[recorddate][-1]
+        # if bug : two dirs, the last should contain the data
         print(f"{'-' * 10} founded {os.path.basename(filename)}")
     else:
         filename = ""
@@ -384,24 +424,52 @@ def sync_elapsed_time(dtime_0: datetime, taphdatadf: pd.DataFrame) -> pd.DataFra
     return taphdatadf
 
 
-# %%
-if __name__ == "__main__":
+def main_chooseload_taphtrend(
+    paths_to_records: dict[str, Any]
+) -> tuple[dict[str, Any], pd.DataFrame]:
+    """
+    Load a taphtrend data (whith choose GUI)
 
-    # from PyQt5.QtWidgets import QApplication
-    from anesplot.config.load_recordrc import build_paths
+    Parameters
+    ----------
+    paths_to_records : dictionary with 'taph_data' key
+        the path to the taphonius data.
 
-    paths = build_paths()
-    APP = QApplication(sys.argv)
-    APP.setQuitOnLastWindowClosed(True)
+    Returns
+    -------
+    theader_dico : dictionary
+        the header.
+    tdata_df : pd.DataFrame
+        the recorded data.
 
+    """
+    path_to_taphrecords = get_taph_filelocation(paths_to_records)
+    taph_records = list_taph_recordings(path_to_taphrecords)
+    # direct way
+    # file_name = choose_taph_record(path_to_taphrecords)
+    # by streps
+    record_dates = sorted(list(taph_records.keys()), reverse=True)
+    record_date = choose_in_alist(record_dates, "choose the taph record")
+    file_name = taph_records[record_date][-1]
+
+    # filenames = list(taph_records.keys())
     #   monitor_name = "M2021_9_9-11_44_35.csv"
     #    file_name = choose_taph_record(monitor_name)
-    NAME = (
-        "before2020/Anonymous/Patients2013DEC17/Record08_29_27/SD2013DEC17-8_29_27.csv"
-    )
-    NAME = "Anonymous/Patients2022JAN21/Record22_52_07/SD2022JAN21-22_52_7.csv"
+    # name = "before2020/Anonymous/Patients2013DEC17/Record08_29_27/SD2013DEC17-8_29_27.csv"
+    # name = "Anonymous/Patients2022JAN21/Record22_52_07/SD2022JAN21-22_52_7.csv"
     # check dtime (non linear and there is 2015 & 2021dates)
-    file_name = os.path.join(paths["taph_data"], NAME)
+    # file_name = os.path.join(paths["taph_data"], name)
 
     tdata_df = loadtaph_trenddata(file_name)
-    header_dico = loadtaph_patientfile(file_name)
+    theader_dico = loadtaph_patientfile(file_name)
+
+    return theader_dico, tdata_df
+
+
+# %%
+if __name__ == "__main__":
+    # if "paths" not in dir():
+    #     from anesplot.config.load_recordrc import build_paths
+
+    #     paths = build_paths()
+    t_header_dico, t_data_df = main_chooseload_taphtrend(paths)

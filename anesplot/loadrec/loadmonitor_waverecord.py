@@ -38,10 +38,8 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
     """
     if dirname is None:
         dirname = os.path.expanduser("~")
-    # app = QApplication([dirname])
-    # app.setQuitOnLastWindowClosed(True)
     # bug in macos : neccessity to add a fakename
-    dirname = os.path.join(dirname, "fakename.csv")
+    # dirname = os.path.join(dirname, "fakename.csv")
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
@@ -200,24 +198,50 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
     return datadf
 
 
-# %%
-if __name__ == "__main__":
-    APP = QApplication(sys.argv)
-    APP.setQuitOnLastWindowClosed(True)
-    DIR_NAME = (
-        "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
-    )
-    FILE_NAME = choosefile_gui(DIR_NAME)
-    file = os.path.basename(FILE_NAME)
+def main_chooseload_monitorwave(
+    dir_name: Optional[str] = None,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Load monitorwave data (whith choose GUI).
+
+    Parameters
+    ----------
+    dir_name : Optional[str] (default is None)
+        The directory to search in.
+
+    Returns
+    -------
+    wheader_df: pd.DataFrame
+        the header content
+    wdata_df : pd.DataFrame
+        the record data.
+
+    """
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(True)
+    wheader_df = pd.DataFrame()
+    wdata_df = pd.DataFrame()
+    if dir_name is None:
+        dir_name = (
+            "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
+        )
+    file_name = choosefile_gui(dir_name)
+    file = os.path.basename(file_name)
     if not file:
         print("canceled by the user")
     else:
         if file[0] == "M":
             if "Wave" in file:
-                wheader_df = loadmonitor_waveheader(FILE_NAME)
-                wdata_df = loadmonitor_wavedata(FILE_NAME)
+                wheader_df = loadmonitor_waveheader(file_name)
+                wdata_df = loadmonitor_wavedata(file_name)
                 print(f"loaded {file} in wheader_df & wdata_df")
             else:
                 print(f"{'!' * 5} {file} is not a MonitorWave recording {'!' * 5}")
         else:
             print(f"{'!' * 5} {file} is not a Monitor record {'!' * 5}")
+    return wheader_df, wdata_df
+
+
+# %%
+if __name__ == "__main__":
+    main_chooseload_monitorwave()

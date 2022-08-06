@@ -44,9 +44,7 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         )
     # bug in macos : add fake name
-    dirname = os.path.join(dirname, "fakename.csv")
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
+    # dirname = os.path.join(dirname, "fakename.csv")
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
@@ -323,29 +321,57 @@ def concat_data(
     return datadf
 
 
-# %%
-if __name__ == "__main__":
-    APP = QApplication(sys.argv)
-    APP.setQuitOnLastWindowClosed(True)
-    DIR_NAME = (
-        "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
-    )
-    FILE_NAME = choosefile_gui(DIR_NAME)
-    file = os.path.basename(FILE_NAME)
+def main_chooseload_monitortrend(
+    dir_name: Optional[str] = None,
+) -> tuple[dict["str", Any], pd.DataFrame, pd.DataFrame]:
+    """
+    Load a monitortrend data (whith choose GUI).
+
+    Parameters
+    ----------
+    dir_name : Optional[str] (default is None)
+        The directory to search in.
+
+    Returns
+    -------
+    header_dict: dict
+        the header content
+    mdata_df : pd.DataFrame
+        the record data.
+    anot_df : TYPE
+        the annotations present in the file.
+
+    """
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(True)
+    header_dict = {}
+    mdata_df = pd.DataFrame()
+    anot_df = pd.DataFrame()
+    if dir_name is None:
+        dir_name = (
+            "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
+        )
+    file_name = choosefile_gui(dir_name)
+    file = os.path.basename(file_name)
     if not file:
         print("canceled by the user")
+
     elif file[0] == "M":
         if "Wave" not in file:
-            header_dict = loadmonitor_trendheader(FILE_NAME)
+            header_dict = loadmonitor_trendheader(file_name)
             if header_dict:
-                MDATA_DF, anot_df = loadmonitor_trenddata(FILE_NAME)
+                mdata_df, anot_df = loadmonitor_trenddata(file_name)
                 print(f"{'>' * 10} loaded recording of {file} in mdata_df")
                 # mdata= cleanMonitorTrendData(mdata)
             else:
-                MDATA_DF = None
-                ANOT_DF = None
                 print(f"{'!' * 5}  {file} file is empty  {'!' * 5}")
         else:
             print(f"{'!' * 5} {file} is not a MonitorTrend recording {'!' * 5}")
     else:
         print(f"{'!' * 5}  {file} is not a MonitorTrend recording  {'!' * 5}")
+    return header_dict, mdata_df, anot_df
+
+
+# %%
+if __name__ == "__main__":
+    main_chooseload_monitortrend()
