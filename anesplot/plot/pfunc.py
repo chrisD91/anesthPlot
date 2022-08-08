@@ -86,7 +86,7 @@ def restrict_trenddf(df: pd.DataFrame, parm: dict["str", Any]) -> pd.DataFrame:
 
     """
     # xlims = (parm.get("xmin", None), parm.get("xmax", None))
-    # unit = param.get("unit", "")
+    # unit = parm.get("unit", "")
     dtime = parm.get("dtime", False)
     # global timeUnit
     if dtime:
@@ -96,8 +96,12 @@ def restrict_trenddf(df: pd.DataFrame, parm: dict["str", Any]) -> pd.DataFrame:
         timebase = "etimemin"
         parm["unit"] = "min"
     toplot_df = df.set_index(timebase).copy()
-    xmin = parm.get("xmin", df.index.min())
-    xmax = parm.get("xmax", df.index.max())
+    xmin = parm.get("xmin")
+    if xmin is None:
+        xmin = toplot_df.index.min()
+    xmax = parm.get("xmax")
+    if xmax is None:
+        xmax = toplot_df.index.max()
     toplot_df = toplot_df.loc[xmin:xmax]
     return toplot_df
 

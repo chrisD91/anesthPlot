@@ -173,7 +173,7 @@ def main(file_name: Optional[str] = None) -> str:
     print(f"file_name is {file_name}")
     if file_name is None:
         # file_name = loadagg.choosefile_gui(paths["data"])
-        file_name = anesplot.loadrec.dialogs.get_file("", paths["data"], "*.csv")
+        file_name = anesplot.loadrec.dialogs.choose_file("", paths["data"], "*.csv")
     if not file_name:
         return ""
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
