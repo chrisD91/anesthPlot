@@ -15,7 +15,10 @@ from typing import Any
 
 import anesplot.record_main as rec
 import anesplot.plot.trend_plot as tplot
-from anesplot.loadrec import dialogs
+import anesplot.loadrec.dialogs as dlg
+from anesplot.loadrec.loadmonitor_trendrecord import loadmonitor_trenddata
+from anesplot.loadrec.loadtaph_trendrecord import list_taph_recordings
+from anesplot.slow_waves import TaphTrend
 
 # import get_file, get_directory
 
@@ -24,10 +27,15 @@ paths = rec.paths
 
 def get_directory() -> str:
     """Choose the directory to scan."""
-    dirname = dialogs.get_directory(
+    dirname = dlg.choose_directory(
         "choose the folder to scan", dirname=paths["mon_data"]
     )
     return dirname
+
+
+def is_taph(dirname: str) -> Any:
+    """Return True if dirname contains taph recordings."""
+    return "taph" in dirname.lower()
 
 
 def get_plot_function(taph: bool = False) -> Any:
@@ -57,12 +65,12 @@ def get_plot_function(taph: bool = False) -> Any:
         func_list.insert(0, tplot.plot_sathr)
     question = "choose the function to use"
     names = [st.__name__ for st in func_list[::-1]]
-    name = dialogs.choose_in_alist(names, message=question)
+    name = dlg.choose_in_alist(names, message=question)
     func = [_ for _ in func_list if _.__name__ == name][0]
     return func
 
 
-def scandir(dirname: str, func: Any) -> list[str]:
+def scandir(dirname: str, func: Any, taph: bool) -> list[str]:
     """
     Scan the directory and plot every monitor trend record using the func.
 
@@ -80,19 +88,28 @@ def scandir(dirname: str, func: Any) -> list[str]:
 
     """
     files = []
-    for file in os.scandir(dirname):
-        if "Wave" not in file.name and file.is_file():
-            filename = os.path.join(paths["mon_data"], "2021", file)
-            files.append(file.name)
-            # files.append(os.path.join(paths['mon_data'], file))
-            mtrend = rec.MonitorTrend(filename)
-            func(mtrend.data, mtrend.param)
+    if taph:
+        filesdico = list_taph_recordings(paths["taph_data"])
+        for file, filelist in filesdico.items():
+            files.append(file)
+            ttrend = TaphTrend(filelist[0])
+            func(ttrend.data, ttrend.param)
+            # TODO add a filter (eg by year) -> too many recordings
+    else:
+        for entry in os.scandir(dirname):
+            if "Wave" not in entry.name and entry.is_file():
+                files.append(entry.path)
+                # files.append(os.path.join(paths['mon_data'], file))
+                # mtrend = MonitorTrend(entry.path)
+                data_df, _ = loadmonitor_trenddata(entry.path)
+                func(data_df, {"dtime": False})
     return files
 
 
 # %%
 if __name__ == "__main__":
-    DIR_NAME = get_directory()
-    funct = get_plot_function()
-    file_list = scandir(DIR_NAME, funct)
+    DIR_NAME = dlg.choose_directory()
+    IS_TAPHREC = is_taph(DIR_NAME)
+    funct = get_plot_function(IS_TAPHREC)
+    file_list = scandir(DIR_NAME, funct, IS_TAPHREC)
     print("'file_list' contains a list of all plotted record names")

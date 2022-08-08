@@ -5,10 +5,11 @@ Created on Thu Jun  2 15:26:56 2022
 @author: cdesbois
 """
 import os
-import sys
+
+# import sys
 from typing import Optional, Any
 
-from PyQt5.QtWidgets import QFileDialog, QApplication, QInputDialog
+from PyQt5.QtWidgets import QFileDialog, QApplication, QInputDialog, QWidget
 
 
 def choose_file(
@@ -112,9 +113,9 @@ def choose_in_alist(
     """
     if message is None:
         message = "choose the function to use"
-    #    widg = QWidget()
+    widg = QWidget()
     name, ok_pressed = QInputDialog.getItem(
-        None, "select", message, thelist, index, False
+        widg, "select", message, thelist, index, False
     )
     if not ok_pressed and name:
         return ""
@@ -126,7 +127,9 @@ def get_name() -> str:
     return str(QFileDialog.getOpenFileName())
 
 
-app = QApplication(sys.argv)
+# app = QApplication.instance()
+if QApplication.instance() is None:
+    app = QApplication([])
 
 
 # %%

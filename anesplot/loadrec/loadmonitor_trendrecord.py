@@ -10,7 +10,8 @@ load a monitor trend recording:
 """
 
 import os
-import sys
+
+# import sys
 from datetime import timedelta
 from typing import Optional, Any
 
@@ -342,8 +343,8 @@ def main_chooseload_monitortrend(
         the annotations present in the file.
 
     """
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
+    # app = QApplication(sys.argv)
+    # app.setQuitOnLastWindowClosed(True)
     header_dict = {}
     mdata_df = pd.DataFrame()
     anot_df = pd.DataFrame()
@@ -374,4 +375,7 @@ def main_chooseload_monitortrend(
 
 # %%
 if __name__ == "__main__":
+    # app = QApplication.instance()
+    if QApplication.instance() is None:
+        app = QApplication([])
     main_chooseload_monitortrend()

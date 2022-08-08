@@ -28,7 +28,7 @@ import numpy as np
 import pandas as pd
 
 # import numpy as np
-# from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
+from PyQt5.QtWidgets import QApplication
 from anesplot.config.load_recordrc import build_paths
 
 # from anesplot.record_main import build_paths
@@ -472,4 +472,8 @@ if __name__ == "__main__":
     #     from anesplot.config.load_recordrc import build_paths
 
     #     paths = build_paths()
+    # app = QApplication.instance()
+    if QApplication.instance() is None:
+        app = QApplication([])
+
     t_header_dico, t_data_df = main_chooseload_taphtrend(paths)

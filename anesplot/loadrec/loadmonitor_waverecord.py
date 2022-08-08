@@ -11,7 +11,8 @@ load a monitor wave recording:
 """
 
 import os
-import sys
+
+# import sys
 from datetime import timedelta
 from typing import Optional, Any
 
@@ -217,8 +218,8 @@ def main_chooseload_monitorwave(
         the record data.
 
     """
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
+    # app = QApplication(sys.argv)
+    # app.setQuitOnLastWindowClosed(True)
     wheader_df = pd.DataFrame()
     wdata_df = pd.DataFrame()
     if dir_name is None:
@@ -244,4 +245,7 @@ def main_chooseload_monitorwave(
 
 # %%
 if __name__ == "__main__":
+    # app = QApplication.instance()
+    if QApplication.instance() is None:
+        app = QApplication([])
     main_chooseload_monitorwave()

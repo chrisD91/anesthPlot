@@ -37,6 +37,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pyperclip
 from matplotlib import rcParams
+from PyQt5.QtWidgets import QApplication
 
 # from PyQt5.QtWidgets import QApplication
 import anesplot.loadrec.agg_load as loadagg
@@ -44,7 +45,7 @@ from anesplot.config.load_recordrc import build_paths
 from anesplot.fast_waves import MonitorWave, TelevetWave
 from anesplot.slow_waves import MonitorTrend, TaphTrend
 from anesplot.guides.choose_guide import get_guide  # pylint: disable=unused-import
-import anesplot.loadrec.dialogs
+import anesplot.loadrec.dialogs as dlgs
 
 paths = build_paths()
 matplotlib.use("Qt5Agg")  # NB required for the dialogs
@@ -165,15 +166,18 @@ def main(file_name: Optional[str] = None) -> str:
     print("start QtApp")
     # global APP
     # if "app" not in dir():
+    # 1 print ("app not in dir()")
     # app = QApplication(sys.argv)
     # app.setQuitOnLastWindowClosed(True)
-
+    # app = QApplication.instance()
+    # if app is None:
+    # app = QApplication([])
     # choose file and indicate the source
     print("select the file containing the data")
     print(f"file_name is {file_name}")
     if file_name is None:
         # file_name = loadagg.choosefile_gui(paths["data"])
-        file_name = anesplot.loadrec.dialogs.choose_file("", paths["data"], "*.csv")
+        file_name = dlgs.choose_file("", paths["data"], "*.csv")
     if not file_name:
         return ""
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]
@@ -209,4 +213,9 @@ def main(file_name: Optional[str] = None) -> str:
 
 # %%
 if __name__ == "__main__":
+    # app = QApplication.instance()
+    if QApplication.instance() is None:
+        app = QApplication([])
+    else:
+        print(f"QApplication instance already exists: {QApplication.instance()}")
     main()

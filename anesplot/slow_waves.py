@@ -333,8 +333,10 @@ class TaphTrend(_SlowWave):
             indication to load the data
         """
         super().__init__()
+        # breakpoint()
         if filename is None:
-            filename = ltt.choose_taph_record(monitorname)
+            path_totaph = ltt.get_taph_filelocation(paths)
+            filename = ltt.choose_taph_record(path_totaph, monitorname)
             # filename = anesplot.loadrec.dialogs.get_file(
             #    "choose monitor recording", paths["taph_data"], "*.csv"
             # )

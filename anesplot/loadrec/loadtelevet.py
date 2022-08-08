@@ -10,7 +10,8 @@ ____
 """
 
 import os
-import sys
+
+# import sys
 from typing import Optional
 
 import pandas as pd
@@ -35,8 +36,6 @@ def choosefile_gui(dirpath: Optional[str] = None) -> str:
     """
     if dirpath is None:
         dirpath = os.path.expanduser("~")
-    # app = QApplication([dirpath])
-    # app.setQuitOnLastWindowClosed(True)
     # bug in macos  necessity to add a filename
     dirpath = os.path.join(dirpath, "fakename.csv")
     fname = QFileDialog.getOpenFileName(
@@ -103,8 +102,10 @@ if __name__ == "__main__":
     import anesplot.config.load_recordrc
 
     paths = anesplot.config.load_recordrc.build_paths()
-    APP = QApplication(sys.argv)
-    APP.setQuitOnLastWindowClosed(True)
+
+    # app = QApplication.instance()
+    if QApplication.instance() is None:
+        app = QApplication([])
 
     FILE_NAME = choosefile_gui(paths.get("telv_data"))
     ekg_data = loadtelevet(FILE_NAME, all_traces=False)
