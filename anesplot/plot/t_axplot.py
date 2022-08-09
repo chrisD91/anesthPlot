@@ -316,7 +316,10 @@ def axplot_aa(ax: plt.axes, df: pd.DataFrame, key: str = "iso") -> None:
             color=aa.color,
             alpha=aa.fillalpha,
         )
-        ax.set_ylim(0, 3)
+        if aa.ylims:
+            ax.set_ylim(aa.ylims)
+        if "mac" in dir(aa):
+            ax.axhline(aa.mac, linestyle="--", color=aa.color, linewidth=2)
     # except KeyError:
     #     print("")
     except AttributeError:
@@ -361,8 +364,6 @@ def axplot_o2(ax: plt.axes, df: pd.DataFrame) -> None:
         )
         ax.set_ylim(*oxy.ylims)
         ax.axhline(oxy.ylims[0], linestyle="dashed", linewidth=3, color=oxy.color)
-    # except KeyError:
-    #     print("")
     except AttributeError:
         print("no oxygen measure in the recording")
         ax.text(

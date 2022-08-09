@@ -72,6 +72,7 @@ ctes_dico: dict[str, dict[str, Any]] = {
         goals=[1.2, 1.4],
         traces=[],
         ylims=[0, 2],
+        mac=1.4,
     ),
     "sevo": dict(
         key="sevo",
@@ -83,6 +84,7 @@ ctes_dico: dict[str, dict[str, Any]] = {
         goals=[2.4, 2.8],
         traces=[],
         ylims=[0, 4],
+        mac=2.5,
     ),
     "tvinsp": dict(
         # datex

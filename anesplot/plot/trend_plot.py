@@ -141,7 +141,7 @@ def hist_co2aa(
     datadf: pd.DataFrame, param: Optional[dict[str, Any]] = None
 ) -> plt.Figure:
     """
-    Plot CO2 and iso histogram.
+    Plot end tidal CO2 and anesthetic agent (aa) histogram.
 
     (NB CO2 should have been converted from % to mmHg)
 
@@ -355,6 +355,7 @@ def plot_co2aa(
     -------
     matplotlib.pyplot.Figure
     """
+    #    breakpoint()
     if param is None:
         param = {}  # type : dict[str, Any]
     if datadf.empty or len(datadf) < 5:
