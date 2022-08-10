@@ -4,8 +4,9 @@ Created on Wed Jun  1 16:18:25 2022
 
 @author: cdesbois
 """
+import logging
 import os
-from math import floor, ceil
+from math import ceil, floor
 from typing import Any, Union
 
 import matplotlib
@@ -164,11 +165,11 @@ def create_video(
         if savedir == "~":
             savedir = os.path.expanduser("~")
         filename = os.path.join(savedir, savename)
-        print(f"{'-' * 10} building video : {savename}.png and .mp4")
+        logging.warning(f"{'-' * 10} building video : {savename}.png and .mp4")
         anim.save(filename + ".mp4")
         fig.savefig(filename + ".png")
-        print(f"{'-' * 10} saved {savename}.png and .mp4")
-        print(f" -> {filename.split('.')[0]}")
+        logging.warning(f"{'-' * 10} saved {savename}.png and .mp4")
+        logging.warning(f" -> {filename.split('.')[0]}")
     # plt.show()
     return anim
 

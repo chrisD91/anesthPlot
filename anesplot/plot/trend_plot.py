@@ -8,15 +8,15 @@ collection of functions to plot the trend data
 
 ____
 """
-
+import logging
 from typing import Any, Optional
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from anesplot.plot import pfunc
 import anesplot.plot.t_axplot as tap
+from anesplot.plot import pfunc
 
 # from . import pfunc
 # from . import t_axplot as tap
@@ -47,7 +47,7 @@ def plot_header(
         plot of the header.
     """
     if not header:
-        print("empty header")
+        logging.warning("empty header")
         return plt.figure()
     if param is None:
         param = {"save": False, "file": ""}
@@ -102,14 +102,14 @@ def hist_cardio(
     plt.Figure
     """
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         return plt.figure()
     if param is None:
         param = {}
 
     keys = {"ip1m", "hr"}
     if not keys.issubset(set(datadf.columns)):
-        print(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
+        logging.warning(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
         return plt.figure()
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
@@ -157,13 +157,13 @@ def hist_co2aa(
     matplotlib.pyplot.Figure.
     """
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         return plt.figure()
     if param is None:
         param = {}
     keys = {"co2exp", "aaExp"}
     if not keys.issubset(set(datadf.columns)):
-        print(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
+        logging.warning(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
         return plt.figure()
     # agent = datadf.aaLabel.value_counts().index[0]
     # aa
@@ -218,7 +218,7 @@ def plot_cardiovasc(
         param = {}  # type : dict[str, Any]
 
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)
         return fig
@@ -226,7 +226,7 @@ def plot_cardiovasc(
     cardiac_items = {"ip1m", "ip1d", "ip1s", "hr"}
     if not cardiac_items.issubset(set(datadf.columns)):
         diff = cardiac_items - set(datadf.columns)
-        print("unable to perform the cardiovacular plot")
+        logging.warning("unable to perform the cardiovacular plot")
         mes = f"{diff} are not present in the data ({param.get('file', '')})"
         fig = pfunc.empty_data_fig(mes)
         return fig
@@ -289,7 +289,7 @@ def plot_cardiovasc_p1p2(
     if param is None:
         param = {}  # type : dict[str, Any]
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)
         return fig
@@ -297,8 +297,8 @@ def plot_cardiovasc_p1p2(
     cardiac_items = {"ip1m", "ip1d", "ip1s", "hr", "ip2s", "ip2d", "ip2m"}
     if not cardiac_items.issubset(set(datadf.columns)):
         diff = cardiac_items - set(datadf.columns)
-        print("unable to perform the cardiovac_p1p2 plot")
-        print(f"{diff} are not present in the data")
+        logging.warning("unable to perform the cardiovac_p1p2 plot")
+        logging.warning(f"{diff} are not present in the data")
         return plt.figure()
 
     # restrict and timeUnit
@@ -359,7 +359,7 @@ def plot_co2aa(
     if param is None:
         param = {}  # type : dict[str, Any]
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)
         return fig
@@ -367,7 +367,7 @@ def plot_co2aa(
     plot_items = {"co2insp", "co2exp", "aaInsp", "aaExp"}
     if not plot_items.issubset(set(datadf.columns)):
         diff = plot_items - set(datadf.columns)
-        print("unable to perform the cardiovacular plot")
+        logging.warning("unable to perform the cardiovacular plot")
         mes = f"{diff} are not present in the data ({param.get('file', '')})"
         fig = pfunc.empty_data_fig(mes)
         return plt.figure()
@@ -432,7 +432,7 @@ def plot_co2o2(
     if param is None:
         param = {}
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)
         return fig
@@ -440,7 +440,7 @@ def plot_co2o2(
     plot_items = {"co2insp", "co2exp", "o2insp", "o2exp"}
     if not plot_items.issubset(set(datadf.columns)):
         diff = plot_items - set(datadf.columns)
-        print("unable to perform the cardiovacular plot")
+        logging.warning("unable to perform the cardiovacular plot")
         mes = f"{diff} are not present in the data ({param.get('file', '')})"
         fig = pfunc.empty_data_fig(mes)
         return fig
@@ -499,7 +499,7 @@ def plot_ventil(
     if param is None:
         param = {}
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)  # error message fig
         return fig
@@ -566,7 +566,7 @@ def plot_recrut(
     if param is None:
         param = {}
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)
         return fig
@@ -621,18 +621,18 @@ def plot_ventilcardio(
     if param is None:
         param = {}
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)
         return fig
 
     if "tvInsp" not in datadf.columns:
-        print("no spirometry data in the recording")
+        logging.warning("no spirometry data in the recording")
 
     cardiac_items = {"ip1m", "ip1d", "ip1s", "hr"}
     if not cardiac_items.issubset(set(datadf.columns)):
         diff = cardiac_items - set(datadf.columns)
-        print("unable to perform the cardiovacular plot")
+        logging.warning("unable to perform the cardiovacular plot")
         mes = f"{diff} are not present in the data ({param.get('file', '')})"
         fig = pfunc.empty_data_fig(mes)
         return fig
@@ -699,16 +699,16 @@ def plot_sathr(
     if param is None:
         param = {}
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)
         return fig
 
     if "sat" not in datadf.columns:
-        print("no saturation in the recording")
+        logging.warning("no saturation in the recording")
         return plt.figure()
     if "spo2Hr" not in datadf.columns:
-        print("no satHr in the recording")
+        logging.warning("no satHr in the recording")
         return plt.figure()
 
     plot_items = ["sat", "spo2Hr"]

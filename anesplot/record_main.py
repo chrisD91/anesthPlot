@@ -26,6 +26,7 @@ nb to work within spyder : move inside anestplot (>> cd anesplot)
 """
 
 import faulthandler
+import logging
 import os
 
 # import sys
@@ -41,11 +42,18 @@ from PyQt5.QtWidgets import QApplication
 
 # from PyQt5.QtWidgets import QApplication
 import anesplot.loadrec.agg_load as loadagg
+import anesplot.loadrec.dialogs as dlgs
 from anesplot.config.load_recordrc import build_paths
 from anesplot.fast_waves import MonitorWave, TelevetWave
+from anesplot.guides.choose_guide import get_guide  # noqa: F401
 from anesplot.slow_waves import MonitorTrend, TaphTrend
-from anesplot.guides.choose_guide import get_guide  # pylint: disable=unused-import
-import anesplot.loadrec.dialogs as dlgs
+
+logging.basicConfig(
+    level=logging.WARNING,
+    force=True,
+    format="%(levelname)s:%(funcName)s:%(message)s",
+)
+logging.getLogger(name="matplotlib").setLevel(logging.WARNING)
 
 paths = build_paths()
 matplotlib.use("Qt5Agg")  # NB required for the dialogs
@@ -55,9 +63,16 @@ rcParams["axes.ymargin"] = 0
 
 faulthandler.enable()
 
-# if "app" not in dir():
-#    app = QApplication(sys.argv)
-#    app.setQuitOnLastWindowClosed(False)
+
+app = QApplication.instance()
+logging.warning(f"record_main.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
+
+
 fig_group = SimpleNamespace()
 
 
@@ -110,13 +125,13 @@ def organize_debrief_folder() -> None:
     for directory in ["data", "fig", "doc", "bib"]:
         try:
             os.mkdir(directory)
-            print(f"builded {directory}")
+            logging.debug(f"builded {directory}")
         except FileExistsError:
-            print(f"directory {directory} already exist")
+            logging.debug(f"directory {directory} already exist")
 
     for file in ["csv2hdf.py", "ekg2hr.py", "work_on.py", "todo.md"]:
         if os.path.exists(file):
-            print(f"{file} already exists")
+            logging.debug(f"{file} already exists")
         else:
             with open(file, "w", encoding="utf-8") as openf:
                 if file.rsplit(".", maxsplit=1)[-1] == "py":
@@ -132,7 +147,7 @@ def get_basic_debrief_commands() -> str:
         "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
     ]
     message = "basic debrief commands are in the clipboard"
-    # print(message)
+    # logging.debug(message)
     splitlines = " \n".join(lines)
     pyperclip.copy(splitlines)
     return message
@@ -162,19 +177,19 @@ def main(file_name: Optional[str] = None) -> str:
     """
     # faulthandler.enable()
     # os.chdir(paths.get("recordMain", os.path.expanduser('~')))
-    print(f"backEnd= {plt.get_backend()}")  # required ?
-    print("start QtApp")
+    logging.debug(f"backEnd= {plt.get_backend()}")  # required ?
+    logging.debug("start QtApp")
     # global APP
     # if "app" not in dir():
-    # 1 print ("app not in dir()")
+    # 1 logging.debug ("app not in dir()")
     # app = QApplication(sys.argv)
     # app.setQuitOnLastWindowClosed(True)
     # app = QApplication.instance()
     # if app is None:
     # app = QApplication([])
     # choose file and indicate the source
-    print("select the file containing the data")
-    print(f"file_name is {file_name}")
+    logging.debug("select the file containing the data")
+    logging.debug(f"{file_name=}")
     if file_name is None:
         # file_name = loadagg.choosefile_gui(paths["data"])
         file_name = dlgs.choose_file("", paths["data"], "*.csv")
@@ -214,8 +229,8 @@ def main(file_name: Optional[str] = None) -> str:
 # %%
 if __name__ == "__main__":
     # app = QApplication.instance()
-    if QApplication.instance() is None:
-        app = QApplication([])
-    else:
-        print(f"QApplication instance already exists: {QApplication.instance()}")
+    # if QApplication.instance() is None:
+    #     app = QApplication([])
+    # else:
+    #     print(f"QApplication instance already exists: {QApplication.instance()}")
     main()

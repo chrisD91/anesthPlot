@@ -7,9 +7,10 @@ Created on Sat Dec 18 10:30:54 2021
 functions ued to extract the events from the taphonius files
 
 """
+import logging
 from datetime import datetime, timedelta
 from math import ceil
-from typing import Any, Tuple, Union, Optional
+from typing import Any, Optional, Tuple, Union
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -65,10 +66,10 @@ def extract_taphmessages(df: pd.DataFrame, display: bool = False) -> Tuple[Any, 
     acts = {_ for _ in acts if not any(_.startswith(w) for w in not_acts)}
 
     if display:
-        print(f"{'-' * 10} extract_taphmessages")
-        print(f"{'-' * 5} content : ")
+        logging.warning(f"{'-' * 10} extract_taphmessages")
+        logging.warning(f"{'-' * 5} content : ")
         for item in content:
-            print(item)
+            logging.warning(item)
 
     return acts, content
 
@@ -89,14 +90,14 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
     """
     dteventsdf = pd.DataFrame(columns=["events"])
     if datadf.empty:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         return dteventsdf
     df = datadf[["events", "dtime"]].dropna().set_index("dtime")
     df.events = df.events.apply(
         lambda st: [_.strip("[").strip("]") for _ in st.splitlines()]
     )
     if df.events.dropna().empty:
-        print("no events in the recording")
+        logging.warning("no events in the recording")
         return dteventsdf
     # linearize the events
     events_ser = pd.Series(name="events", dtype=str)
@@ -145,7 +146,7 @@ def build_event_dataframe(datadf: pd.DataFrame) -> pd.DataFrame:
                 if datet in events_ser:
                     datet = datet + timedelta(milliseconds=1)
                 newtimes.append(datet)
-                print(f"{newtimes}")
+                logging.warning(f"{newtimes}")
             batch = batch.set_axis(newtimes)
         events_ser = pd.concat([events_ser, batch])
     dteventsdf = pd.DataFrame(events_ser)
@@ -171,7 +172,7 @@ def extract_ventilation_drive(
     pd.DataFrame with datetime index and one column per action (ex 'rr changed')
     """
     if dteventsdf.empty:
-        print("extract_ventilation_drive: dt_event_df is empty")
+        logging.warning("extract_ventilation_drive: dt_event_df is empty")
         return pd.DataFrame()
 
     if acts is None:
@@ -243,9 +244,11 @@ def extract_ventilation_drive(
             else:
                 # replace the from extracted value by the defauls one
                 # taph bug : first message ie cpap value changed from 0, not preset 5)
-                print(f"first value is differant from default_settings for '{act}'")
-                print(f"replaced '{from_message}'")
-                print(
+                logging.warning(
+                    f"first value is differant from default_settings for '{act}'"
+                )
+                logging.warning(f"replaced '{from_message}'")
+                logging.warning(
                     f"by '{default_chris[act.split(' ')[0]]}' (as initial '{act}' value)"
                 )
                 dteventsdf.iloc[0, dteventsdf.columns.get_loc(act)] = str(
@@ -314,7 +317,9 @@ def plot_ventilation_drive(
             )
         else:
             if col not in labels:
-                print(f"plot_ventilation_drive : please update the labels for {col}")
+                logging.warning(
+                    f"plot_ventilation_drive : please update the labels for {col}"
+                )
             ax.step(
                 df.index, df[col].fillna(0), linewidth=1.5, label=labels.get(col, col)
             )
@@ -478,7 +483,7 @@ def extract_event(eventdf: pd.DataFrame) -> dict[str, pd.Timestamp]:
 #         actdf = pd.DataFrame(event, columns=["dt", colname]).set_index("dt")
 #         dflist.append(actdf)
 #         if colname == "notdefined":
-#             print(f"manage_events.build_dataframe : names should be updated for {act}")
+#             logging.warning(f"manage_events.build_dataframe : names should be updated for {act}")
 #     acts_df = pd.concat(dflist).sort_index()
 
 #     return acts_df

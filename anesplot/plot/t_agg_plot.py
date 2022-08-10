@@ -7,16 +7,25 @@ Created on Wed Apr 27 15:46:14 2022
 list of function to choose, manipulate and combine the trends plot functions
 
 """
+import logging
 import sys
-from typing import Callable, Any, Optional
+from typing import Any, Callable, Optional
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
+from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
 
 import anesplot.plot.trend_plot as tplot
+
+app = QApplication.instance()
+logging.warning(f"t_agg_plot.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 # %%
@@ -67,7 +76,7 @@ def get_roi(
             # no dt values for televet
             lims = (np.nan, np.nan)
         roidict[abbr] = lims
-    print(f"{'-' * 10} defined a trend_roi")
+    logging.info(f"{'-' * 10} defined a trend_roi")
     # append ylims and traces
     roidict["ylims"] = ylims
     return roidict
@@ -155,7 +164,7 @@ def build_half_white(
         the full scale figure (previous + 50% filled)
     """
     if roi is None:
-        print("please build a roi using the .save_roi method")
+        logging.warning("please build a roi using the .save_roi method")
         return plt.figure(), None, plt.figure()
 
     # iniax = inifig.get_axes()[0]
@@ -231,7 +240,7 @@ def plot_a_trend(
         if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
             datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
         else:
-            print("no pressure tdata recorded")
+            logging.warning("no pressure tdata recorded")
     # choose
     if "app" not in dir():
         app = QApplication(sys.argv)
@@ -282,7 +291,7 @@ def plot_trenddata(
         if ("ip1m" in datadf.columns) and not datadf.ip1m.isnull().all():
             datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
         else:
-            print("no pressure tdata recorded")
+            logging.warning("no pressure tdata recorded")
     afig_list = []
     # plotting
     plot_func_list: list[Callable[[pd.DataFrame, dict[str, Any]], plt.Figure]] = [
@@ -295,12 +304,12 @@ def plot_trenddata(
     ]
     if param_dico["source"] == "taphTrend":
         plot_func_list.insert(0, tplot.plot_sathr)
-    print("building figures")
+    logging.info("building figures")
     for func in plot_func_list:
         afig_list.append(func(datadf, param_dico))
     if header:
         afig_list.append(tplot.plot_header(header, param_dico))
-    # print("plt.show")
+    # logging.info("plt.show")
     plt.show()
     names = [st.__name__ for st in plot_func_list]
     if header:
@@ -318,7 +327,7 @@ def plot_trenddata(
 
 # mtrends = MonitorTrend()
 # figure, tracename = mtrends.plot_trend()
-# print("now scale the figure please")
+# logging.warning("now scale the figure please")
 # # %%
 # mtrends.save_roi()
 # # scale the figure

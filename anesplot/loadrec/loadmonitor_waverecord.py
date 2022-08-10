@@ -10,17 +10,26 @@ load a monitor wave recording:
 
 """
 
+import logging
 import os
 
 # import sys
 from datetime import timedelta
-from typing import Optional, Any
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 from anesplot.loadrec.ctes_load import ctes_load
+
+app = QApplication.instance()
+logging.warning(f"loadmonitor_waverecord.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 def choosefile_gui(dirname: Optional[str] = None) -> str:
@@ -69,22 +78,21 @@ def loadmonitor_waveheader(filename: Optional[str] = None) -> dict[str, Any]:
     """
     if filename is None:
         filename = choosefile_gui()
-        print(f"called returned= {filename}")
+        logging.info(f"called returned= {filename}")
 
     else:
         if filename == "":
             # to build and empty header
             return {}
-        print(f"{'-' * 20} < loadmonitor_waveheader")
+        logging.info(f"{'-' * 20} < loadmonitor_waveheader")
         if not os.path.isfile(filename):
             # wrong name
-            print(f"{'!' * 10} file not found)")
-            print(f"{filename}")
-            print(f"{'!' * 10} file not found)")
-            print()
+            logging.warning(f"{'!' * 10} file not found)")
+            logging.warning(f"{filename}")
+            logging.warning(f"{'!' * 10} file not found)")
             return {}
 
-    print(f"{'.' * 10} loading header {os.path.basename(filename)}")
+    logging.info(f"{'.' * 10} loading header {os.path.basename(filename)}")
 
     try:
         headerdf = pd.read_csv(
@@ -97,9 +105,9 @@ def loadmonitor_waveheader(filename: Optional[str] = None) -> dict[str, Any]:
         )
         header = dict(headerdf.values)
     except FileNotFoundError:
-        print("canceled by the user")
+        logging.warning("canceled by the user")
         header = {}
-    print(f"{'-' * 20} loaded waveheader >")
+    logging.info(f"{'-' * 20} loaded waveheader >")
     return header
 
 
@@ -117,15 +125,14 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
     pandas.Dataframe
         the recorded wave data
     """
-    print(f"{'-' * 20} < loadmonitor_wavedata")
+    logging.info(f"{'-' * 20} < loadmonitor_wavedata")
     if not os.path.isfile(filename):
-        print(f"{'!' * 10} file not found")
-        print("f{filename}")
-        print(f"{'!' * 10} file not found")
-        print()
+        logging.warning(f"{'!' * 10} file not found")
+        logging.warning("f{filename}")
+        logging.warning(f"{'!' * 10} file not found")
         return pd.DataFrame()
     if filename:
-        print(f"{'.' * 10} loading wavedata {os.path.basename(filename)}")
+        logging.info(f"{'.' * 10} loading wavedata {os.path.basename(filename)}")
     sampling_fr = 300  # sampling rate
     try:
         date = pd.read_csv(filename, nrows=1, header=None).iloc[0][1]
@@ -145,7 +152,7 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
     )  # , nrows=200000) #NB for development
     datadf = pd.DataFrame(datadf)
     if datadf.empty:
-        print(
+        logging.warning(
             f"{'!' * 10} there are no data in this file : {os.path.basename(filename)} !"
         )
         return datadf
@@ -164,7 +171,7 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
     # correct date time if over midnight -> check location of mini dtime value
     min_time_iloc = datadf.loc[datadf.dtime == datadf.dtime.min()].index.values[0]
     if min_time_iloc > datadf.index.min():
-        print("recording was performed during two days")
+        logging.info("recording was performed during two days")
         datetime_series = datadf.dtime.copy()
         datetime_series.iloc[min_time_iloc:] = datetime_series.iloc[
             min_time_iloc:
@@ -195,7 +202,7 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
     if "wco2" in datadf.columns:
         datadf.loc[datadf.wco2 < 0, "wco2"] = 0
 
-    print(f"{'-' * 20} loaded wavedata >")
+    logging.info(f"{'-' * 20} loaded wavedata >")
     return datadf
 
 
@@ -229,17 +236,19 @@ def main_chooseload_monitorwave(
     file_name = choosefile_gui(dir_name)
     file = os.path.basename(file_name)
     if not file:
-        print("canceled by the user")
+        logging.info("canceled by the user")
     else:
         if file[0] == "M":
             if "Wave" in file:
                 wheader_df = loadmonitor_waveheader(file_name)
                 wdata_df = loadmonitor_wavedata(file_name)
-                print(f"loaded {file} in wheader_df & wdata_df")
+                logging.info(f"loaded {file} in wheader_df & wdata_df")
             else:
-                print(f"{'!' * 5} {file} is not a MonitorWave recording {'!' * 5}")
+                logging.warning(
+                    f"{'!' * 5} {file} is not a MonitorWave recording {'!' * 5}"
+                )
         else:
-            print(f"{'!' * 5} {file} is not a Monitor record {'!' * 5}")
+            logging.warning(f"{'!' * 5} {file} is not a Monitor record {'!' * 5}")
     return wheader_df, wdata_df
 
 

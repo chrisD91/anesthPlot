@@ -9,19 +9,28 @@ load a monitor trend recording:
     - load the data -> pandas.DataFrame
 """
 
+import logging
 import os
 
 # import sys
 from datetime import timedelta
-from typing import Optional, Any
+from typing import Any, Optional
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 # import numpy as np
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 from anesplot.loadrec import ctes_load
+
+app = QApplication.instance()
+logging.warning(f"loadmonitor_trendrecord.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 def choosefile_gui(dirname: Optional[str] = None) -> str:
@@ -78,14 +87,13 @@ def loadmonitor_trendheader(filename: str) -> dict["str", Any]:
         # to build and empty header
         return descr
 
-    print(f"{'-' * 20} < loadmonitor_trendheader")
+    logging.info("%s < loadmonitor_trendheader", "-" * 20)
     if not os.path.isfile(filename):
-        print(f"{'!'* 10} file not found")
-        print(f"{filename}")
-        print(f"{'!'* 10} file not found")
-        print()
+        logging.warning(f"{'!' * 10} file not found")
+        logging.warning(f"{filename=}")
+        logging.warning(f"{'!' * 10} file not found")
         return descr
-    print(f"{'.' * 10} loading header {os.path.basename(filename)}")
+    logging.info(f"{'.' * 10} loading header {os.path.basename(filename)}")
 
     try:
         headerdf = pd.read_csv(
@@ -99,24 +107,26 @@ def loadmonitor_trendheader(filename: str) -> dict["str", Any]:
         )
     # except UnicodeDecodeError as error:
     except pd.errors.EmptyDataError:
-        print(f"{os.path.basename(filename)} as an empty header")
+        logging.warning(f"{os.path.basename(filename)} as an empty header")
         # descr = {"empty": filename}
         # descr = {}  # type: dict[str, Any]
     except FileNotFoundError:
-        print("header not found")
+        logging.warning("header not found")
         # descr = {}  # type: dict[str, Any]
-        # print(error)
+        # logging.warning(error)
     # NB encoding needed for accentuated letters
     else:
         headerdf = headerdf.set_index(0).T
         if "Sampling Rate" not in headerdf.columns:
-            print(f"{'>'* 10} {os.path.basename(filename)} is not a trend record")
+            logging.error(
+                f"{'>' * 10} {os.path.basename(filename)} is not a trend record"
+            )
             return {}
         for col in ["Weight", "Height", "Sampling Rate"]:
             headerdf[col] = headerdf[col].astype(float)
         # convert to a dictionary
         descr = headerdf.loc[1].to_dict()
-    print(f"{'-' * 20} loaded trendheader >")
+    logging.info(f"{'-' * 20} loaded trendheader >")
     return descr
 
 
@@ -142,14 +152,14 @@ def remove_txt_messages(recorddf: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFr
             if col != "Time":
                 to_fix.append(col)
     if to_fix:
-        print("there are non numericals values:")
+        logging.warning("there are non numericals values:")
         for line, ser in recorddf[to_fix].iterrows():
             try:
                 pd.to_numeric(ser)
             except ValueError:
                 message = recorddf.loc[line].dropna()
                 txt = " ".join([str(_) for _ in message.to_list()])
-                print(f"(replaced by NaN) -> {txt}")
+                logging.warning(f"(replaced by NaN) -> {txt}")
                 messagesdf[line] = message
                 recorddf.loc[line] = np.nan
         for col in to_fix:
@@ -174,15 +184,14 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
         the recorded data.
 
     """
-    print(f"{'-' * 20} < loadmonitor_trenddata")
+    logging.info(f"{'-' * 20} < loadmonitor_trenddata")
     if not os.path.isfile(filename):
-        print(f"{'!' * 10} datafile not found")
-        print("{filename}")
-        print(f"{'!' * 10} datafile not found")
-        print()
+        logging.warning(f"{'!' * 10} datafile not found")
+        logging.warning("{filename}")
+        logging.warning(f"{'!' * 10} datafile not found")
         return pd.DataFrame()
 
-    print(f"{'.' * 10} loading trenddata {os.path.basename(filename)}")
+    logging.info(f"{'.' * 10} loading trenddata {os.path.basename(filename)}")
     try:
         datadf = pd.read_csv(filename, sep=",", skiprows=[13], header=12)
     except UnicodeDecodeError:
@@ -190,7 +199,7 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
             filename, sep=",", skiprows=[13], header=12, encoding="ISO-8859-1"
         )
     except pd.errors.EmptyDataError:
-        print(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
+        logging.warning(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
         return pd.DataFrame()
 
     datadf = pd.DataFrame(datadf)
@@ -198,7 +207,7 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
     datadf = datadf.drop([_ for _ in datadf.columns if _.startswith("~")], axis=1)
     # is empty (ie only a few lines of trend data)
     if datadf.set_index("Time").dropna(how="all").empty:
-        print(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
+        logging.warning(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
         return pd.DataFrame(columns=datadf.columns), pd.DataFrame()
 
     datadf, anotdf = remove_txt_messages(datadf)
@@ -221,7 +230,7 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
     try:
         datadf[["co2exp", "co2insp"]] *= 760 / 100
     except KeyError:
-        print("no capnographic recording")
+        logging.warning("no capnographic recording")
 
     day = os.path.basename(filename).strip("M").split("-")[0]
     datadf.dtime = datadf.dtime.astype(str)
@@ -247,9 +256,9 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
     # sampling = round(
     #     (datadf.dtime.iloc[-1] - datadf.dtime.iloc[0]).total_seconds() / len(datadf)
     # )
-    # print(f"{sampling=}, header_sampling={headerdico['Sampling Rate']}")
+    # logging.info(f"{sampling=}, header_sampling={headerdico['Sampling Rate']}")
 
-    print(f"{'-' * 20} loaded trenddata >")
+    logging.info(f"{'-' * 20} loaded trenddata >")
     return datadf, anotdf
 
 
@@ -355,27 +364,26 @@ def main_chooseload_monitortrend(
     file_name = choosefile_gui(dir_name)
     file = os.path.basename(file_name)
     if not file:
-        print("canceled by the user")
+        logging.warning("canceled by the user")
 
     elif file[0] == "M":
         if "Wave" not in file:
             header_dict = loadmonitor_trendheader(file_name)
             if header_dict:
                 mdata_df, anot_df = loadmonitor_trenddata(file_name)
-                print(f"{'>' * 10} loaded recording of {file} in mdata_df")
+                logging.info(f"{'>' * 10} loaded recording of {file} in mdata_df")
                 # mdata= cleanMonitorTrendData(mdata)
             else:
-                print(f"{'!' * 5}  {file} file is empty  {'!' * 5}")
+                logging.warning(f"{'!' * 5}  {file} file is empty  {'!' * 5}")
         else:
-            print(f"{'!' * 5} {file} is not a MonitorTrend recording {'!' * 5}")
+            logging.warning(
+                f"{'!' * 5} {file} is not a MonitorTrend recording {'!' * 5}"
+            )
     else:
-        print(f"{'!' * 5}  {file} is not a MonitorTrend recording  {'!' * 5}")
+        logging.warning(f"{'!' * 5}  {file} is not a MonitorTrend recording  {'!' * 5}")
     return header_dict, mdata_df, anot_df
 
 
 # %%
 if __name__ == "__main__":
-    # app = QApplication.instance()
-    if QApplication.instance() is None:
-        app = QApplication([])
     main_chooseload_monitortrend()

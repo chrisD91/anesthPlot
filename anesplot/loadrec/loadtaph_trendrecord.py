@@ -16,6 +16,7 @@ nb = 4 files are present in a Taphonius recording :
 
 """
 
+import logging
 import os
 
 # import sys
@@ -29,15 +30,24 @@ import pandas as pd
 
 # import numpy as np
 from PyQt5.QtWidgets import QApplication
+
 from anesplot.config.load_recordrc import build_paths
+from anesplot.loadrec import ctes_load
 
 # from anesplot.record_main import build_paths
 from anesplot.loadrec.dialogs import choose_directory, choose_in_alist
-from anesplot.loadrec import ctes_load
 
 if "paths" not in dir():
     paths = build_paths()
 # paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
+
+app = QApplication.instance()
+logging.warning(f"loadtaph_trendrecord.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 def get_taph_filelocation(paths_torecords: Optional[dict[str, str]] = None) -> str:
@@ -67,7 +77,7 @@ def get_taph_filelocation(paths_torecords: Optional[dict[str, str]] = None) -> s
         )
     path_to_taphrecords = paths_torecords["taph_data"]
     if not os.path.isdir(path_to_taphrecords):
-        print("not a valid path")
+        logging.warning(f"not a valid path:  {path_to_taphrecords}")
         path_to_taphrecords = ""
     return path_to_taphrecords
 
@@ -113,9 +123,9 @@ def list_taph_recordings(path_totaphrecords: str) -> dict[str, list[str]]:
             if record not in dates:
                 dates.append(record)
             else:
-                print("duplicate:")
-                print(record_name)
-                print("-------")
+                logging.warning("duplicate:")
+                logging.warning(record_name)
+                logging.warning("-------")
             recorddate = record.strip("SD").strip(".csv").lower()
             for abbr, num in months.items():
                 recorddate = recorddate.replace(abbr, num)
@@ -168,7 +178,7 @@ def choose_taph_record(
         selected file (full) name.
 
     """
-    print(f"{' ' * 20} + choose taph_record")
+    logging.info(f"{' ' * 20} + choose taph_record")
 
     taph_records_dico = list_taph_recordings(path_to_taphrecord)
     recorddates = sorted(taph_records_dico.keys(), reverse=True)
@@ -208,10 +218,10 @@ def choose_taph_record(
     if recorddate:
         filename = taph_records_dico[recorddate][-1]
         # if bug : two dirs, the last should contain the data
-        print(f"{'-' * 10} founded {os.path.basename(filename)}")
+        logging.info(f"{'-' * 10} founded {os.path.basename(filename)}")
     else:
         filename = ""
-        print(f"{'-' * 10} cancelled")
+        logging.info(f"{'-' * 10} cancelled")
     return filename
 
 
@@ -230,16 +240,15 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
         the recorded data.
     """
     if filename is None:
-        print(f"{'!' * 10} no name provided")
+        logging.warning(f"{'!' * 10} no name provided")
         return pd.DataFrame()
-    print(f"{'-' * 20} < loadtaph_datafile")
+    logging.info(f"{'-' * 20} < loadtaph_datafile")
     if not os.path.isfile(filename):
-        print(f"{'!' * 10} datafile not found")
-        print(f"{filename}")
-        print(f"{'!' * 10} datafile not found")
-        print()
+        logging.warning(f"{'!' * 10} datafile not found")
+        logging.warning(f"{filename}")
+        logging.warning(f"{'!' * 10} datafile not found")
         return pd.DataFrame()
-    print(f"{'-' * 10} loading taph_datafile {os.path.basename(filename)}")
+    logging.info(f"{'-' * 10} loading taph_datafile {os.path.basename(filename)}")
 
     try:
         # df = pd.read_csv(filename, sep=",", header=1, skiprows=[2])
@@ -254,7 +263,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
             index_col=False,
         )
     except pd.errors.ParserError:
-        print(f"corrupted file ({os.path.basename(filename)})")
+        logging.warning(f"corrupted file ({os.path.basename(filename)})")
         # generally related to pb with the auxillary controler
         # df = pd.read_csv(
         #     filename,
@@ -275,7 +284,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     datadf = datadf.dropna(axis=1, how="all")
 
     if len(datadf) < 4:
-        print(f"empty file ({os.path.basename(filename)})")
+        logging.warning(f"empty file ({os.path.basename(filename)})")
         for col in ["dtime", "time", "eTime", "eTimeMin"]:
             datadf[col] = np.nan
         return datadf
@@ -297,8 +306,8 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     try:
         datadf[["co2exp", "co2insp"]] *= 760 / 100
     except KeyError:
-        print("no capnographic recording")
-    print(f"{'-' * 20} loaded taph_datafile ({os.path.basename(filename)}) >")
+        logging.warning("no capnographic recording")
+    logging.info(f"{'-' * 20} loaded taph_datafile ({os.path.basename(filename)}) >")
     return datadf
 
 
@@ -322,14 +331,13 @@ def loadtaph_patientfile(filename: str) -> dict[str, Any]:
         return {}  # dict[str, Any]
     headername = os.path.join(os.path.dirname(filename), "Patient.csv")
 
-    print(f"{'.' * 20} < loading taph_patientfile")
+    logging.info(f"{'.' * 20} < loading taph_patientfile")
     if not os.path.isfile(headername):
-        print(f"{'!' * 10} patient_file not found")
-        print(f"{headername}")
-        print(f"{'!' * 10} patient_file not found")
-        print()
+        logging.warning(f"{'!' * 10} patient_file not found")
+        logging.warning(f"{headername}")
+        logging.warning(f"{'!' * 10} patient_file not found")
         return {}
-    print(f"{'.' * 10} loading {os.path.basename(headername)}")
+    logging.info(f"{'.' * 10} loading {os.path.basename(headername)}")
 
     patientdf = pd.read_csv(
         headername, header=None, usecols=[0, 1], encoding="iso8859_15"
@@ -341,7 +349,9 @@ def loadtaph_patientfile(filename: str) -> dict[str, Any]:
     patientdf["Body weight"] = patientdf["Body weight"].astype(float)
     # convert to a dictionary
     descr = patientdf.loc[1].to_dict()  # dict
-    print(f"{'-' * 20} loaded taph_patientfile ({os.path.basename(headername)}) >")
+    logging.info(
+        f"{'-' * 20} loaded taph_patientfile ({os.path.basename(headername)}) >"
+    )
     return dict(descr)
 
 
@@ -368,7 +378,7 @@ def shift_dtime(
         if {"dtime"} < set(datadf.columns):
             datadf["dtime"] += shift
         else:
-            print("dtime and time are not in the dataframe columns")
+            logging.warning("dtime and time are not in the dataframe columns")
     return datadf
 
 
@@ -395,7 +405,7 @@ def shift_elapsed_time(
             datadf["etime"] += shift * 60
             datadf["etimemin"] += shift
         else:
-            print("etime and etimemin are not in the dataframe columns")
+            logging.warning("etime and etimemin are not in the dataframe columns")
     return datadf
 
 
@@ -468,12 +478,4 @@ def main_chooseload_taphtrend(
 
 # %%
 if __name__ == "__main__":
-    # if "paths" not in dir():
-    #     from anesplot.config.load_recordrc import build_paths
-
-    #     paths = build_paths()
-    # app = QApplication.instance()
-    if QApplication.instance() is None:
-        app = QApplication([])
-
     t_header_dico, t_data_df = main_chooseload_taphtrend(paths)

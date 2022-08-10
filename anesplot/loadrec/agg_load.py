@@ -4,11 +4,20 @@ Created on Thu Apr 28 15:50:27 2022
 
 @author: cdesbois
 """
+import logging
 import os
 import sys
-from typing import Union, Optional
+from typing import Optional, Union
 
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
+
+app = QApplication.instance()
+logging.warning(f"agg_load.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 def choosefile_gui(dirname: Optional[str] = None) -> str:
@@ -37,7 +46,7 @@ def choosefile_gui(dirname: Optional[str] = None) -> str:
     fname = QFileDialog.getOpenFileName(
         None, "Select a file...", dirname, filter="All files (*)"
     )
-    print("return")
+    logging.warning("return")
 
     if isinstance(fname, tuple):
         fullname = fname[0]
@@ -82,10 +91,10 @@ def select_type(
     return selection
 
 
-#%%
+# %%
 if __name__ == "__main__":
     import anesplot.config.load_recordrc
 
     paths = anesplot.config.load_recordrc.paths
     FILENAME = choosefile_gui(paths["data"])
-    print(os.path.basename(FILENAME))
+    logging.warning(os.path.basename(FILENAME))

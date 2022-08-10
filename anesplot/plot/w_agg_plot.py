@@ -8,9 +8,19 @@ list of function to choose, manipulate and combine the wave plot functions
 
 
 """
-from typing import Optional
+import logging
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
+from typing import Optional
+
+from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
+
+app = QApplication.instance()
+logging.warning(f"w_agg_plot.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 class ChooseWave(QWidget):  # type: ignore
@@ -47,7 +57,7 @@ class ChooseWave(QWidget):  # type: ignore
             self, "select", question, items, 0, False
         )
         if ok_pressed and item:
-            print(item)
+            logging.info(f"choosed '{item}'")
             self.select = str(item)
 
 
@@ -73,4 +83,4 @@ def select_wave_to_plot(waves: list[str]) -> list[str]:
 if __name__ == "__main__":
 
     selections = select_wave_to_plot(["wekg", "wap", "wco2"])
-    print(selections)
+    print(f"{selections=}")

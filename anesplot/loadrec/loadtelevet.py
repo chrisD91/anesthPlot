@@ -9,6 +9,7 @@ to be developped
 ____
 """
 
+import logging
 import os
 
 # import sys
@@ -18,6 +19,13 @@ import pandas as pd
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
 # %%
+app = QApplication.instance()
+logging.warning(f"load_televet.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 def choosefile_gui(dirpath: Optional[str] = None) -> str:
@@ -70,14 +78,13 @@ def loadtelevet(fname: Optional[str] = None, all_traces: bool = False) -> pd.Dat
         fname = "STEF_0031_00114_20171205_121305.csv"
     filename = os.path.join(filepath, fname)
 
-    print(f"{'-' * 20} > loadtelevet datafile")
+    logging.warning(f"{'-' * 20} > loadtelevet datafile")
     if not os.path.isfile(filename):
-        print(f"{'!' * 10} televet datafile not found")
-        print(f"{filename}")
-        print(f"{'!' * 10} televet datafile not found")
-        print()
+        logging.warning(f"{'!' * 10} televet datafile not found")
+        logging.warning(f"{filename}")
+        logging.warning(f"{'!' * 10} televet datafile not found")
         return pd.DataFrame()
-    print(f"{'-' * 10} loading televet {os.path.basename(filename)}")
+    logging.warning(f"{'-' * 10} loading televet {os.path.basename(filename)}")
 
     if all_traces:
         datadf = pd.read_csv(filename, sep=";")
@@ -93,7 +100,7 @@ def loadtelevet(fname: Optional[str] = None, all_traces: bool = False) -> pd.Dat
     datadf["etimesec"] = datadf.index / 500
     datadf["etimemin"] = datadf.sec / 60
 
-    print(f"{'-' * 20} < loaded televet datafile")
+    logging.warning(f"{'-' * 20} < loaded televet datafile")
     return datadf
 
 
@@ -102,10 +109,6 @@ if __name__ == "__main__":
     import anesplot.config.load_recordrc
 
     paths = anesplot.config.load_recordrc.build_paths()
-
-    # app = QApplication.instance()
-    if QApplication.instance() is None:
-        app = QApplication([])
 
     FILE_NAME = choosefile_gui(paths.get("telv_data"))
     ekg_data = loadtelevet(FILE_NAME, all_traces=False)

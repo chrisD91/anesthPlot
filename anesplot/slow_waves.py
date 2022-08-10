@@ -9,6 +9,7 @@ build the objects for the slow_waves ('trends'):
     -> TaphTrend
 
 """
+import logging
 import os
 
 # import sys
@@ -17,22 +18,19 @@ from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
-
-# from PyQt5.QtWidgets import QApplication
-
-# import anesplot
-import anesplot.config.load_recordrc
-
-# import anesplot.loadrec.agg_load
-import anesplot.loadrec.loadtaph_trendrecord as ltt
-import anesplot.loadrec.loadmonitor_trendrecord as lmt
-
-import anesplot.loadrec.dialogs
-
-import anesplot.plot.t_agg_plot
+from PyQt5.QtWidgets import QApplication
 
 # import anesplot.plot.t_agg_plot as tagg
 import anesplot.base
+
+# import anesplot
+import anesplot.config.load_recordrc
+import anesplot.loadrec.dialogs
+import anesplot.loadrec.loadmonitor_trendrecord as lmt
+
+# import anesplot.loadrec.agg_load
+import anesplot.loadrec.loadtaph_trendrecord as ltt
+import anesplot.plot.t_agg_plot
 
 # from anesplot.base import _Waves
 # from anesplot.config.load_recordrc import build_paths
@@ -43,13 +41,22 @@ import anesplot.base
 #     concat_data,
 # )
 import anesplot.treatrec.manage_events
-from anesplot.treatrec.clean_data import clean_trenddata
 from anesplot.loadrec.agg_load import choosefile_gui
+from anesplot.treatrec.clean_data import clean_trenddata
+
+app = QApplication.instance()
+logging.warning(f"slow_waves.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 # from anesplot.loadrec.dialogs import get_file
 
 # paths = build_paths()
 paths = anesplot.config.load_recordrc.paths
+
 
 # +++++++
 class _SlowWave(anesplot.base.Waves):
@@ -89,7 +96,7 @@ class _SlowWave(anesplot.base.Waves):
     def show_graphs(self) -> dict[str, Any]:
         """Build and display classical clinical plots."""
         if self.data.empty:
-            print("recording is empty : no data to plot")
+            logging.warning("recording is empty : no data to plot")
             fig_dico = {}
         else:
             fig_dico = anesplot.plot.t_agg_plot.plot_trenddata(
@@ -102,14 +109,14 @@ class _SlowWave(anesplot.base.Waves):
         """Choose the graph to use from a pulldown menu."""
         # TODO add a preset if self.name is defined
         if self.data.empty:
-            print("recording is empty : no data to plot")
+            logging.warning("recording is empty : no data to plot")
             fig = plt.figure()
             name = ""
         else:
-            print(f"{'-' * 20} started trends plot_trend)")
-            print(f"{'-' * 10}> choose the trace")
+            logging.info("%s started trends plot_trend)" % ("-" * 20))
+            logging.info("%s choose the trace" % ("-" * 10))
             fig, name = anesplot.plot.t_agg_plot.plot_a_trend(self.data, self.param)
-            print(f"{'-' * 20} ended trends plot_trend")
+            logging.info("%s ended trends plot_trend" % ("-" * 20))
             self.fig = fig
             self.name = name
             if name:
@@ -142,7 +149,9 @@ class _SlowWave(anesplot.base.Waves):
             roidict = anesplot.plot.t_agg_plot.get_roi(self.fig, self.data, self.param)
             roidict.update({"name": self.name, "fig": self.fig})
         else:
-            print("no fig attribute, please use plot_trend() method to build one")
+            logging.warning(
+                "no fig attribute, please use plot_trend() method to build one"
+            )
             roidict = {}
         self.roi = roidict
         return roidict
@@ -159,10 +168,10 @@ class _SlowWave(anesplot.base.Waves):
             a fullscale plot
         """
         if self.fig is None or self.name is None:
-            print("please build a figure to start with -> .plot_trend()")
+            logging.warning("please build a figure to start with -> .plot_trend()")
             return plt.Figure(), plt.Figure()
         if self.roi is None:
-            print("please define a roi -> .save_roi()")
+            logging.warning("please define a roi -> .save_roi()")
             return plt.Figure(), plt.Figure()
         halffig, _, fullfig = anesplot.plot.t_agg_plot.build_half_white(
             self.fig, self.name, self.data, self.param, self.roi, lang=lang
@@ -220,9 +229,9 @@ class MonitorTrend(_SlowWave):
         if filename is None:
             # TODO : find bug, fail in first call ? paths global
             # breakpoint()
-            if not "app" in dir():
-                pass
-                # app = QApplication(sys.argv)
+            # if not "app" in dir():
+            #   pass
+            # app = QApplication(sys.argv)
             dlg = choosefile_gui
             filename = dlg(paths["mon_data"])
             # filename = lmt.choosefile_gui(paths["mon_data"])
@@ -254,7 +263,9 @@ class MonitorTrend(_SlowWave):
             self.param["name"] = name[0].lower() + name[1:]
 
         else:
-            print(f"{'-'*5} MonitorTrend: didn't load the data ({load=})")
+            logging.warning(
+                "MonitorTrend: didn't load the data (load=%s)" % ("-" * 5) % load
+            )
             self.data = pd.DataFrame()
 
     def merge_with_other_record(self) -> None:
@@ -349,7 +360,9 @@ class TaphTrend(_SlowWave):
             data = pd.DataFrame(data)
             header = ltt.loadtaph_patientfile(filename)
         else:
-            print(f"{'-'*5} TaphTrend: didn't load the data ({load=})")
+            logging.warning(
+                "%s TaphTrend: didn't load the data load=%s" % ("-" * 5) % load
+            )
             data = pd.DataFrame()
             header = {}
         self.data = data
@@ -447,12 +460,12 @@ class TaphTrend(_SlowWave):
                     file.write(f"{'-'*10} \n")
                     for item in line.split("\r\n"):
                         file.write(f"{i} {item}, \n")
-            print(f"saved taph events to {filename}")
+            logging.info(f"saved taph events to {filename}")
         else:
             for i, line in enumerate(self.data.events.dropna()):
-                print("-" * 10)
+                logging.info("-" * 10)
                 for item in line.split("\r\n"):
-                    print(i, item)
+                    logging.info(i, item)
 
     def shift_datetime(self, minutes: int) -> None:
         """

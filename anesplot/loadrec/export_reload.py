@@ -11,6 +11,7 @@ and load them back
 
 
 # import os
+import logging
 from typing import Any
 
 import pandas as pd
@@ -66,8 +67,8 @@ def export_data_to_hdf(
         fix_dtypes(dicodf).to_hdf(savename, key="mtrends_header")
         dicodf = pd.DataFrame.from_dict({k: [v] for k, v in mtrend.param.items()})
         fix_dtypes(dicodf).to_hdf(savename, key="mtrends_param")
-        print(f"monitorTrend to '{savename}")
-        print("keys= 'mtrends_data, mtrends_header, mtrends_param'")
+        logging.warning("monitorTrend to %s", savename)
+        logging.warning("keys= 'mtrends_data, mtrends_header, mtrends_param'")
     # taph trends
     if ttrend:
         ttrend.data.to_hdf(savename, key="ttrends_data")
@@ -75,8 +76,8 @@ def export_data_to_hdf(
         fix_dtypes(dicodf).to_hdf(savename, key="ttrends_header")
         dicodf = pd.DataFrame.from_dict({k: [v] for k, v in ttrend.param.items()})
         fix_dtypes(dicodf).to_hdf(savename, key="ttrends_param")
-        print(f"taphTrend to '{savename}")
-        print("keys= 'ttrends_data, ttrends_header, ttrends_param'")
+        logging.warning("taphTrend to %s", savename)
+        logging.warning("keys= 'ttrends_data, ttrends_header, ttrends_param'")
     # waves
     if mwave:
         mwave.data.to_hdf(savename, key="mwaves_data")
@@ -84,8 +85,8 @@ def export_data_to_hdf(
         fix_dtypes(dicodf).to_hdf(savename, key="mwaves_header")
         dicodf = pd.DataFrame.from_dict({k: [v] for k, v in mwave.param.items()})
         fix_dtypes(dicodf).to_hdf(savename, key="mwaves_param")
-        print(f"monitorTrend to '{savename}")
-        print("keys= 'mwaves_data, mwaves_header, mtrends_param'")
+        logging.warning("monitorTrend to %s", savename)
+        logging.warning("keys= 'mwaves_data, mwaves_header, mtrends_param'")
 
 
 # %%
@@ -154,9 +155,8 @@ def build_obj_from_hdf(savename: str) -> tuple[Any, Any, Any]:
             new_mwaves.param = df_to_dico_with_none(store.get("mwaves_param").T)
             new_mwaves.filename = new_mwaves.param["filename"]
             messages.append(f"{'-'*10} loaded mwaves from hdf {'-'*10}")
-    print()
     for message in messages:
-        print(message)
+        logging.warning(message)
     return new_mtrends, new_ttrends, new_mwaves
 
 
@@ -166,7 +166,7 @@ def build_obj_from_hdf(savename: str) -> tuple[Any, Any, Any]:
 # n_mtrends, n_ttrends, n_mwaves = load_from_hdf(save_name)
 
 # duplicates = {_ for _ in cols if cols.count(_) > 1}
-# print(f"{duplicates=}")
+# logging.warning(f"{duplicates=}")
 
 
 # %%

@@ -9,13 +9,15 @@ scan all the files using this function
 @author: cdesbois
 """
 
+import logging
 import os
 from typing import Any
 
+from pyQt5 import QApplication
 
-import anesplot.record_main as rec
-import anesplot.plot.trend_plot as tplot
 import anesplot.loadrec.dialogs as dlg
+import anesplot.plot.trend_plot as tplot
+import anesplot.record_main as rec
 from anesplot.loadrec.loadmonitor_trendrecord import loadmonitor_trenddata
 from anesplot.loadrec.loadtaph_trendrecord import list_taph_recordings
 from anesplot.slow_waves import TaphTrend
@@ -23,6 +25,14 @@ from anesplot.slow_waves import TaphTrend
 # import get_file, get_directory
 
 paths = rec.paths
+
+app = QApplication.instance()
+logging.warning(f"scanplot_directory.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 def get_directory() -> str:
@@ -112,4 +122,4 @@ if __name__ == "__main__":
     IS_TAPHREC = is_taph(DIR_NAME)
     funct = get_plot_function(IS_TAPHREC)
     file_list = scandir(DIR_NAME, funct, IS_TAPHREC)
-    print("'file_list' contains a list of all plotted record names")
+    logging.warning("'file_list' contains a list of all plotted record names")

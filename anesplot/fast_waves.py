@@ -9,17 +9,19 @@ build the objects or the fast_waves ('waves'):
     -> TeleVet (basic)
 
 """
+import logging
 import os
-from typing import Tuple, Optional, Any, Union
+from typing import Any, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from PyQt5.QtWidgets import QApplication
 
-import anesplot.plot.wave_plot as wplot
+import anesplot.plot.t_agg_plot as tagg
 import anesplot.plot.wave2video as w2vid
+import anesplot.plot.wave_plot as wplot
 import anesplot.treatrec.arterial_func
 import anesplot.treatrec.ekg_func
-import anesplot.plot.t_agg_plot as tagg
 from anesplot.base import Waves
 from anesplot.config.load_recordrc import build_paths
 from anesplot.loadrec.agg_load import choosefile_gui
@@ -32,6 +34,14 @@ from anesplot.plot.w_agg_plot import select_wave_to_plot
 from anesplot.treatrec.wave_func import fix_baseline_wander
 
 paths = build_paths()
+
+app = QApplication.instance()
+logging.warning(f"dialogs.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 # ++++++++
@@ -51,9 +61,9 @@ class _FastWave(Waves):
         elif "d2" in datadf.columns:
             item = "d2"
         else:
-            print("no ekg trace in the data")
+            logging.warning("no ekg trace in the data")
             return
-        print(f"{'-' * 10} filtering : builded 'ekgLowPass' ")
+        logging.info(f"{'-' * 10} filtering : builded 'ekgLowPass' ")
         datadf["ekgLowPass"] = fix_baseline_wander(datadf[item], samplingfreq)
 
     def plot_wave(
@@ -78,20 +88,20 @@ class _FastWave(Waves):
             fig = plt.Figure()
             lines: list[plt.Line2D] = []
             traces_list = []
-            print("there are no data to plot")
+            logging.warning("there are no data to plot")
         else:
-            print(f"{'-' * 20} started FastWave plot_wave)")
-            print(f"{'-' * 10}> choose the wave(s)")
+            logging.info(f"{'-' * 20} started FastWave plot_wave)")
+            logging.info(f"{'-' * 10}> choose the wave(s)")
             cols: list[str] = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
             if traces_list is None and cols:
                 traces_list = select_wave_to_plot(waves=cols)
             if traces_list:
-                print("call wplot.plot_wave")
+                logging.info("call wplot.plot_wave")
                 # get segmentation fault if called after a trend.showplots()
                 fig, lines = wplot.plot_wave(
                     self.data, keys=traces_list, param=self.param
                 )
-                print("returned from wplot.plot_wave")
+                logging.info("returned from wplot.plot_wave")
                 self.trace_list = traces_list
                 self.fig = fig
             else:
@@ -99,7 +109,7 @@ class _FastWave(Waves):
                 fig = plt.figure()
                 lines = [plt.Line2D]
             self.append_to_figures({"waveplot": fig})
-            print(f"{'-' * 20} ended FastWave plot_wave")
+            logging.info(f"{'-' * 20} ended FastWave plot_wave")
             plt.show()  # required to display the plot before exiting
         return fig, lines, traces_list
 
@@ -131,7 +141,9 @@ class _FastWave(Waves):
             roidict = tagg.get_roi(self.fig, self.data, self.param)
             roidict.update({"traces": self.trace_list, "fig": self.fig})
         else:
-            print("no fig attribute, please use plot_wave() method to build one")
+            logging.warning(
+                "no fig attribute, please use plot_wave() method to build one"
+            )
             roidict = {}
 
         self.roi = roidict
@@ -180,7 +192,7 @@ class _FastWave(Waves):
             plt.show()
             return anim
         mes = "no roi attribute, please use record_roi() to build one"
-        print(mes)
+        logging.warning(mes)
         return mes
 
     def plot_roi_systolic_variation(
@@ -203,7 +215,7 @@ class _FastWave(Waves):
             self.append_to_figures({"systolic_variation": fig})
             # wplot.plot_systolic_pressure_variation(self)
         else:
-            print("please define a ROI using mwave.save_a_roi")
+            logging.warning("please define a ROI using mwave.save_a_roi")
 
     def plot_record_systolic_variation(self) -> None:
         """Plot the systolic variation (whole record)."""
@@ -309,7 +321,7 @@ class MonitorWave(_FastWave):
         if load and bool(header):
             self.data = loadmonitor_wavedata(filename)
         else:
-            print(f"{'-'*5} MonitorWave: didn't load the data ({load=})")
+            logging.warning(f"{'-'*5} MonitorWave: didn't load the data ({load=})")
             self.data = pd.DataFrame()
         self.param["source"] = "monitorWave"
         # self.param["source_abbr"] = "mw"

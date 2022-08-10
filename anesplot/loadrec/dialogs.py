@@ -4,12 +4,21 @@ Created on Thu Jun  2 15:26:56 2022
 
 @author: cdesbois
 """
+import logging
 import os
 
 # import sys
-from typing import Optional, Any
+from typing import Any, Optional
 
-from PyQt5.QtWidgets import QFileDialog, QApplication, QInputDialog, QWidget
+from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog  # , QWidget
+
+app = QApplication.instance()
+logging.warning(f"dialogs.py : {__name__=}")
+if app is None:
+    app = QApplication([])
+    logging.warning("create QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 def choose_file(
@@ -113,9 +122,9 @@ def choose_in_alist(
     """
     if message is None:
         message = "choose the function to use"
-    widg = QWidget()
+    # widg = QWidget()
     name, ok_pressed = QInputDialog.getItem(
-        widg, "select", message, thelist, index, False
+        None, "select", message, thelist, index, False
     )
     if not ok_pressed and name:
         return ""
@@ -127,11 +136,6 @@ def get_name() -> str:
     return str(QFileDialog.getOpenFileName())
 
 
-# app = QApplication.instance()
-if QApplication.instance() is None:
-    app = QApplication([])
-
-
 # %%
 if __name__ == "__main__":
     #    file_name = get_name()
@@ -139,4 +143,4 @@ if __name__ == "__main__":
     #    file_name = str(QFileDialog.getOpenFileName())
     #    file_name = get_file()
     #    syt.exit(app.exec_())
-    print(f"{FILE_NAME}")
+    logging.warning(f"{FILE_NAME}")

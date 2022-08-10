@@ -8,6 +8,7 @@ trend_axis_plot :
     a series of functions taking plt.axes and pd.dataframe as argument
     and append the plot to the provided axes
 """
+import logging
 from types import SimpleNamespace as sn
 
 import matplotlib.pyplot as plt
@@ -37,7 +38,7 @@ def axplot_hist(ax: plt.axes, ser: pd.Series, key: str = "ip1") -> None:
     """
     defined = ["ip1", "ip2", "hr", "co2", "iso", "sevo", "aa"]
     if key not in defined:
-        print(f"key should be in {defined} ({key} was used)")
+        logging.warning(f"key should be in {defined} ({key} was used)")
     ctes = sn(**(ctes_dico[key]))  # get the drawing constants
     ax.set_title(ctes.label, color=ctes.color)
     if len(ser) > 0:
@@ -112,9 +113,9 @@ def axplot_ventiltidal(ax: plt.axes, df: pd.DataFrame) -> None:
                 label=ctes.label,
             )
         except AttributeError:
-            print("no ventilation started")
+            logging.warning("no ventilation started")
     else:
-        print("no spirometry data in the recording")
+        logging.warning("no spirometry data in the recording")
         ax.text(
             0.5,
             0.5,
@@ -157,7 +158,7 @@ def axplot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
     elif {"set_peep"} < set(df.columns):
         columns = {"peak": "pPeak", "peep": "peep"}
     else:
-        print("no spirometry data in the recording")
+        logging.warning("no spirometry data in the recording")
 
     keys = list(columns.values())
 
@@ -188,7 +189,7 @@ def axplot_ventilpressure(ax: plt.axes, df: pd.DataFrame) -> None:
                 label=ctes.label,
             )
         except AttributeError:
-            print("not on the taph")
+            logging.warning("not on the taph")
 
 
 def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
@@ -238,7 +239,7 @@ def axplot_minvol_rr(ax: plt.axes, df: pd.DataFrame) -> None:
             label=minvol.label,
         )
     else:
-        print("no spirometry data recorded")
+        logging.warning("no spirometry data recorded")
 
 
 def axplot_co2(ax: plt.axes, df: pd.DataFrame) -> None:
@@ -270,9 +271,9 @@ def axplot_co2(ax: plt.axes, df: pd.DataFrame) -> None:
             alpha=co2.fillalpha,
         )
     # except KeyError:
-    #     print("")
+    #     logging.warning("")
     except AttributeError:
-        print("no capnometry in the recording")
+        logging.warning("no capnometry in the recording")
         ax.text(
             0.5,
             0.5,
@@ -302,7 +303,7 @@ def axplot_aa(ax: plt.axes, df: pd.DataFrame, key: str = "iso") -> None:
 
     """
     if key not in ["iso", "sevo", "aa"]:
-        print("key should be in ['iso', 'sevo', 'aa']")
+        logging.warning("key should be in ['iso', 'sevo', 'aa']")
         return
     aa = sn(**ctes_dico[key])  # get the drawing constants
     ax.set_ylabel(aa.label)
@@ -321,9 +322,9 @@ def axplot_aa(ax: plt.axes, df: pd.DataFrame, key: str = "iso") -> None:
         if "mac" in dir(aa):
             ax.axhline(aa.mac, linestyle="--", color=aa.color, linewidth=2)
     # except KeyError:
-    #     print("")
+    #     logging.warning("")
     except AttributeError:
-        print("no anesthetic agent in the recording")
+        logging.warning("no anesthetic agent in the recording")
         ax.text(
             0.5,
             0.5,
@@ -365,7 +366,7 @@ def axplot_o2(ax: plt.axes, df: pd.DataFrame) -> None:
         ax.set_ylim(*oxy.ylims)
         ax.axhline(oxy.ylims[0], linestyle="dashed", linewidth=3, color=oxy.color)
     except AttributeError:
-        print("no oxygen measure in the recording")
+        logging.warning("no oxygen measure in the recording")
         ax.text(
             0.5,
             0.5,

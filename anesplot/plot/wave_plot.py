@@ -9,6 +9,7 @@ collection of functions to plot the wave data
 """
 
 # import os
+import logging
 
 # from bisect import bisect
 # from math import ceil, floor
@@ -85,15 +86,15 @@ def restrict_wavedf(
     """
     ilims = [parm.get("mini", datadf.index[0]), parm.get("maxi", datadf.index[-1])]
     if not datadf.index[0] <= ilims[0] <= datadf.index[-1]:
-        print("mini value not in range, replaced by start time value")
+        logging.warning("mini value not in range, replaced by start time value")
         ilims[0] = datadf.index[0]
     if not datadf.index[0] <= ilims[1] <= datadf.index[-1]:
-        print("maxi value not in range, replaced by end time value")
+        logging.warning("maxi value not in range, replaced by end time value")
         ilims[1] = datadf.index[-1]
     # datetime or elapsed time sec
     dtime = parm.get("dtime", False)
     if dtime and "dtime" not in datadf.columns:
-        print("no dtime values, changed dtime to False")
+        logging.warning("no dtime values, changed dtime to False")
         dtime = False
         parm["dtime"] = False
     cols = list(set(keys))
@@ -201,7 +202,7 @@ def plot_wave(
     if param is None:
         param = {}
     if datadf.empty or len(datadf) < 5:
-        print("empty dataframe")
+        logging.warning("empty dataframe")
         mes = f"empty data for {param.get('file', '')}"
         fig = pfunc.empty_data_fig(mes)
         return fig, [
@@ -211,13 +212,13 @@ def plot_wave(
     if not set(keys).issubset(set(datadf.columns)):
         diff = set(keys) - set(datadf.columns)
         mes = f"traces {diff} is not in the data ({param.get('file', '')})"
-        print(mes)
+        logging.warning(mes)
         fig = pfunc.empty_data_fig(mes)
         return fig, [
             None,
         ]
     if len(keys) not in [1, 2]:
-        print(f"only one or two keys are allowed ({keys} were used)")
+        logging.warning(f"only one or two keys are allowed ({keys} were used)")
         return plt.figure(), [
             None,
         ]
@@ -298,7 +299,7 @@ if __name__ == "__main__":
 #     plt.close("all")
 #     for k in range(1, 3):
 #         trace_keys = random.choices(columns, k=k)
-#         # print(f"{k=} {trace_keys=}")
+#         # logging.warning(f"{k=} {trace_keys=}")
 #         figure, lines2D = plot_wave(data_df, trace_keys)
 #         assert isinstance(figure, plt.Figure)
 #     plt.close("all")

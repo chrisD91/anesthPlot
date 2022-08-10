@@ -6,13 +6,13 @@ Created on Fri May 20 13:05:03 2022
 
 plot functions
 """
+import logging
 import os
-from typing import Optional, Any
-
-import numpy as np
+from typing import Any, Optional
 
 # import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from matplotlib import dates as mdates
 
@@ -36,8 +36,8 @@ def update_pltparams() -> None:
     }
     plt.rcParams.update(params)
     plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
-    print("plot_func: updated the matplotlib rcParams (plot_func)")
-    # print(f"{params}")
+    logging.warning("plot_func: updated the matplotlib rcParams (plot_func)")
+    # logging.warning(f"{params}")
 
 
 def empty_data_fig(mes: str = "") -> plt.Figure:
@@ -145,12 +145,12 @@ def remove_outliers(
         }
 
     if key not in datadf.columns:
-        print(f"{key} is not present in the data")
+        logging.warning("%s is not present in the data", key)
         return pd.Series()
 
     if key not in limits:
-        print(f"{key} limits are not defined, min & max will be used")
-        print("add new limits to pfunc.remove_outliers")
+        logging.warning("%s limits are not defined, min & max will be used", key)
+        logging.warning("add new limits to pfunc.remove_outliers")
     ser = datadf[key].copy()
     lims = limits.get(key, (ser.min(), ser.max()))
     ser[~ser.between(lims[0], lims[1])] = np.nan
@@ -235,7 +235,7 @@ def save_graph(
         should NOT close it in between saves or you will have to
         re-plot it.
     verbose : bool, optional (default=True)
-        Whether to print information about when and where the image
+        Whether to logging.warning information about when and where the image
         has been saved.
 
     Returns
@@ -254,7 +254,7 @@ def save_graph(
     # The final path to save to
     savepath = os.path.join(directory, filename)
     if verbose:
-        print(f"Saving figure to {savepath}")
+        logging.warning("Saving figure to %s", savepath)
     # Actually save the figure
     plt.savefig(savepath)
     # Close it
