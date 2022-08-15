@@ -250,7 +250,7 @@ class MonitorTrend(_SlowWave):
 
         header = lmt.loadmonitor_trendheader(filename)
         self.header = header
-        if header and load:
+        if bool(header) and load:
             data, anotations = lmt.loadmonitor_trenddata(filename)
             self.data = data
             self.anotations = anotations
@@ -263,9 +263,7 @@ class MonitorTrend(_SlowWave):
             self.param["name"] = name[0].lower() + name[1:]
 
         else:
-            logging.warning(
-                "MonitorTrend: didn't load the data (load=%s)" % ("-" * 5) % load
-            )
+            logging.warning(f"MonitorTrend: didn't load the data {filename=}")
             self.data = pd.DataFrame()
 
     def merge_with_other_record(self) -> None:

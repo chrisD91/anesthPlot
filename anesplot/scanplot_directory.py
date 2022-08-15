@@ -103,7 +103,8 @@ def scandir(dirname: str, func: Any, taph: bool) -> list[str]:
         for file, filelist in filesdico.items():
             files.append(file)
             ttrend = TaphTrend(filelist[0])
-            func(ttrend.data, ttrend.param)
+            fig = func(ttrend.data, ttrend.param)
+            fig.show()
             # TODO add a filter (eg by year) -> too many recordings
     else:
         for entry in os.scandir(dirname):
@@ -112,14 +113,21 @@ def scandir(dirname: str, func: Any, taph: bool) -> list[str]:
                 # files.append(os.path.join(paths['mon_data'], file))
                 # mtrend = MonitorTrend(entry.path)
                 data_df, _ = loadmonitor_trenddata(entry.path)
-                func(data_df, {"dtime": False})
+                fig = func(data_df, {"dtime": False})
+                fig.show()
     return files
+
+
+def main(apath: str) -> list[str]:
+    """Scan directory and plot the choosed plots."""
+    dir_name = dlg.choose_directory(apath)
+    is_taphrec = is_taph(dir_name)
+    funct = get_plot_function(is_taphrec)
+    file_list = scandir(dir_name, funct, is_taphrec)
+    logging.warning("'file_list' contains a list of all plotted record names")
+    return file_list
 
 
 # %%
 if __name__ == "__main__":
-    DIR_NAME = dlg.choose_directory()
-    IS_TAPHREC = is_taph(DIR_NAME)
-    funct = get_plot_function(IS_TAPHREC)
-    file_list = scandir(DIR_NAME, funct, IS_TAPHREC)
-    logging.warning("'file_list' contains a list of all plotted record names")
+    main(paths["mon_data"])

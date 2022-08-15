@@ -181,7 +181,7 @@ def remove_empty_rows(df: pd.DataFrame) -> pd.DataFrame:
     return df.drop(emptyrows)
 
 
-def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
+def loadmonitor_trenddata(filename: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Load the monitor trend data.
 
@@ -216,7 +216,7 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
     except pd.errors.EmptyDataError:
         logging.warning(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
         print(f"empty recording for {os.path.basename(filename)}")
-        return pd.DataFrame()
+        return pd.DataFrame(), pd.DataFrame()
 
     datadf = pd.DataFrame(datadf)
     datadf = remove_empty_rows(datadf)
