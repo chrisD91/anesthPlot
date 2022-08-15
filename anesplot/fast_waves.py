@@ -36,10 +36,10 @@ from anesplot.treatrec.wave_func import fix_baseline_wander
 paths = build_paths()
 
 app = QApplication.instance()
-logging.warning(f"dialogs.py : {__name__=}")
+logging.info(f"dialogs.py : {__name__=}")
 if app is None:
+    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
     app = QApplication([])
-    logging.warning("create QApplication instance")
 else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 

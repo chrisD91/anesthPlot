@@ -45,10 +45,10 @@ from anesplot.loadrec.agg_load import choosefile_gui
 from anesplot.treatrec.clean_data import clean_trenddata
 
 app = QApplication.instance()
-logging.warning(f"slow_waves.py : {__name__=}")
+logging.info(f"slow_waves.py : {__name__=}")
 if app is None:
+    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
     app = QApplication([])
-    logging.warning("create QApplication instance")
 else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 

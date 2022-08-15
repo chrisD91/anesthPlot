@@ -42,10 +42,10 @@ if "paths" not in dir():
 # paths["taph"] = "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onTaphRecorded"
 
 app = QApplication.instance()
-logging.warning(f"loadtaph_trendrecord.py : {__name__=}")
+logging.info(f"loadtaph_trendrecord.py : {__name__=}")
 if app is None:
+    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
     app = QApplication([])
-    logging.warning("create QApplication instance")
 else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
@@ -438,7 +438,7 @@ def main_chooseload_taphtrend(
     paths_to_records: dict[str, Any]
 ) -> tuple[dict[str, Any], pd.DataFrame]:
     """
-    Load a taphtrend data (whith choose GUI)
+    Load a taphtrend data (whith choose GUI).
 
     Parameters
     ----------

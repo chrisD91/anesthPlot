@@ -25,10 +25,10 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 from anesplot.loadrec import ctes_load
 
 app = QApplication.instance()
-logging.warning(f"loadmonitor_trendrecord.py : {__name__=}")
+logging.info(f"loadmonitor_trendrecord.py : {__name__=}")
 if app is None:
+    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
     app = QApplication([])
-    logging.warning("create QApplication instance")
 else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
@@ -92,9 +92,9 @@ def loadmonitor_trendheader(filename: str) -> dict["str", Any]:
         logging.warning(f"{'!' * 10} file not found")
         logging.warning(f"{filename=}")
         logging.warning(f"{'!' * 10} file not found")
+        print(f"file not found : {filename}")
         return descr
     logging.info(f"{'.' * 10} loading header {os.path.basename(filename)}")
-
     try:
         headerdf = pd.read_csv(
             filename,
@@ -127,6 +127,7 @@ def loadmonitor_trendheader(filename: str) -> dict["str", Any]:
         # convert to a dictionary
         descr = headerdf.loc[1].to_dict()
     logging.info(f"{'-' * 20} loaded trendheader >")
+    print(f"loaded header {os.path.basename(filename)}")
     return descr
 
 
@@ -159,7 +160,7 @@ def remove_txt_messages(recorddf: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFr
             except ValueError:
                 message = recorddf.loc[line].dropna()
                 txt = " ".join([str(_) for _ in message.to_list()])
-                logging.warning(f"(replaced by NaN) -> {txt}")
+                print(f"(replaced by NaN) -> {txt}")
                 messagesdf[line] = message
                 recorddf.loc[line] = np.nan
         for col in to_fix:
@@ -189,6 +190,7 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
         logging.warning(f"{'!' * 10} datafile not found")
         logging.warning("{filename}")
         logging.warning(f"{'!' * 10} datafile not found")
+        print(f"file not found : {filename}")
         return pd.DataFrame()
 
     logging.info(f"{'.' * 10} loading trenddata {os.path.basename(filename)}")
@@ -200,6 +202,7 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
         )
     except pd.errors.EmptyDataError:
         logging.warning(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
+        print(f"empty recording for {os.path.basename(filename)}")
         return pd.DataFrame()
 
     datadf = pd.DataFrame(datadf)
@@ -259,6 +262,7 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
     # logging.info(f"{sampling=}, header_sampling={headerdico['Sampling Rate']}")
 
     logging.info(f"{'-' * 20} loaded trenddata >")
+    print(f"loaded {os.path.basename(filename)}")
     return datadf, anotdf
 
 

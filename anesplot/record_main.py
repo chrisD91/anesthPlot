@@ -48,12 +48,6 @@ from anesplot.fast_waves import MonitorWave, TelevetWave
 from anesplot.guides.choose_guide import get_guide  # noqa: F401
 from anesplot.slow_waves import MonitorTrend, TaphTrend
 
-logging.basicConfig(
-    level=logging.WARNING,
-    force=True,
-    format="%(levelname)s:%(funcName)s:%(message)s",
-)
-logging.getLogger(name="matplotlib").setLevel(logging.WARNING)
 
 paths = build_paths()
 matplotlib.use("Qt5Agg")  # NB required for the dialogs
@@ -65,10 +59,10 @@ faulthandler.enable()
 
 
 app = QApplication.instance()
-logging.warning(f"record_main.py : {__name__=}")
+logging.info(f"record_main.py : {__name__=}")
 if app is None:
+    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
     app = QApplication([])
-    logging.warning("create QApplication instance")
 else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
@@ -228,9 +222,4 @@ def main(file_name: Optional[str] = None) -> str:
 
 # %%
 if __name__ == "__main__":
-    # app = QApplication.instance()
-    # if QApplication.instance() is None:
-    #     app = QApplication([])
-    # else:
-    #     print(f"QApplication instance already exists: {QApplication.instance()}")
     main()

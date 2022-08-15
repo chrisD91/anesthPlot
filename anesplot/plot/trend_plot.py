@@ -23,6 +23,8 @@ from anesplot.plot import pfunc
 
 # import pfunc
 
+logging.info("trend_plot_loaded")
+
 pfunc.update_pltparams()
 # pfunc.update_pltparams()
 

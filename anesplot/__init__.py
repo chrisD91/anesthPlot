@@ -94,3 +94,28 @@ to build a clinical case
 
 
 """
+import os
+import logging
+
+from PyQt5.QtWidgets import QApplication
+
+# activate the log file to ~/anesplot_log.log
+
+logfile = os.path.expanduser(os.path.join("~", "anesplot_log.log"))
+logging.basicConfig(
+    level=logging.INFO,
+    force=True,
+    format="%(levelname)s:%(funcName)s:%(message)s",
+    filename=logfile,
+    filemode="w+",
+    # handlers=[logging.FileHandler(logfile)],
+)
+logging.getLogger(name="matplotlib").setLevel(logging.WARNING)
+
+app = QApplication.instance()
+logging.info(f"anesplot.__init__.py : {__name__=}")
+if app is None:
+    # app = QApplication([])
+    logging.warning("NO QApplication instance")
+else:
+    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")

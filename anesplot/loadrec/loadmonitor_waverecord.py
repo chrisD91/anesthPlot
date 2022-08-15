@@ -24,10 +24,10 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 from anesplot.loadrec.ctes_load import ctes_load
 
 app = QApplication.instance()
-logging.warning(f"loadmonitor_waverecord.py : {__name__=}")
+logging.info(f"loadmonitor_waverecord.py : {__name__=}")
 if app is None:
+    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
     app = QApplication([])
-    logging.warning("create QApplication instance")
 else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
@@ -90,6 +90,7 @@ def loadmonitor_waveheader(filename: Optional[str] = None) -> dict[str, Any]:
             logging.warning(f"{'!' * 10} file not found)")
             logging.warning(f"{filename}")
             logging.warning(f"{'!' * 10} file not found)")
+            print(f"file not found : {filename}")
             return {}
 
     logging.info(f"{'.' * 10} loading header {os.path.basename(filename)}")
@@ -108,6 +109,7 @@ def loadmonitor_waveheader(filename: Optional[str] = None) -> dict[str, Any]:
         logging.warning("canceled by the user")
         header = {}
     logging.info(f"{'-' * 20} loaded waveheader >")
+    print(f"loaded header {os.path.basename(filename)}")
     return header
 
 
@@ -155,6 +157,7 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
         logging.warning(
             f"{'!' * 10} there are no data in this file : {os.path.basename(filename)} !"
         )
+        print(f"empty recording for {os.path.basename(filename)}")
         return datadf
     # rename columns
     datadf = datadf.rename(columns=ctes_load)
@@ -203,6 +206,7 @@ def loadmonitor_wavedata(filename: str) -> pd.DataFrame:
         datadf.loc[datadf.wco2 < 0, "wco2"] = 0
 
     logging.info(f"{'-' * 20} loaded wavedata >")
+    print(f"loaded {os.path.basename(filename)}")
     return datadf
 
 
@@ -249,6 +253,7 @@ def main_chooseload_monitorwave(
                 )
         else:
             logging.warning(f"{'!' * 5} {file} is not a Monitor record {'!' * 5}")
+            print(f"{file} is not a MonitorRecord")
     return wheader_df, wdata_df
 
 

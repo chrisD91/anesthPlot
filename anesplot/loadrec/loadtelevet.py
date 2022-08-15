@@ -20,10 +20,10 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 
 # %%
 app = QApplication.instance()
-logging.warning(f"load_televet.py : {__name__=}")
+logging.info(f"load_televet.py : {__name__=}")
 if app is None:
+    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
     app = QApplication([])
-    logging.warning("create QApplication instance")
 else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 

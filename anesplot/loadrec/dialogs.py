@@ -13,10 +13,10 @@ from typing import Any, Optional
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog  # , QWidget
 
 app = QApplication.instance()
-logging.warning(f"dialogs.py : {__name__=}")
+logging.info(f"dialogs.py : {__name__=}")
 if app is None:
+    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
     app = QApplication([])
-    logging.warning("create QApplication instance")
 else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 

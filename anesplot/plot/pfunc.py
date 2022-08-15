@@ -36,7 +36,7 @@ def update_pltparams() -> None:
     }
     plt.rcParams.update(params)
     plt.rcParams["axes.xmargin"] = 0  # no gap between axes and traces
-    logging.warning("plot_func: updated the matplotlib rcParams (plot_func)")
+    logging.info("pfunc.update_pltparams: updated the matplotlib rcParams (plot_func)")
     # logging.warning(f"{params}")
 
 

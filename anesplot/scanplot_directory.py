@@ -27,10 +27,10 @@ from anesplot.slow_waves import TaphTrend
 paths = rec.paths
 
 app = QApplication.instance()
-logging.warning(f"scanplot_directory.py : {__name__=}")
+logging.info(f"scanplot_directory.py : {__name__=}")
 if app is None:
+    logging.info("N0 QApplication instance -> creating one")
     app = QApplication([])
-    logging.warning("create QApplication instance")
 else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
