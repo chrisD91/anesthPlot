@@ -137,3 +137,5 @@ if __name__ == "__main__":
 
     main(paths["mon_data"])
     plt.show()
+    # plt.draw()
+    # plt.pause(0.001)
