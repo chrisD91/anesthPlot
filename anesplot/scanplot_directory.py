@@ -11,7 +11,7 @@ scan all the files using this function
 
 import logging
 import os
-from typing import Any
+from typing import Any, Optional
 
 from PyQt5.QtWidgets import QApplication
 
@@ -121,8 +121,10 @@ def scandir(dirname: str, func: Any, taph: bool) -> list[str]:
     return files
 
 
-def main(apath: str) -> list[str]:
+def main(apath: Optional[str] = None) -> list[str]:
     """Scan directory and plot the choosed plots."""
+    if apath is None:
+        apath = os.path.expanduser("~")
     dir_name = dlg.choose_directory(apath, title="choose a folder", see_question=True)
     is_taphrec = is_taph(dir_name)
     funct = get_plot_function(is_taphrec)

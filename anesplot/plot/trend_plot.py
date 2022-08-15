@@ -167,7 +167,6 @@ def hist_co2aa(
     if not keys.issubset(set(datadf.columns)):
         logging.warning(f"{set(keys) - set(datadf.columns)} is/are missing in the data")
         return plt.figure()
-    # agent = datadf.aaLabel.value_counts().index[0]
     # aa
     try:
         agent = datadf.aaLabel.value_counts().index[0]
@@ -186,6 +185,8 @@ def hist_co2aa(
     ax = axes[1]
     ser = pfunc.remove_outliers(datadf, "aaExp")
     tap.axplot_hist(ax, ser, key=agent)
+    median = datadf.aaExp.median()
+    ax.text(0, 1, f"{median=}", ha="left", va="top", transform=ax.transAxes)
 
     for ax in axes:
         pfunc.color_axis(ax, "bottom", "tab:grey")

@@ -24,7 +24,6 @@ from PyQt5.QtWidgets import QApplication
 import anesplot.base
 
 # import anesplot
-import anesplot.config.load_recordrc
 import anesplot.loadrec.dialogs
 import anesplot.loadrec.loadmonitor_trendrecord as lmt
 
@@ -33,7 +32,8 @@ import anesplot.loadrec.loadtaph_trendrecord as ltt
 import anesplot.plot.t_agg_plot
 
 # from anesplot.base import _Waves
-# from anesplot.config.load_recordrc import build_paths
+from anesplot.config.load_recordrc import build_paths
+
 # from anesplot.loadrec.agg_load import choosefile_gui
 # from anesplot.loadrec.loadmonitor_trendrecord import (
 #     loadmonitor_trenddata,
@@ -55,7 +55,7 @@ else:
 # from anesplot.loadrec.dialogs import get_file
 
 # paths = build_paths()
-paths = anesplot.config.load_recordrc.paths
+paths = build_paths()
 
 
 # +++++++
