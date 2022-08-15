@@ -173,6 +173,8 @@ def hist_co2aa(
         agent = datadf.aaLabel.value_counts().index[0]
     except AttributeError:
         agent = "aa"
+    if agent == "":
+        agent = "aa"
     # TODO fix this for taph recording
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
     fig.__name__ = "hist_co2_aa"

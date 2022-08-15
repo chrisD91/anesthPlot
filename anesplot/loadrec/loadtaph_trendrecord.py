@@ -73,7 +73,7 @@ def get_taph_filelocation(paths_torecords: Optional[dict[str, str]] = None) -> s
         question = "choose the directory of taph records"
         start_directory = os.path.expanduser("~")
         paths_torecords["taph_data"] = choose_directory(
-            title=question, dirname=start_directory, see_question=True
+            dirname=start_directory, title=question, see_question=True
         )
     path_to_taphrecords = paths_torecords["taph_data"]
     if not os.path.isdir(path_to_taphrecords):

@@ -63,17 +63,17 @@ def choose_file(
 
 
 def choose_directory(
-    title: str = "", dirname: Optional[str] = None, see_question: bool = False
+    dirname: Optional[str] = None, title: str = "", see_question: bool = False
 ) -> str:
     """
     Choose a file, return the filename.
 
     Parameters
     ----------
-    title :  str (default is ""
-        the title to use
     dirname : Optional[str], default is None -> ~
         the directory name to begin selection
+    title :  str (default is ""
+        the title to use
     see_question : bool (default is False)
         use non native dialog .. to see the question
 

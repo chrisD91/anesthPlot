@@ -38,7 +38,8 @@ else:
 def get_directory() -> str:
     """Choose the directory to scan."""
     dirname = dlg.choose_directory(
-        "choose the folder to scan", dirname=paths["mon_data"]
+        dirname=paths["mon_data"],
+        title="choose the folder to scan",
     )
     return dirname
 
@@ -110,17 +111,19 @@ def scandir(dirname: str, func: Any, taph: bool) -> list[str]:
         for entry in os.scandir(dirname):
             if "Wave" not in entry.name and entry.is_file():
                 files.append(entry.path)
+                if entry.name.startswith("."):
+                    continue
                 # files.append(os.path.join(paths['mon_data'], file))
                 # mtrend = MonitorTrend(entry.path)
                 data_df, _ = loadmonitor_trenddata(entry.path)
-                fig = func(data_df, {"dtime": False})
+                fig = func(data_df, {"dtime": False, "file": entry.name})
                 fig.show()
     return files
 
 
 def main(apath: str) -> list[str]:
     """Scan directory and plot the choosed plots."""
-    dir_name = dlg.choose_directory(apath)
+    dir_name = dlg.choose_directory(apath, title="choose a folder", see_question=True)
     is_taphrec = is_taph(dir_name)
     funct = get_plot_function(is_taphrec)
     file_list = scandir(dir_name, funct, is_taphrec)
@@ -130,4 +133,7 @@ def main(apath: str) -> list[str]:
 
 # %%
 if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
     main(paths["mon_data"])
+    plt.show()
