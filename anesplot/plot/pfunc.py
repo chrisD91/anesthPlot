@@ -95,14 +95,18 @@ def restrict_trenddf(df: pd.DataFrame, parm: dict["str", Any]) -> pd.DataFrame:
     else:
         timebase = "etimemin"
         parm["unit"] = "min"
-    toplot_df = df.set_index(timebase).copy()
-    xmin = parm.get("xmin")
-    if xmin is None:
-        xmin = toplot_df.index.min()
-    xmax = parm.get("xmax")
-    if xmax is None:
-        xmax = toplot_df.index.max()
-    toplot_df = toplot_df.loc[xmin:xmax]
+    if df.index.duplicated().any():
+        logging.critical("duplicated values in the index, didn't change the index")
+        toplot_df = df
+    else:
+        toplot_df = df.set_index(timebase).copy()
+        xmin = parm.get("xmin")
+        if xmin is None:
+            xmin = toplot_df.index.min()
+        xmax = parm.get("xmax")
+        if xmax is None:
+            xmax = toplot_df.index.max()
+        toplot_df = toplot_df.loc[xmin:xmax]
     return toplot_df
 
 

@@ -168,6 +168,19 @@ def remove_txt_messages(recorddf: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFr
     return recorddf, messagesdf
 
 
+def remove_empty_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove the empty rows based on data columns."""
+    # find
+    duplicate = df.duplicated(subset=["Time"])
+    if duplicate.any():
+        logging.warning("duplicated time value exists")
+        logging.warning(df.loc[~duplicate])
+    # clean
+    datacols = [_ for _ in df.columns[2:] if not _.startswith("~")]
+    emptyrows = df.index[df[datacols].isna().all(axis=1)]
+    return df.drop(emptyrows)
+
+
 def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
     """
     Load the monitor trend data.
@@ -206,6 +219,7 @@ def loadmonitor_trenddata(filename: str) -> pd.DataFrame:
         return pd.DataFrame()
 
     datadf = pd.DataFrame(datadf)
+    datadf = remove_empty_rows(datadf)
     # drop waves time indicators(column name beginning with a '~')
     datadf = datadf.drop([_ for _ in datadf.columns if _.startswith("~")], axis=1)
     # is empty (ie only a few lines of trend data)

@@ -13,7 +13,7 @@ import logging
 import os
 from typing import Any
 
-from pyQt5 import QApplication
+from PyQt5.QtWidgets import QApplication
 
 import anesplot.loadrec.dialogs as dlg
 import anesplot.plot.trend_plot as tplot
