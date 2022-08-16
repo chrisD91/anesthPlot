@@ -313,6 +313,9 @@ class MonitorWave(_FastWave):
         if filename is None:
             dir_path = paths.get("mon_data")
             filename = choosefile_gui(dir_path)
+        if "Wave" not in os.path.basename(filename):
+            raise ValueError("this is not a wave record")
+            load = False
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
