@@ -11,6 +11,8 @@ from typing import Optional, Union
 
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QWidget
 
+import pandas as pd
+
 app = QApplication.instance()
 logging.info(f"agg_load.py : {__name__=}")
 if app is None:
@@ -89,6 +91,36 @@ def select_type(
     else:
         selection = None
     return selection
+
+
+def swap_ip(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Swap ip1 and ip2.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        the recorded data.
+
+    Returns
+    -------
+    pd.DataFrame
+        the recorded data with exchanged p1 <-> p2.
+
+    """
+
+    def build_label_list(i: int) -> list[str]:
+        """Build invasive pressure names(i)."""
+        return ["ip" + str(i) + _ for _ in ["s", "d", "m"]]
+
+    def rename_pi(ini: int, res: int) -> dict[str, str]:
+        """Build a dico to change invasive pressure names ini -> res."""
+        return dict(zip(build_label_list(ini), build_label_list(res)))
+
+    for vals in [(1, 3), (2, 1), (3, 2)]:
+        dico = rename_pi(*vals)
+        df = df.rename(columns=dico)
+    return df
 
 
 # %%

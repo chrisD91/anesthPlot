@@ -12,7 +12,7 @@ from typing import Any, Optional
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
+from anesplot.loadrec.agg_load import swap_ip
 from anesplot.config.load_recordrc import build_paths
 
 paths = build_paths()
@@ -54,6 +54,17 @@ class Waves:  # pylint: disable=too-few-public-methods
             # source_abbr=None,
             sampling_freq=None,
         )
+
+    def swap_invasive_pressure_name(self) -> None:
+        """
+        Swap 1 and 2 in the invasive pressure name.
+
+        Returns
+        -------
+        None.
+
+        """
+        self.data = swap_ip(self.data)
 
     def append_to_figures(self, figdico: dict[str, plt.Figure]) -> None:
         """
