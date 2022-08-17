@@ -217,6 +217,10 @@ def loadmonitor_trenddata(filename: str) -> tuple[pd.DataFrame, pd.DataFrame]:
         logging.warning(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
         print(f"empty recording for {os.path.basename(filename)}")
         return pd.DataFrame(), pd.DataFrame()
+    except pd.errors.ParserError:
+        breakpoint()
+        logging.warning(f"{'!' * 10}  {os.path.basename(filename)} is not a valid file")
+        return pd.DataFrame(), pd.DataFrame()
 
     datadf = pd.DataFrame(datadf)
     datadf = remove_empty_rows(datadf)
@@ -236,7 +240,8 @@ def loadmonitor_trenddata(filename: str) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     # TODO fix the code for 1 and 2
     if "aaLabel" in datadf.columns:
-        anesth_code = {0: "none", 1: "", 2: "", 4: "iso", 6: "sevo"}
+
+        anesth_code = {0: "0", 1: "", 2: "", 4: "iso", 6: "sevo"}
         datadf.aaLabel = datadf.aaLabel.fillna(method="ffill")
         datadf.aaLabel = datadf.aaLabel.fillna(0)
         datadf.aaLabel = datadf.aaLabel.apply(lambda x: anesth_code.get(int(x), ""))

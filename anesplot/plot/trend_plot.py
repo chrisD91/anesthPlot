@@ -187,7 +187,7 @@ def hist_co2aa(
         agent = datadf.aaLabel.value_counts().index[0]
     except AttributeError:
         agent = "aa"
-    if agent == "":
+    if agent == "" or agent == "0":
         agent = "aa"
     # TODO fix this for taph recording
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
@@ -201,7 +201,7 @@ def hist_co2aa(
     ser = pfunc.remove_outliers(datadf, "aaExp")
     tap.axplot_hist(ax, ser, key=agent)
     median = datadf.aaExp.median()
-    ax.text(0, 1, f"{median=}", ha="left", va="top", transform=ax.transAxes)
+    ax.text(0, 1, f"{median=:.2f}", ha="left", va="top", transform=ax.transAxes)
 
     for ax in axes:
         pfunc.color_axis(ax, "bottom", "tab:grey")

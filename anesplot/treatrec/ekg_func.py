@@ -34,7 +34,7 @@ def plot_roi_ekgbeat_overlap(
         the monitor recording
     lims : tuple, (default is None)
         the limits to use (in sec)
-        If none the mwave.roi will be used
+        If None the mwave.roi will be used
     Returns
     -------
     fig : plt.Figure

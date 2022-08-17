@@ -39,7 +39,12 @@ def axplot_hist(ax: plt.axes, ser: pd.Series, key: str = "ip1") -> None:
     defined = ["ip1", "ip2", "hr", "co2", "iso", "sevo", "aa"]
     if key not in defined:
         logging.warning(f"key should be in {defined} ({key} was used)")
-    ctes = sn(**(ctes_dico[key]))  # get the drawing constants
+    try:
+        ctes = sn(**(ctes_dico[key]))  # get the drawing constants
+    except KeyError:
+        logging.warning(f"{key=} not defined in the constants")
+        ctes = sn(**(ctes_dico["default"]))  # get the drawing constants
+
     ax.set_title(ctes.label, color=ctes.color)
     if len(ser) > 0:
         ax.hist(
@@ -305,7 +310,11 @@ def axplot_aa(ax: plt.axes, df: pd.DataFrame, key: str = "iso") -> None:
     if key not in ["iso", "sevo", "aa"]:
         logging.warning("key should be in ['iso', 'sevo', 'aa']")
         return
-    aa = sn(**ctes_dico[key])  # get the drawing constants
+    try:
+        aa = sn(**ctes_dico[key])  # get the drawing constants
+    except KeyError:
+        logging.warning(f"{key=} not defined in the constants")
+        aa = sn(**(ctes_dico["default"]))  # get the drawing constants
     ax.set_ylabel(aa.label)
     try:
         ax.plot(df.aaExp, color=aa.color, linewidth=2, linestyle="-")
@@ -398,6 +407,7 @@ def axplot_arterialpressure(ax: plt.axes, df: pd.DataFrame, key: str = "ip1") ->
         press = sn(**ctes_dico[key])  # get the drawing constants
     else:
         txt = "key should be in [ip1, ip2]"
+        logging.warning(txt)
         ax.text(0.5, 0.5, txt)
         return
 

@@ -76,7 +76,7 @@ class _FastWave(Waves):
         ----------
         traces_list : list, optional (default is None)
             list of waves to plot (max=2)
-            if none -> open a dialog to choose column names.
+            if None -> open a dialog to choose column names.
 
         Returns
         -------

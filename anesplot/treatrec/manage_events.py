@@ -198,7 +198,7 @@ def extract_ventilation_drive(
     runs = {"ventilate": True, "standby": False}
 
     def end_of_line_to_float(line: str) -> Union[float, None]:
-        """Return float value else none."""
+        """Return float value else None."""
         line = line.split(" ")[-1].replace("s", "")
         try:
             val = float(line)
