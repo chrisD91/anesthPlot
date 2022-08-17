@@ -229,9 +229,6 @@ class MonitorTrend(_SlowWave):
         if filename is None:
             # TODO : find bug, fail in first call ? paths global
             # breakpoint()
-            # if not "app" in dir():
-            #   pass
-            # app = QApplication(sys.argv)
             dlg = choosefile_gui
             filename = dlg(paths["mon_data"])
             # filename = lmt.choosefile_gui(paths["mon_data"])
