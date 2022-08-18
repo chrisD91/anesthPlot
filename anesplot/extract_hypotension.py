@@ -71,7 +71,7 @@ def extract_hypotension(
     # datadf["low"] = datadf.ip1m < pamin  # -> True/False
     # datadf["trans"] = datadf.low - datadf.low.shift(-1)  # -1, 0, 1
 
-    datadf = df[["dtime", "ip1m"]]
+    datadf = df[["dtime", "etimemin", "ip1m"]]
     datadf.loc[datadf.ip1m < 0] = np.nan
     datadf = datadf.dropna()
     # df = pd.DataFrame(df)
@@ -112,11 +112,11 @@ def extract_hypotension(
                 ip1med = (
                     datadf.set_index("dtime").loc[start:end].iloc[:-1].ip1m.median()
                 )
-                istart = datadf.loc[datadf.dtime == start].index[0]
-                iend = datadf.loc[datadf.dtime == end].index[0]
-                values[i] = [istart, iend, ip1med]
+                mstart = datadf.loc[datadf.dtime == start, "etimemin"].to_list()[0]
+                mend = datadf.loc[datadf.dtime == end, "etimemin"].to_list()[0]
+                values[i] = [mstart, mend, ip1med]
             values = values.T
-            values.columns = ["istart", "iend", "ip1med"]
+            values.columns = ["mstart", "mend", "ip1med"]
             durdf = pd.concat([durdf, values], axis=1)
     return durdf
 
@@ -144,7 +144,7 @@ def plot_hypotension(
     if len(datadf) < 1:
         print(f"empty data for {atrend.param['file']}")
         return pd.DataFrame()
-    datadf = pd.DataFrame(datadf.set_index(datadf.etimemin.astype(int))["ip1m"])
+    datadf = pd.DataFrame(datadf.set_index(datadf.etimemin))
 
     fig = plt.figure()
     fig.suptitle("peroperative hypotension")
@@ -152,13 +152,16 @@ def plot_hypotension(
     ax.plot(datadf.ip1m, "-", color="tab:red", alpha=0.8)
     ax.axhline(y=70, color="tab:grey", alpha=0.5)
     if len(durdf) > 0:
-        for down_s, up_s, dur_s, *_ in durdf.loc[durdf.hypo_duration > 60].values:
+        # for down_s, up_s, dur_s, *_ in durdf.loc[durdf.hypo_duration > 60].values:
+        for start_m, end_m, dur_m in durdf.loc[
+            durdf.hypo_dur > 1, ["mstart", "mend", "hypo_dur"]
+        ].values:
             # ax.vlines(a, ymin=50, ymax=70, color='tab:red', alpha = 0.5)
             # ax.vlines(b, ymin=50, ymax=70, color='tab:green', alpha = 0.5)
             ax.add_patch(
                 Rectangle(
-                    xy=(down_s, 70),
-                    width=(up_s - down_s),
+                    xy=(start_m, 70),
+                    width=(end_m - start_m),
                     height=-30,
                     color="tab:blue",
                     fc="tab:blue",
@@ -167,9 +170,9 @@ def plot_hypotension(
                     fill=False,
                 )
             )
-            if dur_s > 15 * 60:
-                ax.axvspan(xmin=down_s, xmax=up_s, color="tab:red", alpha=0.3)
-        numb = len(durdf[durdf.hypo_duration > (durmin * 60)])
+            if dur_m > 15:
+                ax.axvspan(xmin=start_m, xmax=end_m, color="tab:red", alpha=0.3)
+        numb = len(durdf[durdf.hypo_dur > (durmin)])
         txt = f"{numb} period(s) of significative hypotension \n \
         (longer than {durmin} min & below {pamin} mmHg)"
         ax.text(
@@ -192,10 +195,7 @@ def plot_hypotension(
             transform=ax.transAxes,
             color="tab:grey",
         )
-        durations = list(
-            durdf.loc[durdf.hypo_duration > 15 * 60, ["hypo_duration"]].values.flatten()
-            / 60
-        )
+        durations = list(durdf.loc[durdf.hypo_dur > 15, ["hypo_dur"]].values.flatten())
         if len(durations) > 0:
             durations = [round(_) for _ in durations]
             txt = f"hypotensions={durations} min"
