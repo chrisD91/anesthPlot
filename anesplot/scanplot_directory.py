@@ -74,12 +74,13 @@ def get_plot_function(taph: bool = False) -> Any:
         tplot.plot_co2o2,
         tplot.plot_co2aa,
         tplot.plot_cardiovasc,
-        tplot.plot_cardiovasc_p1p2,
         tplot.hist_co2aa,
         tplot.hist_cardio,
     ]
     if taph:
         func_list.insert(0, tplot.plot_sathr)
+    else:
+        func_list.insert(5, tplot.plot_cardiovasc_p1p2)
     question = "choose the function to use"
     names = [st.__name__ for st in func_list[::-1]]
     name = dlg.choose_in_alist(names, message=question)

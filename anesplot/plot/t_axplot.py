@@ -480,12 +480,30 @@ def axplot_hr(ax: plt.axes, df: pd.DataFrame) -> None:
     None
 
     """
-    hrate = sn(**ctes_dico["hr"])  # get the drawing constants
-    ax.plot(
-        df.hr, color=hrate.color, label=hrate.label, linewidth=2, linestyle=hrate.style
-    )
-    ax.set_ylabel(hrate.label)
-    ax.set_ylim(*hrate.ylims)
+    try:
+        hrate = sn(**ctes_dico["hr"])  # get the drawing constants
+        ax.plot(
+            df.hr,
+            color=hrate.color,
+            label=hrate.label,
+            linewidth=2,
+            linestyle=hrate.style,
+        )
+        ax.set_ylabel(hrate.label)
+        ax.set_ylim(*hrate.ylims)
+    except AttributeError:
+        txt = "'hr is not present in the recording"
+        logging.warning(txt)
+        ax.text(
+            0.5,
+            0.5,
+            txt,
+            horizontalalignment="center",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
+    except KeyError:
+        breakpoint()
 
 
 def axplot_sathr(ax: plt.axes, df: pd.DataFrame) -> None:

@@ -667,20 +667,20 @@ def plot_ventilcardio(
     if "tvInsp" not in datadf.columns:
         logging.warning("no spirometry data in the recording")
 
-    cardiac_items = {"ip1m", "ip1d", "ip1s", "hr"}
-    if not cardiac_items.issubset(set(datadf.columns)):
-        diff = cardiac_items - set(datadf.columns)
-        txt = f"{diff} are not present in the data"
-        mes = f" {txt} ({param.get('file', '')})"
-        logging.warning("unable to perform the cardiovacular plot")
-        logging.warning(mes)
-        fig = pfunc.empty_data_fig(txt)
-        pfunc.add_baseline(fig, param)
-        return fig
+    # cardiac_items = {"ip1m", "ip1d", "ip1s", "hr"}
+    # if not cardiac_items.issubset(set(datadf.columns)):
+    #     diff = cardiac_items - set(datadf.columns)
+    #     txt = f"{diff} are not present in the data"
+    #     mes = f" {txt} ({param.get('file', '')})"
+    #     logging.warning("unable to perform the cardiovacular plot")
+    #     logging.warning(mes)
+    #     fig = pfunc.empty_data_fig(txt)
+    #     pfunc.add_baseline(fig, param)
+    #     return fig
 
     # restrict and timeUnit
     plot_df = pfunc.restrict_trenddf(datadf, param)
-    pressuredf = plot_df[list(cardiac_items)]
+    # pressuredf = plot_df[list(cardiac_items)]
 
     fig = plt.figure(figsize=(12, 5))
     fig.__name__ = "ventil_cardio"
@@ -696,14 +696,17 @@ def plot_ventilcardio(
     ax1_r.spines["left"].set_visible(False)
 
     ax2 = fig.add_subplot(212, sharex=ax1)
-    tap.axplot_arterialpressure(ax2, pressuredf)
-    pfunc.color_axis(ax2, "left", "tab:red")
-    ax2.spines["right"].set_visible(False)
-
+    # hr in the background
     ax2_r = ax2.twinx()
-    tap.axplot_hr(ax2_r, pressuredf)
+    # tap.axplot_hr(ax2_r, pressuredf)
+    tap.axplot_hr(ax2_r, plot_df)
     pfunc.color_axis(ax2_r, "right", "tab:grey")
     ax2_r.spines["left"].set_visible(False)
+
+    # tap.axplot_arterialpressure(ax2, pressuredf)
+    tap.axplot_arterialpressure(ax2, plot_df)
+    pfunc.color_axis(ax2, "left", "tab:red")
+    ax2.spines["right"].set_visible(False)
 
     for ax in fig.get_axes():
         ax.spines["top"].set_visible(False)
