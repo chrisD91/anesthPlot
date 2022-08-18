@@ -22,18 +22,18 @@ else:
 
 
 def choose_file(
-    title: str = "", dirname: Optional[str] = None, filtre: Optional[str] = None
+    dirname: Optional[str] = None, title: str = "", filtre: Optional[str] = None
 ) -> str:
     """
     Choose a file, return the filename.
 
     Parameters
     ----------
-    title :  str (default is ""
-        the title to use
     dirname : Optional[str], default is None -> ~
         the directory name to begin selection
-    filtre : Optional[str] (default is None ->  CSV Files (*.csv);;All Files (*)")
+    title :  str (default is ""
+        the title to use
+     filtre : Optional[str] (default is None ->  CSV Files (*.csv);;All Files (*)")
 
     Returns
     -------
@@ -49,7 +49,8 @@ def choose_file(
         filtre = "CSV Files (*.csv);;All Files (*)"
         # filtre = ''
     options = QFileDialog.Options()
-    # options |= QFileDialog.DontUseNativeDialog
+    if len(title) > 0:
+        options |= QFileDialog.DontUseNativeDialog
     filename, _ = QFileDialog.getOpenFileName(
         None,
         caption=title,
@@ -121,7 +122,7 @@ def choose_in_alist(
 
     """
     if message is None:
-        message = "choose the function to use"
+        message = "select the item to use"
     # widg = QWidget()
     name, ok_pressed = QInputDialog.getItem(
         None, "select", message, thelist, index, False

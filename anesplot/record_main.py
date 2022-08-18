@@ -186,7 +186,7 @@ def main(file_name: Optional[str] = None) -> str:
     logging.debug(f"{file_name=}")
     if file_name is None:
         # file_name = loadagg.choosefile_gui(paths["data"])
-        file_name = dlgs.choose_file("", paths["data"], "*.csv")
+        file_name = dlgs.choose_file(paths["data"], "", "*.csv")
     if not file_name:
         return ""
     kinds = ["monitorTrend", "monitorWave", "taphTrend", "telVet"]

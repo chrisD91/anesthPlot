@@ -229,8 +229,7 @@ class MonitorTrend(_SlowWave):
         if filename is None:
             # TODO : find bug, fail in first call ? paths global
             # breakpoint()
-            dlg = choosefile_gui
-            filename = dlg(paths["mon_data"])
+            filename = choosefile_gui(paths["mon_data"])
             # filename = lmt.choosefile_gui(paths["mon_data"])
             # breakpoint()
             # breakpoint()
