@@ -318,28 +318,30 @@ def plot_cardiovasc_p1p2(
         return fig
 
     cardiac_items = {"ip1m", "ip1d", "ip1s", "hr", "ip2s", "ip2d", "ip2m"}
-    if not cardiac_items.issubset(set(datadf.columns)):
+    cardiac_present = cardiac_items & set(datadf.columns)
+    if not cardiac_present:
+        # if not cardiac_items.issubset(set(datadf.columns)):
         diff = cardiac_items - set(datadf.columns)
         txt = f"{diff} are not present in the data"
         logging.warning("unable to perform the cardiovac_p1p2 plot")
         logging.warning(txt)
         fig = pfunc.empty_data_fig(txt)
         pfunc.add_baseline(fig, param)
-        return plt.figure()
+        return fig
 
     # restrict and timeUnit
     pressuredf = pfunc.restrict_trenddf(datadf, param)
-    pressuredf = pressuredf[list(cardiac_items)]
+    pressuredf = pressuredf[list(cardiac_present)]
 
     fig, axes = plt.subplots(figsize=(12, 6), ncols=1, nrows=2, sharex=True)
     fig.__name__ = "cardiovascular_p1p2"
     ax_l = axes[0]
-    tap.axplot_arterialpressure(ax_l, pressuredf)
-    pfunc.color_axis(ax_l, "left", "tab:red")
-    # heart rate
     ax_r = ax_l.twinx()
+    # heart rate  plotted first (background)
     tap.axplot_hr(ax_r, pressuredf)
     pfunc.color_axis(ax_r, "right", "tab:grey")  # call
+    tap.axplot_arterialpressure(ax_l, pressuredf)
+    pfunc.color_axis(ax_l, "left", "tab:red")
     # venuous pressure
     ax = axes[1]
     tap.axplot_arterialpressure(ax, pressuredf, key="ip2")
@@ -349,7 +351,7 @@ def plot_cardiovasc_p1p2(
     else:
         ax_l.set_xlabel("etime (min)")
 
-    for i, ax in enumerate(fig.get_axes):
+    for i, ax in enumerate(fig.get_axes()):
         pfunc.color_axis(ax, "bottom", "tab:grey")  # call
         ax.spines["top"].set_visible(False)
         if i == 0:

@@ -410,18 +410,29 @@ def axplot_arterialpressure(ax: plt.axes, df: pd.DataFrame, key: str = "ip1") ->
         logging.warning(txt)
         ax.text(0.5, 0.5, txt)
         return
-
-    ax.plot(df[press.traces[0]], color=press.color, label=press.label, linewidth=2)
-    ax.fill_between(
-        df.index,
-        df[press.traces[1]],
-        df[press.traces[2]],
-        color=press.color,
-        alpha=press.fillalpha,
-    )
-    ax.set_ylim(*press.ylims)
-    ax.axhline(press.goals[0], linewidth=1, linestyle="dashed", color=press.color)
-    ax.set_ylabel(press.label)
+    try:
+        ax.plot(df[press.traces[0]], color=press.color, label=press.label, linewidth=2)
+        ax.fill_between(
+            df.index,
+            df[press.traces[1]],
+            df[press.traces[2]],
+            color=press.color,
+            alpha=press.fillalpha,
+        )
+        ax.set_ylim(*press.ylims)
+        ax.axhline(press.goals[0], linewidth=1, linestyle="dashed", color=press.color)
+        ax.set_ylabel(press.label)
+    except KeyError:
+        txt = f"{key} is not present in the recording"
+        logging.warning(txt)
+        ax.text(
+            0.5,
+            0.5,
+            txt,
+            horizontalalignment="center",
+            verticalalignment="center",
+            transform=ax.transAxes,
+        )
 
 
 def axplot_sat(ax: plt.axes, df: pd.DataFrame) -> None:

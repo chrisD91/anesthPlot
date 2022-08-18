@@ -70,9 +70,11 @@ def get_plot_function(taph: bool = False) -> Any:
     """
     func_list = [
         tplot.plot_ventil,
+        tplot.plot_ventilcardio,
         tplot.plot_co2o2,
         tplot.plot_co2aa,
         tplot.plot_cardiovasc,
+        tplot.plot_cardiovasc_p1p2,
         tplot.hist_co2aa,
         tplot.hist_cardio,
     ]
