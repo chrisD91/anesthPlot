@@ -11,10 +11,11 @@ import os
 from typing import Any, Optional
 
 import matplotlib.pyplot as plt
-
-# import numpy as np
 import pandas as pd
+import numpy as np
 from matplotlib.patches import Rectangle
+
+# import anesplot.loadrec.dialogs as dialogs
 
 # from anesplot.slow_waves import MonitorTrend
 import anesplot.slow_waves
@@ -27,13 +28,16 @@ import anesplot.slow_waves
 plt.close("all")
 
 
-def extract_hypotension(mtrend: Any, pamin: int = 70) -> pd.DataFrame:
+def extract_hypotension(
+    df: pd.DataFrame, param: Optional[dict[str, Any]] = None, pamin: int = 70
+) -> pd.DataFrame:
     """
     Return a dataframe with the beginning and ending phases of hypotension.
 
     Parameters
     ----------
-    atrend : MonitorTrend object
+    atrend : pd.DataFrame
+
     pamin : float= threshold de define hypotension on mean arterial pressure
     (default is 70)
 
@@ -42,34 +46,78 @@ def extract_hypotension(mtrend: Any, pamin: int = 70) -> pd.DataFrame:
     durdf : pandas DataFrame containing
         transitionts (up and down, in  seconds from beginning)
         and duration in the hypotension state (in seconds)
+
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        the recorded data.
+    param : Optional[dict[str, Any]], optional (default is None)
+        the parameters (trends.param)
+    pamin : int, optional (default is 70)
+        the minimal arterial pressure value
+
+    Returns
+    -------
+    durdf : pd.DataFrame
+        a pandas dataframe containing the hypotension durations
+
     """
-    datadf = mtrend.data.copy()
+    datadf = df.copy()
     if "ip1m" not in datadf.columns:
         print("no ip1m recording in the data")
         return pd.DataFrame()
-    datadf = pd.DataFrame(datadf.set_index(datadf.eTime.astype(int))["ip1m"])
-    datadf["low"] = datadf.ip1m < pamin
-    datadf["trans"] = datadf.low - datadf.low.shift(-1)
+    # datadf = pd.DataFrame(datadf.set_index(datadf.etimemin.astype(int))["ip1m"])
+    # datadf["low"] = datadf.ip1m < pamin  # -> True/False
+    # datadf["trans"] = datadf.low - datadf.low.shift(-1)  # -1, 0, 1
+
+    datadf = df[["dtime", "ip1m"]]
+    datadf.loc[datadf.ip1m < 0] = np.nan
+    datadf = datadf.dropna()
+    # df = pd.DataFrame(df)
+    datadf["hypo"] = datadf.ip1m < 70
+    datadf["trans"] = datadf.hypo.shift(1) - datadf.hypo
+    if datadf.loc[datadf.index[0]]["hypo"]:
+        datadf.loc[datadf.index[0], ["trans"]] = -1
+    else:
+        datadf.loc[datadf.index[0], ["trans"]] = 1
+
     # extract changes
-    durdf = pd.DataFrame()
-    # monotonic
     if len(datadf.trans.dropna().value_counts()) > 1:
-        durdf["down"] = datadf.loc[datadf.trans == -1].index.to_list()
-        uplist = datadf.loc[datadf.trans == 1].index.to_list()
-        durdf = durdf.join(pd.Series(name="up", data=uplist))
+        down = datadf.loc[datadf.trans == -1, ["dtime"]].squeeze().rename("down")
+        up = datadf.loc[datadf.trans == 1, ["dtime"]].squeeze().rename("up")
+        durdf = pd.concat(
+            [up.reset_index(drop=True), down.reset_index(drop=True)],
+            ignore_index=False,
+            axis=1,
+        )
+        if (up.iloc[0] - down.iloc[0]).total_seconds() < 0:
+            # up is before down -> higher pressure
+            up.drop(up.index[0])
+            print("before")
+        while len(up) > len(down):
+            up.drop(up.index[-1])
+            print("up >")
+        while len(up) < len(down):
+            down.drop(up.index[-1])
+            print("down >")
+
         if len(durdf) > 0:
-            down_index, up_index = durdf.iloc[0]
-            if down_index > up_index:
-                durdf.up = durdf.up.shift(-1)
-            durdf["hypo_duration"] = durdf.up - durdf.down
-            # mean value
-            hypos = []
-            for i in durdf.index:
-                down_index, up_index = durdf.loc[i, ["down", "up"]]
-                hypo = datadf.loc[down_index:up_index, ["ip1m"]].mean()[0]
-                hypos.append(hypo)
-            durdf["hypo_value"] = hypos
-        durdf = durdf.dropna()
+            # mean duration
+            durdf["hypo_dur"] = durdf.up - durdf.down
+            durdf.hypo_dur = durdf.hypo_dur.apply(lambda x: x.total_seconds() / 60)
+            # mean values
+            values = pd.DataFrame()
+            for i, (start, end) in durdf[["down", "up"]].iterrows():
+                ip1med = (
+                    datadf.set_index("dtime").loc[start:end].iloc[:-1].ip1m.median()
+                )
+                istart = datadf.loc[datadf.dtime == start].index[0]
+                iend = datadf.loc[datadf.dtime == end].index[0]
+                values[i] = [istart, iend, ip1med]
+            values = values.T
+            values.columns = ["istart", "iend", "ip1med"]
+            durdf = pd.concat([durdf, values], axis=1)
     return durdf
 
 
@@ -96,7 +144,7 @@ def plot_hypotension(
     if len(datadf) < 1:
         print(f"empty data for {atrend.param['file']}")
         return pd.DataFrame()
-    datadf = pd.DataFrame(datadf.set_index(datadf.eTime.astype(int))["ip1m"])
+    datadf = pd.DataFrame(datadf.set_index(datadf.etimemin.astype(int))["ip1m"])
 
     fig = plt.figure()
     fig.suptitle("peroperative hypotension")
@@ -162,6 +210,7 @@ def plot_hypotension(
             )
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
+    fig.tight_layout()
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
     fig.text(0.01, 0.01, atrend.param["file"], ha="left", va="bottom", alpha=0.4)
@@ -296,7 +345,7 @@ if __name__ == "__main__":
         mtrends = anesplot.slow_waves.MonitorTrend()
         file_name = mtrends.filename
         if mtrends.data is not None:
-            duration_df = extract_hypotension(mtrends, pamin=70)
+            duration_df = extract_hypotension(mtrends.data, mtrends.param, pamin=70)
             figure = plot_hypotension(mtrends, duration_df)
             # fig = scatter_length_meanhypo(trends, dur_df)
         else:
