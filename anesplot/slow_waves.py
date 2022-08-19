@@ -24,7 +24,7 @@ from PyQt5.QtWidgets import QApplication
 import anesplot.base
 
 # import anesplot
-import anesplot.loadrec.dialogs
+import anesplot.loadrec.dialogs as dlg
 import anesplot.loadrec.loadmonitor_trendrecord as lmt
 
 # import anesplot.loadrec.agg_load
@@ -41,7 +41,8 @@ from anesplot.config.load_recordrc import build_paths
 #     concat_data,
 # )
 import anesplot.treatrec.manage_events
-from anesplot.loadrec.agg_load import choosefile_gui
+
+# from anesplot.loadrec.agg_load import choosefile_gui
 from anesplot.treatrec.clean_data import clean_trenddata
 
 app = QApplication.instance()
@@ -229,7 +230,8 @@ class MonitorTrend(_SlowWave):
         if filename is None:
             # TODO : find bug, fail in first call ? paths global
             # breakpoint()
-            filename = choosefile_gui(paths["mon_data"])
+            # filename = choosefile_gui(paths["mon_data"])
+            filename = dlg.choose_file(paths["mon_data"])
             # filename = lmt.choosefile_gui(paths["mon_data"])
             # breakpoint()
             # breakpoint()

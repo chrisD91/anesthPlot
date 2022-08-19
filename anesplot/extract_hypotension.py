@@ -8,6 +8,7 @@ scan folders and check for hypotension
 
 """
 import os
+import logging
 from typing import Any, Optional
 
 import matplotlib.pyplot as plt
@@ -17,8 +18,9 @@ from matplotlib.patches import Rectangle
 
 # import anesplot.loadrec.dialogs as dialogs
 
-# from anesplot.slow_waves import MonitorTrend
-import anesplot.slow_waves
+from anesplot.slow_waves import MonitorTrend
+
+# import anesplot.slow_waves
 
 # from anesplot.plot.plot_func import update_pltparams
 # update_pltparams()
@@ -63,6 +65,9 @@ def extract_hypotension(
         a pandas dataframe containing the hypotension durations
 
     """
+    # TODO filter the data to remove data below 0 (at least)
+    if param is None:
+        param = {"file": "toto"}
     datadf = df.copy()
     if "ip1m" not in datadf.columns:
         print("no ip1m recording in the data")
@@ -77,47 +82,75 @@ def extract_hypotension(
     # df = pd.DataFrame(df)
     datadf["hypo"] = datadf.ip1m < 70
     datadf["trans"] = datadf.hypo.shift(1) - datadf.hypo
+    if len(datadf.trans.dropna().value_counts()) < 2:
+        logging.warning(f"no transision detected ({param.get('file')})")
+        return pd.DataFrame()
+    # status at begining
     if datadf.loc[datadf.index[0]]["hypo"]:
         datadf.loc[datadf.index[0], ["trans"]] = -1
     else:
         datadf.loc[datadf.index[0], ["trans"]] = 1
 
     # extract changes
-    if len(datadf.trans.dropna().value_counts()) > 1:
-        down = datadf.loc[datadf.trans == -1, ["dtime"]].squeeze().rename("down")
-        up = datadf.loc[datadf.trans == 1, ["dtime"]].squeeze().rename("up")
-        durdf = pd.concat(
-            [up.reset_index(drop=True), down.reset_index(drop=True)],
-            ignore_index=False,
-            axis=1,
+    # down = datadf.loc[datadf.trans == -1, ["dtime"]].squeeze().rename("down")
+    # up = datadf.loc[datadf.trans == 1, ["dtime"]].squeeze().rename("up")
+    down = pd.Series(
+        name="down", data=datadf.loc[datadf.trans == -1, ["dtime"]].squeeze()
+    )
+    up = pd.Series(name="up", data=datadf.loc[datadf.trans == 1, ["dtime"]].squeeze())
+    # test up and down matches
+    if (up.iloc[0] - down.iloc[0]).total_seconds() < 0:
+        # up is before down -> higher pressure
+        up.drop(up.index[0], inplace=True)
+        logging.warning(
+            "up transition before the down one, removed the first transision"
         )
-        if (up.iloc[0] - down.iloc[0]).total_seconds() < 0:
-            # up is before down -> higher pressure
-            up.drop(up.index[0])
-            print("before")
-        while len(up) > len(down):
-            up.drop(up.index[-1])
-            print("up >")
-        while len(up) < len(down):
-            down.drop(up.index[-1])
-            print("down >")
+    while len(up) > len(down):
+        up.drop(up.index[-1], inplace=True)
+        logging.warning(
+            "number of up transitions higher than down, removed the last up detection"
+        )
+    while len(up) < len(down):
+        down.drop(down.index[-1], inplace=True)
+        logging.warning(
+            "number of down transitions higher than down ones : removed the last down detection"
+        )
+    durdf = pd.concat(
+        [up.reset_index(drop=True), down.reset_index(drop=True)],
+        ignore_index=False,
+        axis=1,
+    )
+    if not durdf.empty:
+        # mean duration
+        durdf["hypo_dur"] = durdf.up - durdf.down
+        durdf.hypo_dur = durdf.hypo_dur.apply(lambda x: x.total_seconds() / 60)
+        # mean values
+        # values = pd.DataFrame()
+        indicises = []
+        ip1meds = []
+        mstarts = []
+        mends = []
+        for i, (start, end) in durdf[["down", "up"]].iterrows():
+            indicises.append(i)
+            ip1meds.append(
+                datadf.set_index("dtime").loc[start:end].iloc[:-1].ip1m.median()
+            )
+            mstarts.append(datadf.loc[datadf.dtime == start, "etimemin"].to_list()[0])
+            mends.append(datadf.loc[datadf.dtime == end, "etimemin"].to_list()[0])
 
-        if len(durdf) > 0:
-            # mean duration
-            durdf["hypo_dur"] = durdf.up - durdf.down
-            durdf.hypo_dur = durdf.hypo_dur.apply(lambda x: x.total_seconds() / 60)
-            # mean values
-            values = pd.DataFrame()
-            for i, (start, end) in durdf[["down", "up"]].iterrows():
-                ip1med = (
-                    datadf.set_index("dtime").loc[start:end].iloc[:-1].ip1m.median()
-                )
-                mstart = datadf.loc[datadf.dtime == start, "etimemin"].to_list()[0]
-                mend = datadf.loc[datadf.dtime == end, "etimemin"].to_list()[0]
-                values[i] = [mstart, mend, ip1med]
-            values = values.T
-            values.columns = ["mstart", "mend", "ip1med"]
-            durdf = pd.concat([durdf, values], axis=1)
+        durdf["ip1med"] = ip1meds
+        durdf["mstart"] = mstarts
+        durdf["mend"] = mends
+        #     ip1med = (
+        #         datadf.set_index("dtime").loc[start:end].iloc[:-1].ip1m.median()
+        #         )
+        #     mstart = datadf.loc[datadf.dtime == start, "etimemin"].to_list()[0]
+        #     mend = datadf.loc[datadf.dtime == end, "etimemin"].to_list()[0]
+        #     values[i] = [mstart, mend, ip1med]
+        # values = values.T
+        # values.columns = ["mstart", "mend", "ip1med"]
+        # durdf = pd.concat([durdf, values], axis=1)
+
     return durdf
 
 
@@ -143,16 +176,37 @@ def plot_hypotension(
     datadf = atrend.data.copy()
     if len(datadf) < 1:
         print(f"empty data for {atrend.param['file']}")
-        return pd.DataFrame()
+        return plt.Figure()
+    if "ip1m" not in datadf.columns:
+        txt = f"no ip1m column in the data for {atrend.param['file']}"
+        print(txt)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.text(0.5, 0.5, txt, ha="center", va="center", transform=ax.transAxes)
+        return fig
     datadf = pd.DataFrame(datadf.set_index(datadf.etimemin))
+    ser = datadf.ip1m.copy()
+    ser[ser > 140] = np.nan
+    ser[ser < 0] = np.nan
 
     fig = plt.figure()
     fig.suptitle("peroperative hypotension")
     ax = fig.add_subplot(111)
-    ax.plot(datadf.ip1m, "-", color="tab:red", alpha=0.8)
+    # ax.plot(datadf.ip1m, "-", color="tab:red", alpha=0.8)
+    ax.plot(ser, "-", color="tab:red", alpha=0.8)
     ax.axhline(y=70, color="tab:grey", alpha=0.5)
-    if len(durdf) > 0:
-        # for down_s, up_s, dur_s, *_ in durdf.loc[durdf.hypo_duration > 60].values:
+    if durdf.empty:
+        txt = "no hypotension phases detected"
+        ax.text(
+            0.5,
+            0.9,
+            txt,
+            ha="center",
+            va="bottom",
+            transform=ax.transAxes,
+            color="tab:grey",
+        )
+    else:
         for start_m, end_m, dur_m in durdf.loc[
             durdf.hypo_dur > 1, ["mstart", "mend", "hypo_dur"]
         ].values:
@@ -234,14 +288,14 @@ def scatter_length_meanhypo(atrend: Any, durdf: pd.DataFrame) -> plt.Figure:
         scatter plot.
     """
     param = atrend.param
-    if "hypo_duration" not in durdf:
+    if "hypo_dur" not in durdf:
         return plt.figure()
     fig = plt.figure(figsize=(8, 6))
     fig.suptitle("hypotension episodes")
     ax = fig.add_subplot(111)
     ax.scatter(
-        durdf.hypo_duration / 60,
-        durdf.hypo_value,
+        durdf.hypo_dur,
+        durdf.ip1med,
         marker="o",
         color="tab:red",
         s=200,
@@ -277,6 +331,7 @@ def scatter_length_meanhypo(atrend: Any, durdf: pd.DataFrame) -> plt.Figure:
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)
     fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    fig.show()
     return fig
 
 
@@ -295,6 +350,7 @@ def plot_all_dir_hypo(dirname: Optional[str] = None, scatter: bool = False) -> s
     -------
     filename : str
     """
+    # >>>>>>>>>>>>>>>> list files
     if dirname is None:
         dirname = (
             "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
@@ -305,15 +361,20 @@ def plot_all_dir_hypo(dirname: Optional[str] = None, scatter: bool = False) -> s
             files.append(file)
     files = [_ for _ in files if "Wave" not in _]
     files = [_ for _ in files if not _.startswith(".")]
+
+    # >>>>>>>>>>>>>>>>>> load data
     for file in files:
         filename = os.path.join(dirname, file)
-        mtrend = anesplot.slow_waves.MonitorTrend(filename)
+        mtrend = MonitorTrend(filename)
         # if not trends.data is None:
-        if mtrend.data is None:
+        if mtrend.data.empty:
+            print(f"{file} contains no data ")
             continue
+        # >>>>>>>>>>>>>>>>>>> extract hypotension
         if "ip1m" not in mtrend.data.columns:
             continue
-        dur_df = extract_hypotension(mtrend, pamin=70)
+        dur_df = extract_hypotension(mtrend.data, mtrend.param, pamin=70)
+        # >>>>>>>>>>>>>>>>>>> plot
         if scatter:
             scatter_length_meanhypo(mtrend, dur_df)
         else:
@@ -322,31 +383,40 @@ def plot_all_dir_hypo(dirname: Optional[str] = None, scatter: bool = False) -> s
     return filename
 
 
-# %%
-plt.close("all")
-# folder or file
-FOLDER = False  # folder or file ?
-if __name__ == "__main__":
-
+def main(folder: bool = False) -> str:
+    """Run function."""
     # analyse all the recordings present in a folder
     from anesplot.config.load_recordrc import build_paths
 
     paths = build_paths()
-    if FOLDER:
+    if folder:
         dir_name = paths["mon_data"]
         # (
         #     "/Users/cdesbois/enva/clinique/recordings/anesthRecords/onPanelPcRecorded"
         # )
-        YEAR = ""
+        YEAR = "2021"
         dir_name = os.path.join(dir_name, YEAR)
         file_name = plot_all_dir_hypo(dir_name, scatter=False)
     else:
         # analyse just a file
-        mtrends = anesplot.slow_waves.MonitorTrend()
+        mtrends = MonitorTrend()
+        # mtrends = MonitorTrend('/Users/cdesbois/enva/clinique/recordings/anesthRecords
+        # /onPanelPcRecorded/M2022_8_18-15_18_17.csv')
         file_name = mtrends.filename
         if mtrends.data is not None:
             duration_df = extract_hypotension(mtrends.data, mtrends.param, pamin=70)
             figure = plot_hypotension(mtrends, duration_df)
+            figure.show()
             # fig = scatter_length_meanhypo(trends, dur_df)
         else:
             print("no data")
+    plt.show()
+    return file_name
+
+
+# %%
+plt.close("all")
+# folder or file
+if __name__ == "__main__":
+    # folder or file ?
+    main(folder=False)
