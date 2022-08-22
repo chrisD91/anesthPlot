@@ -24,6 +24,11 @@ from anesplot.loadrec.loadtaph_trendrecord import (
     loadtaph_trenddata,
 )
 
+from matplotlib import rcParams
+
+rcParams.update({"figure.max_open_warning": 0})
+
+
 # from anesplot.slow_waves import TaphTrend
 
 # import get_file, get_directory

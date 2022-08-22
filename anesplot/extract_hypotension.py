@@ -16,28 +16,49 @@ import pandas as pd
 import numpy as np
 from matplotlib.patches import Rectangle
 
-import anesplot.loadrec.dialogs as dialogs
-
+import anesplot.loadrec.dialogs as dlg
 from anesplot.slow_waves import MonitorTrend
 
 # import anesplot.slow_waves
 
 # from anesplot.plot.plot_func import update_pltparams
 # update_pltparams()
+plt.rcParams.update({"figure.max_open_warning": 0})
 
 # %%
 
 plt.close("all")
 
 
-def list_files(basedir: Optional[str] = None) -> list[str]:
+def get_dir(basename: Optional[str] = None) -> str:
+    """
+    Select the directory to scan.
+
+    Parameters
+    ----------
+    basename : Optional[str], optional (default is None)
+        the directory to begin the selection
+
+    Returns
+    -------
+    str
+        the directory name (fullname).
+
+    """
+    if basename is None:
+        basename = os.path.expanduser("~")
+    dirname = dlg.choose_directory(basename, title="choose a folder", see_question=True)
+    return dirname
+
+
+def get_files(dirname: str) -> list[str]:
     """
     Select and get all the monitorTrend files in a folder.
 
     Parameters
     ----------
-    dirname : Optional[str], optional (default is None)
-        The directory to scan.
+    dirname : str
+        The directory path (fullname) to scan.
 
     Returns
     -------
@@ -45,11 +66,6 @@ def list_files(basedir: Optional[str] = None) -> list[str]:
         list of monitor trend filenames
 
     """
-    if basedir is None:
-        basedir = os.path.expanduser("~")
-    dirname = dialogs.choose_directory(
-        basedir, "choose the folder to scan", see_question=False
-    )
     files = []
     for file in os.listdir(dirname):
         if "Wave" in file:
@@ -65,7 +81,7 @@ def extract_hypotension(
     df: pd.DataFrame, param: Optional[dict[str, Any]] = None, pamin: int = 70
 ) -> pd.DataFrame:
     """
-    Return a dataframe with the beginning and ending phases of hypotension.
+    Return start and end location hypotension phases.
 
     Parameters
     ----------
@@ -293,6 +309,7 @@ def plot_hypotension(
                 transform=ax.transAxes,
                 color="k",
             )
+    ax.set_ylim(0, 140)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
     fig.tight_layout()
@@ -366,15 +383,19 @@ def scatter_length_meanhypo(atrend: Any, durdf: pd.DataFrame) -> plt.Figure:
     return fig
 
 
-def main(folder: bool = True, scatter: bool = False) -> str:
+def main(
+    folder: bool = True,
+    scatter: bool = False,
+    dirpath: Optional[str] = None,
+) -> str:
     """Run function."""
     # analyse all the recordings present in a folder
-    from anesplot.config.load_recordrc import build_paths
+    if dirpath is None:
+        dirpath = os.path.expanduser("~")
 
-    paths = build_paths()
     if folder:
-        dir_name = paths["mon_data"]
-        file_list = list_files(dir_name)
+        dir_name = get_dir(dirpath)
+        file_list = get_files(dir_name)
         for file_name in file_list:
             mtrend = MonitorTrend(file_name)
             # if not trends.data is None:
@@ -408,5 +429,9 @@ def main(folder: bool = True, scatter: bool = False) -> str:
 plt.close("all")
 # folder or file
 if __name__ == "__main__":
+    from anesplot.config.load_recordrc import build_paths
+
+    paths = build_paths()
+
     # folder or file ?
-    main(folder=True)
+    main(folder=True, dirpath=paths["mon_data"])
