@@ -222,11 +222,14 @@ def plot_hypotension(
     """
     datadf = atrend.data.copy()
     if len(datadf) < 1:
-        print(f"empty data for {atrend.param['file']}")
+        txt = f"empty data for {atrend.param['file']}"
+        logging.warning(txt)
+        print(txt)
         return plt.Figure()
     if "ip1m" not in datadf.columns:
         txt = f"no ip1m column in the data for {atrend.param['file']}"
         print(txt)
+        logging.warning(txt)
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.text(0.5, 0.5, txt, ha="center", va="center", transform=ax.transAxes)
@@ -337,10 +340,17 @@ def scatter_length_meanhypo(atrend: Any, durdf: pd.DataFrame) -> plt.Figure:
     """
     param = atrend.param
     if "hypo_dur" not in durdf:
+        logging.warning("no hypotension extracted")
         return plt.figure()
     fig = plt.figure(figsize=(8, 6))
     fig.suptitle("hypotension episodes")
     ax = fig.add_subplot(111)
+    # >>>
+    ax.set_xmargin(0.1)
+
+    ax.set_ymargin(0.1)
+    # <<<<<
+    ax.axvline(0, color="tab:grey")
     ax.scatter(
         durdf.hypo_dur,
         durdf.ip1med,
@@ -356,9 +366,9 @@ def scatter_length_meanhypo(atrend: Any, durdf: pd.DataFrame) -> plt.Figure:
     xlims = ax.get_xlim()
     ylims = (0, 80)
     ax.set_ylim(ylims)
-    ax.set_xlim(0, xlims[1])
+    #   ax.set_xlim(-5, xlims[1])
     if xlims[1] < 20:
-        ax.set_xlim(0, 20)
+        ax.set_xlim(xlims[0], 20)
     xlims = ax.get_xlim()
     ylims = ax.get_ylim()
     ax.add_patch(
@@ -374,7 +384,7 @@ def scatter_length_meanhypo(atrend: Any, durdf: pd.DataFrame) -> plt.Figure:
             alpha=0.3,
         )
     )
-    for spine in ["top", "right"]:
+    for spine in ["left", "top", "right"]:
         ax.spines[spine].set_visible(False)
     # annotations
     fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4, size=12)

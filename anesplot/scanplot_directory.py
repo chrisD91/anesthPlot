@@ -13,6 +13,7 @@ import logging
 import os
 from typing import Any, Optional
 
+from matplotlib import rcParams
 from PyQt5.QtWidgets import QApplication
 
 import anesplot.loadrec.dialogs as dlg
@@ -24,7 +25,6 @@ from anesplot.loadrec.loadtaph_trendrecord import (
     loadtaph_trenddata,
 )
 
-from matplotlib import rcParams
 
 rcParams.update({"figure.max_open_warning": 0})
 
