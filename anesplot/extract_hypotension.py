@@ -30,6 +30,33 @@ plt.rcParams.update({"figure.max_open_warning": 0})
 plt.close("all")
 
 
+def get_trendfile(basename: Optional[str] = None) -> str:
+    """
+    Select the file to scan.
+
+    Parameters
+    ----------
+    basename : Optional[str], optional (default is None)
+        the directory to begin the selection
+
+    Returns
+    -------
+    str
+        the filename (fullname).
+
+    """
+    if basename is None:
+        basename = os.path.expanduser("~")
+    filename = dlg.choose_file(basename, title="choose a trendfile", filtre="*.csv")
+    if "Wave" in os.path.basename(filename):
+        print("this is not a monitorTrend file")
+        return ""
+    if not os.path.basename(filename).startswith("M"):
+        print("this is not a monitorTrend file")
+        return ""
+    return filename
+
+
 def get_dir(basename: Optional[str] = None) -> str:
     """
     Select the directory to scan.
@@ -51,9 +78,9 @@ def get_dir(basename: Optional[str] = None) -> str:
     return dirname
 
 
-def get_files(dirname: str) -> list[str]:
+def list_files(dirname: str) -> list[str]:
     """
-    Select and get all the monitorTrend files in a folder.
+    List all the monitorTrend files in a folder.
 
     Parameters
     ----------
@@ -405,7 +432,7 @@ def main(
 
     if folder:
         dir_name = get_dir(dirpath)
-        file_list = get_files(dir_name)
+        file_list = list_files(dir_name)
         for file_name in file_list:
             mtrend = MonitorTrend(file_name)
             # if not trends.data is None:
@@ -417,13 +444,16 @@ def main(
                 continue
             dur_df = extract_hypotension(mtrend.data, mtrend.param, pamin=70)
             if scatter:
+                print(f"main {scatter=}")
                 scatter_length_meanhypo(mtrend, dur_df)
             else:
                 plot_hypotension(mtrend, dur_df)
     else:
         # analyse just a file
-        mtrends = MonitorTrend()
-        file_name = mtrends.filename
+        file_name = get_trendfile(dirpath)
+        if not file_name:
+            return ""
+        mtrends = MonitorTrend(file_name)
         if mtrends.data is not None:
             duration_df = extract_hypotension(mtrends.data, mtrends.param, pamin=70)
             figure = plot_hypotension(mtrends, duration_df)
@@ -439,9 +469,32 @@ def main(
 plt.close("all")
 # folder or file
 if __name__ == "__main__":
+
+    import argparse
     from anesplot.config.load_recordrc import build_paths
 
     paths = build_paths()
 
-    # folder or file ?
-    main(folder=True, dirpath=paths["mon_data"])
+    parser = argparse.ArgumentParser(
+        description="analyse a file or a folder for peroperative hypotension",
+    )
+
+    parser.add_argument("-f", "--filename", help="file to analyse", type=str)
+
+    parser.add_argument(
+        "-d",
+        "--directory",
+        help="choose a directory scan (default is a file analysis)",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-s",
+        "--scatter",
+        help="choose a scatterplot (default is a trendplot)",
+        action="store_true",
+        default=False,
+    )
+
+    args = parser.parse_args()
+    main(folder=args.directory, scatter=args.scatter, dirpath=paths["mon_data"])
