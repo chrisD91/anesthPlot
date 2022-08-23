@@ -33,7 +33,7 @@ def choose_file(
         the directory name to begin selection
     title :  str (default is ""
         the title to use
-     filtre : Optional[str] (default is None ->  CSV Files (*.csv);;All Files (*)")
+    filtre : Optional[str] (default is None ->  CSV Files (*.csv);;All Files (*)")
 
     Returns
     -------

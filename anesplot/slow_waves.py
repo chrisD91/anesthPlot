@@ -228,20 +228,7 @@ class MonitorTrend(_SlowWave):
         """
         super().__init__()
         if filename is None:
-            # TODO : find bug, fail in first call ? paths global
-            # breakpoint()
-            # filename = choosefile_gui(paths["mon_data"])
-            filename = dlg.choose_file(paths["mon_data"])
-            # filename = lmt.choosefile_gui(paths["mon_data"])
-            # breakpoint()
-            # breakpoint()
-            # filename = get_file(
-            #   "choose monitor recording", paths["mon_data"], "*.csv"
-            # )
-
-        #            filename = anesplot.loadrec.dialogs.get_file(
-        #                "choose monitor recording", paths["mon_data"], "*.csv"
-        #           )
+            filename = self.get_filename(paths["mon_data"])
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
@@ -263,6 +250,33 @@ class MonitorTrend(_SlowWave):
         else:
             logging.warning(f"MonitorTrend: didn't load the data {filename=}")
             self.data = pd.DataFrame()
+
+    def get_filename(self, basename: str) -> str:
+        """
+        Select the file to scan.
+
+        Parameters
+        ----------
+        basename : str
+            the directory to begin the selection
+
+        Returns
+        -------
+        str
+            the filename (fullname).
+
+        """
+        filename = dlg.choose_file(
+            paths["mon_data"], title="choose a trendfile", filtre="*.csv"
+        )
+        # filename = dlg.choose_file(paths['mon_data'], filtre="*.csv")
+        if "Wave" in os.path.basename(filename):
+            print("this is not a monitorTrend file")
+            return ""
+        if not os.path.basename(filename).startswith("M"):
+            print("this is not a monitorTrend file")
+            return ""
+        return filename
 
     def merge_with_other_record(self) -> None:
         """Merge the recording with the next one (in case of crash and reload)."""
