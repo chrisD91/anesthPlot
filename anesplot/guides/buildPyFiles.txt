@@ -1,7 +1,0 @@
-# NB move to the desired folder
-# then:
-# paste the following in a terminal
-mkdir data
-touch csv2hdf.py ekg2hr.py work_on.py todo.md
-# or use:
-rec.organize_debrief_folder()

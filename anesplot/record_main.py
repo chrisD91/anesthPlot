@@ -14,14 +14,12 @@ or imported as a package::
 
     # objects:
     mtrends = rec.MonitorTrend()
-    waves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))
-    ttrends = rec.TaphTtrend()
+    waves = rec.MonitorWave(mtrends.build_wavename())
+    ttrends = rec.TaphTrend()
 
     # use methods and or attributes:
     mtrends.show_graphs() -> clinical debrief selection
     waves.plot_wave() -> select one or two waves to plot
-
-nb to work within spyder : move inside anestplot (>> cd anesplot)
 
 """
 
@@ -29,8 +27,6 @@ import faulthandler
 import logging
 import os
 
-# import sys
-from datetime import datetime
 from types import SimpleNamespace
 from typing import Optional
 
@@ -41,11 +37,16 @@ from matplotlib import rcParams
 from PyQt5.QtWidgets import QApplication
 
 # from PyQt5.QtWidgets import QApplication
-import anesplot.loadrec.agg_load as loadagg
 import anesplot.loadrec.dialogs as dlgs
 from anesplot.config.load_recordrc import build_paths
-from anesplot.fast_waves import MonitorWave, TelevetWave
-from anesplot.guides.choose_guide import get_guide  # noqa: F401
+from anesplot.fast_waves import (  # noqa: F401
+    MonitorWave,
+    TelevetWave,
+)
+from anesplot.guides.choose_guide import (  # noqa: F401
+    get_guide,
+    get_basic_debrief_commands,
+)
 from anesplot.slow_waves import MonitorTrend, TaphTrend
 
 
@@ -94,62 +95,43 @@ def append_to_figures(
         setattr(figs, name + "_".join([name, key]), fig)
 
 
-def organize_debrief_folder() -> None:
-    """
-    Build file and sub_folders for debrief process inside the current directory.
+# def organize_debrief_folder() -> None:
+#     """
+#     Build file and sub_folders for debrief process inside the current directory.
 
-    Returns
-    -------
-    None.
+#     Returns
+#     -------
+#     None.
 
-    """
-    now = datetime.now()
-    date = now.strftime("%Y_%m_%d-%H:%m:%S")
-    os.chdir("/Users/cdesbois/toPlay/dir_test")
+#     """
+#     now = datetime.now()
+#     date = now.strftime("%Y_%m_%d-%H:%m:%S")
+#     os.chdir("/Users/cdesbois/toPlay/dir_test")
 
-    shebang = ["#!/usr/bin/env python3", "# -*- coding: utf-8 -*-", ""]
-    build = [
-        '"""',
-        f"Created on {date}",
-        "",
-        f"@author: {os.path.basename(os.path.expanduser('~'))}",
-        '"""',
-    ]
+#     shebang = ["#!/usr/bin/env python3", "# -*- coding: utf-8 -*-", ""]
+#     build = [
+#         '"""',
+#         f"Created on {date}",
+#         "",
+#         f"@author: {os.path.basename(os.path.expanduser('~'))}",
+#         '"""',
+#     ]
 
-    for directory in ["data", "fig", "doc", "bib"]:
-        try:
-            os.mkdir(directory)
-            logging.debug(f"builded {directory}")
-        except FileExistsError:
-            logging.debug(f"directory {directory} already exist")
+#     for directory in ["data", "fig", "doc", "bib"]:
+#         try:
+#             os.mkdir(directory)
+#             logging.debug(f"builded {directory}")
+#         except FileExistsError:
+#             logging.debug(f"directory {directory} already exist")
 
-    for file in ["csv2hdf.py", "ekg2hr.py", "work_on.py", "todo.md"]:
-        if os.path.exists(file):
-            logging.debug(f"{file} already exists")
-        else:
-            with open(file, "w", encoding="utf-8") as openf:
-                if file.rsplit(".", maxsplit=1)[-1] == "py":
-                    openf.writelines(line + "\n" for line in shebang)
-                openf.writelines(line + "\n" for line in build)
-
-
-def get_basic_debrief_commands() -> str:
-    """Copy in clipboard the usual commands to build a debrief."""
-    lines = [
-        "mtrends = rec.MonitorTrend()  #<- add filename here (if you know it)",
-        "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))",
-        "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
-    ]
-    message = "basic debrief commands are in the clipboard"
-    # logging.debug(message)
-    splitlines = " \n".join(lines)
-    pyperclip.copy(splitlines)
-    return message
-
-
-def trendname_to_wavename(name: str) -> str:
-    """Compute the supposed (full)name."""
-    return name.split(".")[0] + "Wave.csv"
+#     for file in ["csv2hdf.py", "ekg2hr.py", "work_on.py", "todo.md"]:
+#         if os.path.exists(file):
+#             logging.debug(f"{file} already exists")
+#         else:
+#             with open(file, "w", encoding="utf-8") as openf:
+#                 if file.rsplit(".", maxsplit=1)[-1] == "py":
+#                     openf.writelines(line + "\n" for line in shebang)
+#                 openf.writelines(line + "\n" for line in build)
 
 
 def main(file_name: Optional[str] = None) -> str:
@@ -187,7 +169,10 @@ def main(file_name: Optional[str] = None) -> str:
         num = 1
     if not os.path.basename(file_name).startswith("M"):
         num = 2
-    source = loadagg.select_type(question="choose kind of file", items=kinds, num=num)
+    # source = loadagg.select_type(question="choose kind of file", items=kinds, num=num)
+    source = dlgs.choose_in_alist(
+        thelist=kinds, message="choose kind of file", index=num
+    )
 
     if not os.path.isfile(file_name):
         print("this is not a file")

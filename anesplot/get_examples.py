@@ -13,7 +13,6 @@ mtrends, mwaves, ttrends = get_examples.load_example_records()
 """
 
 
-import logging
 import os
 from typing import Any
 
@@ -58,12 +57,12 @@ def load_example_records() -> tuple[Any, Any, Any]:
 # %%
 if __name__ == "__main__":
     mtrends, mwaves, ttrends = load_example_records()
-    logging.warning(f"{'=' * 40}")
-    logging.warning(
+    print(f"{'=' * 40}")
+    print(
         "builded record examples: \n \
           'mtrends' : a MonitorTrend \n \
           'mwaves'  : a MonitorWave \n \
           'ttrends' : a TaphoniusTrend "
     )
-    logging.warning("go-on : explore attributes and methods !")
-    logging.warning(f"{'-' * 40}")
+    print("go-on : explore attributes and methods !")
+    print(f"{'-' * 40}")

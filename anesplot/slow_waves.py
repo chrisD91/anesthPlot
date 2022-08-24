@@ -55,7 +55,6 @@ else:
 
 # from anesplot.loadrec.dialogs import get_file
 
-# paths = build_paths()
 paths = build_paths()
 
 
@@ -232,7 +231,6 @@ class MonitorTrend(_SlowWave):
         self.filename = filename
         self.param["filename"] = filename
         self.param["file"] = os.path.basename(filename)
-
         header = lmt.loadmonitor_trendheader(filename)
         self.header = header
         if bool(header) and load:
@@ -272,11 +270,16 @@ class MonitorTrend(_SlowWave):
         # filename = dlg.choose_file(paths['mon_data'], filtre="*.csv")
         if "Wave" in os.path.basename(filename):
             print("this is not a monitorTrend file")
-            return ""
-        if not os.path.basename(filename).startswith("M"):
+            filename = ""
+        elif not os.path.basename(filename).startswith("M"):
             print("this is not a monitorTrend file")
-            return ""
+            filename = ""
         return filename
+
+    def wavename(self) -> str:
+        """Build supposed wavename."""
+        wavename = self.filename.split(".")[0] + "Wave.csv"
+        return wavename
 
     def merge_with_other_record(self) -> None:
         """Merge the recording with the next one (in case of crash and reload)."""

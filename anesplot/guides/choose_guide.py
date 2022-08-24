@@ -16,6 +16,20 @@ import pyperclip
 from anesplot.config.load_recordrc import build_paths
 
 
+def get_basic_debrief_commands() -> str:
+    """Copy in clipboard the usual commands to build a debrief."""
+    lines = [
+        "mtrends = rec.MonitorTrend()  #<- add filename here (if you know it)",
+        "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))",
+        "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
+    ]
+    message = "basic debrief commands are in the clipboard"
+    # logging.debug(message)
+    splitlines = " \n".join(lines)
+    pyperclip.copy(splitlines)
+    return message
+
+
 def get_guide(pathsdict: Optional[dict[str, Any]] = None) -> str:
     """
     Load the specified template file and copy it to the clipboard.
