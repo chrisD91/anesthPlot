@@ -187,7 +187,7 @@ def choose_taph_record(
     # app = QApplication(sys.argv)
     # app.setQuitOnLastWindowClosed(True)
     day_index = 0  # first key (<-> last date)
-    question = "select the adequate recording"
+    question = "select the adequate taph recording"
     if monitorname:
         day = extract_record_day(monitorname)
         mname = os.path.basename(monitorname)

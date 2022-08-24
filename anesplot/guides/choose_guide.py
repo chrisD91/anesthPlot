@@ -19,8 +19,9 @@ from anesplot.config.load_recordrc import build_paths
 def get_basic_debrief_commands() -> str:
     """Copy in clipboard the usual commands to build a debrief."""
     lines = [
-        "mtrends = rec.MonitorTrend()  #<- add filename here (if you know it)",
-        "mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))",
+        "filename = None   #<- add filename here (if you know it)",
+        "mtrends = rec.MonitorTrend(filename)",
+        "mwaves = rec.MonitorWave((mtrends.wavename()))",
         "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
     ]
     message = "basic debrief commands are in the clipboard"

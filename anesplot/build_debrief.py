@@ -12,7 +12,13 @@ from typing import Optional
 from datetime import datetime
 
 import anesplot.loadrec.dialogs as dlg
+
+# from anesplot.slow_waves import MonitorTrend, TaphTrend
+# from anesplot.fast_waves import MonitorWave
 from anesplot.config.load_recordrc import build_paths
+from anesplot.guides.choose_guide import (  # noqa: F401
+    get_basic_debrief_commands,
+)
 
 paths = build_paths()
 
@@ -35,7 +41,7 @@ def locate_debriefs_directory(basedir: Optional[str] = None) -> str:
     if basedir is None:
         basedir = os.path.expanduser("~")
     dirname = dlg.choose_directory(
-        basedir, "choose the parent directory", see_question=True
+        basedir, "choose the debriefs parent directory", see_question=True
     )
     return dirname
 
@@ -57,39 +63,85 @@ def select_atrend_record(basedir: Optional[str] = None) -> str:
     """
     if basedir is None:
         basedir = os.path.expanduser("~")
-    filename = dlg.choose_file(basedir)
+    txt = "choose the record to build from"
+    filename = dlg.choose_file(basedir, title=txt)
     return filename
 
 
-def build_thedebrieffolder(filename: str, basedir: str) -> str:
+def build_debrief_name(filename: str) -> str:
+    """
+    Decode the date and build a string from it.
+
+    Parameters
+    ----------
+    filename : str
+        a trends recording name (taphonius or monitor record name).
+
+    Returns
+    -------
+    str
+        directory name : 'YYmmdd-H' + 'h'
+
+    """
+    if os.path.basename(filename).startswith("SD"):
+        # taph record
+        months = {
+            "jan": "_01_",
+            "feb": "_02_",
+            "mar": "_03_",
+            "apr": "_04_",
+            "may": "_05_",
+            "jun": "_06_",
+            "jul": "_07_",
+            "aug": "_08_",
+            "sep": "_09_",
+            "oct": "_10_",
+            "nov": "_11_",
+            "dec": "_12_",
+        }
+
+        recorddate = os.path.basename(filename).strip("SD").strip(".csv").lower()
+        for abbr, num in months.items():
+            recorddate = recorddate.replace(abbr, num)
+        dtime = datetime.strptime(recorddate, "%Y_%m_%d-%H_%M_%S")
+    elif os.path.basename(filename).startswith("M"):
+        adate = os.path.basename(filename).strip(".csv").strip("M").strip("Wave")
+        dtime = datetime.strptime(adate, "%Y_%m_%d-%H_%M_%S")
+    else:
+        print(f"unable to decode the date from {filename}")
+        print("please provide a trend file name")
+        print("should be 'SDYYYYMMMD-h_m_s.csv' or 'MYYmmdd.csv'")
+        logging.warning(f"unable to decode date from {filename=}")
+        return ""
+    newfoldername = dtime.strftime("%y%m%d_%H") + "h"
+    return newfoldername
+
+
+def build_thedebrieffolder(newfoldername: str, basedir: str) -> str:
     """
     Build and move to debrieffolder ('yymmdd').
 
     Parameters
     ----------
-    filename : str
-        a filename to decode the date.
+    newfoldername : str
+        a the folder to create.
     basedir : str
-        the location of the 'debriefs' directory.
+        the location of the container ('debriefs' directory).
 
     Returns
     -------
     dirname
-        fullname of the folder.
+        fullname of the newfolder.
 
     """
     if not os.path.isdir(basedir):
         print("please provide a basedirectory to build in")
         return ""
-    adate = os.path.basename(filename).strip(".csv").strip("M")
-    dtime = datetime.strptime(adate, "%Y_%m_%d-%H_%M_%S")
-    newfoldername = dtime.strftime("%y%m%d_%H")
     dirname = os.path.join(basedir, newfoldername)
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
     else:
         print(f"folder already exists {dirname}")
-    os.chdir(dirname)
     return dirname
 
 
@@ -109,7 +161,6 @@ def organize_debrief_folder(dirname: str) -> None:
     now = datetime.now()
     date = now.strftime("%Y_%m_%d-%H:%m:%S")
     # os.chdir("/Users/cdesbois/toPlay/dir_test")
-    os.chdir(dirname)
 
     shebang = ["#!/usr/bin/env python3", "# -*- coding: utf-8 -*-", ""]
     build = [
@@ -120,13 +171,17 @@ def organize_debrief_folder(dirname: str) -> None:
         '"""',
     ]
 
+    directories = []
     for directory in ["data", "fig", "doc", "bib"]:
         try:
             os.mkdir(directory)
             logging.debug(f"builded {directory}")
         except FileExistsError:
             logging.debug(f"directory {directory} already exist")
+        finally:
+            directories.append(directory)
 
+    files = []
     for file in ["csv2hdf.py", "ekg2hr.py", "work_on.py", "todo.md"]:
         if os.path.exists(file):
             logging.debug(f"{file} already exists")
@@ -135,14 +190,26 @@ def organize_debrief_folder(dirname: str) -> None:
                 if file.rsplit(".", maxsplit=1)[-1] == "py":
                     openf.writelines(line + "\n" for line in shebang)
                 openf.writelines(line + "\n" for line in build)
+            logging.debug(f"{file} created")
+            files.append(file)
+    print(f"created {files}")
 
 
-# %%
-
-if __name__ == "__main__":
+def main() -> None:
     location = os.path.join(
         os.path.expanduser("~"), "enva", "clinique", "recordings", "debriefs"
     )
     paths["debriefs"] = locate_debriefs_directory(location)
     file_name = select_atrend_record(paths["mon_data"])
-    dir_name = build_thedebrieffolder(file_name, paths["debriefs"])
+    newfolder_name = build_debrief_name(file_name)
+    dir_name = build_thedebrieffolder(newfolder_name, paths["debriefs"])
+    os.chdir(dir_name)
+    # mtrends = MonitorTrend(file_name)
+    # mwaves = MonitorWave((mtrends.wavename()))
+    # ttrends = TaphTrend(monitorname=mtrends.filename)
+
+
+# %%
+
+if __name__ == "__main__":
+    main()
