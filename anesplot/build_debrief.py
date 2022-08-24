@@ -12,9 +12,9 @@ from typing import Optional
 from datetime import datetime
 
 import anesplot.loadrec.dialogs as dlg
-
-# from anesplot.slow_waves import MonitorTrend, TaphTrend
-# from anesplot.fast_waves import MonitorWave
+import anesplot.loadrec.export_reload as io  # noqa: F401
+from anesplot.slow_waves import MonitorTrend, TaphTrend  # noqa: F401
+from anesplot.fast_waves import MonitorWave  # noqa: F401
 from anesplot.config.load_recordrc import build_paths
 from anesplot.guides.choose_guide import (  # noqa: F401
     get_basic_debrief_commands,
@@ -145,7 +145,7 @@ def build_thedebrieffolder(newfoldername: str, basedir: str) -> str:
     return dirname
 
 
-def organize_debrief_folder(dirname: str) -> None:
+def fill_debrief_folder(dirname: str) -> None:
     """
     Build file and sub_folders for debrief process inside the current directory.
 
@@ -180,6 +180,7 @@ def organize_debrief_folder(dirname: str) -> None:
             logging.debug(f"directory {directory} already exist")
         finally:
             directories.append(directory)
+    print(f"created directories : {directories}")
 
     files = []
     for file in ["csv2hdf.py", "ekg2hr.py", "work_on.py", "todo.md"]:
@@ -192,10 +193,58 @@ def organize_debrief_folder(dirname: str) -> None:
                 openf.writelines(line + "\n" for line in build)
             logging.debug(f"{file} created")
             files.append(file)
-    print(f"created {files}")
+    print(f"created files : {files}")
+
+
+def fill_csv2hdf(record_name: str, debrief_dirname: str) -> None:
+    """
+    Fill the file with standard process and adequate variables.
+
+    Parameters
+    ----------
+    record_name : str
+        the monitorRecord filename.
+    debrief_dirname : str
+        the destination dirname.
+
+    Returns
+    -------
+    None.
+
+    """
+
+    lines = [
+        "import os",
+        "",
+        "import anesplot.loadrec.export_reload as io",
+        "from anesplot.slow_waves import MonitorTrend, TaphTrend",
+        "from anesplot.fast_waves import MonitorWave",
+        "from anesplot.load_recordrc import build_paths",
+        "",
+        "paths = build_paths()",
+        f"paths['debriefs' = {paths['debriefs']}",
+        f"dir_name = {debrief_dirname}",
+        "os.chdir(dir_name)",
+        "",
+        f"file_name = '{record_name}'",
+        "mtrends = rec.MonitorTrend(file_name)",
+        "mwaves = rec.MonitorWave((mtrends.wavename()))",
+        "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
+        "",
+        "save_name = os.path.join(dir_name, 'data', os.path.basename(dir_name)+'.hd5')",
+        "mtrends.data.aaLabel = mtrends.data.aaLabel.astype(str)",
+        "io.export_data_to_hdf(save_name, mtrend=mtrends, mwave=mwaves, ttrend=ttrends)"
+        "",
+    ]
+
+    with open("csv2hdf.py", "a", encoding="utf8") as openf:
+        # openf.write(f"file_name = '{filename}'" + "\n")
+        for line in lines:
+            openf.write(line + "\n")
 
 
 def main() -> None:
+    """Building process."""
     location = os.path.join(
         os.path.expanduser("~"), "enva", "clinique", "recordings", "debriefs"
     )
@@ -204,9 +253,8 @@ def main() -> None:
     newfolder_name = build_debrief_name(file_name)
     dir_name = build_thedebrieffolder(newfolder_name, paths["debriefs"])
     os.chdir(dir_name)
-    # mtrends = MonitorTrend(file_name)
-    # mwaves = MonitorWave((mtrends.wavename()))
-    # ttrends = TaphTrend(monitorname=mtrends.filename)
+    fill_debrief_folder(dir_name)
+    fill_csv2hdf(file_name, dir_name)
 
 
 # %%
