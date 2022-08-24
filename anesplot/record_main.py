@@ -67,7 +67,7 @@ else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
-fig_group = SimpleNamespace()
+# fig_group = SimpleNamespace()
 
 
 def append_to_figures(
@@ -170,17 +170,8 @@ def main(file_name: Optional[str] = None) -> str:
     None.
     """
     # faulthandler.enable()
-    # os.chdir(paths.get("recordMain", os.path.expanduser('~')))
     logging.debug(f"backEnd= {plt.get_backend()}")  # required ?
     logging.debug("start QtApp")
-    # global APP
-    # if "app" not in dir():
-    # 1 logging.debug ("app not in dir()")
-    # app = QApplication(sys.argv)
-    # app.setQuitOnLastWindowClosed(True)
-    # app = QApplication.instance()
-    # if app is None:
-    # app = QApplication([])
     # choose file and indicate the source
     logging.debug("select the file containing the data")
     logging.debug(f"{file_name=}")
