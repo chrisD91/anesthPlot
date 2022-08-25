@@ -26,10 +26,11 @@ you can execute line by line in a file the following process
 
     import pandas as pd
 
-    import anesplot.record_main as rec
+    import anesplot.loadrec.export_reload as io
     import anesplot.treatrec.ekg_to_hr as tohr
     import anesplot.treatrec.wave_func as wf
-
+    from anesplot.slow_waves import MonitorTrend
+    from anesplot.fast_waves import MonitorWave
 
 1. load the data in a pandas dataframe:
 -----------------------------------------
@@ -40,12 +41,10 @@ you can execute line by line in a file the following process
     or
     trendname = rec.choosefile_gui()
 
-    wavename = rec.trendname_to_wavename(trendname)
-
 # load the data::
 
     mtrends = rec.MonitorTrend(trendname)
-    mwaves = rec.MonitorWave(wavename)
+    mwaves = rec.MonitorWave(mtrends.wavename())
 
 # format the name ::
 
@@ -59,11 +58,11 @@ you can execute line by line in a file the following process
 # build the beat locations (beat based dataFrame)::
 
     import anesplot.treatrec.ekg_to_hr as tohr
-    import anesplot.treatrec.wave_func as wf
+    from anesplot.treatrec.wave_func import fix_baseline_wander
 
     params = mwaves.param
     ekg_df = pd.DataFrame(mwaves.data.wekg)
-    ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg,
+    ekg_df['wekg_lowpass'] = fix_baseline_wander(ekg_df.wekg,
                                                         waves.param['sampling_freq'])
     beatloc_df = tohr.detect_beats(ekg_df.wekg_lowpass, threshold=-1)
 
@@ -109,13 +108,14 @@ you can execute line by line in a file the following process
     ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
     mwaves.data = tohr.append_rr_and_ihr_to_wave(mwaves.data, ahr_df)
     mtrends.data = tohr.append_ihr_to_trend(mtrends.data, mwaves.data, ekg_df)
+    mtrends.data.rename(columns={'hr': 'thr', 'ihr': 'hr'}, inplace=True)
 
 6. save:
 --------
 ::
-
-    tohr.save_trends_data(mtrends.data, savename=name, dirpath='data')
-    tohr.save_waves_data(mwaves.data, savename=name, dirpath='data')
+#    io.export_data_to_hdf(savename=savename, mtrend=mtrends, ttrend= None, mwave=mwaves)
+#   tohr.save_trends_data(mtrends.data, savename=name, dirpath='data')
+#    tohr.save_waves_data(mwaves.data, savename=name, dirpath='data')
 """
 import os
 from typing import Any, Optional
@@ -612,7 +612,7 @@ def plot_rr(
     """
     fs = param["sampling_freq"]
 
-    fig = plt.figure(figsize=(8, 4))
+    fig = plt.figure(figsize=(13, 5))
     ax = fig.add_subplot(211)
     ax.set_title("RR duration")
     xvals = ahr_df.espts.values / fs / 60

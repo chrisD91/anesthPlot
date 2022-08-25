@@ -349,26 +349,27 @@ def fill_ekg2hr(record_name: str, debrief_dirname: str) -> None:
         "beats_tochange_df = tohr.append_a_beat(ekg_df, beats_tochange_df, figure, yscale=-1)",
         "",
         "# - combine to update the beatloc_df with the manual changes::",
-        "beatloc_df = tohr.update_beatloc_df(beatloc_df, beats_tochange_df, path_to_file="
-        ", from_file=False)",
+        "beatloc_df = tohr.update_beatloc_df(beatloc_df, beats_tochange_df, path_to_file='', from_file=False)",
         "",
         "# %% - save the peaks locations::",
         "save = False",
         "if save:",
-        "   tohr.save_beats(beatloc_df, beats_tochange_df, savename='', dirpath=None)",
+        "    tohr.save_beats(beatloc_df, beats_tochange_df, savename='', dirpath=None)",
         "# (# or reload",
         "# beatloc_df = pd.read_hdf('beatDf.hdf', key='beatDf') )",
         "",
         "# %% 4. go from points values to continuous time:",
         "beatloc_df = tohr.point_to_time_rr(beatloc_df)",
         "ahr_df = tohr.interpolate_rr(beatloc_df)",
-        "tohr.plot_rr(ahr_df, params)",
+        "tohr.plot_rr(ahr_df, params, showhr=True)",
         "",
         "# %% 5. append intantaneous heart rate to the initial data:",
         "ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)",
         "mwaves.data = tohr.append_rr_and_ihr_to_wave(mwaves.data, ahr_df)",
+        "mtrends.data = tohr.append_ihr_to_trend(mtrends.data, mwaves.data, ekg_df)",
+        "mtrends.data.rename(columns={'hr': 'thr', 'ihr': 'hr'}, inplace=True)",
         "",
-        "TODO: implement the save process in build_debrief",
+        "# io.export_data_to_hdf(savename=savename, mtrend=mtrends, ttrend= None, mwave=mwaves)",
     ]
 
     with open("ekg2hr.py", "r", encoding="utf8") as openf:
@@ -394,6 +395,7 @@ def main() -> None:
     fill_debrief_folder(dir_name)
     fill_csv2hdf(file_name, dir_name)
     fill_work_on(file_name, dir_name)
+    fill_ekg2hr(file_name, dir_name)
     pyperclip.copy(dir_name)
     print("the debriefing path in is the clipboard")
     print("move to that folder and execute 'python csv2hdf.py' to load and save to hd5")
