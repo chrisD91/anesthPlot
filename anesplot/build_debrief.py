@@ -11,6 +11,8 @@ import logging
 from typing import Optional
 from datetime import datetime
 
+import pyperclip
+
 import anesplot.loadrec.dialogs as dlg
 import anesplot.loadrec.export_reload as io  # noqa: F401
 from anesplot.slow_waves import MonitorTrend, TaphTrend  # noqa: F401
@@ -175,11 +177,10 @@ def fill_debrief_folder(dirname: str) -> None:
     for directory in ["data", "fig", "doc", "bib"]:
         try:
             os.mkdir(directory)
+            directories.append(directory)
             logging.debug(f"builded {directory}")
         except FileExistsError:
             logging.debug(f"directory {directory} already exist")
-        finally:
-            directories.append(directory)
     print(f"created directories : {directories}")
 
     files = []
@@ -212,39 +213,40 @@ def fill_csv2hdf(record_name: str, debrief_dirname: str) -> None:
     None.
 
     """
-
     lines = [
         "import os",
         "",
         "import anesplot.loadrec.export_reload as io",
         "from anesplot.slow_waves import MonitorTrend, TaphTrend",
         "from anesplot.fast_waves import MonitorWave",
-        "from anesplot.load_recordrc import build_paths",
+        "from anesplot.config.load_recordrc import build_paths",
         "",
         "paths = build_paths()",
-        f"paths['debriefs' = {paths['debriefs']}",
-        f"dir_name = {debrief_dirname}",
+        f"paths['debriefs'] = '{paths['debriefs']}'",
+        f"dir_name = '{debrief_dirname}'",
         "os.chdir(dir_name)",
         "",
         f"file_name = '{record_name}'",
-        "mtrends = rec.MonitorTrend(file_name)",
-        "mwaves = rec.MonitorWave((mtrends.wavename()))",
-        "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
+        "mtrends = MonitorTrend(file_name)",
+        "mwaves = MonitorWave((mtrends.wavename()))",
+        "ttrends = TaphTrend(monitorname = mtrends.filename)",
         "",
         "save_name = os.path.join(dir_name, 'data', os.path.basename(dir_name)+'.hd5')",
-        "mtrends.data.aaLabel = mtrends.data.aaLabel.astype(str)",
         "io.export_data_to_hdf(save_name, mtrend=mtrends, mwave=mwaves, ttrend=ttrends)"
         "",
     ]
-
+    with open("csv2hdf.py", "r", encoding="utf8") as openf:
+        if lines[-2] in openf.read():
+            print("csv2hdf has already be filled")
+            return
     with open("csv2hdf.py", "a", encoding="utf8") as openf:
-        # openf.write(f"file_name = '{filename}'" + "\n")
         for line in lines:
             openf.write(line + "\n")
+        print("prefilled csv2hdf.py")
 
 
 def main() -> None:
-    """Building process."""
+    """Build process."""
     location = os.path.join(
         os.path.expanduser("~"), "enva", "clinique", "recordings", "debriefs"
     )
@@ -255,6 +257,9 @@ def main() -> None:
     os.chdir(dir_name)
     fill_debrief_folder(dir_name)
     fill_csv2hdf(file_name, dir_name)
+    pyperclip.copy(dir_name)
+    print("the debriefing path in is the clipboard")
+    print("move to that folder and execute csv2hdf to load and save to hd5")
 
 
 # %%

@@ -206,15 +206,6 @@ def choose_taph_record(
                 break
 
     recorddate = choose_in_alist(thelist=recorddates, message=question, index=day_index)
-    #    APP = QApplication(sys.argv)
-    # if "app" not in dir():
-    #     app = QApplication(sys.argv)
-    #     app.setQuitOnLastWindowClosed(True)
-    # widg = QWidget()
-    # recorddate, ok_pressed = QInputDialog.getItem(
-    #     widg, "select", question, recorddates, day_index, False
-    # )
-    # if ok_pressed and recorddate:
     if recorddate:
         filename = taph_records_dico[recorddate][-1]
         # if bug : two dirs, the last should contain the data
@@ -296,6 +287,7 @@ def loadtaph_trenddata(filename: str) -> pd.DataFrame:
     datadf.etimesec = datadf.etimesec.apply(lambda dt: dt.total_seconds())
     datadf["etimemin"] = datadf.etimesec / 60
 
+    datadf.events = datadf.events.astype(str)
     # to remove the zero values :
     # OK for histograms, but induce a bug in plotting
     #    data.ip1m = data.ip1m.replace([0], [None])

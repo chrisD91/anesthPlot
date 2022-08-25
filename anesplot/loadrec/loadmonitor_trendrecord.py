@@ -245,7 +245,6 @@ def loadmonitor_trenddata(filename: str) -> tuple[pd.DataFrame, pd.DataFrame]:
         datadf.aaLabel = datadf.aaLabel.fillna(method="ffill")
         datadf.aaLabel = datadf.aaLabel.fillna(0)
         datadf.aaLabel = datadf.aaLabel.apply(lambda x: anesth_code.get(int(x), ""))
-        datadf.aaLabel = datadf.aaLabel.astype("category")
         # aa = datadf.aaLabel.value_counts().index[0]
 
     # CO2: from % to mmHg
