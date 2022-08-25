@@ -277,7 +277,7 @@ def fill_work_on(record_name: str, debrief_dirname: str) -> None:
         f"file_name = '{record_name}'",
         "",
         "save_name = os.path.join(dir_name, 'data', os.path.basename(dir_name)+'.hd5')",
-        "io.build_obj_from_hdf(savename = save_name)",
+        "mtrends, ttrends, mwaves = io.build_obj_from_hdf(savedname = save_name)",
         "",
     ]
     with open("work_on.py", "r", encoding="utf8") as openf:
@@ -302,9 +302,11 @@ def main() -> None:
     os.chdir(dir_name)
     fill_debrief_folder(dir_name)
     fill_csv2hdf(file_name, dir_name)
+    fill_work_on(file_name, dir_name)
     pyperclip.copy(dir_name)
     print("the debriefing path in is the clipboard")
-    print("move to that folder and execute csv2hdf to load and save to hd5")
+    print("move to that folder and execute 'python csv2hdf.py' to load and save to hd5")
+    print("then 'work_on.py' will be ready to be used")
 
 
 # %%
