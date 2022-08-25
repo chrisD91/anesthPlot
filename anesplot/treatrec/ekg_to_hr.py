@@ -616,9 +616,8 @@ def plot_rr(
     ax = fig.add_subplot(211)
     ax.set_title("RR duration")
     xvals = ahr_df.espts.values / fs / 60
-    ax.plot(xvals, ahr_df.rrInterpol.values)
-    ax.set_ylabel("RR (msec)")
-    ax.set_xlabel("min (fs  " + str(fs) + ")")
+    ax.plot(xvals, ahr_df.rrInterpol.values, color="tab:blue", alpha=0.8)
+    ax.set_ylabel("msec")
     ax.grid()
     lims = ahr_df.rrInterpol.quantile([0.01, 0.99])
     ax.set_ylim(lims)
@@ -626,23 +625,29 @@ def plot_rr(
     if showhr:
         ax2.set_title("heart rate")
         yvals = 1 / ahr_df.rrInterpol.values * 60 * 1000
-        ax2.plot(xvals, yvals, "-g")
+        ax2.plot(xvals, yvals, "-", color="tab:green", alpha=0.8)
         lims = (
             np.quantile(1 / ahr_df.rrInterpol.values * 60 * 1000, q=0.01),
             np.quantile(1 / ahr_df.rrInterpol.values * 60 * 1000, q=0.99),
         )
         ax2.set_ylim(lims)
+        ax2.set_ylabel("BPM")
     else:
         ax2.set_title("RR sqVariation")
-        ax2.plot(xvals, ahr_df.rrInterpolSqDiff.values, "-g")
+        ax2.plot(
+            xvals, ahr_df.rrInterpolSqDiff.values, "-", color="tab:green", alpha=0.8
+        )
         lims = (0, ahr_df.rrInterpolSqDiff.quantile(0.98))
         ax2.set_ylim(lims)
+    ax2.set_xlabel(f"min (fs= {int(fs)}))")
+    ax.spines["bottom"].set_visible(False)
+    ax.get_xaxis().set_visible(False)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
         ax2.spines[spine].set_visible(False)
     #    file = os.path.basename(filename)
-    fig.text(0.01, 0.01, param["file"], ha="right", va="bottom", alpha=0.4)
-    fig.text(0.99, 0.01, "anesthPlot", ha="left", va="bottom", alpha=0.4)
+    fig.text(0.01, 0.01, param["file"], ha="left", va="bottom", alpha=0.4)
+    fig.text(0.99, 0.01, "anesthPlot", ha="right", va="bottom", alpha=0.4)
     fig.tight_layout()
     return fig
 

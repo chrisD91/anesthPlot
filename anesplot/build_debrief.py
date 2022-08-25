@@ -290,6 +290,97 @@ def fill_work_on(record_name: str, debrief_dirname: str) -> None:
         print("prefilled work_on.py")
 
 
+def fill_ekg2hr(record_name: str, debrief_dirname: str) -> None:
+    """
+    Fill the file with standard process and adequate variables.
+
+    Parameters
+    ----------
+    record_name : str
+        the monitorRecord filename.
+    debrief_dirname : str
+        the destination dirname.
+
+    Returns
+    -------
+    None.
+
+    """
+    lines = [
+        "import os",
+        "import pandas as pd",
+        "",
+        "import anesplot.loadrec.export_reload as io",
+        "import anesplot.treatrec.ekg_to_hr as tohr",
+        "from anesplot.slow_waves import MonitorTrend, TaphTrend",
+        "from anesplot.fast_waves import MonitorWave",
+        "from anesplot.config.load_recordrc import build_paths",
+        "from anesplot.treatrec.wave_func import fix_baseline_wander",
+        "",
+        "paths = build_paths()",
+        f"paths['debriefs'] = '{paths['debriefs']}'",
+        f"dir_name = '{debrief_dirname}'",
+        "os.chdir(dir_name)",
+        "",
+        f"file_name = '{record_name}'",
+        "",
+        "# %% 1.load",
+        "save_name = os.path.join(dir_name, 'data', os.path.basename(dir_name)+'.hd5')",
+        "mtrends, ttrends, mwaves = io.build_obj_from_hdf(savedname=save_name)",
+        "# format the name",
+        "name = mtrends.header['Patient Name'].title().replace(' ', '')",
+        "name = name[0].lower() + name[1:]",
+        "",
+        "# %% 2. treat the ekg wave:",
+        "params = mwaves.param",
+        "ekg_df = pd.DataFrame(mwaves.data.wekg)",
+        "ekg_df['wekg_lowpass'] = fix_baseline_wander(ekg_df.wekg, mwaves.param['sampling_freq'])",
+        "beatloc_df = tohr.detect_beats(ekg_df.wekg_lowpass, threshold=-1)",
+        "",
+        "# %% 3. perform the manual adjustments required:",
+        "figure = tohr.plot_beats(ekg_df.wekg_lowpass, beatloc_df)",
+        "beats_tochange_df = pd.DataFrame(columns=beatloc_df.columns.insert(0, 'action'))"
+        "",
+        "# - remove or add peaks : zoom on the figure to observe only one peak, then::",
+        "beats_tochange_df = tohr.remove_a_beat(beatloc_df, beats_tochange_df, figure)",
+        "# or",
+        "beats_tochange_df = tohr.remove_allbeats(beatloc_df, beats_tochange_df, figure)",
+        "# or",
+        "beats_tochange_df = tohr.append_a_beat(ekg_df, beats_tochange_df, figure, yscale=-1)",
+        "",
+        "# - combine to update the beatloc_df with the manual changes::",
+        "beatloc_df = tohr.update_beatloc_df(beatloc_df, beats_tochange_df, path_to_file="
+        ", from_file=False)",
+        "",
+        "# %% - save the peaks locations::",
+        "save = False",
+        "if save:",
+        "   tohr.save_beats(beatloc_df, beats_tochange_df, savename='', dirpath=None)",
+        "# (# or reload",
+        "# beatloc_df = pd.read_hdf('beatDf.hdf', key='beatDf') )",
+        "",
+        "# %% 4. go from points values to continuous time:",
+        "beatloc_df = tohr.point_to_time_rr(beatloc_df)",
+        "ahr_df = tohr.interpolate_rr(beatloc_df)",
+        "tohr.plot_rr(ahr_df, params)",
+        "",
+        "# %% 5. append intantaneous heart rate to the initial data:",
+        "ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)",
+        "mwaves.data = tohr.append_rr_and_ihr_to_wave(mwaves.data, ahr_df)",
+        "",
+        "TODO: implement the save process in build_debrief",
+    ]
+
+    with open("ekg2hr.py", "r", encoding="utf8") as openf:
+        if lines[-2] in openf.read():
+            print("ekg2hr.py has already be filled")
+            return
+    with open("ekg2hr.py", "a", encoding="utf8") as openf:
+        for line in lines:
+            openf.write(line + "\n")
+        print("prefilled ekg2hr.py")
+
+
 def main() -> None:
     """Build process."""
     location = os.path.join(
