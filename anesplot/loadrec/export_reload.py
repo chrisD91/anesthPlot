@@ -17,8 +17,6 @@ from typing import Any
 import pandas as pd
 
 from anesplot.fast_waves import MonitorWave
-
-# import anesplot.record_main as rec
 from anesplot.slow_waves import MonitorTrend, TaphTrend
 
 
@@ -60,6 +58,7 @@ def export_data_to_hdf(
                 dataframe[col] = dataframe[col].astype(str)
         return dataframe
 
+    exported = []
     # monitor trends
     if mtrend:
         mtrend.data.to_hdf(savename, key="mtrends_data")
@@ -69,6 +68,7 @@ def export_data_to_hdf(
         fix_dtypes(dicodf).to_hdf(savename, key="mtrends_param")
         logging.warning("monitorTrend to %s", savename)
         logging.warning("keys= 'mtrends_data, mtrends_header, mtrends_param'")
+        exported.append("monitor_trend")
     # taph trends
     if ttrend:
         ttrend.data.to_hdf(savename, key="ttrends_data")
@@ -78,6 +78,7 @@ def export_data_to_hdf(
         fix_dtypes(dicodf).to_hdf(savename, key="ttrends_param")
         logging.warning("taphTrend to %s", savename)
         logging.warning("keys= 'ttrends_data, ttrends_header, ttrends_param'")
+        exported.append("taph_trend")
     # waves
     if mwave:
         mwave.data.to_hdf(savename, key="mwaves_data")
@@ -87,13 +88,15 @@ def export_data_to_hdf(
         fix_dtypes(dicodf).to_hdf(savename, key="mwaves_param")
         logging.warning("monitorTrend to %s", savename)
         logging.warning("keys= 'mwaves_data, mwaves_header, mtrends_param'")
+        exported.append("monitor_wave")
+    print(f"{exported=} to {savename}")
 
 
 # %%
 
 
 # def load_from_hdf(savename: str):
-def build_obj_from_hdf(savename: str) -> tuple[Any, Any, Any]:
+def build_obj_from_hdf(savedname: str) -> tuple[Any, Any, Any]:
     """
     Build MonitorTrend, TaphTrenbd and MonitorWave objects.
 
@@ -101,7 +104,7 @@ def build_obj_from_hdf(savename: str) -> tuple[Any, Any, Any]:
 
     Parameters
     ----------
-    savename : str
+    savedname : str
         the path to the saved hdf file.
 
     Returns
@@ -112,8 +115,7 @@ def build_obj_from_hdf(savename: str) -> tuple[Any, Any, Any]:
 
     def change_sec_to_etimesec(datadf: pd.DataFrame) -> pd.DataFrame:
         """Change column name."""
-        cols = datadf.columns.to_list()
-        cols = [_.replace("sec", "etimesec") for _ in cols if _ == "sec"]
+        cols = [_ if _ != "sec" else "etimesec" for _ in datadf.columns]
         datadf.columns = cols
         return datadf
 
@@ -126,7 +128,8 @@ def build_obj_from_hdf(savename: str) -> tuple[Any, Any, Any]:
         return dict(dico)
 
     messages = []
-    with pd.HDFStore(savename) as store:
+    # store = pd.HDFStore(savename)
+    with pd.HDFStore(savedname) as store:
         keys = store.keys(include="pandas")
         new_mtrends = MonitorTrend(filename="", load=False)
         if "/" + "mtrends_data" in keys:
@@ -137,7 +140,7 @@ def build_obj_from_hdf(savename: str) -> tuple[Any, Any, Any]:
             new_mtrends.filename = new_mtrends.param["filename"]
             messages.append(f"{'-'*10} loaded mtrends from hdf {'-'*10}")
 
-        new_ttrends = TaphTrend(filename="", load=False)
+        new_ttrends = TaphTrend(filename="", monitorname="", load=False)
         if "/" + "ttrends_data" in keys:
             new_ttrends.data = store.get("ttrends_data")
             new_ttrends.data = change_sec_to_etimesec(new_ttrends.data)

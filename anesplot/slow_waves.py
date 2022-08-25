@@ -373,9 +373,7 @@ class TaphTrend(_SlowWave):
             data = pd.DataFrame(data)
             header = ltt.loadtaph_patientfile(filename)
         else:
-            logging.warning(
-                "%s TaphTrend: didn't load the data load=%s" % ("-" * 5) % load
-            )
+            logging.warning(f"{'-' * 5} TaphTrend: didn't load the data {load=}")
             data = pd.DataFrame()
             header = {}
         self.data = data

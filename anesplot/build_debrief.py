@@ -245,6 +245,51 @@ def fill_csv2hdf(record_name: str, debrief_dirname: str) -> None:
         print("prefilled csv2hdf.py")
 
 
+def fill_work_on(record_name: str, debrief_dirname: str) -> None:
+    """
+    Fill the file with standard process and adequate variables.
+
+    Parameters
+    ----------
+    record_name : str
+        the monitorRecord filename.
+    debrief_dirname : str
+        the destination dirname.
+
+    Returns
+    -------
+    None.
+
+    """
+    lines = [
+        "import os",
+        "",
+        "import anesplot.loadrec.export_reload as io",
+        "from anesplot.slow_waves import MonitorTrend, TaphTrend",
+        "from anesplot.fast_waves import MonitorWave",
+        "from anesplot.config.load_recordrc import build_paths",
+        "",
+        "paths = build_paths()",
+        f"paths['debriefs'] = '{paths['debriefs']}'",
+        f"dir_name = '{debrief_dirname}'",
+        "os.chdir(dir_name)",
+        "",
+        f"file_name = '{record_name}'",
+        "",
+        "save_name = os.path.join(dir_name, 'data', os.path.basename(dir_name)+'.hd5')",
+        "io.build_obj_from_hdf(savename = save_name)",
+        "",
+    ]
+    with open("work_on.py", "r", encoding="utf8") as openf:
+        if lines[-2] in openf.read():
+            print("work_on has already be filled")
+            return
+    with open("work_on.py", "a", encoding="utf8") as openf:
+        for line in lines:
+            openf.write(line + "\n")
+        print("prefilled work_on.py")
+
+
 def main() -> None:
     """Build process."""
     location = os.path.join(

@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from PyQt5.QtWidgets import QApplication
 
+import anesplot.loadrec.dialogs as dlgs
 import anesplot.plot.t_agg_plot as tagg
 import anesplot.plot.wave2video as w2vid
 import anesplot.plot.wave_plot as wplot
@@ -24,7 +25,8 @@ import anesplot.treatrec.arterial_func
 import anesplot.treatrec.ekg_func
 from anesplot.base import Waves
 from anesplot.config.load_recordrc import build_paths
-from anesplot.loadrec.agg_load import choosefile_gui
+
+# from anesplot.loadrec.agg_load import choosefile_gui
 from anesplot.loadrec.loadmonitor_waverecord import (
     loadmonitor_wavedata,
     loadmonitor_waveheader,
@@ -254,7 +256,10 @@ class TelevetWave(_FastWave):
         super().__init__()
         if filename:
             dir_path = paths.get("telv_data")
-            filename = choosefile_gui(dir_path)
+            filename = dlgs.choose_file(
+                dirname=dir_path, title="choose televet recording"
+            )
+            # filename = choosefile_gui(dir_path)
         self.filename = filename
         data = loadtelevet(filename)
         self.data = data
@@ -312,8 +317,11 @@ class MonitorWave(_FastWave):
         super().__init__()
         if filename is None:
             dir_path = paths.get("mon_data")
-            filename = choosefile_gui(dir_path)
-        if "Wave" not in os.path.basename(filename):
+            filename = dlgs.choose_file(
+                dirname=dir_path, title="choose monitor wave recording"
+            )
+            # filename = choosefile_gui(dir_path)
+        if filename and "Wave" not in os.path.basename(filename):
             raise ValueError("this is not a wave record")
             load = False
         self.filename = filename
