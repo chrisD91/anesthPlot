@@ -10,35 +10,37 @@ import os
 
 import pandas as pd
 
-import anesplot.record_main as rec
+import anesplot.loadrec.export_reload as io
 from anesplot.treatrec import ekg_to_hr as tohr
-from anesplot.loadrec.export_reload import export_data_to_hdf, build_obj_from_hdf
+from anesplot.slow_waves import MonitorTrend
+from anesplot.fast_waves import MonitorWave
+from anesplot.config.load_recordrc import build_paths
+from anesplot.treatrec.wave_func import fix_baseline_wander
 
-paths = rec.paths
-paths["save"] = "~"
-
-# get the name
-# %% get the name
-file_name = os.path.join(paths["mon_data"], "")
-mtrends = rec.MonitorTrend(file_name, load=False)
-name = mtrends.header["Patient Name"].title().replace(" ", "")
-name = name[0].lower() + name[1:]
+paths = build_paths()
 
 # 1. load the ekg wave:
-# name = ""
-save_name = os.path.join(paths["save"], 'data', name + ".hdf")
-mtrends, _, mwaves = build_obj_from_hdf(save_name)
+mtrends = MonitorTrend()
+mwaves = MonitorWave(mtrends.wavename())
+#or from hdf file
+save_name = ''
+mtrends, ttrends, mwaves = io.build_obj_from_hdf(savedname=save_name)
+
+# format the name
+name = mtrends.header['Patient Name'].title().replace(' ', '')
+name = name[0].lower() + name[1:]
 
 # 2. treat the ekg wave:
 params = mwaves.param
 ekg_df = pd.DataFrame(mwaves.data.wekg)
-ekg_df['wekg_lowpass'] = rec.wf.fix_baseline_wander(ekg_df.wekg, mwaves.param['sampling_freq'])
-beatloc_df = tohr.detect_beats(ekg_df.wekg_lowpass, threshold=-1)
+ekg_df['wekg_lowpass'] = fix_baseline_wander(ekg_df.wekg, mwaves.param['sampling_freq'])
+beatloc_df = tohr.detect_beats(ekg_df.wekg_lowpass, threshold= -1)
 
 # 3. perform the manual adjustments required:
 beats_tochange_df = pd.DataFrame(columns=beatloc_df.columns.insert(0, 'action'))
 # zoom to have only one peak
 figure = tohr.plot_beats(ekg_df.wekg_lowpass, beatloc_df)
+beats_tochange_df = pd.DataFrame(columns=beatloc_df.columns.insert(0, 'action'))
 
 #- remove or add peaks : zoom on the figure to observe only one peak, then::
 beats_tochange_df = tohr.remove_a_beat(beatloc_df, beats_tochange_df, figure)
@@ -60,14 +62,17 @@ if save:
 # 4. go from points values to continuous time:
 beatloc_df = tohr.point_to_time_rr(beatloc_df)
 ahr_df = tohr.interpolate_rr(beatloc_df)
-tohr.plot_rr(ahr_df, params, HR=True)
+tohr.plot_rr(ahr_df, params)
 
 # 5. append intantaneous heart rate to the initial data:
 ekg_df = tohr.append_rr_and_ihr_to_wave(ekg_df, ahr_df)
 mwaves.data = tohr.append_rr_and_ihr_to_wave(mwaves.data, ahr_df)
 mtrends.data = tohr.append_ihr_to_trend(mtrends.data, mwaves.data, ekg_df)
+mtrends.data.rename(columns={'hr': 'thr', 'ihr': 'hr'}, inplace=True)
 
 # 6. save:
-# tohr.save_trends_data(mtrends.data, savename=name, dirpath=paths['save'] + '/data')
-# tohr.save_waves_data(mwaves.data, savename=name, dirpath=paths['save'] + '/data')
-export_data_to_hdf(save_name, mtrend=mtrends, mwave=mwaves)
+save = False
+if save:
+    # tohr.save_trends_data(mtrends.data, savename=name, dirpath='data')
+    # tohr.save_waves_data(mwaves.data, savename=name, dirpath='data')
+    # io.export_data_to_hdf(save_name, mtrend=mtrends, ttrend= None, mwave=mwaves)

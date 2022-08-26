@@ -29,11 +29,10 @@ use anesplot as a package : import anesplot in a python environment
 
       .. code-block:: python
 
+         filename = None   #<- add filename here (if you know it)
          mtrends = rec.MonitorTrend()
-         mwaves = rec.MonitorWave(rec.trendname_to_wavename(mtrends.filename))
+         mwaves = rec.MonitorWave(mtrends.wavename())
          ttrends = rec.TaphTrend(monitorname = mtrends.filename)
-
-
 
 
    - additional functions are available to extract instaneous heart rate, overlap ekg beats, extract blood pressure systolic variation, ...

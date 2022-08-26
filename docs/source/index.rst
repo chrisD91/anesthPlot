@@ -53,6 +53,17 @@ example
 
    cookbook
 
+more
+====
+
+.. toctree::
+   :maxdepth: 1
+   :caption: global usage
+
+   anesplot.scanplot_directory
+   anesplot.extract_hypotension
+   anesplot.build_debrief
+
 sub_modules
 ===========
 

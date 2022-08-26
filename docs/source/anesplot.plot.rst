@@ -29,3 +29,10 @@ anesplot.plot.wave\_plot module
    :undoc-members:
    :show-inheritance:
 
+anesplot.plot.wave2video module
+--------------------------------
+
+.. automodule:: anesplot.plot.wave2video
+   :members:
+   :undoc-members:
+   :show-inheritance:

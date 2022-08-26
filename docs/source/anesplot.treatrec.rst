@@ -36,14 +36,6 @@ anesplot.treatrec.ekg\_to\_hr module
    :undoc-members:
    :show-inheritance:
 
-anesplot.treatrec.extract\_hypotension module
----------------------------------------------
-
-.. automodule:: anesplot.treatrec.extract_hypotension
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 anesplot.treatrec.hr\_to\_hrv module
 ------------------------------------
 
@@ -67,4 +59,3 @@ anesplot.treatrec.wave\_func module
    :members:
    :undoc-members:
    :show-inheritance:
-

@@ -4,10 +4,10 @@ guides
 a collection of **templates** to proceed actions.
 
 to use it : perform the following:
-
-   - call ``rec.guides.choose_guide()``
+   - (after import anesplot.record_main as rec)
+   - call ``rec.get_guide()``
    - fill the terminal with you choice
-   - paste the content in a python file and 
+   - paste the content in a python file and
    - execute the file line by line
 
 
@@ -23,9 +23,7 @@ ___________________________________
 files
 ------
 
-- buildPyFiles.txt
 - csv2hdf.txt
 - ekg2hr.txt
-- guide_ekg_to_hr.txt
 - hdf2work.txt
-- samplePaVariation.txt
+- roiPaVariation.txt

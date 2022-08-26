@@ -9,9 +9,9 @@ contains:
     load.. modules : script containing the loading functions
     export_reload : functions to interact locally with .hdf files
 
-load..modules content:
+load..modules 'global' content:
     - choose file:  GUI -> filename
-    - load header : .csv -> dict for pandas.DataFrame
+    - load header : .csv -> dict or pandas.DataFrame
     - load data : .csv -> pandas.DataFrame
 
 """

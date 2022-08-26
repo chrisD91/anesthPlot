@@ -7,9 +7,33 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
-   
+
 Submodules
 ----------
+
+anesplot.loadrec.agg_load module
+--------------------------------
+
+.. automodule:: anesplot.loadrec.agg_load
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+anesplot.loadrec.ctes_load module
+---------------------------------
+
+.. automodule:: anesplot.loadrec.ctes_load
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+anesplot.loadrec.dialogs module
+-------------------------------
+
+.. automodule:: anesplot.loadrec.dialogs
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 anesplot.loadrec.explore module
 -------------------------------
@@ -58,5 +82,3 @@ anesplot.loadrec.loadtelevet module
    :members:
    :undoc-members:
    :show-inheritance:
-
-

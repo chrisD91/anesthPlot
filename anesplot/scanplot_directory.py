@@ -2,9 +2,9 @@
 """
 Created on Fri Aug  5 14:41:23 2022
 
-select a directory containing monitor trends
-select a trend plot function
-scan all the files using this function
+Select a directory containing monitor trends.
+Select a trend plot function.
+Scan all the files and plot them using this function.
 
 @author: cdesbois
 """
