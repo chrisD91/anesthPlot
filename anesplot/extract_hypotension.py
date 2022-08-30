@@ -9,6 +9,7 @@ scan folders and check for hypotension
 """
 import os
 import logging
+from datetime import datetime
 from typing import Any, Optional
 
 import matplotlib.pyplot as plt
@@ -90,18 +91,23 @@ def list_files(dirname: str) -> list[str]:
     Returns
     -------
     list[str]
-        list of monitor trend filenames
+        list of monitor (sorted) trend filenames
 
     """
-    files = []
+    filedico: dict[str, str] = {}
+    # nb date decoding because months include one digit code (eg '2' and '11')
     for file in os.listdir(dirname):
         if "Wave" in file:
             continue
         if file.startswith("."):
             continue
         if os.path.isfile(os.path.join(dirname, file)):
-            files.append(os.path.join(dirname, file))
-    return files
+            date = os.path.basename(file).strip(".csv").strip("M")
+            dtime = datetime.strptime(date, "%Y_%m_%d-%H_%M_%S")
+            twodigitmonth_date = dtime.strftime("%Y_%m_%d-%H:%M")
+            filedico[twodigitmonth_date] = os.path.join(dirname, file)
+    filedico = dict(sorted(filedico.items()))
+    return list(filedico.values())
 
 
 def extract_hypotension(
