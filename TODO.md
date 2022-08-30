@@ -47,6 +47,6 @@
 
 - [x] check filename in 'status line' of the plots for wave plotfig
 
-- [ ] ekg_to_hr
+- [x] ekg_to_hr
 
   implement a way to add or remove several beats for cleaning the detection
