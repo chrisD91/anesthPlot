@@ -32,7 +32,8 @@ from anesplot.loadrec.loadmonitor_waverecord import (
     loadmonitor_waveheader,
 )
 from anesplot.loadrec.loadtelevet import loadtelevet
-from anesplot.plot.w_agg_plot import select_wave_to_plot
+
+# from anesplot.plot.w_agg_plot import select_wave_to_plot
 from anesplot.treatrec.wave_func import fix_baseline_wander
 
 paths = build_paths()
@@ -96,7 +97,15 @@ class _FastWave(Waves):
             logging.info(f"{'-' * 10}> choose the wave(s)")
             cols: list[str] = [w for w in self.data.columns if w[0] in ["i", "r", "w"]]
             if traces_list is None and cols:
-                traces_list = select_wave_to_plot(waves=cols)
+                traces_list = []
+                atrace = dlgs.choose_in_alist(cols, message="choose the wave to plot")
+                if atrace:
+                    traces_list.append(atrace)
+                    cols.remove(atrace)
+                    atrace = dlgs.choose_in_alist(cols, message="a second one ?")
+                    if atrace:
+                        traces_list.append(atrace)
+                # traces_list = select_wave_to_plot(waves=cols)
             if traces_list:
                 logging.info("call wplot.plot_wave")
                 # get segmentation fault if called after a trend.showplots()
