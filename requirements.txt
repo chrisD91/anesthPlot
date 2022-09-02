@@ -1,8 +1,5 @@
-matplotlib >= 3.5
-numpy >= 1.21
-pandas >=1.4
-pyperclip
-python>=3.8
-pyyaml>=6.O
-scipy >= 1.7
-yaml>=0.2
+matplotlib==3.5.2
+pandas==1.4.3
+pyperclip==1.8.2
+PyQt5==5.15.7
+scipy==1.7.3
