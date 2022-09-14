@@ -19,6 +19,8 @@ from anesplot.config.load_recordrc import build_paths
 def get_basic_debrief_commands() -> str:
     """Copy in clipboard the usual commands to build a debrief."""
     lines = [
+        "import matplotlib.pyplot as plt",
+        "plt.ion()",  # -> interactive mode (ie non modal)
         "filename = None   #<- add filename here (if you know it)",
         "mtrends = rec.MonitorTrend(filename)",
         "mwaves = rec.MonitorWave((mtrends.wavename()))",
