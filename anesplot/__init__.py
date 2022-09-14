@@ -97,10 +97,12 @@ to build a clinical case
 import os
 import logging
 
+import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import QApplication
 
-# activate the log file to ~/anesplot_log.log
+plt.ion()
 
+# activate the log file to ~/anesplot_log.log
 logfile = os.path.expanduser(os.path.join("~", "anesplot_log.log"))
 logging.basicConfig(
     level=logging.INFO,

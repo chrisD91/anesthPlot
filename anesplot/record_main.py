@@ -151,6 +151,7 @@ def main(file_name: Optional[str] = None) -> str:
     -------
     None.
     """
+    plt.ioff()  # to block the display until last window closed
     # faulthandler.enable()
     logging.debug(f"backEnd= {plt.get_backend()}")  # required ?
     logging.debug("start QtApp")

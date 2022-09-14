@@ -202,7 +202,7 @@ class _FastWave(Waves):
             )
             plt.show()
             return anim
-        mes = "no roi attribute, please use record_roi() to build one"
+        mes = "no roi attribute, please use save_roi() to build one"
         logging.warning(mes)
         return mes
 
