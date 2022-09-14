@@ -23,6 +23,7 @@ def get_basic_debrief_commands() -> str:
         "mtrends = rec.MonitorTrend(filename)",
         "mwaves = rec.MonitorWave((mtrends.wavename()))",
         "ttrends = rec.TaphTrend(monitorname = mtrends.filename)",
+        "ttrends.shift_datetime(60)",
     ]
     message = "basic debrief commands are in the clipboard"
     # logging.debug(message)

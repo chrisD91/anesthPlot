@@ -25,6 +25,7 @@ ttrends = rec.TaphTrend(monitorname=mtrends.filename)   # comment when t_name is
 
 t_name = ''             # <--- FILL ME (use the value of ttends.filename)
 ttrends = rec.TaphTrend(filename = t_name)  # --> will load without the dialog
+ttrends.shift_datetime(60)      # --> correction english to french time
 
 
 ############################################# look at the data

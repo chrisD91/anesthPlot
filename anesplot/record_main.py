@@ -1,7 +1,7 @@
 # !/usr/bin/env python3
 
 """
-main script/module to load and display an anesthesia record
+Main script/module to load and display an anesthesia record.
 
 can be runned as a script::
 
