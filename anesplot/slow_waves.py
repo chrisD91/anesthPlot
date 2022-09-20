@@ -291,9 +291,9 @@ class MonitorTrend(_SlowWave):
         self.param["filename"] = self.filename
         self.param["file"] = os.path.basename(self.filename)
 
-        next_header = lmt.loadmonitor_trendheader(next_filename)
-        if next_header:
-            next_data = lmt.loadmonitor_trenddata(next_filename)
+        # next_header = lmt.loadmonitor_trendheader(next_filename)
+        # if next_header:
+        next_data, _ = lmt.loadmonitor_trenddata(next_filename)
         self.data = lmt.concat_data(self.data, next_data, self.param["sampling_freq"])
 
 

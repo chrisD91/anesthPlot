@@ -189,14 +189,13 @@ def loadmonitor_trenddata(filename: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     ----------
     filename : str
         full name of the datafile.
-    headerdico : dict
-        fileheader content.
 
     Returns
     -------
-    pd.DataFrame
+    datadf : pd.DataFrame
         the recorded data.
-
+    anotdf : pd.DataFrame
+        the anotation added to the file
     """
     logging.info(f"{'-' * 20} < loadmonitor_trenddata")
     if not os.path.isfile(filename):
