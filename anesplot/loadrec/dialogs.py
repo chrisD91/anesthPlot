@@ -8,14 +8,14 @@ import logging
 import os
 
 # import sys
-from typing import Any, Optional
+from typing import Optional
 
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog  # , QWidget
 
 app = QApplication.instance()
 logging.info(f"dialogs.py : {__name__=}")
 if app is None:
-    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
+    logging.info("No QApplication instance - - - - - - - - - - - - - > creating one")
     app = QApplication([])
 else:
     logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
@@ -103,21 +103,23 @@ def choose_directory(
 
 
 def choose_in_alist(
-    thelist: list[Any], message: Optional[str] = None, index: Optional[int] = 0
-) -> Any:
+    thelist: list[str], message: Optional[str] = None, index: Optional[int] = 0
+) -> str:
     """
     Choose an item in the list.
 
     Parameters
     ----------
-    thelist : list
+    thelist : list[str]
         the items to choose among.
     message : str, Optional (default is None)
         message to display.
+    index : int, Optional (default is 0)
+        the localisation of the pointer
 
     Returns
     -------
-    Any
+    str
         the selected item.
 
     """

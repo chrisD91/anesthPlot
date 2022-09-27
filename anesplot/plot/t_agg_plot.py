@@ -1,4 +1,4 @@
-# !/usr/bin/env python3
+# Any !/usr/bin/env python3
 """
 Created on Wed Apr 27 15:46:14 2022
 
@@ -8,24 +8,26 @@ list of function to choose, manipulate and combine the trends plot functions
 
 """
 import logging
-import sys
+
+# import sys
 from typing import Any, Callable, Optional
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PyQt5.QtWidgets import QApplication, QInputDialog, QWidget
 
 import anesplot.plot.trend_plot as tplot
+import anesplot.loadrec.dialogs as dlg
 
-app = QApplication.instance()
-logging.info(f"t_agg_plot.py : {__name__=}")
-if app is None:
-    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
-    app = QApplication([])
-else:
-    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
+
+# app = QApplication.instance()
+# logging.info(f"t_agg_plot.py : {__name__=}")
+# if app is None:
+#    logging.info("N0 QApplication instance - - - - - - - - - - - - - > creating one")
+#    app = QApplication([])
+# else:
+#    logging.warning(f"QApplication instance already exists: {QApplication.instance()}")
 
 
 # %%
@@ -241,20 +243,10 @@ def plot_a_trend(
             datadf.loc[datadf["ip1m"] < 20, "ip1m"] = np.NaN
         else:
             logging.warning("no pressure tdata recorded")
-    # choose
-    if "app" not in dir():
-        app = QApplication(sys.argv)
-        app.setQuitOnLastWindowClosed(True)
+    # choose (NB dialog doesnt allow to use a list of functions -> use str
+    names = [_.__name__ for _ in func_list]
     question = "choose the function to use"
-    if "app" not in dir():
-        app = QApplication([])
-        app.setQuitOnLastWindowClosed(True)
-
-    widg = QWidget()
-    names = [st.__name__ for st in func_list[::-1]]
-    name, ok_pressed = QInputDialog.getItem(widg, "select", question, names, 0, False)
-    if not ok_pressed and name:
-        return plt.figure(), ""
+    name = dlg.choose_in_alist(names, question)
     func = [_ for _ in func_list if _.__name__ == name][0]
     # plot
     fig = func(datadf, param_dico)

@@ -17,7 +17,7 @@ import anesplot.record_main
 if __name__ == "__main__":
     IN_NAME = None
     # check if a filename was provided from terminal call
-    print(sys.argv)
+    print(f"{sys.argv=}")
 
     if len(sys.argv) > 1:
         provided_name = sys.argv[1]
