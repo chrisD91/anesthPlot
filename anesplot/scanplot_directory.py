@@ -13,6 +13,7 @@ import logging
 import os
 from typing import Any, Optional
 
+import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from PyQt5.QtWidgets import QApplication
 
@@ -27,7 +28,7 @@ from anesplot.loadrec.loadtaph_trendrecord import (
 
 
 rcParams.update({"figure.max_open_warning": 0})
-
+plt.ioff()
 
 # from anesplot.slow_waves import TaphTrend
 
