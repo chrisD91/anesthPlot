@@ -149,9 +149,7 @@ class _SlowWave(anesplot.base.Waves):
             roidict = anesplot.plot.t_agg_plot.get_roi(self.fig, self.data, self.param)
             roidict.update({"name": self.name, "fig": self.fig})
         else:
-            logging.warning(
-                "no fig attribute, please use plot_trend() method to build one"
-            )
+            print("no fig attribute, please use plot_trend() method to build one")
             roidict = {}
         self.roi = roidict
         return roidict
