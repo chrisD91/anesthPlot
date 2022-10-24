@@ -227,7 +227,11 @@ def loadmonitor_trenddata(filename: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     datadf = datadf.drop([_ for _ in datadf.columns if _.startswith("~")], axis=1)
     # is empty (ie only a few lines of trend data)
     if datadf.set_index("Time").dropna(how="all").empty:
-        logging.warning(f"{'!' * 10}  {os.path.basename(filename)} contains no data !")
+        message = (
+            f"{'!' * 10}  {os.path.basename(filename)} contains no recorded data !"
+        )
+        logging.warning(message)
+        print(message)
         return pd.DataFrame(columns=datadf.columns), pd.DataFrame()
 
     datadf, anotdf = remove_txt_messages(datadf)
